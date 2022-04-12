@@ -25,14 +25,23 @@ const getRandomAlbumForLabelSlug = async (labelSlug: string) => {
     throw new Error(`Could not find label for slug '${labelSlug}'`)
   }
 
-  const client = await getClient()
-  const resp = await client.search(`label:"${label.name}"`, ['album'], {
-    limit: 50,
-  })
-
-  return sample(resp.body.albums?.items)
+  return getRandomAlbumForLabel(label.name)
 }
 
-const api = { getRandomAlbumForLabelSlug }
+// @TODO It would be cool to paginate this so we have the full list
+const getRandomAlbumForLabel = async (label: string) =>
+  (await getClient())
+    .search(`label:"${label}"`, ['album'], {
+      limit: 50,
+    })
+    .then(
+      (resp) =>
+        resp.body.albums?.items.filter(
+          (album) => album.album_type !== 'single'
+        ) ?? []
+    )
+    .then((albums) => sample(albums))
+
+const api = { getRandomAlbumForLabelSlug, getRandomAlbumForLabel }
 
 export default api

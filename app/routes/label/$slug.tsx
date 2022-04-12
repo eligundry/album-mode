@@ -1,9 +1,9 @@
 import { LoaderFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import SpotifyEmbed from 'react-spotify-embed'
 import promiseHash from 'promise-hash'
 
 import spotify from '~/lib/spotify'
+import Album from '~/components/Album'
 
 type LoaderData = {
   album: Awaited<ReturnType<typeof spotify.getRandomAlbumForLabelSlug>>
@@ -31,8 +31,10 @@ export default function LabelBySlug() {
   }
 
   return (
-    <>
-      <SpotifyEmbed link={data.album.external_urls.spotify} />
-    </>
+    <Album
+      url={data.album.external_urls.spotify}
+      artist={data.album.artists?.[0].name}
+      album={data.album.name}
+    />
   )
 }
