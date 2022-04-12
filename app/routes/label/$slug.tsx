@@ -24,17 +24,17 @@ export const loader: LoaderFunction = async ({ params }) => {
 }
 
 export default function LabelBySlug() {
-  const data = useLoaderData<LoaderData>()
+  const { album } = useLoaderData<LoaderData>()
 
-  if (!data.album?.external_urls?.spotify) {
+  if (!album?.external_urls?.spotify) {
     return null
   }
 
   return (
     <Album
-      url={data.album.external_urls.spotify}
-      artist={data.album.artists?.[0].name}
-      album={data.album.name}
+      url={album.external_urls.spotify}
+      artist={album.artists?.[0].name}
+      album={album.name}
     />
   )
 }

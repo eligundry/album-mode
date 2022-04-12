@@ -1,10 +1,10 @@
 import type { LoaderFunction } from '@remix-run/node'
 import promiseHash from 'promise-hash'
 import { json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData, Form } from '@remix-run/react'
 
 import db from '~/lib/db'
-import { Heading, ButtonLink, Typography } from '~/components/Base'
+import { Heading, ButtonLink, Input, Layout } from '~/components/Base'
 
 type LoaderData = {
   labels: Awaited<ReturnType<typeof db.getLabels>>
@@ -24,11 +24,17 @@ export default function Index() {
   const data = useLoaderData<LoaderData>()
 
   return (
-    <>
-      <Heading level="h1">Album Mode</Heading>
-      <Typography>Listen to full albums at random</Typography>
+    <Layout>
+      <Heading level="h2">Listen to full albums at random</Heading>
       <div className="labels">
-        <Heading level="h2">Labels</Heading>
+        <Heading level="h3">Labels</Heading>
+        <Form method="get" action="/label">
+          <Input
+            name="q"
+            type="search"
+            placeholder="Search for label (ex: Ovo)"
+          />
+        </Form>
         {data.labels.map((label) => (
           <ButtonLink to={`/label/${label.slug}`} key={label.slug}>
             {label.name}
@@ -36,7 +42,7 @@ export default function Index() {
         ))}
       </div>
       <div className="publications">
-        <Heading level="h2">Publications</Heading>
+        <Heading level="h3">Publications</Heading>
         {data.publications.map((publication) => (
           <ButtonLink
             to={`/publication/${publication.slug}`}
@@ -46,6 +52,6 @@ export default function Index() {
           </ButtonLink>
         ))}
       </div>
-    </>
+    </Layout>
   )
 }

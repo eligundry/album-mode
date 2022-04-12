@@ -2,6 +2,8 @@ import React from 'react'
 import { Link, LinkProps } from '@remix-run/react'
 import clsx from 'clsx'
 
+export { default as Layout } from './Layout'
+
 export interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
   level: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 }
@@ -10,22 +12,26 @@ export const Heading: React.FC<HeadingProps> = ({
   level,
   className,
   ...props
-}) => (
-  <h1
-    className={clsx(
-      {
-        ['text-5xl']: level === 'h1',
-        ['text-4xl']: level === 'h2',
-        ['text-3xl']: level === 'h3',
-        ['text-2xl']: level === 'h4',
-        ['text-xl']: level === 'h5',
-        ['text-lg']: level === 'h6',
-      },
-      className
-    )}
-    {...props}
-  />
-)
+}) => {
+  const Component = level as JSX.IntrinsicElements[typeof level]
+
+  return (
+    <Component
+      className={clsx(
+        {
+          ['text-5xl']: level === 'h1',
+          ['text-4xl']: level === 'h2',
+          ['text-3xl']: level === 'h3',
+          ['text-2xl']: level === 'h4',
+          ['text-xl']: level === 'h5',
+          ['text-lg']: level === 'h6',
+        },
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
 export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   color?: 'primary' | 'secondary' | 'warning' | 'danger'
@@ -79,3 +85,17 @@ export const Typography: React.FC<TypographyProps> = ({
   className,
   ...props
 }) => <p className={clsx('text-base', className)} {...props} />
+
+export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {}
+
+export const Input: React.FC<InputProps> = (props) => <input {...props} />
+
+export const Container: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  className,
+  ...props
+}) => <div className={clsx('container', 'mx-auto', className)} {...props} />
+
+export const A: React.FC<React.HTMLAttributes<HTMLAnchorElement>> = ({
+  className,
+  ...props
+}) => <a className={clsx('text-blue-500', className)} {...props} />

@@ -42,6 +42,15 @@ const getRandomAlbumForLabel = async (label: string) =>
     )
     .then((albums) => sample(albums))
 
-const api = { getRandomAlbumForLabelSlug, getRandomAlbumForLabel }
+const getAlbum = async (album: string, artist: string) =>
+  (await getClient())
+    .search(`${album} ${artist}`, ['album'], {
+      limit: 50,
+    })
+    .then((resp) => resp.body.albums?.items ?? [])
+    .then((albums) => albums.filter((album) => album.album_type !== 'single'))
+    .then((albums) => albums?.[0])
+
+const api = { getRandomAlbumForLabelSlug, getRandomAlbumForLabel, getAlbum }
 
 export default api

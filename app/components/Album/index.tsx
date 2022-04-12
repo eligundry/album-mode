@@ -7,15 +7,17 @@ interface Props {
   url: string
   artist: string
   album: string
+  footer?: React.ReactNode
 }
 
-const Album: React.FC<Props> = ({ url, artist, album }) => {
+const Album: React.FC<Props> = ({ url, artist, album, footer }) => {
   return (
     <>
       <Heading level="h2">
         Have you heard <em>{album}</em> by {artist}?
       </Heading>
       <SpotifyEmbed link={url} />
+      {footer}
     </>
   )
 }

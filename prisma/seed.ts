@@ -18,23 +18,28 @@ const labels = [
   {
     name: 'Count Your Lucky Stars',
   },
+  {
+    name: 'Stones Throw',
+  },
 ]
 
 async function seed() {
   await Promise.all(
     publications.map((publication) =>
-      db.publication.create({ data: publication })
+      db.publication.create({ data: publication }).catch((e) => {})
     )
   )
 
   await Promise.all(
     labels.map((label) =>
-      db.label.create({
-        data: {
-          name: label.name,
-          slug: kebabCase(label.name),
-        },
-      })
+      db.label
+        .create({
+          data: {
+            name: label.name,
+            slug: kebabCase(label.name),
+          },
+        })
+        .catch((e) => {})
     )
   )
 }
