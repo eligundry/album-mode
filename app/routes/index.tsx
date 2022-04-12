@@ -40,7 +40,6 @@ export default function Index() {
         {data.publications.map((publication) => (
           <ButtonLink
             to={`/publication/${publication.slug}`}
-            color="danger"
             key={publication.slug}
           >
             {publication.name}

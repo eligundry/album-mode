@@ -10,6 +10,17 @@ const getLabels = async () =>
     },
   })
 
+const getLabelBySlug = async (slug: string) =>
+  prisma.label.findFirst({
+    select: {
+      name: true,
+      slug: true,
+    },
+    where: {
+      slug,
+    },
+  })
+
 const getPublications = async () =>
   prisma.publication.findMany({
     select: {
@@ -18,6 +29,6 @@ const getPublications = async () =>
     },
   })
 
-const api = { prisma, getLabels, getPublications }
+const api = { prisma, getLabels, getLabelBySlug, getPublications }
 
 export default api
