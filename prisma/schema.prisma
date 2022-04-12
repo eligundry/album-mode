@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Label {
+  id Int @id @default(autoincrement())
+  name String
+  slug String
+}
+
+model Publication {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name String
+  slug String @unique
+  albums AlbumReviewedByPublication[]
+}
+
+model AlbumReviewedByPublication {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  publication Publication @relation(fields: [publicationID], references: [id])
+  publicationID Int
+  aritst String
+  album String
+  slug String @unique
+}
