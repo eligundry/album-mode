@@ -26,6 +26,7 @@ export const Heading: React.FC<HeadingProps> = ({
           ['text-xl']: level === 'h5',
           ['text-lg']: level === 'h6',
         },
+        'my-4',
         className
       )}
       {...props}
@@ -72,8 +73,11 @@ export const Button: React.FC<ButtonProps> = ({
 
 export const ButtonLink: React.FC<LinkProps & ButtonProps> = ({
   to,
+  className,
   ...props
-}) => <Link to={to} className={buttonStyles(props)} {...props} />
+}) => (
+  <Link to={to} className={buttonStyles({ className, ...props })} {...props} />
+)
 
 export interface TypographyProps
   extends React.HTMLAttributes<HTMLParagraphElement> {
@@ -88,7 +92,12 @@ export const Typography: React.FC<TypographyProps> = ({
 
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {}
 
-export const Input: React.FC<InputProps> = (props) => <input {...props} />
+export const Input: React.FC<InputProps> = ({ className, ...props }) => (
+  <input
+    className={clsx('w-full', 'rounded', 'border', 'p-2', className)}
+    {...props}
+  />
+)
 
 export const Container: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className,

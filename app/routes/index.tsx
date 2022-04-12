@@ -2,6 +2,7 @@ import type { LoaderFunction } from '@remix-run/node'
 import promiseHash from 'promise-hash'
 import { json } from '@remix-run/node'
 import { useLoaderData, Form } from '@remix-run/react'
+import clsx from 'clsx'
 
 import db from '~/lib/db'
 import { Heading, ButtonLink, Input, Layout } from '~/components/Base'
@@ -33,10 +34,15 @@ export default function Index() {
             name="q"
             type="search"
             placeholder="Search for label (ex: Ovo)"
+            className={clsx('mb-4')}
           />
         </Form>
         {data.labels.map((label) => (
-          <ButtonLink to={`/label/${label.slug}`} key={label.slug}>
+          <ButtonLink
+            to={`/label/${label.slug}`}
+            key={label.slug}
+            className={clsx('mr-2', 'mb-2')}
+          >
             {label.name}
           </ButtonLink>
         ))}
@@ -47,6 +53,7 @@ export default function Index() {
           <ButtonLink
             to={`/publication/${publication.slug}`}
             key={publication.slug}
+            className={clsx('mr-2', 'mb-2')}
           >
             {publication.name}
           </ButtonLink>
