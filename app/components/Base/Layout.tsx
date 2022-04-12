@@ -9,7 +9,14 @@ const Layout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     <>
       <header>
         <Container>
-          <h1 className={clsx('text-xl', 'font-bold', 'py-4')}>
+          <h1
+            className={clsx(
+              'text-xl',
+              'font-bold',
+              'py-4',
+              'hover:text-blue-700'
+            )}
+          >
             <Link to="/">Album Mode</Link>
           </h1>
         </Container>

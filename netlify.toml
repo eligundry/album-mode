@@ -2,6 +2,9 @@
   command = "npm run build"
   publish = "public"
 
+[build.environment]
+  NETLIFY_BUILD_DEBUG = 'true'
+
 [dev]
   command = "remix watch"
   port = 3000
