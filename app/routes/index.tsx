@@ -41,7 +41,7 @@ export default function Index() {
           <ButtonLink
             to={`/label/${label.slug}`}
             key={label.slug}
-            className={clsx('mr-2', 'mb-2')}
+            className={clsx('mr-2', 'mb-2', 'inline-block')}
           >
             {label.name}
           </ButtonLink>
@@ -53,7 +53,7 @@ export default function Index() {
           <ButtonLink
             to={`/publication/${publication.slug}`}
             key={publication.slug}
-            className={clsx('mr-2', 'mb-2')}
+            className={clsx('mr-2', 'mb-2', 'inline-block')}
           >
             {publication.name}
           </ButtonLink>

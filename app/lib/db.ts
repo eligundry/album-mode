@@ -9,6 +9,9 @@ const getLabels = async () =>
       name: true,
       slug: true,
     },
+    orderBy: {
+      name: 'asc',
+    },
   })
 
 const getLabelBySlug = async (slug: string) =>

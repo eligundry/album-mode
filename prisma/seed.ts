@@ -12,6 +12,10 @@ const publications = [
     name: 'Pitchfork Best New Music',
     slug: 'p4k-bnm',
   },
+  {
+    name: 'RS Top 500',
+    slug: 'rs-top-500',
+  },
 ]
 
 const labels = [
@@ -20,6 +24,36 @@ const labels = [
   },
   {
     name: 'Stones Throw',
+  },
+  {
+    name: 'K Records',
+  },
+  {
+    name: 'Matador',
+  },
+  {
+    name: 'Warp',
+  },
+  {
+    name: '4AD',
+  },
+  {
+    name: 'Domino',
+  },
+  {
+    name: 'Roc-a-fella',
+  },
+  {
+    name: 'Carpark',
+  },
+  {
+    name: 'Ghostly International',
+  },
+  {
+    name: 'Brainfeeder',
+  },
+  {
+    name: 'OVO',
   },
 ]
 
