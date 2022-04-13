@@ -13,17 +13,15 @@ const Layout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
             className={clsx(
               'text-xl',
               'font-bold',
-              'py-4',
-              'hover:text-blue-700'
+              'my-4',
+              'hover:text-primary'
             )}
           >
             <Link to="/">Album Mode</Link>
           </h1>
         </Container>
       </header>
-      <main className={clsx('my-8')}>
-        <Container>{children}</Container>
-      </main>
+      <main className={clsx('my-8')}>{children}</main>
       <footer>
         <Container>
           Made with ❤️ &nbsp;by{' '}

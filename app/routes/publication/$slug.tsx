@@ -5,7 +5,7 @@ import clsx from 'clsx'
 
 import db from '~/lib/db'
 import spotify from '~/lib/spotify'
-import { Layout, Typography, A } from '~/components/Base'
+import { Layout, Typography, A, Container } from '~/components/Base'
 import Album from '~/components/Album'
 
 type LoaderData = {
@@ -38,22 +38,27 @@ export default function PublicationBySlug() {
 
   return (
     <Layout>
-      <Album
-        url={album.external_urls.spotify}
-        artist={album.artists?.[0].name}
-        album={album.name}
-        footer={
-          slug?.includes('p4k') && (
-            <Typography className={clsx('my-4')}>
-              If you want to learn more,{' '}
-              <A href={'https://pitchfork.com' + review?.slug} target="_blank">
-                here's the Pitchfork Review
-              </A>
-              .
-            </Typography>
-          )
-        }
-      />
+      <Container>
+        <Album
+          url={album.external_urls.spotify}
+          artist={album.artists?.[0].name}
+          album={album.name}
+          footer={
+            slug?.includes('p4k') && (
+              <Typography className={clsx('my-4')}>
+                Need convincing? Read the{' '}
+                <A
+                  href={'https://pitchfork.com' + review?.slug}
+                  target="_blank"
+                >
+                  Pitchfork Review
+                </A>
+                .
+              </Typography>
+            )
+          }
+        />
+      </Container>
     </Layout>
   )
 }

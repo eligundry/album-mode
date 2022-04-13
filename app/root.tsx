@@ -7,6 +7,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from '@remix-run/react'
+import clsx from 'clsx'
 
 import styles from './styles/app.css'
 
@@ -34,7 +35,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className={clsx('px-4')}>
         <Outlet />
         <ScrollRestoration />
         <Scripts />

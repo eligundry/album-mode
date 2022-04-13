@@ -4,7 +4,7 @@ import promiseHash from 'promise-hash'
 
 import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
-import { Layout } from '~/components/Base'
+import { Layout, Container } from '~/components/Base'
 
 type LoaderData = {
   album: Awaited<ReturnType<typeof spotify.getRandomAlbumForLabelSlug>>
@@ -33,11 +33,13 @@ export default function LabelBySlug() {
 
   return (
     <Layout>
-      <Album
-        url={album.external_urls.spotify}
-        artist={album.artists?.[0].name}
-        album={album.name}
-      />
+      <Container>
+        <Album
+          url={album.external_urls.spotify}
+          artist={album.artists?.[0].name}
+          album={album.name}
+        />
+      </Container>
     </Layout>
   )
 }

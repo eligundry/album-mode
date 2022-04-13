@@ -35,7 +35,7 @@ export const Heading: React.FC<HeadingProps> = ({
 }
 
 export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
-  color?: 'primary' | 'secondary' | 'warning' | 'danger'
+  color?: 'primary' | 'info' | 'warning' | 'danger'
   size?: 'base' | 'small' | 'large'
 }
 
@@ -49,9 +49,10 @@ const buttonStyles = ({
     'font-bold',
     'rounded',
     {
-      ['bg-blue-500 hover:bg-blue-700']: color === 'primary',
-      ['bg-yellow-500 hover:bg-yellow-700']: color === 'warning',
-      ['bg-red-500 hover:bg-red-700']: color === 'danger',
+      ['bg-primary hover:bg-primaryHover']: color === 'primary',
+      ['bg-info hover:bg-infoHover']: color === 'info',
+      ['bg-warning hover:bg-warningHover']: color === 'warning',
+      ['bg-danger hover:bg-dangerHover']: color === 'danger',
     },
     {
       ['py-2 px-4']: size === 'base',
@@ -79,6 +80,11 @@ export const ButtonLink: React.FC<LinkProps & ButtonProps> = ({
   <Link to={to} className={buttonStyles({ className, ...props })} {...props} />
 )
 
+export const ButtonGroup: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  className,
+  ...props
+}) => <div className={clsx(className, 'button-group')} {...props} />
+
 export interface TypographyProps
   extends React.HTMLAttributes<HTMLParagraphElement> {
   variant?: 'base' | 'italics' | 'bold'
@@ -99,12 +105,38 @@ export const Input: React.FC<InputProps> = ({ className, ...props }) => (
   />
 )
 
-export const Container: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+export interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
+  center?: boolean
+}
+
+export const Container: React.FC<ContainerProps> = ({
   className,
+  center,
   ...props
-}) => <div className={clsx('container', 'mx-auto', className)} {...props} />
+}) => (
+  <div
+    className={clsx(
+      'container',
+      'mx-auto',
+      center && [
+        'text-center',
+        'flex',
+        'justify-items-center',
+        'align-items-center',
+        'flex-col',
+      ],
+      className
+    )}
+    {...props}
+  />
+)
 
 export const A: React.FC<React.HTMLAttributes<HTMLAnchorElement>> = ({
   className,
   ...props
-}) => <a className={clsx('text-blue-500', className)} {...props} />
+}) => (
+  <a
+    className={clsx('text-primary', 'hover:text-primaryHover', className)}
+    {...props}
+  />
+)
