@@ -33,7 +33,10 @@ export default function Index() {
   return (
     <Layout>
       <Container>
-        <Heading level="h2">Listen to full albums at random</Heading>
+        <Heading level="h2">
+          Don't know what to listen to?
+          <br /> Let us recommend something.
+        </Heading>
         <div className="labels">
           <Heading level="h3">Labels</Heading>
           <Form method="get" action="/label">

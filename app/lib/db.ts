@@ -46,12 +46,16 @@ const getRandomAlbumForPublication = async (publicationSlug: string) =>
     })
     .then((albums) => sample(albums))
 
+const getRandomBandcampDailyAlbum = async () =>
+  prisma.bandcampDailyAlbum.findMany().then((albums) => sample(albums))
+
 const api = {
   prisma,
   getLabels,
   getLabelBySlug,
   getPublications,
   getRandomAlbumForPublication,
+  getRandomBandcampDailyAlbum,
 }
 
 export default api

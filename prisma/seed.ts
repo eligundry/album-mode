@@ -16,6 +16,10 @@ const publications = [
     name: 'RS Top 500',
     slug: 'rs-top-500',
   },
+  {
+    name: 'Bandcamp Daily',
+    slug: 'bandcamp-daily',
+  },
 ]
 
 const labels = [

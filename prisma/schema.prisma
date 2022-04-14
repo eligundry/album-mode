@@ -36,3 +36,14 @@ model AlbumReviewedByPublication {
   album String
   slug String @unique
 }
+
+model BandcampDailyAlbum {
+  albumID Int @id
+  album String
+  artistID Int
+  artist String
+  bandcampDailyURL String
+  url String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
