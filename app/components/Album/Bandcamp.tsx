@@ -27,6 +27,7 @@ const BandcampAlbum: React.FC<Props> = ({
         style={{ border: 0, width: '350px', height: '470px' }}
         src={`https://bandcamp.com/EmbeddedPlayer/album=${albumID}/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/transparent=true/`}
         seamless
+        className={clsx('mx-auto')}
       >
         <a href={url}>
           {album} by {artist}
