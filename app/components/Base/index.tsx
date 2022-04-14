@@ -140,3 +140,8 @@ export const A: React.FC<React.HTMLAttributes<HTMLAnchorElement>> = ({
     {...props}
   />
 )
+
+export const Fieldset: React.FC<React.HTMLAttributes<HTMLFieldSetElement>> = ({
+  className,
+  ...props
+}) => <fieldset className={clsx(className)} {...props} />

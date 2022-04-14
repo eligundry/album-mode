@@ -1,6 +1,7 @@
+import clsx from 'clsx'
 import { LoaderFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { Layout, Container, Typography, A } from '~/components/Base'
+import { Layout, Typography, A } from '~/components/Base'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 
 import db from '~/lib/db'
@@ -32,23 +33,21 @@ export default function BandcampDaily() {
 
   return (
     <Layout>
-      <Container>
-        <BandcampAlbum
-          albumID={album.albumID}
-          album={album.album}
-          artist={album.artist}
-          url={album.bandcampDailyURL}
-          footer={
-            <Typography className={clsx('my-4')}>
-              Need convincing? Read the{' '}
-              <A href={album.bandcampDailyURL} target="_blank">
-                Bandcamp Daily review
-              </A>
-              .
-            </Typography>
-          }
-        />
-      </Container>
+      <BandcampAlbum
+        albumID={album.albumID}
+        album={album.album}
+        artist={album.artist}
+        url={album.bandcampDailyURL}
+        footer={
+          <Typography className={clsx('my-4')}>
+            Need convincing? Read the{' '}
+            <A href={album.bandcampDailyURL} target="_blank">
+              Bandcamp Daily review
+            </A>
+            .
+          </Typography>
+        }
+      />
     </Layout>
   )
 }
