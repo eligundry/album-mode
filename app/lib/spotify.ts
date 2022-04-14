@@ -28,19 +28,40 @@ const getRandomAlbumForLabelSlug = async (labelSlug: string) => {
   return getRandomAlbumForLabel(label.name)
 }
 
-// @TODO It would be cool to paginate this so we have the full list
-const getRandomAlbumForLabel = async (label: string) =>
-  (await getClient())
-    .search(`label:"${label}"`, ['album'], {
-      limit: 50,
-    })
-    .then(
-      (resp) =>
-        resp.body.albums?.items.filter(
-          (album) => album.album_type !== 'single'
-        ) ?? []
-    )
-    .then((albums) => sample(albums))
+const getRandomAlbumForLabel = async (label: string) => {
+  const limit = 50
+  const searchTerm = `label:"${label}"`
+  const client = await getClient()
+  const firstPage = await client.search(searchTerm, ['album'], {
+    limit,
+  })
+
+  if (!firstPage.body.albums) {
+    return null
+  }
+
+  const numberToFetch = Math.min(firstPage.body.albums.total, 250)
+  const pages = Math.ceil(numberToFetch / limit)
+  const albums = [
+    ...firstPage.body.albums.items,
+    ...(
+      await Promise.all(
+        [...Array(pages).keys()]
+          .map((page) => page + 2)
+          .flatMap((page) =>
+            client
+              .search(searchTerm, ['album'], {
+                limit,
+                offset: limit * page,
+              })
+              .then((resp) => resp.body.albums?.items)
+          )
+      )
+    ).flat(),
+  ].filter((album) => album && album.album_type !== 'single')
+
+  return sample(albums)
+}
 
 const getAlbum = async (album: string, artist: string) =>
   (await getClient())
