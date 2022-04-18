@@ -79,6 +79,13 @@ export default function AdminIndex() {
                 className={clsx('mb-2', 'w-1/2')}
               />
               <Input
+                name="genre"
+                id="genre"
+                placeholder="Genre (ex: Hip-Hop, Indie Rock)"
+                required
+                className={clsx('mb-2', 'w-1/2')}
+              />
+              <Input
                 name="slug"
                 id="slug"
                 placeholder="URL Slug"

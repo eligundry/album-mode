@@ -1,19 +1,23 @@
 import { PrismaClient } from '@prisma/client'
 import sample from 'lodash/sample'
 import kebabCase from 'lodash/kebabCase'
+import groupBy from 'lodash/groupBy'
 
 const prisma = new PrismaClient()
 
 const getLabels = async () =>
-  prisma.label.findMany({
-    select: {
-      name: true,
-      slug: true,
-    },
-    orderBy: {
-      name: 'asc',
-    },
-  })
+  prisma.label
+    .findMany({
+      select: {
+        name: true,
+        slug: true,
+        genre: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    })
+    .then((labels) => groupBy(labels, ({ genre }) => genre))
 
 const getLabelBySlug = async (slug: string) =>
   prisma.label.findFirst({
@@ -31,6 +35,9 @@ const getPublications = async () =>
     select: {
       name: true,
       slug: true,
+    },
+    orderBy: {
+      name: 'asc',
     },
   })
 
@@ -59,6 +66,12 @@ const createLabelFromAdmin = (data: FormData) => {
     throw new Error('name must be a string')
   }
 
+  const genre = data.get('genre')
+
+  if (typeof genre !== 'string') {
+    throw new Error('genre must be supplied')
+  }
+
   let slug = data.get('slug')
 
   if (typeof slug !== 'string' || !slug) {
@@ -69,6 +82,7 @@ const createLabelFromAdmin = (data: FormData) => {
     data: {
       name,
       slug,
+      genre,
     },
   })
 }

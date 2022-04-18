@@ -46,28 +46,8 @@ export default function Index() {
       <Container>
         <Heading level="h2">
           Don't know what to listen to?
-          <br /> Let us recommend something.
+          <br /> Let us recommend an album.
         </Heading>
-        <div className="labels">
-          <Heading level="h3">Labels</Heading>
-          <Form method="get" action="/label">
-            <Input
-              name="q"
-              type="search"
-              placeholder="Search for label (ex: Ovo)"
-              className={clsx('mb-4')}
-            />
-          </Form>
-          {data.labels.map((label) => (
-            <ButtonLink
-              to={`/label/${label.slug}`}
-              key={label.slug}
-              className={clsx('mr-2', 'mb-2', 'inline-block')}
-            >
-              {label.name}
-            </ButtonLink>
-          ))}
-        </div>
         <div className="publications">
           <Heading level="h3">Publications</Heading>
           {data.publications.map((publication) => (
@@ -78,6 +58,31 @@ export default function Index() {
             >
               {publication.name}
             </ButtonLink>
+          ))}
+        </div>
+        <div className="labels">
+          <Heading level="h3">Labels</Heading>
+          <Form method="get" action="/label">
+            <Input
+              name="q"
+              type="search"
+              placeholder="Search for label (ex: Ovo)"
+              className={clsx('mb-4')}
+            />
+          </Form>
+          {Object.entries(data.labels).map(([category, labels]) => (
+            <section key={category}>
+              <Heading level="h4">{category}</Heading>
+              {labels.map((label) => (
+                <ButtonLink
+                  to={`/label/${label.slug}`}
+                  key={label.slug}
+                  className={clsx('mr-2', 'mb-2', 'inline-block')}
+                >
+                  {label.name}
+                </ButtonLink>
+              ))}
+            </section>
           ))}
         </div>
       </Container>

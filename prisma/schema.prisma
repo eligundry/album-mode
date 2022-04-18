@@ -15,6 +15,7 @@ model Label {
   id Int @id @default(autoincrement())
   name String
   slug String @unique
+  genre String?
 }
 
 model Publication {
