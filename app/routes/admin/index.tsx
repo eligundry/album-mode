@@ -1,7 +1,8 @@
 import clsx from 'clsx'
-import type { LoaderFunction } from '@remix-run/node'
+import { LoaderFunction, ActionFunction, redirect } from '@remix-run/node'
 import { useLoaderData, Form } from '@remix-run/react'
 import { json } from '@remix-run/node'
+import db from '~/lib/db'
 import ProtectedRoute, {
   protectedRouteHeaders,
   isAuthorized,
@@ -41,6 +42,23 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json(data)
 }
 
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData()
+
+  switch (formData.get('action')) {
+    case 'new-label':
+      await db.createLabelFromAdmin(formData)
+      break
+
+    default:
+      console.error('invalid admin action provided', {
+        action: formData.get('action'),
+      })
+  }
+
+  return redirect('/admin')
+}
+
 export default function AdminIndex() {
   const { authorized } = useLoaderData<LoaderData>()
 
@@ -49,9 +67,10 @@ export default function AdminIndex() {
       <Layout>
         <Container>
           <Heading level="h2">Admin</Heading>
-          <Form>
+          <Form method="post">
             <Fieldset className={clsx('flex', 'flex-col')}>
               <legend>Add Label</legend>
+              <input type="hidden" name="action" value="new-label" />
               <Input
                 name="name"
                 id="name"

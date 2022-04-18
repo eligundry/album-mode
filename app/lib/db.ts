@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import sample from 'lodash/sample'
+import kebabCase from 'lodash/kebabCase'
 
 const prisma = new PrismaClient()
 
@@ -49,6 +50,29 @@ const getRandomAlbumForPublication = async (publicationSlug: string) =>
 const getRandomBandcampDailyAlbum = async () =>
   prisma.bandcampDailyAlbum.findMany().then((albums) => sample(albums))
 
+const createLabelFromAdmin = (data: FormData) => {
+  const name = data.get('name')
+
+  if (!name) {
+    throw new Error('name is required')
+  } else if (typeof name !== 'string') {
+    throw new Error('name must be a string')
+  }
+
+  let slug = data.get('slug')
+
+  if (typeof slug !== 'string' || !slug) {
+    slug = kebabCase(name)
+  }
+
+  return prisma.label.create({
+    data: {
+      name,
+      slug,
+    },
+  })
+}
+
 const api = {
   prisma,
   getLabels,
@@ -56,6 +80,7 @@ const api = {
   getPublications,
   getRandomAlbumForPublication,
   getRandomBandcampDailyAlbum,
+  createLabelFromAdmin,
 }
 
 export default api
