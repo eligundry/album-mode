@@ -25,7 +25,7 @@ const Album: React.FC<Props> = ({ url, artist, album, footer }) => {
           color="danger"
           className="reload-btn"
         >
-          Already heard this, give me another
+          👎 Not interested, give me another
         </Button>
       </ButtonGroup>
     </Container>

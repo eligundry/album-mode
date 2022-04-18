@@ -17,7 +17,7 @@ const Layout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
               'hover:text-primary'
             )}
           >
-            <Link to="/">Album Mode</Link>
+            <Link to="/">💿 Album Mode.party 🎉</Link>
           </h1>
         </Container>
       </header>
