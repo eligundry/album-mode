@@ -60,6 +60,17 @@ export default function Index() {
             </ButtonLink>
           ))}
         </div>
+        <div className="genre">
+          <Heading level="h3">Genre</Heading>
+          <Form method="get" action="/genre">
+            <Input
+              name="q"
+              type="search"
+              placeholder="Search by genre (ex: indie, rock, hip hop)"
+              className={clsx('mb-4')}
+            />
+          </Form>
+        </div>
         <div className="labels">
           <Heading level="h3">Labels</Heading>
           <Form method="get" action="/label">
