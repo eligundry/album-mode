@@ -1,4 +1,8 @@
-import { PrismaClient } from '@prisma/client'
+import {
+  Prisma,
+  PrismaClient,
+  AlbumReviewedByPublication,
+} from '@prisma/client'
 import sample from 'lodash/sample'
 import kebabCase from 'lodash/kebabCase'
 import groupBy from 'lodash/groupBy'
@@ -12,6 +16,7 @@ const getLabels = async () =>
         name: true,
         slug: true,
         genre: true,
+        displayName: true,
       },
       orderBy: {
         name: 'asc',
@@ -41,18 +46,29 @@ const getPublications = async () =>
     },
   })
 
-// @TODO We can't natively search by random
+// @TODO We can't natively search by random using the query builder
 // https://github.com/prisma/prisma/discussions/5886
 const getRandomAlbumForPublication = async (publicationSlug: string) =>
-  prisma.albumReviewedByPublication
-    .findMany({
-      where: {
-        publication: {
-          slug: publicationSlug,
-        },
-      },
-    })
-    .then((albums) => sample(albums))
+  prisma
+    .$queryRaw<
+      Pick<AlbumReviewedByPublication, 'id' | 'aritst' | 'album' | 'slug'>[]
+    >(
+      Prisma.sql`
+        SELECT 
+          a.id, 
+          a.aritst, 
+          a.album,
+          a.slug
+        FROM albumReviewedByPublication a
+        JOIN publication ON (
+          publication.id = a.publicationID
+          AND publication.slug = ${publicationSlug}
+        )
+        ORDER BY random()
+        LIMIT 1
+      `
+    )
+    .then((res) => res?.[0])
 
 const getRandomBandcampDailyAlbum = async () =>
   prisma.bandcampDailyAlbum.findMany().then((albums) => sample(albums))
@@ -78,11 +94,18 @@ const createLabelFromAdmin = (data: FormData) => {
     slug = kebabCase(name)
   }
 
+  let displayName = data.get('displayName') || null
+
+  if (displayName && typeof displayName !== 'string') {
+    throw new Error('displayName must be a string')
+  }
+
   return prisma.label.create({
     data: {
       name,
       slug,
       genre,
+      displayName,
     },
   })
 }

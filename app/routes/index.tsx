@@ -79,7 +79,7 @@ export default function Index() {
                   key={label.slug}
                   className={clsx('mr-2', 'mb-2', 'inline-block')}
                 >
-                  {label.name}
+                  {label?.displayName ?? label.name}
                 </ButtonLink>
               ))}
             </section>

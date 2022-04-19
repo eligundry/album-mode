@@ -14,6 +14,7 @@ datasource db {
 model Label {
   id Int @id @default(autoincrement())
   name String
+  displayName String?
   slug String @unique
   genre String?
 }

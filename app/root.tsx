@@ -15,6 +15,7 @@ export const meta: MetaFunction = () => ({
   charset: 'utf-8',
   title: 'Album Mode',
   viewport: 'width=device-width,initial-scale=1',
+  description: "Don't know what to listen to? Let us recommend an album!",
 })
 
 export const links: LinksFunction = () => [

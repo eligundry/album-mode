@@ -63,6 +63,22 @@ const getRandomAlbumForLabel = async (label: string) => {
   return sample(albums)
 }
 
+const getRandomAlbumForPublication = async (
+  publicationSlug: string
+): Promise<{
+  review: Awaited<ReturnType<typeof db.getRandomAlbumForPublication>>
+  album: Awaited<ReturnType<typeof getAlbum>>
+}> => {
+  const review = await db.getRandomAlbumForPublication(publicationSlug)
+  const album = await getAlbum(review.album, review.aritst)
+
+  if (!album) {
+    return getRandomAlbumForPublication(publicationSlug)
+  }
+
+  return { review, album }
+}
+
 const getAlbum = async (album: string, artist: string) =>
   (await getClient())
     .search(`${album} ${artist}`, ['album'], {
@@ -72,6 +88,11 @@ const getAlbum = async (album: string, artist: string) =>
     .then((albums) => albums.filter((album) => album.album_type !== 'single'))
     .then((albums) => albums?.[0])
 
-const api = { getRandomAlbumForLabelSlug, getRandomAlbumForLabel, getAlbum }
+const api = {
+  getRandomAlbumForLabelSlug,
+  getRandomAlbumForLabel,
+  getAlbum,
+  getRandomAlbumForPublication,
+}
 
 export default api

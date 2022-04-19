@@ -10,11 +10,9 @@ import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 
 type LoaderData =
-  | {
+  | ({
       slug: string
-      review: Awaited<ReturnType<typeof db.getRandomAlbumForPublication>>
-      album: Awaited<ReturnType<typeof spotify.getAlbum>>
-    }
+    } & Awaited<ReturnType<typeof spotify.getRandomAlbumForPublication>>)
   | {
       slug: 'bandcamp-daily'
       review?: undefined
@@ -38,13 +36,13 @@ export const loader: LoaderFunction = async ({ params }) => {
     return json(data)
   }
 
-  const review = await db.getRandomAlbumForPublication(slug)
+  const { album, review } = await spotify.getRandomAlbumForPublication(slug)
 
-  const data: LoaderData = await promiseHash({
+  const data: LoaderData = {
     slug,
     review,
-    album: spotify.getAlbum(review?.album, review?.aritst),
-  })
+    album,
+  }
 
   return json(data)
 }
