@@ -44,7 +44,7 @@ export default function Index() {
   return (
     <Layout>
       <Container>
-        <Heading level="h2">
+        <Heading level="h2" className={clsx('text-center')}>
           Don't know what to listen to?
           <br /> Let us recommend an album.
         </Heading>
@@ -66,7 +66,7 @@ export default function Index() {
             <Input
               name="q"
               type="search"
-              placeholder="Search for label (ex: Ovo)"
+              placeholder="Search for label (ex: OVO)"
               className={clsx('mb-4')}
             />
           </Form>
