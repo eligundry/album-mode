@@ -2,7 +2,15 @@ import React from 'react'
 import SpotifyEmbed from 'react-spotify-embed'
 import clsx from 'clsx'
 
-import { Heading, ButtonGroup, Button, Container } from '~/components/Base'
+import {
+  Heading,
+  ButtonGroup,
+  ButtonLink,
+  Button,
+  Container,
+} from '~/components/Base'
+import useRating from '~/hooks/useRating'
+import useWindow from '~/hooks/useWindow'
 
 interface Props {
   url: string
@@ -12,6 +20,9 @@ interface Props {
 }
 
 const Album: React.FC<Props> = ({ url, artist, album, footer }) => {
+  const window = useWindow()
+  const { positiveReview, negativeReview } = useRating()
+
   return (
     <Container center>
       <Heading level="h2" className={clsx('mb-4')}>
@@ -21,12 +32,20 @@ const Album: React.FC<Props> = ({ url, artist, album, footer }) => {
       {footer}
       <ButtonGroup className={clsx('mt-4')}>
         <Button
-          onClick={() => window.location.reload()}
-          color="danger"
-          className="reload-btn"
+          color="info"
+          onClick={() => positiveReview(url)}
+          className={clsx('mr-2', 'sm:mb-2')}
         >
-          👎 Not interested, give me another
+          🙌 &nbsp; Great selection, I love it!
         </Button>
+        <ButtonLink
+          to={window?.location.pathname ?? '/'}
+          onClick={() => negativeReview(url)}
+          color="danger"
+          className={clsx('inline-block')}
+        >
+          👎 &nbsp; Not interested, give me another
+        </ButtonLink>
       </ButtonGroup>
     </Container>
   )
