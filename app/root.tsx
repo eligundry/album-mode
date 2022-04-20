@@ -9,6 +9,7 @@ import {
 } from '@remix-run/react'
 import clsx from 'clsx'
 
+import Tracking from '~/components/Tracking'
 import styles from './styles/app.css'
 
 export const meta: MetaFunction = () => ({
@@ -33,6 +34,7 @@ export default function App() {
   return (
     <html lang="en">
       <head>
+        <Tracking />
         <Meta />
         <Links />
       </head>
