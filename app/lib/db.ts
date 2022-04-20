@@ -2,9 +2,9 @@ import {
   Prisma,
   PrismaClient,
   AlbumReviewedByPublication,
+  Artist,
 } from '@prisma/client'
 import sample from 'lodash/sample'
-import kebabCase from 'lodash/kebabCase'
 import groupBy from 'lodash/groupBy'
 
 const prisma = new PrismaClient()
@@ -18,9 +18,7 @@ const getLabels = async () =>
         genre: true,
         displayName: true,
       },
-      orderBy: {
-        name: 'asc',
-      },
+      orderBy: [{ genre: 'asc' }, { name: 'asc' }],
     })
     .then((labels) => groupBy(labels, ({ genre }) => genre))
 
@@ -45,6 +43,35 @@ const getPublications = async () =>
       name: 'asc',
     },
   })
+
+const getArtistGroupings = async () =>
+  prisma.artistGrouping.findMany({
+    select: {
+      name: true,
+      slug: true,
+    },
+    orderBy: {
+      name: 'asc',
+    },
+  })
+
+const getRandomArtistFromGroupSlug = async (groupSlug: string) =>
+  prisma
+    .$queryRaw<Pick<Artist, 'id' | 'name'>[]>(
+      Prisma.sql`
+      SELECT
+        a.id,
+        a.name
+      FROM Artist a
+      JOIN ArtistGrouping AS ag ON (
+        ag.id = a.groupID
+        AND ag.slug = ${groupSlug}
+      )
+      ORDER BY random()
+      LIMIT 1
+    `
+    )
+    .then((res) => res?.[0])
 
 // @TODO We can't natively search by random using the query builder
 // https://github.com/prisma/prisma/discussions/5886
@@ -73,43 +100,6 @@ const getRandomAlbumForPublication = async (publicationSlug: string) =>
 const getRandomBandcampDailyAlbum = async () =>
   prisma.bandcampDailyAlbum.findMany().then((albums) => sample(albums))
 
-const createLabelFromAdmin = (data: FormData) => {
-  const name = data.get('name')
-
-  if (!name) {
-    throw new Error('name is required')
-  } else if (typeof name !== 'string') {
-    throw new Error('name must be a string')
-  }
-
-  const genre = data.get('genre')
-
-  if (typeof genre !== 'string') {
-    throw new Error('genre must be supplied')
-  }
-
-  let slug = data.get('slug')
-
-  if (typeof slug !== 'string' || !slug) {
-    slug = kebabCase(name)
-  }
-
-  let displayName = data.get('displayName') || null
-
-  if (displayName && typeof displayName !== 'string') {
-    throw new Error('displayName must be a string')
-  }
-
-  return prisma.label.create({
-    data: {
-      name,
-      slug,
-      genre,
-      displayName,
-    },
-  })
-}
-
 const api = {
   prisma,
   getLabels,
@@ -117,7 +107,8 @@ const api = {
   getPublications,
   getRandomAlbumForPublication,
   getRandomBandcampDailyAlbum,
-  createLabelFromAdmin,
+  getArtistGroupings,
+  getRandomArtistFromGroupSlug,
 }
 
 export default api

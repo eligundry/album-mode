@@ -15,12 +15,14 @@ import {
 type LoaderData = {
   labels: Awaited<ReturnType<typeof db.getLabels>>
   publications: Awaited<ReturnType<typeof db.getPublications>>
+  artistGroupings: Awaited<ReturnType<typeof db.getArtistGroupings>>
 }
 
 export const loader: LoaderFunction = async () => {
   const data: LoaderData = await promiseHash({
     labels: db.getLabels(),
     publications: db.getPublications(),
+    artistGroupings: db.getArtistGroupings(),
   })
 
   return json(data)
@@ -58,6 +60,18 @@ export default function Index() {
               className={clsx('mb-4')}
             />
           </Form>
+        </div>
+        <div className="artists-and-groups">
+          <Heading level="h3">Artists & Groups</Heading>
+          {data.artistGroupings.map((artist) => (
+            <ButtonLink
+              key={artist.slug}
+              to={`/group/${artist.slug}`}
+              className={clsx('mr-2', 'mb-2', 'inline-block')}
+            >
+              {artist.name}
+            </ButtonLink>
+          ))}
         </div>
         <div className="labels">
           <Heading level="h3">Labels</Heading>

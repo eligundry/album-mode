@@ -96,11 +96,24 @@ export const Typography: React.FC<TypographyProps> = ({
   ...props
 }) => <p className={clsx('text-base', className)} {...props} />
 
-export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {}
+export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
+  width?: 'full' | 'half'
+}
 
-export const Input: React.FC<InputProps> = ({ className, ...props }) => (
+export const Input: React.FC<InputProps> = ({
+  className,
+  width = 'full',
+  ...props
+}) => (
   <input
-    className={clsx('w-full', 'rounded', 'border', 'p-2', className)}
+    className={clsx(
+      'w-full',
+      'rounded',
+      'border',
+      'p-2',
+      width === 'half' && ['mb-2', 'w-1/2'],
+      className
+    )}
     {...props}
   />
 )
@@ -141,7 +154,35 @@ export const A: React.FC<React.HTMLAttributes<HTMLAnchorElement>> = ({
   />
 )
 
-export const Fieldset: React.FC<React.HTMLAttributes<HTMLFieldSetElement>> = ({
+export interface FieldsetProps
+  extends React.HTMLAttributes<HTMLFieldSetElement> {
+  flexDirection?: 'row' | 'column'
+}
+
+export const Fieldset: React.FC<FieldsetProps> = ({
+  className,
+  flexDirection,
+  ...props
+}) => (
+  <fieldset
+    className={clsx(
+      'my-4',
+      'p-2',
+      'border-2',
+      'border-slate',
+      {
+        'flex flex-row': flexDirection === 'row',
+        'flex flex-col': flexDirection === 'column',
+      },
+      className
+    )}
+    {...props}
+  />
+)
+
+export const Legend: React.FC<React.HTMLAttributes<HTMLLegendElement>> = ({
   className,
   ...props
-}) => <fieldset className={clsx(className)} {...props} />
+}) => (
+  <legend className={clsx('font-bold', 'mb-2', 'px-2', className)} {...props} />
+)

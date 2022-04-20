@@ -29,20 +29,37 @@ const getRandomAlbumForLabelSlug = async (labelSlug: string) => {
   return getRandomAlbumForLabel(label.name)
 }
 
-const getRandomAlbumForLabel = async (label: string) => {
-  const searchTerm = `label:"${label}"`
+const getRandomAlbumForGroupSlug = async (groupSlug: string) => {
+  const artist = await db.getRandomArtistFromGroupSlug(groupSlug)
+
+  if (!artist) {
+    throw new Error(`Could not find artist under group slug '${groupSlug}'`)
+  }
+
+  console.log(artist)
+
+  return getRandomAlbumForSearchTerm(`artist:"${artist.name}"`)
+}
+
+const getRandomAlbumForLabel = async (label: string) =>
+  getRandomAlbumForSearchTerm(`label:"${label}"`, 500)
+
+const getRandomAlbumForSearchTerm = async (
+  searchTerm: string,
+  poolLimit = 1000
+): Promise<SpotifyApi.AlbumObjectSimplified | null> => {
   const client = await getClient()
   const firstPage = await client.search(searchTerm, ['album'], {
     limit: 1,
   })
 
   if (!firstPage.body.albums?.total) {
-    throw new Error('could not fetch first page of albums for label')
+    throw new Error('could not fetch first page of albums search term')
   }
 
   const albumOffsetToFetch = random(
     0,
-    Math.min(firstPage.body.albums.total, 1000)
+    Math.min(firstPage.body.albums.total, poolLimit)
   )
 
   if (albumOffsetToFetch === 0) {
@@ -56,10 +73,16 @@ const getRandomAlbumForLabel = async (label: string) => {
     })
     .then((resp) => {
       if (!resp.body.albums?.items?.[0]) {
-        throw new Error('could not fetch album for label from offset')
+        throw new Error('could not fetch album for search term from offset')
       }
 
-      return resp.body.albums.items[0]
+      const album = resp.body.albums.items[0]
+
+      if (album.album_type === 'single') {
+        return getRandomAlbumForSearchTerm(searchTerm, poolLimit)
+      }
+
+      return album
     })
 }
 
@@ -122,7 +145,9 @@ const getRandomAlbumByGenre = async (
       limit: 50,
       include_groups: 'album',
     })
-    .then((page) => page.body.items)
+    .then((page) =>
+      page.body.items.filter((album) => album.album_type !== 'single')
+    )
 
   if (!albums.length) {
     return getRandomAlbumByGenre(genre)
@@ -146,6 +171,8 @@ const api = {
   getAlbum,
   getRandomAlbumForPublication,
   getRandomAlbumByGenre,
+  getRandomAlbumForGroupSlug,
+  getRandomAlbumForSearchTerm,
 }
 
 export default api

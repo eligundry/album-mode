@@ -1,20 +1,15 @@
-import clsx from 'clsx'
 import { LoaderFunction, ActionFunction, redirect } from '@remix-run/node'
-import { useLoaderData, Form } from '@remix-run/react'
+import { useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import db from '~/lib/db'
+import admin from '~/lib/admin'
 import ProtectedRoute, {
   protectedRouteHeaders,
   isAuthorized,
 } from '~/components/ProtectedRoute'
-import {
-  Layout,
-  Container,
-  Heading,
-  Fieldset,
-  Input,
-  Button,
-} from '~/components/Base'
+import { Layout, Container, Heading } from '~/components/Base'
+import AddLabelForm from '~/components/Forms/AddLabel'
+import AddArtistGroupingForm from '~/components/Forms/AddArtistGrouping'
 
 export const headers = protectedRouteHeaders
 
@@ -44,18 +39,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
-
-  switch (formData.get('action')) {
-    case 'new-label':
-      await db.createLabelFromAdmin(formData)
-      break
-
-    default:
-      console.error('invalid admin action provided', {
-        action: formData.get('action'),
-      })
-  }
-
+  await admin.handleAdminFormSubmission(formData)
   return redirect('/admin')
 }
 
@@ -67,41 +51,8 @@ export default function AdminIndex() {
       <Layout>
         <Container>
           <Heading level="h2">Admin</Heading>
-          <Form method="post">
-            <Fieldset className={clsx('flex', 'flex-col')}>
-              <legend>Add Label</legend>
-              <input type="hidden" name="action" value="new-label" />
-              <Input
-                name="name"
-                id="name"
-                placeholder="Label name"
-                required
-                className={clsx('mb-2', 'w-1/2')}
-              />
-              <Input
-                name="displayName"
-                id="displayName"
-                placeholder="Display Name"
-                className={clsx('mb-2', 'w-1/2')}
-              />
-              <Input
-                name="genre"
-                id="genre"
-                placeholder="Genre (ex: Hip-Hop, Indie Rock)"
-                required
-                className={clsx('mb-2', 'w-1/2')}
-              />
-              <Input
-                name="slug"
-                id="slug"
-                placeholder="URL Slug"
-                className={clsx('mb-2', 'w-1/2')}
-              />
-              <Button type="submit" className={clsx('w-1/4')}>
-                Submit
-              </Button>
-            </Fieldset>
-          </Form>
+          <AddLabelForm />
+          <AddArtistGroupingForm />
         </Container>
       </Layout>
     </ProtectedRoute>
