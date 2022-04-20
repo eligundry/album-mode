@@ -30,38 +30,37 @@ const getRandomAlbumForLabelSlug = async (labelSlug: string) => {
 }
 
 const getRandomAlbumForLabel = async (label: string) => {
-  const limit = 50
   const searchTerm = `label:"${label}"`
   const client = await getClient()
   const firstPage = await client.search(searchTerm, ['album'], {
-    limit,
+    limit: 1,
   })
 
-  if (!firstPage.body.albums) {
-    return null
+  if (!firstPage.body.albums?.total) {
+    throw new Error('could not fetch first page of albums for label')
   }
 
-  const numberToFetch = Math.min(firstPage.body.albums.total, 250)
-  const pages = Math.ceil(numberToFetch / limit)
-  const albums = [
-    ...firstPage.body.albums.items,
-    ...(
-      await Promise.all(
-        [...Array(pages).keys()]
-          .map((page) => page + 2)
-          .flatMap((page) =>
-            client
-              .search(searchTerm, ['album'], {
-                limit,
-                offset: limit * page,
-              })
-              .then((resp) => resp.body.albums?.items)
-          )
-      )
-    ).flat(),
-  ].filter((album) => album && album.album_type !== 'single')
+  const albumOffsetToFetch = random(
+    0,
+    Math.min(firstPage.body.albums.total, 1000)
+  )
 
-  return sample(albums)
+  if (albumOffsetToFetch === 0) {
+    return firstPage.body.albums.items[0]
+  }
+
+  return client
+    .search(searchTerm, ['album'], {
+      limit: 1,
+      offset: albumOffsetToFetch,
+    })
+    .then((resp) => {
+      if (!resp.body.albums?.items?.[0]) {
+        throw new Error('could not fetch album for label from offset')
+      }
+
+      return resp.body.albums.items[0]
+    })
 }
 
 const getRandomAlbumForPublication = async (
@@ -92,27 +91,34 @@ const getRandomAlbumByGenre = async (
   })
 
   if (!firstPageOfArtists.body.artists?.total) {
-    return null
+    throw new Error('could not fetch first page of artists')
   }
 
   const artistOffsetToFetch = random(
     0,
     Math.min(firstPageOfArtists.body.artists.total, 1000)
   )
-  const artist = await client
-    .search(searchTerm, ['artist'], {
-      limit: 1,
-      offset: artistOffsetToFetch,
-    })
-    .then((page) => page.body.artists?.items?.[0])
 
-  if (!artist) {
-    return null
+  let artistID = firstPageOfArtists.body.artists.items[0].id
+
+  if (artistOffsetToFetch > 0) {
+    const artist = await client
+      .search(searchTerm, ['artist'], {
+        limit: 1,
+        offset: artistOffsetToFetch,
+      })
+      .then((page) => page.body.artists?.items?.[0])
+
+    if (!artist) {
+      throw new Error('could not fetch artist from offset')
+    }
+
+    artistID = artist.id
   }
 
   // After we fetch a random artist, fetch a random album by them
   const albums = await client
-    .getArtistAlbums(artist.id, {
+    .getArtistAlbums(artistID, {
       limit: 50,
       include_groups: 'album',
     })
