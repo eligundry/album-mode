@@ -1,5 +1,5 @@
 import promiseHash from 'promise-hash'
-import { json, LoaderFunction, HeadersFunction } from '@remix-run/node'
+import { json, LoaderFunction } from '@remix-run/node'
 import { useLoaderData, Form } from '@remix-run/react'
 import clsx from 'clsx'
 
@@ -24,18 +24,6 @@ export const loader: LoaderFunction = async () => {
   })
 
   return json(data)
-}
-
-// Cache the homepage for a day in the CDN. We want updates to populate but not
-// run up the bill serving it.
-export const headers = () => {
-  if (process.env.NODE_ENV !== 'production') {
-    return {}
-  }
-
-  return {
-    'Cache-Control': 'public, max-age=30, s-maxage=86400',
-  }
 }
 
 export default function Index() {
