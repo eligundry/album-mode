@@ -1,7 +1,8 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { Heading, ButtonGroup, Button, Container } from '~/components/Base'
+import { Heading, Container } from '~/components/Base'
+import ReviewButtons from './ReviewButtons'
 
 interface Props {
   albumID: string | number
@@ -34,15 +35,7 @@ const BandcampAlbum: React.FC<Props> = ({
         </a>
       </iframe>
       {footer}
-      <ButtonGroup className={clsx('mt-4')}>
-        <Button
-          onClick={() => window.location.reload()}
-          color="danger"
-          className="reload-btn"
-        >
-          👎 Not interested, give me another
-        </Button>
-      </ButtonGroup>
+      <ReviewButtons albumURL={`bandcamp/id/${albumID}`} />
     </Container>
   )
 }
