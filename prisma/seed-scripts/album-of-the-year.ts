@@ -1,5 +1,6 @@
 import { chromium } from 'playwright'
 import { PrismaClient } from '@prisma/client'
+import yargs from 'yargs'
 import kebabCase from 'lodash/kebabCase'
 
 interface Options {
@@ -23,7 +24,9 @@ const seedAlbumOfTheYear = async (options: Options) => {
       const page = await context.newPage()
       const url = `https://www.albumoftheyear.org/list/${options.listID}/${pageNum}`
       console.log(`fetching ${url}`)
-      const response = await page.goto(url)
+      const response = await page.goto(url, {
+        timeout: 60 * 1000,
+      })
 
       if (!response) {
         shouldContinue = false
@@ -67,12 +70,20 @@ const seedAlbumOfTheYear = async (options: Options) => {
     await browser.close()
   }
 
-  const publication = await prisma.publication.create({
-    data: {
-      name: options.name,
-      slug: options.slug,
-    },
-  })
+  const publication = await prisma.publication
+    .create({
+      data: {
+        name: options.name,
+        slug: options.slug,
+      },
+    })
+    .catch(() =>
+      prisma.publication.findFirst({
+        where: {
+          slug: options.slug,
+        },
+      })
+    )
 
   await Promise.all(
     Object.entries(albumArtistMap).map(([album, artist]) =>
@@ -81,7 +92,7 @@ const seedAlbumOfTheYear = async (options: Options) => {
           publicationID: publication.id,
           album: album,
           aritst: artist,
-          slug: `albumoftheyear.com/list/${options.listID}#${kebabCase(
+          slug: `albumoftheyear.org/list/${options.listID}#${kebabCase(
             `${album}-${artist}`
           )}`,
         },
@@ -92,8 +103,30 @@ const seedAlbumOfTheYear = async (options: Options) => {
   console.log(albumArtistMap)
 }
 
-seedAlbumOfTheYear({
-  listID: '1500-rolling-stones-500-greatest-albums-of-all-time-2020',
-  name: 'RS Top 500',
-  slug: 'rs-top-500',
-})
+const main = async () => {
+  const args = await yargs
+    .scriptName('album-of-the-year')
+    .usage('$0 --listID <string> --name <string> --slug <string>')
+    .option('listID', {
+      describe: 'The slug of the list on albumoftheyear.org',
+      type: 'string',
+    })
+    .option('name', {
+      describe: 'The human readable name of the list',
+      type: 'string',
+    })
+    .option('slug', {
+      describe: 'The slug of the list on the site',
+      type: 'string',
+    })
+    .demandOption(['listID', 'slug', 'name'])
+    .help().argv
+
+  await seedAlbumOfTheYear({
+    listID: args.listID,
+    name: args.name,
+    slug: args.slug,
+  })
+}
+
+main()
