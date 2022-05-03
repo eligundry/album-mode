@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, LinkProps } from '@remix-run/react'
+import { Link as RemixLink, LinkProps } from '@remix-run/react'
 import clsx from 'clsx'
 
 export { default as Layout } from './Layout'
@@ -77,7 +77,23 @@ export const ButtonLink: React.FC<LinkProps & ButtonProps> = ({
   className,
   ...props
 }) => (
-  <Link to={to} className={buttonStyles({ className, ...props })} {...props} />
+  <RemixLink
+    to={to}
+    className={buttonStyles({ className, ...props })}
+    {...props}
+  />
+)
+
+export const Link: React.FC<LinkProps> = ({ className, ...props }) => (
+  <RemixLink
+    className={clsx(
+      'text-primary',
+      'hover:underline',
+      'hover:text-primaryHover',
+      className
+    )}
+    {...props}
+  />
 )
 
 export const ButtonGroup: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({

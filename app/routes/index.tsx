@@ -10,6 +10,7 @@ import {
   Input,
   Layout,
   Container,
+  Link,
 } from '~/components/Base'
 import GenreSearchForm from '~/components/Genre/SearchForm'
 
@@ -54,7 +55,9 @@ export default function Index() {
           ))}
         </div>
         <div className="genre">
-          <Heading level="h3">Genre</Heading>
+          <Heading level="h3">
+            <Link to="/genre">Genre</Link>
+          </Heading>
           <GenreSearchForm defaultGenres={data.topGenres} />
         </div>
         <div className="artists-and-groups">

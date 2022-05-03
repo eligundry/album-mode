@@ -31,7 +31,7 @@ const ReviewButtons: React.FC<Props> = ({ albumURL }) => {
           🙌 &nbsp; Great selection, I love it!
         </Button>
         <ButtonLink
-          to={window?.location.pathname ?? '/'}
+          to={window?.location.href.replace(window.location.origin, '') ?? '/'}
           onClick={() => negativeReview(albumURL)}
           color="danger"
           className={clsx('inline-block')}

@@ -1,24 +1,35 @@
 import { LoaderFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import promiseHash from 'promise-hash'
+import clsx from 'clsx'
 
+import db from '~/lib/db'
 import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
-import { Layout } from '~/components/Base'
+import { Layout, Heading, ButtonLink } from '~/components/Base'
+import GenreSearchForm from '~/components/Genre/SearchForm'
 
-type LoaderData = {
-  album: Awaited<ReturnType<typeof spotify.getRandomAlbumByGenre>>
-}
+type LoaderData =
+  | {
+      album: Awaited<ReturnType<typeof spotify.getRandomAlbumByGenre>>
+    }
+  | {
+      topGenres: Awaited<ReturnType<typeof db.getTopGenres>>
+    }
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
   const q = url.searchParams.get('q')
 
   if (!q) {
-    throw new Error(`The search param 'q' must be provided`)
+    const data: LoaderData = await promiseHash({
+      topGenres: db.getTopGenres(),
+    })
+
+    return json(data)
   }
 
-  const data = await promiseHash({
+  const data: LoaderData = await promiseHash({
     album: spotify.getRandomAlbumByGenre(q),
   })
 
@@ -26,19 +37,41 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export default function GenreSearch() {
-  const { album } = useLoaderData<LoaderData>()
+  const data = useLoaderData<LoaderData>()
 
-  if (!album?.external_urls?.spotify) {
-    return null
+  if ('album' in data) {
+    const { album } = data
+
+    if (!album?.external_urls?.spotify) {
+      return null
+    }
+
+    return (
+      <Layout>
+        <Album
+          url={album.external_urls.spotify}
+          artist={album.artists?.[0].name}
+          album={album.name}
+        />
+      </Layout>
+    )
   }
 
   return (
     <Layout>
-      <Album
-        url={album.external_urls.spotify}
-        artist={album.artists?.[0].name}
-        album={album.name}
-      />
+      <Heading level="h2">Search by Genre</Heading>
+      <GenreSearchForm defaultGenres={data.topGenres} />
+      <div className={clsx('button-group', 'mt-4')}>
+        {data.topGenres.map((genre) => (
+          <ButtonLink
+            to={`/genre?q=${genre}`}
+            key={genre}
+            className={clsx('mr-2', 'mb-2', 'inline-block')}
+          >
+            {genre}
+          </ButtonLink>
+        ))}
+      </div>
     </Layout>
   )
 }

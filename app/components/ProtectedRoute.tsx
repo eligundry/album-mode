@@ -6,6 +6,10 @@ export const protectedRouteHeaders: HeadersFunction = () => ({
 })
 
 export const isAuthorized = (request: Request) => {
+  if (process.env.NODE_ENV !== 'development') {
+    return false
+  }
+
   const header = request.headers.get('Authorization')
 
   if (!header) {
