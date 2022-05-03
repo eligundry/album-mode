@@ -100,6 +100,36 @@ const getRandomAlbumForPublication = async (publicationSlug: string) =>
 const getRandomBandcampDailyAlbum = async () =>
   prisma.bandcampDailyAlbum.findMany().then((albums) => sample(albums))
 
+const searchGenres = async (q: string): Promise<string[]> =>
+  prisma.spotifyGenere
+    .findMany({
+      select: {
+        name: true,
+      },
+      where: {
+        name: {
+          contains: q,
+        },
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    })
+    .then((res) => res.map(({ name }) => name))
+
+const getTopGenres = async (): Promise<string[]> =>
+  prisma.spotifyGenere
+    .findMany({
+      select: {
+        name: true,
+      },
+      orderBy: {
+        id: 'asc',
+      },
+      take: 50,
+    })
+    .then((res) => res.map(({ name }) => name))
+
 const api = {
   prisma,
   getLabels,
@@ -109,6 +139,8 @@ const api = {
   getRandomBandcampDailyAlbum,
   getArtistGroupings,
   getRandomArtistFromGroupSlug,
+  searchGenres,
+  getTopGenres,
 }
 
 export default api

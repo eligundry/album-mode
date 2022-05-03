@@ -11,11 +11,13 @@ import {
   Layout,
   Container,
 } from '~/components/Base'
+import GenreSearchInput from '~/components/Genre/SearchInput'
 
 type LoaderData = {
   labels: Awaited<ReturnType<typeof db.getLabels>>
   publications: Awaited<ReturnType<typeof db.getPublications>>
   artistGroupings: Awaited<ReturnType<typeof db.getArtistGroupings>>
+  topGenres: Awaited<ReturnType<typeof db.getTopGenres>>
 }
 
 export const loader: LoaderFunction = async () => {
@@ -23,6 +25,7 @@ export const loader: LoaderFunction = async () => {
     labels: db.getLabels(),
     publications: db.getPublications(),
     artistGroupings: db.getArtistGroupings(),
+    topGenres: db.getTopGenres(),
   })
 
   return json(data)
@@ -53,12 +56,7 @@ export default function Index() {
         <div className="genre">
           <Heading level="h3">Genre</Heading>
           <Form method="get" action="/genre">
-            <Input
-              name="q"
-              type="search"
-              placeholder="Search by genre (ex: indie, rock, hip hop)"
-              className={clsx('mb-4')}
-            />
+            <GenreSearchInput defaultGenres={data.topGenres} />
           </Form>
         </div>
         <div className="artists-and-groups">
