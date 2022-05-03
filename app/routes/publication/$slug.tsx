@@ -78,6 +78,33 @@ export default function PublicationBySlug() {
     )
   }
 
+  let footer = null
+
+  if (slug?.includes('p4k')) {
+    const url = new URL('https://pitchfork.com' + review.slug)
+    url.searchParams.set('utm_campaign', 'album-mode.party')
+
+    footer = (
+      <Typography className={clsx('my-4')}>
+        Need convincing? Read the{' '}
+        <A href={url.toString()} target="_blank">
+          Pitchfork Review
+        </A>
+        .
+      </Typography>
+    )
+  } else if (slug === 'needle-drop') {
+    footer = (
+      <Typography className={clsx('my-4')}>
+        Need convincing? Watch the{' '}
+        <A href={review.slug} target="_blank">
+          Needle Drop review on YouTube
+        </A>
+        .
+      </Typography>
+    )
+  }
+
   return (
     <Layout>
       <Container>
@@ -85,20 +112,7 @@ export default function PublicationBySlug() {
           url={album.external_urls.spotify}
           artist={album.artists?.[0].name}
           album={album.name}
-          footer={
-            slug?.includes('p4k') && (
-              <Typography className={clsx('my-4')}>
-                Need convincing? Read the{' '}
-                <A
-                  href={'https://pitchfork.com' + review?.slug}
-                  target="_blank"
-                >
-                  Pitchfork Review
-                </A>
-                .
-              </Typography>
-            )
-          }
+          footer={footer}
         />
       </Container>
     </Layout>
