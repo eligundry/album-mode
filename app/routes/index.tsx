@@ -10,7 +10,6 @@ import LabelSearchForm from '~/components/Forms/LabelSearch'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 
 type LoaderData = {
-  labels: Awaited<ReturnType<typeof db.getLabels>>
   publications: Awaited<ReturnType<typeof db.getPublications>>
   artistGroupings: Awaited<ReturnType<typeof db.getArtistGroupings>>
   topGenres: Awaited<ReturnType<typeof db.getTopGenres>>
@@ -18,7 +17,6 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async () => {
   const data: LoaderData = await promiseHash({
-    labels: db.getLabels(),
     publications: db.getPublications(),
     artistGroupings: db.getArtistGroupings(),
     topGenres: db.getTopGenres(),

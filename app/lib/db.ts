@@ -126,7 +126,7 @@ const getTopGenres = async (): Promise<string[]> =>
       orderBy: {
         id: 'asc',
       },
-      take: 50,
+      take: 100,
     })
     .then((res) => res.map(({ name }) => name))
 

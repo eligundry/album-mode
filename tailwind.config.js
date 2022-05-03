@@ -18,6 +18,7 @@ module.exports = {
       danger: '#ef4444',
       dangerHover: '#b91c1c',
       grey: '#64748b',
+      formBorder: '#cccccc',
     },
     extend: {
       screens: defaultTheme.screens,

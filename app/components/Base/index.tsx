@@ -137,7 +137,10 @@ export const Input: React.FC<InputProps> = ({
       'w-full',
       'rounded',
       'border',
+      'border-formBorder',
       'p-2',
+      'focus:outline-0',
+      'focus:border-primary',
       width === 'half' && ['mb-2', 'w-1/2'],
       className
     )}

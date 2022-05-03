@@ -2,7 +2,7 @@ import React from 'react'
 import SpotifyEmbed from 'react-spotify-embed'
 import clsx from 'clsx'
 
-import { Heading, Container } from '~/components/Base'
+import { Heading, Container, Typography } from '~/components/Base'
 import ReviewButtons from './ReviewButtons'
 
 interface Props {
@@ -15,9 +15,13 @@ interface Props {
 const Album: React.FC<Props> = ({ url, artist, album, footer }) => {
   return (
     <Container center>
-      <Heading level="h2" className={clsx('mb-4')}>
+      <Heading level="h2" className={clsx('mb-2')}>
         Have you heard <em>{album}</em> by {artist}?
       </Heading>
+      <Typography variant="hint" className={clsx('mb-2')}>
+        Click on the Spotify icon in the top right corner to open this in the
+        native player
+      </Typography>
       <SpotifyEmbed className={clsx('mx-auto')} link={url} />
       {footer}
       <ReviewButtons albumURL={url} />
