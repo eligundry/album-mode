@@ -4,7 +4,7 @@ import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
 import db from '~/lib/db'
-import { Heading, ButtonLink, Layout, Container, Link } from '~/components/Base'
+import { Heading, Layout, Container, Link, Typography } from '~/components/Base'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
@@ -38,7 +38,12 @@ export default function Index() {
           <br /> Let us recommend an album.
         </Heading>
         <div className="publications">
-          <Heading level="h3">Publications</Heading>
+          <Heading level="h3" className={clsx('mb-2')}>
+            Publications
+          </Heading>
+          <Typography variant="hint" className={clsx('mb-2')}>
+            Play a random album recommended by the pros.
+          </Typography>
           <ButtonLinkGroup
             items={data.publications}
             toFunction={(publication) => `/publication/${publication.slug}`}
@@ -47,25 +52,37 @@ export default function Index() {
           />
         </div>
         <div className="genre">
-          <Heading level="h3">
+          <Heading level="h3" className={clsx('mb-2')}>
             <Link to="/genre">Genre</Link>
           </Heading>
+          <Typography variant="hint" className={clsx('mb-2')}>
+            Have a genre in mind? Search for it and we'll find you something.
+          </Typography>
           <GenreSearchForm defaultGenres={data.topGenres} />
         </div>
+        <div className="labels">
+          <Heading level="h3" className={clsx('mb-2')}>
+            <Link to="/label">Labels</Link>
+          </Heading>
+          <Typography variant="hint" className={clsx('mb-2')}>
+            You know labels? Search and we'll see what we have. Otherwise, the
+            link above has some ones to check out.
+          </Typography>
+          <LabelSearchForm />
+        </div>
         <div className="artists-and-groups">
-          <Heading level="h3">Artists & Groups</Heading>
+          <Heading level="h3" className={clsx('my-2')}>
+            Curated Artists & Groups
+          </Heading>
+          <Typography variant="hint" className={clsx('mb-2')}>
+            Here are some artists and groups that I dig, maybe you'll like them?
+          </Typography>
           <ButtonLinkGroup
             items={data.artistGroupings}
             toFunction={({ slug }) => `/group/${slug}`}
             keyFunction={({ slug }) => slug}
             childFunction={({ name }) => name}
           />
-        </div>
-        <div className="labels">
-          <Heading level="h3">
-            <Link to="/label">Labels</Link>
-          </Heading>
-          <LabelSearchForm />
         </div>
       </Container>
     </Layout>

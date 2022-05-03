@@ -17,6 +17,7 @@ module.exports = {
       warningHover: '#a16207',
       danger: '#ef4444',
       dangerHover: '#b91c1c',
+      grey: '#64748b',
     },
     extend: {
       screens: defaultTheme.screens,

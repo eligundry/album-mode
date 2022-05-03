@@ -73,6 +73,16 @@ export default function LabelSearch() {
           />
         </section>
       ))}
+      <a
+        href="https://genius.com/Gza-labels-lyrics"
+        target="_blank"
+        className={clsx('block', 'w-3/4', 'mx-auto', 'mt-2')}
+      >
+        <img
+          src="/img/rza-labels.png"
+          alt={`Genius lyric cover with the GZA, RZA & Bill Murray saying "You gotta read the label / If you don't read the Label, you might get poisoned" from the GZA song "Labels"`}
+        />
+      </a>
     </Layout>
   )
 }

@@ -103,14 +103,25 @@ export const ButtonGroup: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
 
 export interface TypographyProps
   extends React.HTMLAttributes<HTMLParagraphElement> {
-  variant?: 'base' | 'italics' | 'bold'
+  variant?: 'base' | 'italics' | 'bold' | 'hint'
 }
 
 export const Typography: React.FC<TypographyProps> = ({
   variant = 'base',
   className,
   ...props
-}) => <p className={clsx('text-base', className)} {...props} />
+}) => (
+  <p
+    className={clsx(
+      'text-base',
+      variant === 'hint' && ['italic', 'text-grey'],
+      variant === 'italics' && 'italic',
+      variant === 'bold' && 'font-bold',
+      className
+    )}
+    {...props}
+  />
+)
 
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   width?: 'full' | 'half'

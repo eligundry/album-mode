@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /group/*
+Disallow: /publication/*
+Disallow: /label/*
+Allow: /
+
+Host: https://album-mode.party
