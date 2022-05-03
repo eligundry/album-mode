@@ -1,18 +1,13 @@
 import promiseHash from 'promise-hash'
 import { json, LoaderFunction } from '@remix-run/node'
-import { useLoaderData, Form } from '@remix-run/react'
+import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
 import db from '~/lib/db'
-import {
-  Heading,
-  ButtonLink,
-  Input,
-  Layout,
-  Container,
-  Link,
-} from '~/components/Base'
-import GenreSearchForm from '~/components/Genre/SearchForm'
+import { Heading, ButtonLink, Layout, Container, Link } from '~/components/Base'
+import GenreSearchForm from '~/components/Forms/GenreSearch'
+import LabelSearchForm from '~/components/Forms/LabelSearch'
+import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 
 type LoaderData = {
   labels: Awaited<ReturnType<typeof db.getLabels>>
@@ -44,15 +39,12 @@ export default function Index() {
         </Heading>
         <div className="publications">
           <Heading level="h3">Publications</Heading>
-          {data.publications.map((publication) => (
-            <ButtonLink
-              to={`/publication/${publication.slug}`}
-              key={publication.slug}
-              className={clsx('mr-2', 'mb-2', 'inline-block')}
-            >
-              {publication.name}
-            </ButtonLink>
-          ))}
+          <ButtonLinkGroup
+            items={data.publications}
+            toFunction={(publication) => `/publication/${publication.slug}`}
+            keyFunction={(publication) => publication.slug}
+            childFunction={(publication) => publication.name}
+          />
         </div>
         <div className="genre">
           <Heading level="h3">
@@ -62,40 +54,18 @@ export default function Index() {
         </div>
         <div className="artists-and-groups">
           <Heading level="h3">Artists & Groups</Heading>
-          {data.artistGroupings.map((artist) => (
-            <ButtonLink
-              key={artist.slug}
-              to={`/group/${artist.slug}`}
-              className={clsx('mr-2', 'mb-2', 'inline-block')}
-            >
-              {artist.name}
-            </ButtonLink>
-          ))}
+          <ButtonLinkGroup
+            items={data.artistGroupings}
+            toFunction={({ slug }) => `/group/${slug}`}
+            keyFunction={({ slug }) => slug}
+            childFunction={({ name }) => name}
+          />
         </div>
         <div className="labels">
-          <Heading level="h3">Labels</Heading>
-          <Form method="get" action="/label">
-            <Input
-              name="q"
-              type="search"
-              placeholder="Search for label (ex: OVO)"
-              className={clsx('mb-4')}
-            />
-          </Form>
-          {Object.entries(data.labels).map(([category, labels]) => (
-            <section key={category}>
-              <Heading level="h4">{category}</Heading>
-              {labels.map((label) => (
-                <ButtonLink
-                  to={`/label/${label.slug}`}
-                  key={label.slug}
-                  className={clsx('mr-2', 'mb-2', 'inline-block')}
-                >
-                  {label?.displayName ?? label.name}
-                </ButtonLink>
-              ))}
-            </section>
-          ))}
+          <Heading level="h3">
+            <Link to="/label">Labels</Link>
+          </Heading>
+          <LabelSearchForm />
         </div>
       </Container>
     </Layout>

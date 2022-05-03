@@ -7,7 +7,7 @@ import db from '~/lib/db'
 import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
 import { Layout, Heading, ButtonLink } from '~/components/Base'
-import GenreSearchForm from '~/components/Genre/SearchForm'
+import GenreSearchForm from '~/components/Forms/GenreSearch'
 
 type LoaderData =
   | {
