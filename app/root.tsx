@@ -14,7 +14,7 @@ import styles from './styles/app.css'
 
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
-  title: 'Album Mode',
+  title: 'Album Mode.party 🎉',
   viewport: 'width=device-width,initial-scale=1',
   description: "Don't know what to listen to? Let us recommend an album!",
 })

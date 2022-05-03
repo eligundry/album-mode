@@ -6,7 +6,7 @@ import clsx from 'clsx'
 import db from '~/lib/db'
 import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
-import { Layout, Heading, ButtonLink } from '~/components/Base'
+import { Layout, Heading } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
 
