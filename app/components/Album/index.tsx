@@ -15,7 +15,7 @@ interface Props {
 const Album: React.FC<Props> = ({ url, artist, album, footer }) => {
   return (
     <Container center>
-      <Heading level="h2" className={clsx('mb-2')}>
+      <Heading level="h2" className={clsx('mb-2', 'sm:mt-0')}>
         Have you heard <em>{album}</em> by {artist}?
       </Heading>
       <Typography variant="hint" className={clsx('mb-2')}>
@@ -24,7 +24,10 @@ const Album: React.FC<Props> = ({ url, artist, album, footer }) => {
       </Typography>
       <SpotifyEmbed className={clsx('mx-auto')} link={url} />
       {footer}
-      <ReviewButtons albumURL={url} />
+      <ReviewButtons
+        albumURL={url}
+        containerClassName={clsx(!footer && 'mt-4')}
+      />
     </Container>
   )
 }

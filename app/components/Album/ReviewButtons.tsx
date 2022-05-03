@@ -9,9 +9,10 @@ import useWindow from '~/hooks/useWindow'
 
 interface Props {
   albumURL: string
+  containerClassName?: string
 }
 
-const ReviewButtons: React.FC<Props> = ({ albumURL }) => {
+const ReviewButtons: React.FC<Props> = ({ albumURL, containerClassName }) => {
   const [party, setParty] = useState(false)
   const window = useWindow()
   const { positiveReview, negativeReview } = useRating()
@@ -19,14 +20,14 @@ const ReviewButtons: React.FC<Props> = ({ albumURL }) => {
 
   return (
     <>
-      <ButtonGroup className={clsx('mt-4')}>
+      <ButtonGroup className={containerClassName}>
         <Button
           color="info"
           onClick={() => {
             positiveReview(albumURL)
             setParty(true)
           }}
-          className={clsx('mr-2', 'sm:mb-2')}
+          className={clsx('mr-2', 'mb-2', 'md:mb-0')}
         >
           🙌 &nbsp; Great selection, I love it!
         </Button>

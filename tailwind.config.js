@@ -20,9 +20,6 @@ module.exports = {
       grey: '#64748b',
       formBorder: '#cccccc',
     },
-    extend: {
-      screens: defaultTheme.screens,
-    },
   },
   plugins: [],
 }
