@@ -11,7 +11,7 @@ import {
   Layout,
   Container,
 } from '~/components/Base'
-import GenreSearchInput from '~/components/Genre/SearchInput'
+import GenreSearchForm from '~/components/Genre/SearchForm'
 
 type LoaderData = {
   labels: Awaited<ReturnType<typeof db.getLabels>>
@@ -55,9 +55,7 @@ export default function Index() {
         </div>
         <div className="genre">
           <Heading level="h3">Genre</Heading>
-          <Form method="get" action="/genre">
-            <GenreSearchInput defaultGenres={data.topGenres} />
-          </Form>
+          <GenreSearchForm defaultGenres={data.topGenres} />
         </div>
         <div className="artists-and-groups">
           <Heading level="h3">Artists & Groups</Heading>
