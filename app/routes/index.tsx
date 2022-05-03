@@ -69,7 +69,7 @@ export default function Index() {
           <LabelSearchForm />
         </div>
         <div className="artists-and-groups">
-          <Heading level="h3" className={clsx('my-2')}>
+          <Heading level="h3" className={clsx('mb-2')}>
             Curated Artists & Groups
           </Heading>
           <Typography variant="hint" className={clsx('mb-2')}>
