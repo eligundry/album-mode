@@ -1,9 +1,14 @@
 import { PrismaClient } from '@prisma/client'
 import axios from 'axios'
 import yargs from 'yargs'
+import Bottleneck from 'bottleneck'
 import { PitchforkSearchResponse, ListEntity } from '~/lib/types/pitchfork'
 
 const prisma = new PrismaClient()
+const searchLimiter = new Bottleneck({
+  maxConcurrent: 5,
+  minTime: 1000,
+})
 
 type PitchforkSlug = 'bnm' | 'bnr' | '8-plus' | 'sunday-reviews'
 
@@ -26,6 +31,7 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   const resp = await getSearchPage(slug)
   const totalAlbums = resp.count
   const pages = Math.round(totalAlbums / 12)
+  console.log(`we will be fetching ${pages} pages`)
   let rawAlbums = [...(resp.results.list ?? [])]
   const allAlbums = await Promise.all(
     [...Array(pages).keys()]
@@ -53,39 +59,52 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   )
 }
 
-const getSearchPage = async (slug: PitchforkSlug, size = 12, start = 1) => {
-  const params: Record<string, string | number> = {
-    types: 'reviews',
-    hierarchy: 'sections/reviews/albums,channels/reviews/albums',
-    size,
-    start,
+const getSearchPage = searchLimiter.wrap(
+  async (slug: PitchforkSlug, size = 12, start = 0) => {
+    console.log(`fetching page ${start / size}`)
+    const params: Record<string, string | number> = {
+      types: 'reviews',
+      hierarchy: 'sections/reviews/albums,channels/reviews/albums',
+      size,
+      start,
+    }
+
+    switch (slug) {
+      case 'bnm':
+        params.isbestnewmusic = 'true'
+        break
+      case 'bnr':
+        params.isbestnewreissue = 'true'
+        params.sort = 'publishdate desc,position asc'
+        break
+      case '8-plus':
+        params.rating_from = '8.0'
+        params.sort = 'publishdate desc,position asc'
+        break
+      case 'sunday-reviews':
+        params.tags = 'sunday review'
+        params.sort = 'publishdate desc'
+        break
+    }
+
+    try {
+      const resp = await axios.get<PitchforkSearchResponse>(
+        'https://pitchfork.com/api/v2/search/',
+        { params }
+      )
+
+      return resp.data
+    } catch (e) {
+      if (e.response) {
+        throw new Error(
+          `Request for page starting with offset ${start} failed with ${e.response.statusCode}: ${e.response.data}`
+        )
+      }
+
+      throw e
+    }
   }
-
-  switch (slug) {
-    case 'bnm':
-      params.isbestnewmusic = 'true'
-      break
-    case 'bnr':
-      params.isbestnewreissue = 'true'
-      params.sort = 'publishdate desc,position asc'
-      break
-    case '8-plus':
-      params.rating_from = '8.0'
-      params.sort = 'publishdate desc,position asc'
-      break
-    case 'sunday-reviews':
-      params.tags = 'sunday review'
-      params.sort = 'publishdate desc'
-      break
-  }
-
-  const resp = await axios.get<PitchforkSearchResponse>(
-    'https://pitchfork.com/api/v2/search/',
-    { params }
-  )
-
-  return resp.data
-}
+)
 
 const main = async () => {
   const args = await yargs
