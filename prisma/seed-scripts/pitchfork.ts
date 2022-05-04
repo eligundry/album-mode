@@ -27,10 +27,11 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   searchParams.set('utm_campaign', 'album-mode.party')
   searchParams.set('utm_term', `p4k-${slug}`)
 
-  // Fetch all the albums
+  // Since we have bootstrapped all the older albums, limit the update jobs to
+  // the first 3 pages
   const resp = await getSearchPage(slug)
   const totalAlbums = resp.count
-  const pages = Math.round(totalAlbums / 12)
+  const pages = Math.min(Math.round(totalAlbums / 12), 3)
   console.log(`we will be fetching ${pages} pages`)
   let rawAlbums = [...(resp.results.list ?? [])]
   const allAlbums = await Promise.all(
