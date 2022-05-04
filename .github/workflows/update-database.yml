@@ -3,6 +3,10 @@ on:
   workflow_dispatch: {}
   schedule:
     - cron: '00 16 * * 0'
+
+env:
+  DATABASE_URL: "file:./dev.db"
+
 jobs:
   UpdateDatabase:
     runs-on: ubuntu-latest
