@@ -17,22 +17,25 @@ const ReviewButtons: React.FC<Props> = ({ albumURL, containerClassName }) => {
   const window = useWindow()
   const { positiveReview, negativeReview } = useRating()
   const { width, height } = useWindowSize()
+  const refreshURL =
+    window?.location.href.replace(window?.location.origin, '') ?? '/'
 
   return (
     <>
       <ButtonGroup className={containerClassName}>
-        <Button
+        <ButtonLink
+          to={refreshURL}
           color="info"
           onClick={() => {
             positiveReview(albumURL)
             setParty(true)
           }}
-          className={clsx('mr-2', 'mb-2', 'md:mb-0')}
+          className={clsx('mr-2', 'mb-2', 'md:mb-0', 'inline-block')}
         >
-          🙌 &nbsp; Great selection, I love it!
-        </Button>
+          🙌 &nbsp; Great selection, give me another!
+        </ButtonLink>
         <ButtonLink
-          to={window?.location.href.replace(window.location.origin, '') ?? '/'}
+          to={refreshURL}
           onClick={() => negativeReview(albumURL)}
           color="danger"
           className={clsx('inline-block')}

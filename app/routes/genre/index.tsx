@@ -6,7 +6,7 @@ import clsx from 'clsx'
 import db from '~/lib/db'
 import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
-import { Layout, Heading, ButtonLink } from '~/components/Base'
+import { Layout, Heading, ButtonLink, Container } from '~/components/Base'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 
 type LoaderData =
@@ -59,19 +59,21 @@ export default function GenreSearch() {
 
   return (
     <Layout>
-      <Heading level="h2">Search by Genre</Heading>
-      <GenreSearchForm defaultGenres={data.topGenres} />
-      <div className={clsx('button-group', 'mt-4')}>
-        {data.topGenres.map((genre) => (
-          <ButtonLink
-            to={`/genre?q=${genre}`}
-            key={genre}
-            className={clsx('mr-2', 'mb-2', 'inline-block')}
-          >
-            {genre}
-          </ButtonLink>
-        ))}
-      </div>
+      <Container>
+        <Heading level="h2">Search by Genre</Heading>
+        <GenreSearchForm defaultGenres={data.topGenres} />
+        <div className={clsx('button-group', 'mt-4')}>
+          {data.topGenres.map((genre) => (
+            <ButtonLink
+              to={`/genre?q=${genre}`}
+              key={genre}
+              className={clsx('mr-2', 'mb-2', 'inline-block')}
+            >
+              {genre}
+            </ButtonLink>
+          ))}
+        </div>
+      </Container>
     </Layout>
   )
 }
