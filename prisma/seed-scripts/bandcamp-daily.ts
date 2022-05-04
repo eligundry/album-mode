@@ -36,7 +36,7 @@ const scrape = async () => {
     for (let page = 1, continueFetching = true; continueFetching; page++) {
       console.info(`fetching bandcamp daily page ${page}`)
 
-      const paths = await dailyAxios
+      let paths = await dailyAxios
         .get('/album-of-the-day', {
           params: {
             page,
@@ -65,18 +65,41 @@ const scrape = async () => {
         continue
       }
 
+      const pathsAlreadyFetched =
+        (
+          await prisma.bandcampDailyAlbum.findMany({
+            select: {
+              bandcampDailyURL: true,
+            },
+            where: {
+              bandcampDailyURL: {
+                in: paths.map((p) => bandcampDailyBase + p),
+              },
+            },
+          })
+        )?.map(({ bandcampDailyURL }) => bandcampDailyURL) ?? []
+
+      if (pathsAlreadyFetched.length > 0) {
+        continueFetching = false
+        paths = paths.filter(
+          (p) => !pathsAlreadyFetched.find((pa) => pa.endsWith(p))
+        )
+      }
+
       promises.push(
         ...paths.map((path) =>
-          getAlbumInfoFromBandcampDailyPath(path, context).then((album) => {
-            if (!album) {
-              return album
-            }
+          getAlbumInfoFromBandcampDailyPath(path, context).then(
+            async (album) => {
+              if (!album) {
+                return album
+              }
 
-            return {
-              ...album,
-              bandcampDailyURL: bandcampDailyBase + path,
+              return {
+                ...album,
+                bandcampDailyURL: bandcampDailyBase + path,
+              }
             }
-          })
+          )
         )
       )
     }
@@ -110,6 +133,7 @@ const scrape = async () => {
           })
         )
     )
+    console.log(albums)
   } finally {
     await browser.close()
   }
