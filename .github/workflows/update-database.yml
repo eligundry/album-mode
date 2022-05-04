@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name: Update Reviews
 on:
   workflow_dispatch: {}
   schedule:
