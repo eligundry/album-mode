@@ -13,6 +13,18 @@ const publications = [
     slug: 'p4k-bnm',
   },
   {
+    name: 'Pitchfork Best Reissues',
+    slug: 'p4k-bnr',
+  },
+  {
+    name: 'Pitchfork 8.0+ Reviews',
+    slug: 'p4k-8-plus',
+  },
+  {
+    name: 'Pitchfork Sunday Reviews',
+    slug: 'p4k-sunday-reviews',
+  },
+  {
     name: 'RS Top 500',
     slug: 'rs-top-500',
   },
