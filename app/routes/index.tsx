@@ -5,6 +5,7 @@ import clsx from 'clsx'
 
 import db from '~/lib/db'
 import { Heading, Layout, Container, Link, Typography } from '~/components/Base'
+import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
@@ -48,6 +49,16 @@ export default function Index() {
             keyFunction={(publication) => publication.slug}
             childFunction={(publication) => publication.name}
           />
+        </div>
+        <div className="artist">
+          <Heading level="h3" className={clsx('mb-2')}>
+            Artist
+          </Heading>
+          <Typography variant="hint" className={clsx('mb-2')}>
+            Want an album from an artist similar to one you like? What's their
+            name?
+          </Typography>
+          <RelatedArtistSearchForm />
         </div>
         <div className="genre">
           <Heading level="h3" className={clsx('mb-2')}>

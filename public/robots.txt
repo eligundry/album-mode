@@ -2,6 +2,7 @@ User-agent: *
 Disallow: /group/*
 Disallow: /publication/*
 Disallow: /label/*
+Disallow: /related-artist/*
 Allow: /
 
 Host: https://album-mode.party

@@ -156,6 +156,38 @@ const getRandomAlbumByGenre = async (
   return sample(albums) ?? null
 }
 
+const getRandomAlbumForRelatedArtist = async (artistName: string) => {
+  const client = await getClient()
+  // First, we have to fetch the artist to get it's ID
+  const artist = await client
+    .search(`artist:"${artistName}"`, ['artist'], {
+      limit: 1,
+    })
+    .then((resp) => resp.body.artists?.items?.[0])
+
+  if (!artist) {
+    throw new Error('could not find artist with that name')
+  }
+
+  // Next, we need to fetch the related artists
+  const relatedArtists = await client.getArtistRelatedArtists(artist.id)
+
+  if (relatedArtists.statusCode !== 200) {
+    throw new Error('could not fetch related artists')
+  }
+
+  // Find a random related artist (or the artist that was provided in the
+  // original search term)
+  const targetArtist = sample([...relatedArtists.body.artists, artist])
+
+  if (!targetArtist) {
+    throw new Error('could not sample to find target artist')
+  }
+
+  // Finally, return a random album from the targetArtist
+  return getRandomAlbumForSearchTerm(`artist:"${targetArtist.name}"`)
+}
+
 const getAlbum = async (album: string, artist: string) =>
   (await getClient())
     .search(`album:"${album}" artist:"${artist}"`, ['album'], {
@@ -173,6 +205,7 @@ const api = {
   getRandomAlbumByGenre,
   getRandomAlbumForGroupSlug,
   getRandomAlbumForSearchTerm,
+  getRandomAlbumForRelatedArtist,
 }
 
 export default api
