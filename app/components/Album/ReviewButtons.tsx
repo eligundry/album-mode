@@ -2,10 +2,10 @@ import { useState } from 'react'
 import clsx from 'clsx'
 import Confetti from 'react-confetti'
 import useWindowSize from 'react-use/lib/useWindowSize'
+import { useLocation } from 'react-router-dom'
 
-import { ButtonGroup, ButtonLink, Button } from '~/components/Base'
+import { ButtonGroup, ButtonLink } from '~/components/Base'
 import useRating from '~/hooks/useRating'
-import useWindow from '~/hooks/useWindow'
 
 interface Props {
   albumURL: string
@@ -14,11 +14,10 @@ interface Props {
 
 const ReviewButtons: React.FC<Props> = ({ albumURL, containerClassName }) => {
   const [party, setParty] = useState(false)
-  const window = useWindow()
   const { positiveReview, negativeReview } = useRating()
   const { width, height } = useWindowSize()
-  const refreshURL =
-    window?.location.href.replace(window?.location.origin, '') ?? '/'
+  const { pathname, search } = useLocation()
+  const refreshURL = pathname + search
 
   return (
     <>
