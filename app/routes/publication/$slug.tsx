@@ -1,6 +1,5 @@
 import { LoaderFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import promiseHash from 'promise-hash'
 import clsx from 'clsx'
 
 import db from '~/lib/db'
@@ -8,6 +7,7 @@ import spotify from '~/lib/spotify'
 import { Layout, Typography, A, Container } from '~/components/Base'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 
 type LoaderData =
   | ({
@@ -46,6 +46,8 @@ export const loader: LoaderFunction = async ({ params }) => {
 
   return json(data)
 }
+
+export const ErrorBoundary = AlbumErrorBoundary
 
 export default function PublicationBySlug() {
   const { album, slug, review } = useLoaderData<LoaderData>()

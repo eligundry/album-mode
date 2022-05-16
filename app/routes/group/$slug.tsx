@@ -3,6 +3,7 @@ import { json, LoaderFunction } from '@remix-run/node'
 
 import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 
 type LoaderData = {
@@ -20,6 +21,8 @@ export const loader: LoaderFunction = async ({ params }) => {
 
   return json(data)
 }
+
+export const ErrorBoundary = AlbumErrorBoundary
 
 export default function GroupBySlug() {
   const { album } = useLoaderData<LoaderData>()
