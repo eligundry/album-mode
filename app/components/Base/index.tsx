@@ -19,11 +19,11 @@ export const Heading: React.FC<HeadingProps> = ({
     <Component
       className={clsx(
         {
-          ['text-5xl']: level === 'h1',
-          ['text-4xl']: level === 'h2',
-          ['text-3xl']: level === 'h3',
-          ['text-2xl']: level === 'h4',
-          ['text-xl']: level === 'h5',
+          ['text-4xl md:text-5xl']: level === 'h1',
+          ['text-3xl md:text-4xl']: level === 'h2',
+          ['text-2xl md:text-3xl']: level === 'h3',
+          ['text-xl md:text-2xl']: level === 'h4',
+          ['text-lg md:text-xl']: level === 'h5',
           ['text-lg']: level === 'h6',
         },
         'my-4',

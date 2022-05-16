@@ -6,6 +6,7 @@ import clsx from 'clsx'
 import db from '~/lib/db'
 import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout, Heading, Container } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
@@ -36,6 +37,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   return json(data)
 }
+
+export const ErrorBoundary = AlbumErrorBoundary
 
 export default function LabelSearch() {
   const data = useLoaderData<LoaderData>()

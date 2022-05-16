@@ -6,6 +6,7 @@ import clsx from 'clsx'
 import db from '~/lib/db'
 import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout, Heading, ButtonLink, Container } from '~/components/Base'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 
@@ -35,6 +36,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   return json(data)
 }
+
+export const ErrorBoundary = AlbumErrorBoundary
 
 export default function GenreSearch() {
   const data = useLoaderData<LoaderData>()

@@ -4,6 +4,7 @@ import clsx from 'clsx'
 
 import { Heading, Container, Typography } from '~/components/Base'
 import ReviewButtons from './ReviewButtons'
+import useIsMobile from '~/hooks/useIsMobile'
 
 interface Props {
   url: string
@@ -13,6 +14,8 @@ interface Props {
 }
 
 const Album: React.FC<Props> = ({ url, artist, album, footer }) => {
+  const isMobile = useIsMobile()
+
   return (
     <Container center>
       <Heading level="h2" className={clsx('mb-2', 'sm:mt-0')}>
@@ -22,7 +25,7 @@ const Album: React.FC<Props> = ({ url, artist, album, footer }) => {
         Click on the Spotify icon in the top right corner to open this in the
         native player
       </Typography>
-      <SpotifyEmbed className={clsx('mx-auto')} link={url} />
+      <SpotifyEmbed wide={isMobile} className={clsx('mx-auto')} link={url} />
       {footer}
       <ReviewButtons
         albumURL={url}
