@@ -73,7 +73,9 @@ const getRandomAlbumForSearchTerm = async (
     })
     .then((resp) => {
       if (!resp.body.albums?.items?.[0]) {
-        throw new Error('could not fetch album for search term from offset')
+        throw new Error(
+          `could not fetch album for search term from offset (Spotify status code: ${resp.statusCode})`
+        )
       }
 
       const album = resp.body.albums.items[0]

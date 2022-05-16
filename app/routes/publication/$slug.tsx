@@ -27,11 +27,11 @@ export const loader: LoaderFunction = async ({ params }) => {
   }
 
   if (slug === 'bandcamp-daily') {
-    const data: LoaderData = await promiseHash({
+    const data: LoaderData = {
       slug: 'bandcamp-daily',
-      album: db.getRandomBandcampDailyAlbum(),
+      album: await db.getRandomBandcampDailyAlbum(),
       review: undefined,
-    })
+    }
 
     return json(data)
   }
