@@ -84,10 +84,14 @@ export const ButtonLink: React.FC<LinkProps & ButtonProps> = ({
   />
 )
 
-export const Link: React.FC<LinkProps> = ({ className, ...props }) => (
+export const Link: React.FC<LinkProps & { color?: boolean }> = ({
+  className,
+  color = true,
+  ...props
+}) => (
   <RemixLink
     className={clsx(
-      'text-primary',
+      color && 'text-primary',
       'hover:underline',
       'hover:text-primaryHover',
       className

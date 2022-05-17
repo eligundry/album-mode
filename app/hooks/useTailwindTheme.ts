@@ -1,5 +1,5 @@
-import tailwindConfig from '~/tailwind.config.json'
+import { theme } from '~/tailwind.config.json'
 
 export default function useTailwindTheme() {
-  return tailwindConfig.theme
+  return theme
 }

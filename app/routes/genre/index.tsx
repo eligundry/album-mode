@@ -52,9 +52,10 @@ export default function GenreSearch() {
     return (
       <Layout>
         <Album
-          url={album.external_urls.spotify}
-          artist={album.artists?.[0].name}
           album={album.name}
+          albumURL={album.external_urls.spotify}
+          artist={album.artists?.[0].name}
+          artistURL={album.artists?.[0].external_urls.spotify}
         />
       </Layout>
     )
