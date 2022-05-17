@@ -23,7 +23,7 @@ const AlbumErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
         to={pathname + search}
         className={clsx('mt-2', 'inline-block')}
       >
-        🔄 &nbsp; Refresh Page
+        🔄 &nbsp; Retry
       </ButtonLink>
     </Layout>
   )
