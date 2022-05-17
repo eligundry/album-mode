@@ -8,6 +8,7 @@ module.exports = {
   theme: {
     colors: {
       white: '#fff',
+      black: '#000',
       slate: 'rgb(226, 223, 240)',
       primary: '#3b82f6',
       primaryHover: '#1d4ed8',
@@ -21,5 +22,5 @@ module.exports = {
       formBorder: '#cccccc',
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/typography')],
 }
