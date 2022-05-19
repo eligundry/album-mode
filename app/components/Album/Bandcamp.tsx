@@ -3,7 +3,7 @@ import clsx from 'clsx'
 
 import { Heading, Container } from '~/components/Base'
 import ReviewButtons from './ReviewButtons'
-import useIsMobile from '~/hooks/useIsMobile'
+import { useIsMobile, useDarkMode } from '~/hooks/useMediaQuery'
 
 interface Props {
   albumID: string | number
@@ -21,10 +21,11 @@ const BandcampAlbum: React.FC<Props> = ({
   footer,
 }) => {
   const isMobile = useIsMobile()
+  const isDarkMode = useDarkMode()
   const params = [
     `album=${albumID}`,
     'size=large',
-    'bgcol=ffffff',
+    `bgcol=${isDarkMode ? '000' : 'fff'}`,
     'linkcol=0687f5',
     'tracklist=false',
     'transparent=true',

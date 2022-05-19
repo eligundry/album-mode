@@ -145,6 +145,8 @@ export const Input: React.FC<InputProps> = ({
       'p-2',
       'focus:outline-0',
       'focus:border-primary',
+      'dark:bg-darkModeInput',
+      'dark:border-grey',
       width === 'half' && ['mb-2', 'w-1/2'],
       className
     )}

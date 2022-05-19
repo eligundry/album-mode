@@ -20,6 +20,7 @@ module.exports = {
       dangerHover: '#b91c1c',
       grey: '#64748b',
       formBorder: '#cccccc',
+      darkModeInput: '#202327',
     },
   },
   plugins: [require('@tailwindcss/typography')],
