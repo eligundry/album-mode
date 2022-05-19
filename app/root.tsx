@@ -38,7 +38,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className={clsx('px-4')}>
+      <body className={clsx('px-4', 'dark:bg-black', 'dark:text-white')}>
         <Outlet />
         <ScrollRestoration />
         <Scripts />

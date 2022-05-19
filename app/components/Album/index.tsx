@@ -4,7 +4,7 @@ import clsx from 'clsx'
 
 import { Heading, Container, Typography, A } from '~/components/Base'
 import ReviewButtons from './ReviewButtons'
-import useIsMobile from '~/hooks/useIsMobile'
+import { useIsMobile } from '~/hooks/useMediaQuery'
 import useGTM from '~/hooks/useGTM'
 
 interface Props {
