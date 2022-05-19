@@ -1,4 +1,4 @@
-import { createRequestHandler } from '@remix-run/netlify'
+import { createRequestHandler } from '@remix-run/netlify-edge'
 import * as build from '@remix-run/dev/server-build'
 
 /*
