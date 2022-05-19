@@ -9,6 +9,7 @@ import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
+import SpotifyLoginButton from '~/components/Spotify/LoginButton'
 
 type LoaderData = {
   publications: Awaited<ReturnType<typeof db.getPublications>>
@@ -36,6 +37,10 @@ export default function Index() {
           Don't know what to listen to?
           <br /> Let us recommend an album.
         </Heading>
+        <div className="spotify">
+          <Heading level="h3">Spotify</Heading>
+          <SpotifyLoginButton />
+        </div>
         <div className="publications">
           <Heading level="h3" className={clsx('mb-2')}>
             Publications

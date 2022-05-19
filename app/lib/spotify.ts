@@ -1,12 +1,20 @@
 import SpotifyWebApi from 'spotify-web-api-node'
+import { createCookie } from '@remix-run/node'
 import sample from 'lodash/sample'
 import random from 'lodash/random'
 import db from './db'
 
-const spotifyAPI = new SpotifyWebApi({
-  clientId: process.env.SPOTIFY_CLIENT_ID,
-  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-})
+const spotifyAPIFactory = () =>
+  new SpotifyWebApi({
+    clientId: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+    redirectUri:
+      process.env.NODE_ENV === 'production'
+        ? 'https://album-mode.party/spotify/callback'
+        : 'http://localhost:3000/spotify/callback',
+  })
+
+export const spotifyAPI = spotifyAPIFactory()
 
 const getClient = async () => {
   // @TODO This token expires, I need to cache it with a TTL
@@ -17,6 +25,12 @@ const getClient = async () => {
   }
 
   return spotifyAPI
+}
+
+const getUserClient = (accessToken: string) => {
+  const api = spotifyAPIFactory()
+  api.setAccessToken(accessToken)
+  return api
 }
 
 const getRandomAlbumForLabelSlug = async (labelSlug: string) => {
@@ -199,6 +213,30 @@ const getAlbum = async (album: string, artist: string) =>
     .then((albums) => albums.filter((album) => album.album_type !== 'single'))
     .then((albums) => albums?.[0])
 
+const getRandomAlbumFromUserLibrary = async (accessToken: string) => {
+  const client = getUserClient(accessToken)
+  const firstPage = await client.getMySavedAlbums({
+    limit: 1,
+  })
+
+  const targetOffset = random(0, firstPage.body.total)
+
+  if (targetOffset === 0) {
+    return firstPage.body.items[0].album
+  }
+
+  return client
+    .getMySavedAlbums({
+      offset: targetOffset,
+      limit: 1,
+    })
+    .then((resp) => resp.body.items[0].album)
+}
+
+const cookieFactory = createCookie('spotify', {
+  maxAge: 3600,
+})
+
 const api = {
   getRandomAlbumForLabelSlug,
   getRandomAlbumForLabel,
@@ -208,6 +246,8 @@ const api = {
   getRandomAlbumForGroupSlug,
   getRandomAlbumForSearchTerm,
   getRandomAlbumForRelatedArtist,
+  getRandomAlbumFromUserLibrary,
+  cookieFactory,
 }
 
 export default api

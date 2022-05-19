@@ -72,17 +72,20 @@ export const Button: React.FC<ButtonProps> = ({
   />
 )
 
-export const ButtonLink: React.FC<LinkProps & ButtonProps> = ({
-  to,
+type ButtonLinkProps = (LinkProps | HTMLAnchorElement) & ButtonProps
+
+export const ButtonLink: React.FC<ButtonLinkProps> = ({
   className,
   ...props
-}) => (
-  <RemixLink
-    to={to}
-    className={buttonStyles({ className, ...props })}
-    {...props}
-  />
-)
+}) => {
+  if ('href' in props) {
+    return <a className={buttonStyles({ className, ...props })} {...props} />
+  }
+
+  return (
+    <RemixLink className={buttonStyles({ className, ...props })} {...props} />
+  )
+}
 
 export const Link: React.FC<LinkProps & { color?: boolean }> = ({
   className,
