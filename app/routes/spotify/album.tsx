@@ -29,7 +29,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function RandomAlbumFromSpotifyLibrary() {
   const { album } = useLoaderData<LoaderData>()
-  console.log(album)
 
   if (!album) {
     return null
@@ -42,6 +41,7 @@ export default function RandomAlbumFromSpotifyLibrary() {
         albumURL={album.external_urls.spotify}
         artist={album.artists?.[0].name}
         artistURL={album.artists?.[0].external_urls.spotify}
+        headerPrefix="Are you in the mood for"
       />
     </Layout>
   )

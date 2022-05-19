@@ -13,6 +13,7 @@ interface Props {
   artist: string
   artistURL: string
   footer?: React.ReactNode
+  headerPrefix?: string
 }
 
 const linkParams = new URLSearchParams({
@@ -26,6 +27,7 @@ const Album: React.FC<Props> = ({
   artistURL,
   album,
   footer,
+  headerPrefix = 'Have you heard',
 }) => {
   const isMobile = useIsMobile()
   const sendEvent = useGTM()
@@ -33,7 +35,7 @@ const Album: React.FC<Props> = ({
   return (
     <Container center>
       <Heading level="h2" className={clsx('mb-2', 'sm:mt-0')}>
-        Have you heard{' '}
+        {headerPrefix + ' '}
         <em>
           <A
             href={`${albumURL}?${linkParams.toString()}`}

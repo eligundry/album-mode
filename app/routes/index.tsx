@@ -4,7 +4,15 @@ import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
 import db from '~/lib/db'
-import { Heading, Layout, Container, Link, Typography } from '~/components/Base'
+import spotify from '~/lib/spotify'
+import {
+  Heading,
+  Layout,
+  Container,
+  Link,
+  Typography,
+  ButtonLink,
+} from '~/components/Base'
 import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
@@ -15,13 +23,24 @@ type LoaderData = {
   publications: Awaited<ReturnType<typeof db.getPublications>>
   artistGroupings: Awaited<ReturnType<typeof db.getArtistGroupings>>
   topGenres: Awaited<ReturnType<typeof db.getTopGenres>>
+  loggedIn: {
+    spotify: boolean
+  }
 }
 
-export const loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async ({ request }) => {
+  const cookieHeader = request.headers.get('Cookie') || ''
+  const cookie = (await spotify.cookieFactory.parse(cookieHeader)) || {
+    accessToken: null,
+  }
+
   const data: LoaderData = await promiseHash({
     publications: db.getPublications(),
     artistGroupings: db.getArtistGroupings(),
     topGenres: db.getTopGenres(),
+    loggedIn: {
+      spotify: !!cookie.accessToken,
+    },
   })
 
   return json(data)
@@ -38,8 +57,24 @@ export default function Index() {
           <br /> Let us recommend an album.
         </Heading>
         <div className="spotify">
-          <Heading level="h3">Spotify</Heading>
-          <SpotifyLoginButton />
+          <Heading level="h3" className={clsx('mb-2')}>
+            Spotify
+          </Heading>
+          <Typography variant="hint" className={clsx('mb-2')}>
+            Looking for a familiar favorite? Let's play a random album from your
+            Spotify library.
+          </Typography>
+          {!data.loggedIn.spotify ? (
+            <SpotifyLoginButton />
+          ) : (
+            <ButtonLink
+              to="/spotify/album"
+              color="info"
+              className={clsx('inline-block')}
+            >
+              Pick Me Something From My Spotify Library
+            </ButtonLink>
+          )}
         </div>
         <div className="publications">
           <Heading level="h3" className={clsx('mb-2')}>

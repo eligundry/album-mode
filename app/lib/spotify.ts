@@ -50,8 +50,6 @@ const getRandomAlbumForGroupSlug = async (groupSlug: string) => {
     throw new Error(`Could not find artist under group slug '${groupSlug}'`)
   }
 
-  console.log(artist)
-
   return getRandomAlbumForSearchTerm(`artist:"${artist.name}"`)
 }
 
