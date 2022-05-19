@@ -1,52 +1,50 @@
-# Welcome to Remix!
+# album-mode.party [![Netlify Status](https://api.netlify.com/api/v1/badges/e24e0200-16f4-4d50-a3f4-ef1edf891881/deploy-status)](https://app.netlify.com/sites/album-mode/deploys)
 
-- [Remix Docs](https://remix.run/docs)
-
-## Netlify Setup
-
-1. Install the [Netlify CLI](https://www.netlify.com/products/dev/):
-
-```sh
-npm i -g netlify-cli
-```
-
-If you have previously installed the Netlify CLI, you should update it to the latest version:
-
-```sh
-npm i -g netlify-cli@latest
-```
-
-2. Sign up and log in to Netlify:
-
-```sh
-netlify login
-```
-
-3. Create a new site:
-
-```sh
-netlify init
-```
+Web application that recommends albums based upon magic (aka randomly selecting an album from a list).
 
 ## Development
 
-The Netlify CLI starts your app in development mode, rebuilding assets on file changes.
+Standard [Remix](https://remix.run) setup here.
 
-```sh
-npm run dev
+```bash
+# Run the site in development mode @ http://localhost:3000
+$ npm run dev
+# Build the site
+$ npm run build
 ```
 
-Open up [http://localhost:3000](http://localhost:3000), and you should be ready to go!
+### Styling
+
+I'm using [tailwindcss](https://tailwindcss.com/) for styling this site because I'm lazy. Nothing super special here
+except that when editing `tailwind.config.js`, you must run the following command so that the application code has
+access to the changes, which are generated to `app/tailwind.config.json`.
+
+```bash
+$ npm run seed-script -- scripts/dumpTailwindConfig.ts
+```
+
+## Database
+
+All the data used by this application lives in a sqlite database in `prisma/dev.db` that is checked into this repo and
+deployed to production along with the code. There are a fair amount of seed/scraping scripts to populate this database
+with reviews from various publications. They can be run like so:
+
+```bash
+$ npm run seed-script -- prisma/seed-scripts/pazz-and-jop.ts
+```
+
+I have also setup a Github Action that runs weekly to update the data from some publications every Sunday at noon.
 
 ## Deployment
 
-There are two ways to deploy your app to Netlify, you can either link your app to your git repo and have it auto deploy changes to Netlify, or you can deploy your app manually. If you've followed the setup instructions already, all you need to do is run this:
+All deployments run through Netlify. You should never need to deploy from your local machine, but if you do, you can do
+the following:
 
-```sh
-npm run build
-# preview deployment
-netlify deploy
-
-# production deployment
-netlify deploy --prod
+```bash
+# Build the site
+$ npm run build
+# Deploy to a preview branch with the netlify-cli
+$ netlify deploy
+# Deploy to production
+$ netlify deploy --prod
 ```
