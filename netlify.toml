@@ -19,8 +19,5 @@
   [headers.values]
     "Cache-Control" = "public, max-age=31536000, s-maxage=31536000"
 
-[functions]
-  included_files = ["prisma/dev.db"]
-
 [edge_function]
   included_files = ["prisma/dev.db"]
