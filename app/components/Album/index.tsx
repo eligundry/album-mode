@@ -40,7 +40,7 @@ const Album: React.FC<Props> = ({
             target="_blank"
             onClick={() => {
               sendEvent({
-                event: 'Spotify Album Opened',
+                event: 'Album Opened',
                 albumURL,
               })
             }}
@@ -54,7 +54,7 @@ const Album: React.FC<Props> = ({
           target="_blank"
           onClick={() =>
             sendEvent({
-              event: 'Spotify Artist Opened',
+              event: 'Artist Opened',
               artistURL,
             })
           }
