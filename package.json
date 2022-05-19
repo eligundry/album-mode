@@ -18,9 +18,9 @@
     "@builder.io/partytown": "^0.5.2",
     "@netlify/functions": "^0.10.0",
     "@prisma/client": "^3.12.0",
-    "@remix-run/netlify": "^1.3.5",
-    "@remix-run/node": "^1.3.5",
-    "@remix-run/react": "^1.3.5",
+    "@remix-run/netlify-edge": "experimental-netlify-edge",
+    "@remix-run/node": "experimental-netlify-edge",
+    "@remix-run/react": "experimental-netlify-edge",
     "axios": "^0.26.1",
     "bandcamp-scraper": "^1.4.1",
     "bottleneck": "^2.19.5",
@@ -39,8 +39,8 @@
     "tailwindcss-classnames": "^3.0.4"
   },
   "devDependencies": {
-    "@remix-run/dev": "^1.3.5",
-    "@remix-run/eslint-config": "^1.3.5",
+    "@remix-run/dev": "experimental-netlify-edge",
+    "@remix-run/eslint-config": "experimental-netlify-edge",
     "@tailwindcss/typography": "^0.5.2",
     "@types/jsdom": "^16.2.14",
     "@types/lodash": "^4.14.181",
