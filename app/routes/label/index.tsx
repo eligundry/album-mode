@@ -53,9 +53,10 @@ export default function LabelSearch() {
     return (
       <Layout>
         <Album
+          album={album.name}
           albumURL={album.external_urls.spotify}
           artist={album.artists?.[0].name}
-          album={album.name}
+          artistURL={album.artists?.[0].external_urls.spotify}
         />
       </Layout>
     )
