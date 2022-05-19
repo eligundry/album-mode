@@ -21,3 +21,6 @@
 
 [functions]
   included_files = ["prisma/dev.db"]
+
+[edge_function]
+  included_files = ["prisma/dev.db"]
