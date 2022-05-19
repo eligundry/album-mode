@@ -8,7 +8,7 @@ export const meta: MetaFunction = () => ({
 
 export default function About() {
   return (
-    <Layout className={clsx('prose')}>
+    <Layout className={clsx('prose', 'dark:prose-invert')}>
       <Heading level="h2">About</Heading>
       <Typography>
         Have you ever headed to your Spotify Discover page and found that all
@@ -36,6 +36,25 @@ export default function About() {
         Please enjoy and{' '}
         <A href="mailto:eligundry+album-mode.party@gmail.com">
           let me know if there is anything you would like added
+        </A>
+        !
+      </Typography>
+      <Heading level="h3">Privacy</Heading>
+      <Typography>
+        I take your privacy extremely seriously. We use Google Analytics +
+        Google Tag Manager only to collect metrics on if you like my
+        recommendations or not. If you login with Spotify, I save your access
+        token to your cookies locally and retain absolutely no personally
+        identifiable information about you on our servers.{' '}
+        <strong>
+          You are not, nor will you ever be, my funding source for this
+          application.
+        </strong>
+      </Typography>
+      <Typography>
+        If you have any questions about your privacy on this site,{' '}
+        <A href="mailto:eligundry+album-mode.party@gmail.com">
+          please contact me
         </A>
         !
       </Typography>

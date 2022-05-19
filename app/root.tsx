@@ -1,4 +1,9 @@
-import type { MetaFunction, LinksFunction } from '@remix-run/node'
+import {
+  MetaFunction,
+  LinksFunction,
+  LoaderFunction,
+  json,
+} from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -6,6 +11,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from '@remix-run/react'
 import clsx from 'clsx'
 
@@ -30,7 +36,16 @@ export const links: LinksFunction = () => [
   },
 ]
 
+export const loader: LoaderFunction = async () =>
+  json({
+    ENV: {
+      SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
+    },
+  })
+
 export default function App() {
+  const data = useLoaderData()
+
   return (
     <html lang="en">
       <head>
@@ -41,6 +56,11 @@ export default function App() {
       <body className={clsx('px-4', 'dark:bg-black', 'dark:text-white')}>
         <Outlet />
         <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+          }}
+        />
         <Scripts />
         <LiveReload />
       </body>
