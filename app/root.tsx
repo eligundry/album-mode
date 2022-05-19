@@ -54,7 +54,7 @@ export default function App() {
         <Tracking />
         <Meta />
         <Links />
-        {isDarkMode && <meta name="theme-color" content="#000" />}
+        <meta name="theme-color" content={isDarkMode ? '#000' : '#fff'} />
       </head>
       <body className={clsx('px-4', 'dark:bg-black', 'dark:text-white')}>
         <Outlet />
