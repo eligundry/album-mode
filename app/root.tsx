@@ -16,6 +16,7 @@ import {
 import clsx from 'clsx'
 
 import Tracking from '~/components/Tracking'
+import { useDarkMode } from '~/hooks/useMediaQuery'
 import styles from './styles/app.css'
 
 export const meta: MetaFunction = () => ({
@@ -45,6 +46,7 @@ export const loader: LoaderFunction = async () =>
 
 export default function App() {
   const data = useLoaderData()
+  const isDarkMode = useDarkMode()
 
   return (
     <html lang="en">
@@ -52,6 +54,7 @@ export default function App() {
         <Tracking />
         <Meta />
         <Links />
+        {isDarkMode && <meta name="theme-color" content="#000" />}
       </head>
       <body className={clsx('px-4', 'dark:bg-black', 'dark:text-white')}>
         <Outlet />
