@@ -133,7 +133,7 @@ const getRandomAlbumByGenre = async (
 
   const artistOffsetToFetch = random(
     0,
-    Math.min(firstPageOfArtists.body.artists.total, 1000)
+    Math.min(firstPageOfArtists.body.artists.total, 300)
   )
 
   let artistID = firstPageOfArtists.body.artists.items[0].id
