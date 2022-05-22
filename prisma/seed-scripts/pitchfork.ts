@@ -10,7 +10,7 @@ const searchLimiter = new Bottleneck({
   minTime: 1000,
 })
 
-type PitchforkSlug = 'bnm' | 'bnr' | '8-plus' | 'sunday-reviews'
+type PitchforkSlug = 'bnm' | 'bnr' | '8-plus' | '7-plus' | 'sunday-reviews'
 
 const scrapeP4k = async (slug: PitchforkSlug) => {
   const publication = await prisma.publication.findFirst({
@@ -31,7 +31,8 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   // the first 3 pages
   const resp = await getSearchPage(slug)
   const totalAlbums = resp.count
-  const pages = Math.min(Math.round(totalAlbums / 12), 3)
+  // const pages = Math.min(Math.round(totalAlbums / 12), 3)
+  const pages = Math.round(totalAlbums / 12)
   console.log(`we will be fetching ${pages} pages`)
   let rawAlbums = [...(resp.results.list ?? [])]
   const allAlbums = await Promise.all(
@@ -44,6 +45,7 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   rawAlbums.push(...allAlbums.flat().filter((a): a is ListEntity => !!a))
 
   // Insert them into the DB
+  let inserted = 0
   await Promise.all(
     rawAlbums.map((album) =>
       prisma.albumReviewedByPublication
@@ -55,9 +57,12 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
             aritst: album.artists?.[0]?.display_name || '',
           },
         })
+        .then(() => inserted++)
         .catch(() => {})
     )
   )
+
+  console.log(`Inserted ${inserted} albums`)
 }
 
 const getSearchPage = searchLimiter.wrap(
@@ -80,6 +85,10 @@ const getSearchPage = searchLimiter.wrap(
         break
       case '8-plus':
         params.rating_from = '8.0'
+        params.sort = 'publishdate desc,position asc'
+        break
+      case '7-plus':
+        params.rating_from = '7.0'
         params.sort = 'publishdate desc,position asc'
         break
       case 'sunday-reviews':
@@ -114,7 +123,7 @@ const main = async () => {
     .option('slug', {
       describe: 'The reviews slug to update',
       type: 'string',
-      choices: ['bnm', 'bnr', '8-plus', 'sunday-reviews'],
+      choices: ['bnm', 'bnr', '8-plus', '7-plus', 'sunday-reviews'],
       demandOption: true,
     })
     .help().argv

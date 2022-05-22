@@ -4,7 +4,11 @@ import useLocation from 'react-use/lib/useLocation'
 
 import { ButtonLink } from '~/components/Base'
 
-const SpotifyLoginButton: React.FC = () => {
+interface Props {
+  className?: string
+}
+
+const SpotifyLoginButton: React.FC<Props> = ({ className }) => {
   const { origin } = useLocation()
   const [loginURL, setLoginURL] = useState<URL>()
 
@@ -25,7 +29,7 @@ const SpotifyLoginButton: React.FC = () => {
     <ButtonLink
       href={loginURL?.toString() ?? '#'}
       color="info"
-      className={clsx('inline-block')}
+      className={clsx('inline-block', className)}
     >
       Login with Spotify
     </ButtonLink>

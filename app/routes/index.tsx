@@ -65,16 +65,23 @@ export default function Index() {
             Spotify library.
           </Typography>
           {!data.loggedIn.spotify ? (
-            <SpotifyLoginButton />
+            <SpotifyLoginButton className={clsx('mr-2', 'mb-2')} />
           ) : (
             <ButtonLink
               to="/spotify/album"
               color="info"
-              className={clsx('inline-block')}
+              className={clsx('inline-block', 'mr-2', 'mb-2')}
             >
               Pick Me Something From My Spotify Library
             </ButtonLink>
           )}
+          <ButtonLink
+            to="/spotify/new-releases"
+            color="info"
+            className={clsx('inline-block')}
+          >
+            New Release
+          </ButtonLink>
         </div>
         <div className="publications">
           <Heading level="h3" className={clsx('mb-2')}>

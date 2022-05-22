@@ -56,23 +56,27 @@ const GenreSearchForm: React.FC<Props> = ({ defaultGenres }) => {
             ...styles,
             backgroundColor: isDarkMode
               ? theme.colors.darkModeInput
-              : styles.borderColor,
+              : theme.colors.white,
           }),
           option: (styles, options) => {
-            let backgroundColor = styles.backgroundColor
+            let backgroundColor = theme.colors.white
+            let color = theme.colors.black
 
             if (isDarkMode) {
-              if (options.isFocused) {
-                backgroundColor = theme.colors.primary
-              } else {
-                backgroundColor = theme.colors.darkModeInput
-              }
+              backgroundColor = theme.colors.darkModeInput
+              color = theme.colors.white
+            }
+
+            if (options.isFocused) {
+              backgroundColor = theme.colors.primary
+              color = theme.colors.white
             }
 
             return {
               ...styles,
               backgroundColor,
               borderColor: isDarkMode ? theme.colors.grey : styles.borderColor,
+              color,
             }
           },
         }}
