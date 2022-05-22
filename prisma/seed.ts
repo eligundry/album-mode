@@ -21,6 +21,10 @@ const publications = [
     slug: 'p4k-8-plus',
   },
   {
+    name: 'Pitchfork 7.0+ Reviews',
+    slug: 'p4k-7-plus',
+  },
+  {
     name: 'Pitchfork Sunday Reviews',
     slug: 'p4k-sunday-reviews',
   },

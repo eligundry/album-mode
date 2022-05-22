@@ -29,6 +29,9 @@ jobs:
       - name: 'Pull Pitchfork 8.0+ reviews'
         run: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug 8-plus
 
+      - name: 'Pull Pitchfork 7.0+ reviews'
+        run: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug 7-plus
+
       - name: 'Pull Bandcamp Daily reviews'
         run: npm run seed-script -- prisma/seed-scripts/bandcamp-daily.ts
 
