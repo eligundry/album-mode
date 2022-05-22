@@ -81,17 +81,22 @@ const getRandomAlbumForPublication = async (publicationSlug: string) =>
       Pick<AlbumReviewedByPublication, 'id' | 'aritst' | 'album' | 'slug'>[]
     >(
       Prisma.sql`
-        SELECT 
-          a.id, 
-          a.aritst, 
+        SELECT
+          a.id,
+          a.aritst,
           a.album,
           a.slug
         FROM albumReviewedByPublication a
-        JOIN publication ON (
-          publication.id = a.publicationID
-          AND publication.slug = ${publicationSlug}
+        WHERE a.id = (
+          SELECT albumReviewedByPublication.id
+          FROM albumReviewedByPublication
+          JOIN publication ON (
+            publication.slug = ${publicationSlug}
+            AND albumReviewedByPublication.publicationID = publication.id
+          )
+          ORDER BY random()
+          LIMIT 1
         )
-        ORDER BY random()
         LIMIT 1
       `
     )
