@@ -231,6 +231,17 @@ const getRandomAlbumFromUserLibrary = async (accessToken: string) => {
     .then((resp) => resp.body.items[0].album)
 }
 
+const getRandomNewRelease = async (country: string = 'US') => {
+  const client = await getClient()
+  const resp = await client.getNewReleases({
+    country,
+    limit: 50,
+    offset: random(0, 50),
+  })
+
+  return resp.body.albums.items[0]
+}
+
 const cookieFactory = createCookie('spotify', {
   maxAge: 3600,
 })
@@ -245,6 +256,7 @@ const api = {
   getRandomAlbumForSearchTerm,
   getRandomAlbumForRelatedArtist,
   getRandomAlbumFromUserLibrary,
+  getRandomNewRelease,
   cookieFactory,
 }
 
