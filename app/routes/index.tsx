@@ -75,20 +75,6 @@ export default function Index() {
           </Typography>
           <GenreSearchForm defaultGenres={data.topGenres} />
         </div>
-        <div className="publications">
-          <Heading level="h3" className={clsx('mb-2')}>
-            Publications
-          </Heading>
-          <Typography variant="hint" className={clsx('mb-2')}>
-            Play a random album recommended by the pros.
-          </Typography>
-          <ButtonLinkGroup
-            items={data.publications}
-            toFunction={(publication) => `/publication/${publication.slug}`}
-            keyFunction={(publication) => publication.slug}
-            childFunction={(publication) => publication.name}
-          />
-        </div>
         <div className="spotify">
           <Heading level="h3" className={clsx('mb-2')}>
             Spotify
@@ -115,6 +101,20 @@ export default function Index() {
           >
             New Release
           </ButtonLink>
+        </div>
+        <div className="publications">
+          <Heading level="h3" className={clsx('mb-2')}>
+            Publications
+          </Heading>
+          <Typography variant="hint" className={clsx('mb-2')}>
+            Play a random album recommended by the pros.
+          </Typography>
+          <ButtonLinkGroup
+            items={data.publications}
+            toFunction={(publication) => `/publication/${publication.slug}`}
+            keyFunction={(publication) => publication.slug}
+            childFunction={(publication) => publication.name}
+          />
         </div>
         <div className="labels">
           <Heading level="h3" className={clsx('mb-2')}>
