@@ -8,11 +8,18 @@ import { ButtonGroup, ButtonLink } from '~/components/Base'
 import useRating from '~/hooks/useRating'
 
 interface Props {
+  albumName: string
+  artistName: string
   albumURL: string
   containerClassName?: string
 }
 
-const ReviewButtons: React.FC<Props> = ({ albumURL, containerClassName }) => {
+const ReviewButtons: React.FC<Props> = ({
+  albumURL,
+  albumName,
+  artistName,
+  containerClassName,
+}) => {
   const [party, setParty] = useState(false)
   const { positiveReview, negativeReview } = useRating()
   const { width, height } = useWindowSize()
@@ -26,7 +33,11 @@ const ReviewButtons: React.FC<Props> = ({ albumURL, containerClassName }) => {
           to={refreshURL}
           color="info"
           onClick={() => {
-            positiveReview(albumURL)
+            positiveReview({
+              name: albumName,
+              artist: artistName,
+              albumURL,
+            })
             setParty(true)
           }}
           className={clsx('mr-2', 'mb-2', 'md:mb-0', 'inline-block')}
@@ -35,7 +46,13 @@ const ReviewButtons: React.FC<Props> = ({ albumURL, containerClassName }) => {
         </ButtonLink>
         <ButtonLink
           to={refreshURL}
-          onClick={() => negativeReview(albumURL)}
+          onClick={() =>
+            negativeReview({
+              name: albumName,
+              artist: albumName,
+              albumURL,
+            })
+          }
           color="danger"
           className={clsx('inline-block')}
         >
