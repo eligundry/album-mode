@@ -77,6 +77,8 @@ const Album: React.FC<Props> = ({
       {footer}
       <ReviewButtons
         albumURL={albumURL}
+        artistName={artist}
+        albumName={album}
         containerClassName={clsx(!footer && 'mt-4')}
       />
     </Container>
