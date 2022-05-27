@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { LoaderFunction, json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
-import spotify, { spotifyAPI } from '~/lib/spotify'
+import auth from '~/lib/auth'
 import {
   Layout,
   Heading,
@@ -12,44 +12,25 @@ import {
 } from '~/components/Base'
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const url = new URL(request.url)
-  const code = url.searchParams.get('code')
-  const state = url.searchParams.get('state')
-
-  if (!code) {
-    return json(
-      { error: 'The `code` query param must be provided for login' },
-      400
-    )
-  }
-
-  if (!state) {
-    return json(
-      { error: 'The `state` query param must be provided for login' },
-      400
-    )
-  }
-
   try {
-    var accessTokenResp = await spotifyAPI.authorizationCodeGrant(code)
-  } catch (e) {
-    return json(
-      {
-        error: `Could not exchange authorization code for access token: ${
-          e?.message ?? e
-        }`,
-      },
-      500
-    )
-  }
+    const cookie = await auth.handleSpotifyLoginCallback(request)
 
-  return redirect('/', {
-    headers: {
-      'Set-Cookie': await spotify.cookieFactory.serialize({
-        accessToken: accessTokenResp.body.access_token,
-      }),
-    },
-  })
+    return redirect('/', {
+      headers: {
+        'Set-Cookie': await auth.cookieFactory.serialize(cookie),
+      },
+    })
+  } catch (e) {
+    let statusCode = 500
+
+    if (e.message.startsWith('bad request:')) {
+      statusCode = 400
+    } else if (e.message.startsWith('unauthorized:')) {
+      statusCode = 401
+    }
+
+    return json({ error: e.message }, statusCode)
+  }
 }
 
 export default function SpotifyLoginCallback() {
@@ -61,7 +42,6 @@ export default function SpotifyLoginCallback() {
         <Heading level="h2">⛔️ Whoops!</Heading>
         <Typography>
           We seem to have run into an error. We are working on fixing it now.
-          You should refresh the page to fix this issue.
         </Typography>
         <details>
           <summary>Detailed error message</summary>

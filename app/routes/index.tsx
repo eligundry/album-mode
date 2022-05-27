@@ -3,6 +3,7 @@ import { json, LoaderFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
+import auth from '~/lib/auth'
 import db from '~/lib/db'
 import spotify from '~/lib/spotify'
 import {
@@ -23,27 +24,35 @@ type LoaderData = {
   publications: Awaited<ReturnType<typeof db.getPublications>>
   artistGroupings: Awaited<ReturnType<typeof db.getArtistGroupings>>
   topGenres: Awaited<ReturnType<typeof db.getTopGenres>>
-  loggedIn: {
-    spotify: boolean
+  auth: {
+    spotify: {
+      loggedIn: boolean
+      loginState: string | null
+    }
   }
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const cookieHeader = request.headers.get('Cookie') || ''
-  const cookie = (await spotify.cookieFactory.parse(cookieHeader)) || {
-    accessToken: null,
-  }
+  const authCookie = await auth.getCookie(request)
 
   const data: LoaderData = await promiseHash({
     publications: db.getPublications(),
     artistGroupings: db.getArtistGroupings(),
     topGenres: db.getTopGenres(),
-    loggedIn: {
-      spotify: !!cookie.accessToken,
+    auth: {
+      spotify: {
+        loggedIn: 'accessToken' in authCookie.spotify,
+        loginState:
+          'state' in authCookie.spotify ? authCookie.spotify.state : null,
+      },
     },
   })
 
-  return json(data)
+  return json(data, {
+    headers: {
+      'Set-Cookie': await auth.cookieFactory.serialize(authCookie),
+    },
+  })
 }
 
 export default function Index() {
@@ -83,8 +92,11 @@ export default function Index() {
             Looking for a familiar favorite? Let's play a random album from your
             Spotify library.
           </Typography>
-          {!data.loggedIn.spotify ? (
-            <SpotifyLoginButton className={clsx('mr-2', 'mb-2')} />
+          {data.auth.spotify.loginState ? (
+            <SpotifyLoginButton
+              state={data.auth.spotify.loginState}
+              className={clsx('mr-2', 'mb-2')}
+            />
           ) : (
             <ButtonLink
               to="/spotify/album"

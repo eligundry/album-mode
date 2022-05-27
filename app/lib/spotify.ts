@@ -27,9 +27,14 @@ const getClient = async () => {
   return spotifyAPI
 }
 
-const getUserClient = (accessToken: string) => {
+const getUserClient = (accessToken: string, refreshToken?: string) => {
   const api = spotifyAPIFactory()
   api.setAccessToken(accessToken)
+
+  if (refreshToken) {
+    api.setRefreshToken(refreshToken)
+  }
+
   return api
 }
 
@@ -258,6 +263,7 @@ const api = {
   getRandomAlbumFromUserLibrary,
   getRandomNewRelease,
   cookieFactory,
+  getUserClient,
 }
 
 export default api
