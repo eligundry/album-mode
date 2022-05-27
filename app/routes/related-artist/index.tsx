@@ -19,8 +19,15 @@ export const loader: LoaderFunction = async ({ request }) => {
     return json({ error: 'q query param must be provided' }, 400)
   }
 
+  let searchMethod = spotify.getRandomAlbumForRelatedArtist
+
+  // If the search term is quoted, get random album for just that artist
+  if (q.startsWith('"') && q.endsWith('"')) {
+    searchMethod = spotify.getRandomAlbumForArtist
+  }
+
   const data: LoaderData = await promiseHash({
-    album: spotify.getRandomAlbumForRelatedArtist(q),
+    album: searchMethod(q),
   })
 
   return json(data)
