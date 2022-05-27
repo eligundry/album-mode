@@ -1,46 +1,56 @@
 import { LoaderFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
+import auth from '~/lib/auth'
 import spotify from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 
-type LoaderData = {
-  album: Awaited<ReturnType<typeof spotify.getRandomAlbumFromUserLibrary>>
-}
+type LoaderData =
+  | {
+      album: Awaited<ReturnType<typeof spotify.getRandomAlbumFromUserLibrary>>
+    }
+  | {
+      error: string
+    }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const cookieHeader = request.headers.get('Cookie')
-  const cookie = await spotify.cookieFactory.parse(cookieHeader)
+  const cookie = await auth.getCookie(request)
 
-  if (!cookie.accessToken) {
+  if (!('accessToken' in cookie.spotify)) {
     return json(
       { error: 'You must be logged in via Spotify to access this' },
-      403
+      401
     )
   }
 
   const data: LoaderData = {
-    album: await spotify.getRandomAlbumFromUserLibrary(cookie.accessToken),
+    album: await spotify.getRandomAlbumFromUserLibrary(
+      cookie.spotify.accessToken
+    ),
   }
 
-  return json(data)
+  return json(data, {
+    headers: {
+      'Set-Cookie': await auth.cookieFactory.serialize(cookie),
+    },
+  })
 }
 
 export default function RandomAlbumFromSpotifyLibrary() {
-  const { album } = useLoaderData<LoaderData>()
+  const data = useLoaderData<LoaderData>()
 
-  if (!album) {
+  if ('error' in data) {
     return null
   }
 
   return (
     <Layout>
       <Album
-        album={album.name}
-        albumURL={album.external_urls.spotify}
-        artist={album.artists?.[0].name}
-        artistURL={album.artists?.[0].external_urls.spotify}
+        album={data.album.name}
+        albumURL={data.album.external_urls.spotify}
+        artist={data.album.artists?.[0].name}
+        artistURL={data.album.artists?.[0].external_urls.spotify}
         headerPrefix="Are you in the mood for"
       />
     </Layout>

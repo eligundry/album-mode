@@ -6,15 +6,14 @@ import { ButtonLink } from '~/components/Base'
 
 interface Props {
   className?: string
+  state: string
 }
 
-const SpotifyLoginButton: React.FC<Props> = ({ className }) => {
+const SpotifyLoginButton: React.FC<Props> = ({ className, state }) => {
   const { origin } = useLocation()
   const [loginURL, setLoginURL] = useState<URL>()
 
   useEffect(() => {
-    // @TODO save the state to a cookie and check it in the redirect
-    const state = Math.random().toString(36).slice(2, 18)
     const loginURL = new URL('https://accounts.spotify.com/authorize')
     loginURL.searchParams.set('response_type', 'code')
     loginURL.searchParams.set('client_id', window.ENV.SPOTIFY_CLIENT_ID)
