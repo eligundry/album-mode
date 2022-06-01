@@ -1,7 +1,18 @@
+import path from 'path'
 import fs from 'fs'
 import resolveConfig from 'tailwindcss/resolveConfig'
+import pick from 'lodash/pick'
 import tailwindConfig from '../tailwind.config'
 
-const fullConfig = JSON.stringify(resolveConfig(tailwindConfig), undefined, 2)
-fs.writeFileSync('app/tailwind.config.json', fullConfig, 'utf8')
-console.info('Wrote tailwind config to app/tailwind.config.json')
+const p = path.join('./', 'app', 'tailwind.config.json')
+const fullConfig = resolveConfig(tailwindConfig)
+fs.writeFileSync(
+  p,
+  JSON.stringify(
+    pick(fullConfig.theme, ['colors', 'screens', 'fontFamily', 'animation']),
+    undefined,
+    2
+  ),
+  'utf8'
+)
+console.info(`Wrote tailwind config to ${p}`)
