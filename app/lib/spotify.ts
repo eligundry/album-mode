@@ -61,6 +61,37 @@ const getRandomAlbumForGroupSlug = async (groupSlug: string) => {
 const getRandomAlbumForLabel = async (label: string) =>
   getRandomAlbumForSearchTerm(`label:"${label}"`, 500)
 
+const getRandomAlbumForArtist = async (artistName: string) => {
+  const client = await getClient()
+  const artist = await client
+    .search(`artist:"${artistName}"`, ['artist'], {
+      limit: 1,
+    })
+    .then((resp) => resp.body.artists?.items?.[0])
+
+  if (!artist) {
+    throw new Error('not found: could not find artist with that name')
+  }
+
+  const firstPage = await client.getArtistAlbums(artist.id, {
+    limit: 1,
+    include_groups: 'album',
+  })
+  const offset = random(0, firstPage.body.total)
+
+  if (offset === 0) {
+    return firstPage.body.items[0]
+  }
+
+  return client
+    .getArtistAlbums(artist.id, {
+      limit: 1,
+      offset,
+      include_groups: 'album',
+    })
+    .then((resp) => resp.body.items[0])
+}
+
 const getRandomAlbumForSearchTerm = async (
   searchTerm: string,
   poolLimit = 1000
@@ -261,6 +292,7 @@ const api = {
   getRandomAlbumForSearchTerm,
   getRandomAlbumForRelatedArtist,
   getRandomAlbumFromUserLibrary,
+  getRandomAlbumForArtist,
   getRandomNewRelease,
   cookieFactory,
   getUserClient,
