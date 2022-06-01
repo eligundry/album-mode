@@ -105,35 +105,27 @@ const scrape = async () => {
     }
 
     const albums = await Promise.all(promises)
-    console.log(
-      albums
-        .filter((album): album is DailyBandcampAlbum => !!album)
-        .map((album) => ({
-          albumID: album.raw.id,
-          album: album.title,
-          artistID: album.raw.art_id,
-          artist: album.artist,
-          url: album.url,
-          bandcampDailyURL: album.bandcampDailyURL,
-        }))
-    )
+    let inserted = 0
     await Promise.all(
       albums
         .filter((album): album is DailyBandcampAlbum => !!album)
         .map((album) =>
-          prisma.bandcampDailyAlbum.create({
-            data: {
-              albumID: album.raw.id,
-              album: album.title,
-              artistID: album.raw.art_id,
-              artist: album.artist,
-              url: album.url,
-              bandcampDailyURL: album.bandcampDailyURL,
-            },
-          })
+          prisma.bandcampDailyAlbum
+            .create({
+              data: {
+                albumID: album.raw.id,
+                album: album.title,
+                artistID: album.raw.art_id,
+                artist: album.artist,
+                url: album.url,
+                bandcampDailyURL: album.bandcampDailyURL,
+              },
+            })
+            .then(() => inserted++)
+            .catch(() => {})
         )
     )
-    console.log(albums)
+    console.log(`inserted ${inserted} albums`, albums)
   } finally {
     await browser.close()
   }
