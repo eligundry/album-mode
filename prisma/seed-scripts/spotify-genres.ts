@@ -11,15 +11,22 @@ const main = async () => {
   const genres = await page.locator('.note a').allTextContents()
 
   await prisma.$transaction(async (txn) => {
+    let inserted = 0
+
     await Promise.all(
       genres.map((genre) =>
-        txn.spotifyGenere.create({
-          data: {
-            name: genre,
-          },
-        })
+        txn.spotifyGenere
+          .create({
+            data: {
+              name: genre,
+            },
+          })
+          .then(() => inserted++)
+          .catch(() => {})
       )
     )
+
+    console.log(`inserted ${inserted} genres`)
   })
 }
 
