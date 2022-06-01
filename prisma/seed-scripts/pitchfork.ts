@@ -31,8 +31,8 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   // the first 3 pages
   const resp = await getSearchPage(slug)
   const totalAlbums = resp.count
-  // const pages = Math.min(Math.round(totalAlbums / 12), 3)
-  const pages = Math.round(totalAlbums / 12)
+  const pages = Math.min(Math.round(totalAlbums / 12), 4)
+  // const pages = Math.round(totalAlbums / 12)
   console.log(`we will be fetching ${pages} pages`)
   let rawAlbums = [...(resp.results.list ?? [])]
   const allAlbums = await Promise.all(
