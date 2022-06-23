@@ -9,11 +9,17 @@ import useGTM from '~/hooks/useGTM'
 interface Props {
   title: string
   url: string
-  redditURL: string
   youtubeID: string
+  footer?: React.ReactNode
 }
 
-const YouTube: React.FC<Props> = ({ title, url, redditURL, youtubeID }) => {
+const YouTube: React.FC<Props> = ({
+  title,
+  url,
+  redditURL,
+  youtubeID,
+  footer,
+}) => {
   const sendEvent = useGTM()
 
   return (
@@ -37,11 +43,12 @@ const YouTube: React.FC<Props> = ({ title, url, redditURL, youtubeID }) => {
         ?
       </Heading>
       <LiteYouTubeEmbed id={youtubeID} title={title} />
+      {footer}
       <ReviewButtons
         albumURL={url}
         albumName={title}
         artistName={title}
-        containerClassName="mt-4"
+        containerClassName={clsx(!footer && 'mt-4')}
       />
     </Container>
   )

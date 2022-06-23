@@ -135,6 +135,18 @@ const getTopGenres = async (): Promise<string[]> =>
     })
     .then((res) => res.map(({ name }) => name))
 
+const getSubreddits = async () =>
+  prisma.subreddit
+    .findMany({
+      select: {
+        slug: true,
+      },
+      orderBy: {
+        slug: 'asc',
+      },
+    })
+    .then((res) => res.map(({ slug }) => slug))
+
 const api = {
   prisma,
   getLabels,
@@ -146,6 +158,7 @@ const api = {
   getRandomArtistFromGroupSlug,
   searchGenres,
   getTopGenres,
+  getSubreddits,
 }
 
 export default api

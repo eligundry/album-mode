@@ -3,6 +3,8 @@ Disallow: /group/*
 Disallow: /publication/*
 Disallow: /label/*
 Disallow: /related-artist/*
+Disallow: /spotify/*
+Disallow: /reddit/*
 Allow: /
 
 Host: https://album-mode.party
