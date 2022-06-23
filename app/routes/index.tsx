@@ -5,7 +5,6 @@ import clsx from 'clsx'
 
 import auth from '~/lib/auth'
 import db from '~/lib/db'
-import spotify from '~/lib/spotify'
 import {
   Heading,
   Layout,
@@ -13,6 +12,7 @@ import {
   Link,
   Typography,
   ButtonLink,
+  A,
 } from '~/components/Base'
 import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
@@ -24,6 +24,7 @@ type LoaderData = {
   publications: Awaited<ReturnType<typeof db.getPublications>>
   artistGroupings: Awaited<ReturnType<typeof db.getArtistGroupings>>
   topGenres: Awaited<ReturnType<typeof db.getTopGenres>>
+  subreddits: Awaited<ReturnType<typeof db.getSubreddits>>
   auth: {
     spotify: {
       loggedIn: boolean
@@ -39,6 +40,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     publications: db.getPublications(),
     artistGroupings: db.getArtistGroupings(),
     topGenres: db.getTopGenres(),
+    subreddits: db.getSubreddits(),
     auth: {
       spotify: {
         loggedIn: 'accessToken' in authCookie.spotify,
@@ -126,6 +128,23 @@ export default function Index() {
             toFunction={(publication) => `/publication/${publication.slug}`}
             keyFunction={(publication) => publication.slug}
             childFunction={(publication) => publication.name}
+          />
+        </div>
+        <div className="subreddits">
+          <Heading level="h3" className={clsx('mb-2')}>
+            Reddit
+          </Heading>
+          <Typography variant="hint" className={clsx('mb-2')}>
+            What is the frontpage of the internet listening to?{' '}
+            <A href="https://www.reddit.com/r/Music/wiki/musicsubreddits">
+              Here's a huge list of music subreddits.
+            </A>
+          </Typography>
+          <ButtonLinkGroup
+            items={data.subreddits}
+            toFunction={(subreddit) => `/reddit/${subreddit}`}
+            keyFunction={(subreddit) => subreddit}
+            childFunction={(subreddit) => `/r/${subreddit}`}
           />
         </div>
         <div className="labels">

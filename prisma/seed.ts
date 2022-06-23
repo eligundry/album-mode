@@ -77,6 +77,34 @@ const labels = [
   },
 ]
 
+const subreddits = [
+  { slug: 'listentothis' },
+  { slug: 'indieheads' },
+  { slug: 'hiphopheads' },
+  { slug: 'spotify' },
+  { slug: 'metal' },
+  { slug: 'ambientmusic' },
+  { slug: 'chicagohouse' },
+  { slug: 'EDM' },
+  { slug: 'idm' },
+  { slug: 'electronicmusic' },
+  { slug: 'grime' },
+  { slug: 'house' },
+  { slug: 'mashups' },
+  { slug: 'emo' },
+  { slug: 'AltCountry' },
+  { slug: 'shoegaze' },
+  { slug: '90sHipHop' },
+  { slug: '2010sMusic' },
+  { slug: 'chillwave' },
+  { slug: 'disco' },
+  { slug: 'jazz' },
+  { slug: 'Soulies' },
+  { slug: 'SurfPunk' },
+  { slug: 'treemusic' },
+  { slug: 'vaporwave' },
+]
+
 async function seed() {
   await Promise.all(
     publications.map((publication) =>
@@ -94,6 +122,12 @@ async function seed() {
           },
         })
         .catch((e) => {})
+    )
+  )
+
+  await Promise.all(
+    subreddits.map(({ slug }) =>
+      db.subreddit.create({ data: { slug } }).catch((e) => {})
     )
   )
 }
