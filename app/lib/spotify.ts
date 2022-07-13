@@ -307,6 +307,20 @@ const getCategories = async (country = 'US') => {
   return resp.body.categories.items
 }
 
+const getRandomPlaylistForCategory = async (
+  categoryID: string,
+  country = 'US'
+) => {
+  const client = await getClient()
+  const resp = await client.getPlaylistsForCategory(categoryID, {
+    country,
+    limit: 1,
+    offset: random(0, 50),
+  })
+
+  return resp.body.playlists.items[0]
+}
+
 const cookieFactory = createCookie('spotify', {
   maxAge: 3600,
 })
@@ -326,6 +340,7 @@ const api = {
   getRandomAlbumFromUserLibrary,
   getRandomFeaturedPlaylist,
   getRandomNewRelease,
+  getRandomPlaylistForCategory,
   getUserClient,
 }
 

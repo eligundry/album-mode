@@ -29,7 +29,7 @@ export default function SpotifyCategories() {
         >
           {categories.map((category) => (
             <Link
-              to={`/category/${category.id}`}
+              to={`/spotify/category/${category.id}`}
               key={category.id}
               className={clsx('mb-3')}
             >
