@@ -39,6 +39,7 @@ export default function SpotifyCategories() {
                 height={category.icons[0].height}
                 alt={category.name}
                 className={clsx('rounded-3xl')}
+                loading="lazy"
               />
               <Typography
                 variant="hint"
