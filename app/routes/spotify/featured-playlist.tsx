@@ -17,7 +17,7 @@ export const loader: LoaderFunction = async () => {
   return json(data)
 }
 
-export default function RandomAlbumFromSpotifyLibrary() {
+export default function RandomSpotifyFeaturedPlaylist() {
   const { playlist } = useLoaderData<LoaderData>()
 
   return (
