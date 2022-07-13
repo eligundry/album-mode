@@ -278,23 +278,43 @@ const getRandomNewRelease = async (country: string = 'US') => {
   return resp.body.albums.items[0]
 }
 
+const getRandomFeaturedPlaylist = async (country = 'US') => {
+  const client = await getClient()
+  let resp = await client.getFeaturedPlaylists({
+    country,
+    limit: 1,
+    offset: random(0, 50),
+  })
+
+  if (resp.body.playlists.items.length === 0) {
+    resp = await client.getFeaturedPlaylists({
+      country,
+      limit: 1,
+      offset: random(0, resp.body.playlists.total),
+    })
+  }
+
+  return resp.body.playlists.items[0]
+}
+
 const cookieFactory = createCookie('spotify', {
   maxAge: 3600,
 })
 
 const api = {
-  getRandomAlbumForLabelSlug,
-  getRandomAlbumForLabel,
-  getAlbum,
-  getRandomAlbumForPublication,
-  getRandomAlbumByGenre,
-  getRandomAlbumForGroupSlug,
-  getRandomAlbumForSearchTerm,
-  getRandomAlbumForRelatedArtist,
-  getRandomAlbumFromUserLibrary,
-  getRandomAlbumForArtist,
-  getRandomNewRelease,
   cookieFactory,
+  getAlbum,
+  getRandomAlbumByGenre,
+  getRandomAlbumForArtist,
+  getRandomAlbumForGroupSlug,
+  getRandomAlbumForLabel,
+  getRandomAlbumForLabelSlug,
+  getRandomAlbumForPublication,
+  getRandomAlbumForRelatedArtist,
+  getRandomAlbumForSearchTerm,
+  getRandomAlbumFromUserLibrary,
+  getRandomFeaturedPlaylist,
+  getRandomNewRelease,
   getUserClient,
 }
 

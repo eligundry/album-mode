@@ -108,9 +108,16 @@ export default function Index() {
           <ButtonLink
             to="/spotify/new-releases"
             color="info"
-            className={clsx('inline-block')}
+            className={clsx('inline-block', 'mr-2', 'mb-2')}
           >
             New Release
+          </ButtonLink>
+          <ButtonLink
+            to="/spotify/featured-playlist"
+            color="info"
+            className={clsx('inline-block')}
+          >
+            Featured Playlist
           </ButtonLink>
         </div>
         <div className="publications">
