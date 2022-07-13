@@ -1,8 +1,7 @@
 {
   "name": "@eligundry/album-mode",
-  "private": true,
-  "description": "",
-  "license": "",
+  "description": "Remix application that recommends music",
+  "license": "MIT",
   "sideEffects": false,
   "scripts": {
     "build": "npm run build:css && npm run partytown && remix build --sourcemap",
