@@ -1,6 +1,7 @@
 import axios from 'axios'
 import bandcamp from 'bandcamp-scraper'
 import sample from 'lodash/sample'
+import * as Sentry from '@sentry/remix'
 
 import { RandomRedditResponse } from './types/reddit'
 import { BandcampAlbum } from './types/bandcamp'
@@ -9,6 +10,19 @@ const redditClient = axios.create({
   baseURL: 'https://reddit.com',
   responseType: 'json',
 })
+
+redditClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    Sentry.captureException(error, {
+      tags: {
+        reddit: true,
+      },
+    })
+
+    return Promise.reject(error)
+  }
+)
 
 interface BasePostData {
   title: string
