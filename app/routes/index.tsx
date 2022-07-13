@@ -12,7 +12,6 @@ import {
   Link,
   Typography,
   ButtonLink,
-  A,
 } from '~/components/Base'
 import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
@@ -24,7 +23,6 @@ type LoaderData = {
   publications: Awaited<ReturnType<typeof db.getPublications>>
   artistGroupings: Awaited<ReturnType<typeof db.getArtistGroupings>>
   topGenres: Awaited<ReturnType<typeof db.getTopGenres>>
-  subreddits: Awaited<ReturnType<typeof db.getSubreddits>>
   auth: {
     spotify: {
       loggedIn: boolean
@@ -40,7 +38,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     publications: db.getPublications(),
     artistGroupings: db.getArtistGroupings(),
     topGenres: db.getTopGenres(),
-    subreddits: db.getSubreddits(),
     auth: {
       spotify: {
         loggedIn: 'accessToken' in authCookie.spotify,
