@@ -7,7 +7,7 @@ import {
 import sample from 'lodash/sample'
 import groupBy from 'lodash/groupBy'
 
-const prisma = new PrismaClient()
+export const prisma = new PrismaClient()
 
 const getLabels = async () =>
   prisma.label

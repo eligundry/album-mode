@@ -14,6 +14,7 @@ import {
   useLoaderData,
 } from '@remix-run/react'
 import clsx from 'clsx'
+import { withSentry } from '@sentry/remix'
 
 import Tracking from '~/components/Tracking'
 import { useDarkMode } from '~/hooks/useMediaQuery'
@@ -41,10 +42,11 @@ export const loader: LoaderFunction = async () =>
   json({
     ENV: {
       SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
+      SENTRY_DSN: process.env.SENTRY_DSN,
     },
   })
 
-export default function App() {
+function App() {
   const data = useLoaderData()
   const isDarkMode = useDarkMode()
 
@@ -70,3 +72,5 @@ export default function App() {
     </html>
   )
 }
+
+export default withSentry(App)
