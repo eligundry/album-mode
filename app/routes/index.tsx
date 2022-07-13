@@ -130,23 +130,6 @@ export default function Index() {
             childFunction={(publication) => publication.name}
           />
         </div>
-        <div className="subreddits">
-          <Heading level="h3" className={clsx('mb-2')}>
-            Reddit
-          </Heading>
-          <Typography variant="hint" className={clsx('mb-2')}>
-            What is the frontpage of the internet listening to?{' '}
-            <A href="https://www.reddit.com/r/Music/wiki/musicsubreddits">
-              Here's a huge list of music subreddits.
-            </A>
-          </Typography>
-          <ButtonLinkGroup
-            items={data.subreddits}
-            toFunction={(subreddit) => `/reddit/${subreddit}`}
-            keyFunction={(subreddit) => subreddit}
-            childFunction={(subreddit) => `/r/${subreddit}`}
-          />
-        </div>
         <div className="labels">
           <Heading level="h3" className={clsx('mb-2')}>
             <Link to="/label">Labels</Link>
