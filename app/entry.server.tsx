@@ -1,6 +1,15 @@
 import type { EntryContext } from '@remix-run/node'
 import { RemixServer } from '@remix-run/react'
 import { renderToString } from 'react-dom/server'
+import * as Sentry from '@sentry/remix'
+
+import { prisma } from '~/lib/db'
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1,
+  integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
+})
 
 export default function handleRequest(
   request: Request,
