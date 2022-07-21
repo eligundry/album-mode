@@ -29,7 +29,16 @@ const AlbumWrapper: React.FC<Props> = ({
     >
       {embed}
       <div className={clsx('card-body')}>
-        <h2 className={clsx('card-title', 'block')}>{title}</h2>
+        <h2
+          className={clsx(
+            'card-title',
+            'flex-col',
+            'items-start',
+            'leading-none'
+          )}
+        >
+          {title}
+        </h2>
         {footer && <p>{footer}</p>}
         <div className={clsx('card-actions', 'justify-end', 'mt-2')}>
           <NewReviewButtons {...reviewProps} />

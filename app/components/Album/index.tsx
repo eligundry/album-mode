@@ -56,9 +56,9 @@ const Album: React.FC<Props> = ({
               }}
             >
               {album}
-            </A>{' '}
-            by{' '}
+            </A>
             <A
+              className={clsx('text-base')}
               href={`${artistURL}?${linkParams.toString()}`}
               target="_blank"
               onClick={() =>

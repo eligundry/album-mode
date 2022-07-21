@@ -59,8 +59,8 @@ const BandcampAlbum: React.FC<Props> = ({
           <>
             <A href={url} target="_blank" className={clsx('italic')}>
               {album}
-            </A>{' '}
-            by {artist}?
+            </A>
+            <span className={clsx('text-base')}>{artist}</span>
           </>
         }
         footer={footer}
