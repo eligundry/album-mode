@@ -60,10 +60,14 @@ export default function Index() {
   return (
     <Layout>
       <Container>
-        <Heading level="h2" className={clsx('text-center')}>
-          Don't know what to listen to?
-          <br /> Let us recommend an album.
-        </Heading>
+        <div className={clsx('hero')}>
+          <div className={clsx('hero-content', 'text-center')}>
+            <Heading level="h2">
+              Don't know what to listen to?
+              <br /> Let us recommend an album.
+            </Heading>
+          </div>
+        </div>
         <div className="artist">
           <Heading level="h3" className={clsx('mb-2')}>
             Artist
@@ -100,7 +104,7 @@ export default function Index() {
             <ButtonLink
               to="/spotify/album"
               color="info"
-              className={clsx('inline-block', 'mr-2', 'mb-2')}
+              className={clsx('mr-2', 'mb-2')}
             >
               Pick Me Something From My Spotify Library
             </ButtonLink>
@@ -108,22 +112,18 @@ export default function Index() {
           <ButtonLink
             to="/spotify/new-releases"
             color="info"
-            className={clsx('inline-block', 'mr-2', 'mb-2')}
+            className={clsx('mr-2', 'mb-2')}
           >
             New Release
           </ButtonLink>
           <ButtonLink
             to="/spotify/featured-playlist"
             color="info"
-            className={clsx('inline-block', 'mr-2', 'mb-2')}
+            className={clsx('mr-2', 'mb-2')}
           >
             Featured Playlist
           </ButtonLink>
-          <ButtonLink
-            to="/spotify/categories"
-            color="info"
-            className={clsx('inline-block')}
-          >
+          <ButtonLink to="/spotify/categories" color="info">
             Categories
           </ButtonLink>
         </div>

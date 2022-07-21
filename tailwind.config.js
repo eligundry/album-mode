@@ -23,5 +23,8 @@ module.exports = {
       darkModeInput: '#202327',
     },
   },
-  plugins: [require('@tailwindcss/typography')],
+  plugins: [require('@tailwindcss/typography'), require('daisyui')],
+  daisyui: {
+    themes: ['emerald'],
+  },
 }

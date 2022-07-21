@@ -45,14 +45,12 @@ const buttonStyles = ({
   size = 'base',
 }: ButtonProps) =>
   clsx(
-    'text-white',
-    'font-bold',
-    'rounded',
+    'btn',
     {
-      ['bg-primary hover:bg-primaryHover']: color === 'primary',
-      ['bg-info hover:bg-infoHover']: color === 'info',
-      ['bg-warning hover:bg-warningHover']: color === 'warning',
-      ['bg-danger hover:bg-dangerHover']: color === 'danger',
+      'btn-primary': color === 'primary',
+      'btn-info': color === 'info',
+      'btn-warning': color === 'warning',
+      'btn-error': color === 'danger',
     },
     {
       ['py-2 px-4']: size === 'base',
@@ -93,12 +91,7 @@ export const Link: React.FC<LinkProps & { color?: boolean }> = ({
   ...props
 }) => (
   <RemixLink
-    className={clsx(
-      color && 'text-primary',
-      'hover:underline',
-      'hover:text-primaryHover',
-      className
-    )}
+    className={clsx('link', 'link-hover', color && 'link-primary', className)}
     {...props}
   />
 )
@@ -188,7 +181,7 @@ export const A: React.FC<React.HTMLAttributes<HTMLAnchorElement>> = ({
   ...props
 }) => (
   <a
-    className={clsx('text-primary', 'hover:text-primaryHover', className)}
+    className={clsx('link', 'link-hover', 'link-primary', className)}
     {...props}
   />
 )

@@ -40,7 +40,7 @@ const ReviewButtons: React.FC<Props> = ({
             })
             setParty(true)
           }}
-          className={clsx('mr-2', 'mb-2', 'md:mb-0', 'inline-block')}
+          className={clsx('mr-2', 'mb-2', 'md:mb-0')}
         >
           🙌 &nbsp; Great selection, give me another!
         </ButtonLink>
@@ -54,7 +54,6 @@ const ReviewButtons: React.FC<Props> = ({
             })
           }
           color="danger"
-          className={clsx('inline-block')}
         >
           👎 &nbsp; Not interested, give me another
         </ButtonLink>

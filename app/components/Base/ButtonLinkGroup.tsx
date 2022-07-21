@@ -20,7 +20,7 @@ function ButtonLinkGroup<T extends any>({
         <ButtonLink
           to={toFunction(item)}
           key={keyFunction(item)}
-          className={clsx('mr-2', 'mb-2', 'inline-block')}
+          className={clsx('mr-2', 'mb-2')}
         >
           {childFunction(item)}
         </ButtonLink>
