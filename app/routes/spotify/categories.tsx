@@ -1,4 +1,4 @@
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderFunction, json, MetaFunction } from '@remix-run/node'
 import { useLoaderData, Link } from '@remix-run/react'
 import clsx from 'clsx'
 
@@ -8,6 +8,10 @@ import { Layout, Container, Typography, Heading } from '~/components/Base'
 type LoaderData = {
   categories: Awaited<ReturnType<typeof spotify.getCategories>>
 }
+
+export const meta: MetaFunction = () => ({
+  title: 'Spotify Playlist Categories | Album Mode.party 🎉',
+})
 
 export const loader: LoaderFunction = async () => {
   const data: LoaderData = {
@@ -23,7 +27,7 @@ export default function SpotifyCategories() {
   return (
     <Layout>
       <Container>
-        <Heading level="h2">Categories</Heading>
+        <Heading level="h2">Playlist Categories</Heading>
         <div
           className={clsx('flex', 'flex-row', 'flex-wrap', 'justify-between')}
         >
