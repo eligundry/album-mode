@@ -134,15 +134,9 @@ export const Input: React.FC<InputProps> = ({
 }) => (
   <input
     className={clsx(
+      'input',
+      'input-bordered',
       'w-full',
-      'rounded',
-      'border',
-      'border-formBorder',
-      'p-2',
-      'focus:outline-0',
-      'focus:border-primary',
-      'dark:bg-darkModeInput',
-      'dark:border-grey',
       width === 'half' && ['mb-2', 'w-1/2'],
       className
     )}

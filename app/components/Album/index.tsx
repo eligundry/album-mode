@@ -2,8 +2,8 @@ import React from 'react'
 import SpotifyEmbed from 'react-spotify-embed'
 import clsx from 'clsx'
 
-import { Heading, Container, Typography, A } from '~/components/Base'
-import ReviewButtons from './ReviewButtons'
+import AlbumWrapper from './Wrapper'
+import { Container, A } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 import useGTM from '~/hooks/useGTM'
 
@@ -34,55 +34,52 @@ const Album: React.FC<Props> = ({
 
   return (
     <Container center>
-      <Heading level="h2" className={clsx('mb-2', 'sm:mt-0')}>
-        {headerPrefix + ' '}
-        <em>
-          <A
-            href={`${albumURL}?${linkParams.toString()}`}
-            target="_blank"
-            onClick={() => {
-              sendEvent({
-                event: 'Album Opened',
-                albumURL,
-              })
-            }}
-          >
-            {album}
-          </A>
-        </em>{' '}
-        by{' '}
-        <A
-          href={`${artistURL}?${linkParams.toString()}`}
-          target="_blank"
-          onClick={() =>
-            sendEvent({
-              event: 'Artist Opened',
-              artistURL,
-            })
-          }
-        >
-          {artist}
-        </A>
-        ?
-      </Heading>
-      <Typography variant="hint" className={clsx('mb-2')}>
-        Click on the Spotify icon in the top right corner to open this in the
-        native player
-      </Typography>
-      <SpotifyEmbed
-        wide={isMobile}
-        className={clsx('mx-auto')}
-        link={albumURL}
-      />
-      {footer}
-      <ReviewButtons
-        albumURL={albumURL}
-        artistName={artist}
-        albumName={album}
-        containerClassName={clsx(!footer && 'mt-4')}
+      <AlbumWrapper
+        embed={
+          <SpotifyEmbed
+            wide={isMobile}
+            className={clsx('mx-auto')}
+            link={albumURL}
+          />
+        }
+        title={
+          <>
+            <A
+              href={`${albumURL}?${linkParams.toString()}`}
+              target="_blank"
+              className={clsx('italic')}
+              onClick={() => {
+                sendEvent({
+                  event: 'Album Opened',
+                  albumURL,
+                })
+              }}
+            >
+              {album}
+            </A>{' '}
+            by{' '}
+            <A
+              href={`${artistURL}?${linkParams.toString()}`}
+              target="_blank"
+              onClick={() =>
+                sendEvent({
+                  event: 'Artist Opened',
+                  artistURL,
+                })
+              }
+            >
+              {artist}
+            </A>
+          </>
+        }
+        footer={footer}
+        reviewProps={{
+          albumURL,
+          artistName: artist,
+          albumName: album,
+        }}
       />
     </Container>
   )
 }
-
 export default Album

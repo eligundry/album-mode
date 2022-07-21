@@ -66,13 +66,13 @@ export default function PublicationBySlug() {
             artist={album.artist}
             url={album.bandcampDailyURL}
             footer={
-              <Typography className={clsx('my-4')}>
+              <>
                 Need convincing? Read the{' '}
                 <A href={album.bandcampDailyURL} target="_blank">
                   Bandcamp Daily review
                 </A>
                 .
-              </Typography>
+              </>
             }
           />
         </Container>
@@ -87,23 +87,23 @@ export default function PublicationBySlug() {
     url.searchParams.set('utm_campaign', 'album-mode.party')
 
     footer = (
-      <Typography className={clsx('my-4')}>
+      <>
         Need convincing? Read the{' '}
         <A href={url.toString()} target="_blank">
           Pitchfork Review
         </A>
         .
-      </Typography>
+      </>
     )
   } else if (slug === 'needle-drop') {
     footer = (
-      <Typography className={clsx('my-4')}>
+      <>
         Need convincing? Watch the{' '}
         <A href={review.slug} target="_blank">
           Needle Drop review on YouTube
         </A>
         .
-      </Typography>
+      </>
     )
   }
 
