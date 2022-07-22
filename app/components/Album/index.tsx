@@ -27,7 +27,6 @@ const Album: React.FC<Props> = ({
   artistURL,
   album,
   footer,
-  headerPrefix = 'Have you heard',
 }) => {
   const isMobile = useIsMobile()
   const sendEvent = useGTM()

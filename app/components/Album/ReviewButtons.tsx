@@ -96,6 +96,7 @@ export const NewReviewButtons: React.FC<ReviewButtonProps> = ({
     <>
       <ButtonLink
         to={refreshURL}
+        prefetch="render"
         color="info"
         onClick={() => {
           positiveReview({

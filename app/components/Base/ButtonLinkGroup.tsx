@@ -21,6 +21,7 @@ function ButtonLinkGroup<T extends any>({
           to={toFunction(item)}
           key={keyFunction(item)}
           className={clsx('mr-2', 'mb-2')}
+          color="info"
         >
           {childFunction(item)}
         </ButtonLink>

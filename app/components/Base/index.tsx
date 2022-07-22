@@ -48,9 +48,9 @@ const buttonStyles = ({
     'btn',
     {
       'btn-primary': color === 'primary',
-      'btn-info': color === 'info',
+      'btn-secondary': color === 'info',
       'btn-warning': color === 'warning',
-      'btn-error': color === 'danger',
+      'btn-accent': color === 'danger',
     },
     {
       ['py-2 px-4']: size === 'base',

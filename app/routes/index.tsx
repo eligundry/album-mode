@@ -103,7 +103,7 @@ export default function Index() {
           ) : (
             <ButtonLink
               to="/spotify/album"
-              color="info"
+              color="primary"
               className={clsx('mr-2', 'mb-2')}
             >
               Pick Me Something From My Spotify Library
@@ -111,19 +111,19 @@ export default function Index() {
           )}
           <ButtonLink
             to="/spotify/new-releases"
-            color="info"
+            color="primary"
             className={clsx('mr-2', 'mb-2')}
           >
             New Release
           </ButtonLink>
           <ButtonLink
             to="/spotify/featured-playlist"
-            color="info"
+            color="primary"
             className={clsx('mr-2', 'mb-2')}
           >
             Featured Playlist
           </ButtonLink>
-          <ButtonLink to="/spotify/categories" color="info">
+          <ButtonLink to="/spotify/categories" color="primary">
             Categories
           </ButtonLink>
         </div>

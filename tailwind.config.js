@@ -5,26 +5,45 @@ const defaultTheme = require('tailwindcss/defaultTheme')
  */
 module.exports = {
   content: ['./app/**/*.{js,ts,jsx,tsx}'],
-  theme: {
-    colors: {
-      white: '#fff',
-      black: '#000',
-      slate: 'rgb(226, 223, 240)',
-      primary: '#3b82f6',
-      primaryHover: '#1d4ed8',
-      info: '#22c55e',
-      infoHover: '#15803d',
-      warning: '#eab308',
-      warningHover: '#a16207',
-      danger: '#ef4444',
-      dangerHover: '#b91c1c',
-      grey: '#64748b',
-      formBorder: '#cccccc',
-      darkModeInput: '#202327',
-    },
-  },
+  // theme: {
+  //   colors: {
+  //     white: '#fff',
+  //     black: '#000',
+  //     slate: 'rgb(226, 223, 240)',
+  //     grey: '#64748b',
+  //     formBorder: '#cccccc',
+  //     darkModeInput: '#202327',
+  //   },
+  // },
   plugins: [require('@tailwindcss/typography'), require('daisyui')],
   daisyui: {
-    themes: ['emerald'],
+    themes: [
+      {
+        light: {
+          primary: '#66CC8A',
+          secondary: '#377CFB',
+          accent: '#EA5234',
+          neutral: '#333C4D',
+          'base-100': '#FFFFFF',
+          info: '#3ABFF8',
+          success: '#36D399',
+          warning: '#FBBD23',
+          error: '#F87272',
+        },
+      },
+      {
+        dark: {
+          primary: '#66CC8A',
+          secondary: '#377CFB',
+          accent: '#EA5234',
+          neutral: '#191D24',
+          'base-100': '#2A303C',
+          info: '#3ABFF8',
+          success: '#36D399',
+          warning: '#FBBD23',
+          error: '#F87272',
+        },
+      },
+    ],
   },
 }

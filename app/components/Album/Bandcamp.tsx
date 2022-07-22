@@ -2,8 +2,7 @@ import React from 'react'
 import clsx from 'clsx'
 
 import AlbumWrapper from './Wrapper'
-import { Heading, Container, A } from '~/components/Base'
-import ReviewButtons from './ReviewButtons'
+import { Container, A } from '~/components/Base'
 import { useIsMobile, useDarkMode } from '~/hooks/useMediaQuery'
 
 interface Props {
@@ -64,7 +63,7 @@ const BandcampAlbum: React.FC<Props> = ({
           </>
         }
         footer={footer}
-        reviewProps={{ albumURL: `bandcamp/id/${albumID}` }}
+        reviewProps={{ albumURL: url }}
       />
     </Container>
   )

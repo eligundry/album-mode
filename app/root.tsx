@@ -51,14 +51,14 @@ function App() {
   const isDarkMode = useDarkMode()
 
   return (
-    <html lang="en">
+    <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>
       <head>
         <Tracking />
         <Meta />
         <Links />
         <meta name="theme-color" content={isDarkMode ? '#000' : '#fff'} />
       </head>
-      <body className={clsx('px-4', 'dark:bg-black', 'dark:text-white')}>
+      <body className={clsx('px-4')}>
         <Outlet />
         <ScrollRestoration />
         <script

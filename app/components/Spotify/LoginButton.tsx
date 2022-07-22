@@ -26,7 +26,7 @@ const SpotifyLoginButton: React.FC<Props> = ({ className, state }) => {
   return (
     <ButtonLink
       href={loginURL?.toString() ?? '#'}
-      color="info"
+      color="primary"
       className={className}
     >
       Login with Spotify

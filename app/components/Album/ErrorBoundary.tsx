@@ -28,7 +28,7 @@ const AlbumErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
         <ButtonLink
           color="info"
           to={pathname + search}
-          className={clsx('mt-2', 'inline-block')}
+          className={clsx('mt-2')}
         >
           🔄 &nbsp; Retry
         </ButtonLink>

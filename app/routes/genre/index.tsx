@@ -71,7 +71,8 @@ export default function GenreSearch() {
             <ButtonLink
               to={`/genre?q=${genre}`}
               key={genre}
-              className={clsx('mr-2', 'mb-2', 'inline-block')}
+              className={clsx('mr-2', 'mb-2')}
+              color="info"
             >
               {genre}
             </ButtonLink>
