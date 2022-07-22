@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import clsx from 'clsx'
 import useLocation from 'react-use/lib/useLocation'
 
 import { ButtonLink } from '~/components/Base'
@@ -27,8 +26,8 @@ const SpotifyLoginButton: React.FC<Props> = ({ className, state }) => {
   return (
     <ButtonLink
       href={loginURL?.toString() ?? '#'}
-      color="info"
-      className={clsx('inline-block', className)}
+      color="primary"
+      className={className}
     >
       Login with Spotify
     </ButtonLink>

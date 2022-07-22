@@ -4,6 +4,7 @@ import { useLoaderData } from '@remix-run/react'
 import spotify from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Playlist from '~/components/Album/Playlist'
+import PlaylistErrorBoundary from '~/components/Album/ErrorBoundary'
 
 type LoaderData = {
   playlist: Awaited<ReturnType<typeof spotify.getRandomPlaylistForCategory>>
@@ -22,6 +23,8 @@ export const loader: LoaderFunction = async ({ params }) => {
 
   return json(data)
 }
+
+export const ErrorBoundary = PlaylistErrorBoundary
 
 export default function RandomSpotifyFeaturedPlaylist() {
   const { playlist } = useLoaderData<LoaderData>()

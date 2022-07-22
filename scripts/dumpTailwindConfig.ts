@@ -9,7 +9,16 @@ const fullConfig = resolveConfig(tailwindConfig)
 fs.writeFileSync(
   p,
   JSON.stringify(
-    pick(fullConfig.theme, ['colors', 'screens', 'fontFamily', 'animation']),
+    {
+      ...pick(fullConfig.theme, [
+        'colors',
+        'screens',
+        'fontFamily',
+        'animation',
+        'borderRadius',
+      ]),
+      ...pick(fullConfig, ['daisyui']),
+    },
     undefined,
     2
   ),

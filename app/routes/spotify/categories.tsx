@@ -1,13 +1,17 @@
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderFunction, json, MetaFunction } from '@remix-run/node'
 import { useLoaderData, Link } from '@remix-run/react'
 import clsx from 'clsx'
 
 import spotify from '~/lib/spotify'
-import { Layout, Container, Typography, Heading } from '~/components/Base'
+import { Layout, Container, Heading } from '~/components/Base'
 
 type LoaderData = {
   categories: Awaited<ReturnType<typeof spotify.getCategories>>
 }
+
+export const meta: MetaFunction = () => ({
+  title: 'Spotify Playlist Categories | Album Mode.party 🎉',
+})
 
 export const loader: LoaderFunction = async () => {
   const data: LoaderData = {
@@ -23,7 +27,7 @@ export default function SpotifyCategories() {
   return (
     <Layout>
       <Container>
-        <Heading level="h2">Categories</Heading>
+        <Heading level="h2">Playlist Categories</Heading>
         <div
           className={clsx('flex', 'flex-row', 'flex-wrap', 'justify-between')}
         >
@@ -31,22 +35,19 @@ export default function SpotifyCategories() {
             <Link
               to={`/spotify/category/${category.id}`}
               key={category.id}
-              className={clsx('mb-3')}
+              className={clsx('mb-3', 'card', 'card-compact', 'shadow-xl')}
             >
               <img
                 src={category.icons[0].url}
                 width={category.icons[0].width}
                 height={category.icons[0].height}
                 alt={category.name}
-                className={clsx('rounded-3xl')}
+                className={clsx('hover:scale-105 ease-in duration-100')}
                 loading="lazy"
               />
-              <Typography
-                variant="hint"
-                className={clsx('text-center', 'mt-1')}
-              >
-                {category.name}
-              </Typography>
+              <div className={clsx('card-body')}>
+                <p className={clsx('card-title')}>{category.name}</p>
+              </div>
             </Link>
           ))}
         </div>

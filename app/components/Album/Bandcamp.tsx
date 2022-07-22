@@ -1,8 +1,8 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { Heading, Container } from '~/components/Base'
-import ReviewButtons from './ReviewButtons'
+import AlbumWrapper from './Wrapper'
+import { Container, A } from '~/components/Base'
 import { useIsMobile, useDarkMode } from '~/hooks/useMediaQuery'
 
 interface Props {
@@ -37,25 +37,34 @@ const BandcampAlbum: React.FC<Props> = ({
 
   return (
     <Container center>
-      <Heading level="h2" className={clsx('mb-4')}>
-        Have you heard <em>{album}</em> by {artist}?
-      </Heading>
-      <iframe
-        style={{
-          border: 0,
-          width: '350px',
-          height: isMobile ? '350px' : '470px',
-        }}
-        src={`https://bandcamp.com/EmbeddedPlayer/${params.join('/')}`}
-        seamless
-        className={clsx('mx-auto')}
-      >
-        <a href={url}>
-          {album} by {artist}
-        </a>
-      </iframe>
-      {footer}
-      <ReviewButtons albumURL={`bandcamp/id/${albumID}`} />
+      <AlbumWrapper
+        embed={
+          <iframe
+            style={{
+              border: 0,
+              width: '350px',
+              height: isMobile ? '350px' : '470px',
+            }}
+            src={`https://bandcamp.com/EmbeddedPlayer/${params.join('/')}`}
+            seamless
+            className={clsx('mx-auto')}
+          >
+            <a href={url}>
+              {album} by {artist}
+            </a>
+          </iframe>
+        }
+        title={
+          <>
+            <A href={url} target="_blank" className={clsx('italic')}>
+              {album}
+            </A>
+            <span className={clsx('text-base')}>{artist}</span>
+          </>
+        }
+        footer={footer}
+        reviewProps={{ albumURL: url }}
+      />
     </Container>
   )
 }

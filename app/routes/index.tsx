@@ -58,12 +58,28 @@ export default function Index() {
   const data = useLoaderData<LoaderData>()
 
   return (
-    <Layout>
+    <Layout className={clsx('mt-0')}>
       <Container>
-        <Heading level="h2" className={clsx('text-center')}>
-          Don't know what to listen to?
-          <br /> Let us recommend an album.
-        </Heading>
+        <div className={clsx('hero', 'place-items-start')}>
+          <div
+            className={clsx('hero-content', 'flex', 'flex-row-reverse', 'p-0')}
+          >
+            <img
+              src="/img/dancing.png"
+              alt="man dancing to music"
+              className={clsx('w-48', 'hidden', 'md:block')}
+            />
+            <div>
+              <Heading level="h2" className={clsx('font-black')}>
+                It's time for new music
+              </Heading>
+              <p>
+                Tired of the same old songs? <br />
+                Let us recommend something that you might like.
+              </p>
+            </div>
+          </div>
+        </div>
         <div className="artist">
           <Heading level="h3" className={clsx('mb-2')}>
             Artist
@@ -99,32 +115,28 @@ export default function Index() {
           ) : (
             <ButtonLink
               to="/spotify/album"
-              color="info"
-              className={clsx('inline-block', 'mr-2', 'mb-2')}
+              color="primary"
+              className={clsx('mr-2', 'mb-2')}
             >
-              Pick Me Something From My Spotify Library
+              Spotify Library
             </ButtonLink>
           )}
           <ButtonLink
             to="/spotify/new-releases"
-            color="info"
-            className={clsx('inline-block', 'mr-2', 'mb-2')}
+            color="primary"
+            className={clsx('mr-2', 'mb-2')}
           >
             New Release
           </ButtonLink>
           <ButtonLink
             to="/spotify/featured-playlist"
-            color="info"
-            className={clsx('inline-block', 'mr-2', 'mb-2')}
+            color="primary"
+            className={clsx('mr-2', 'mb-2')}
           >
             Featured Playlist
           </ButtonLink>
-          <ButtonLink
-            to="/spotify/categories"
-            color="info"
-            className={clsx('inline-block')}
-          >
-            Categories
+          <ButtonLink to="/spotify/categories" color="primary">
+            Playlist Categories
           </ButtonLink>
         </div>
         <div className="publications">
