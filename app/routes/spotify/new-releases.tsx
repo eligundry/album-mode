@@ -4,6 +4,7 @@ import { useLoaderData } from '@remix-run/react'
 import spotify from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 
 type LoaderData = {
   album: Awaited<ReturnType<typeof spotify.getRandomNewRelease>>
@@ -18,6 +19,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   return json(data)
 }
+
+export const ErrorBoundary = AlbumErrorBoundary
 
 export default function SpotifyNewReleases() {
   const { album } = useLoaderData<LoaderData>()

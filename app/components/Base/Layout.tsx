@@ -28,7 +28,7 @@ const Layout: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
       <footer className={clsx('mb-4')}>
         <Container>
           <Typography>
-            <Link to="/account">Account</Link> | <Link to="/about">About</Link>{' '}
+            <Link to="/library">Library</Link> | <Link to="/about">About</Link>{' '}
             | <A href="mailto:eligundry+album-mode.party@gmail.com">Contact</A>{' '}
           </Typography>
           <Typography>

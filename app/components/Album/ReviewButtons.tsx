@@ -1,30 +1,22 @@
 import { useState } from 'react'
-import clsx from 'clsx'
 import Confetti from 'react-confetti'
 import useWindowSize from 'react-use/lib/useWindowSize'
 import { useLocation } from 'react-router-dom'
 
-import { ButtonGroup, ButtonLink } from '~/components/Base'
+import { ButtonLink } from '~/components/Base'
 import useRating from '~/hooks/useRating'
+import { LibraryItem } from '~/lib/types/library'
 
-interface SpotifyProps {
-  album: SpotifyApi.AlbumObjectSimplified | SpotifyApi.AlbumObjectFull
+export interface ReviewButtonProps {
+  item: LibraryItem
 }
 
-interface MinimalProps {
-  albumURL: string
-}
-
-export type ReviewButtonProps = SpotifyProps
-
-const ReviewButtons: React.FC<ReviewButtonProps> = ({ album }) => {
+const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
   const [party, setParty] = useState(false)
   const { positiveReview, negativeReview } = useRating()
   const { width, height } = useWindowSize()
   const { pathname, search } = useLocation()
   const refreshURL = pathname + search
-  const albumURL = album.external_urls.spotify
-  const artistName = album.artists[0].name
 
   return (
     <>
@@ -33,11 +25,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ album }) => {
         prefetch="render"
         color="primary"
         onClick={() => {
-          positiveReview({
-            name: album.name,
-            artist: artistName,
-            albumURL,
-          })
+          positiveReview(item)
           setParty(true)
         }}
       >
@@ -45,13 +33,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ album }) => {
       </ButtonLink>
       <ButtonLink
         to={refreshURL}
-        onClick={() =>
-          negativeReview({
-            name: album.name,
-            artist: artistName,
-            albumURL,
-          })
-        }
+        onClick={() => negativeReview(item)}
         color="danger"
       >
         👎 &nbsp; Nope!

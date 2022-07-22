@@ -65,9 +65,7 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
           </>
         }
         footer={footer}
-        reviewProps={{
-          album,
-        }}
+        reviewProps={{ item: album }}
       />
     </Container>
   )
