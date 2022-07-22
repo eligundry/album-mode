@@ -1,10 +1,9 @@
 import { LoaderFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import clsx from 'clsx'
 
 import db from '~/lib/db'
 import spotify from '~/lib/spotify'
-import { Layout, Typography, A, Container } from '~/components/Base'
+import { Layout, A, Container } from '~/components/Base'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
@@ -56,7 +55,7 @@ export default function PublicationBySlug() {
     return null
   }
 
-  if (slug === 'bandcamp-daily' && !review) {
+  if (slug === 'bandcamp-daily' && !review && 'albumID' in album) {
     return (
       <Layout>
         <Container>
@@ -109,15 +108,7 @@ export default function PublicationBySlug() {
 
   return (
     <Layout>
-      <Container>
-        <Album
-          album={album.name}
-          albumURL={album.external_urls.spotify}
-          artist={album.artists?.[0].name}
-          artistURL={album.artists?.[0].external_urls.spotify}
-          footer={footer}
-        />
-      </Container>
+      <Album album={album} footer={footer} />
     </Layout>
   )
 }

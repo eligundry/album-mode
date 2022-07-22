@@ -46,13 +46,7 @@ export default function RandomAlbumFromSpotifyLibrary() {
 
   return (
     <Layout>
-      <Album
-        album={data.album.name}
-        albumURL={data.album.external_urls.spotify}
-        artist={data.album.artists?.[0].name}
-        artistURL={data.album.artists?.[0].external_urls.spotify}
-        headerPrefix="Are you in the mood for"
-      />
+      <Album album={data.album} />
     </Layout>
   )
 }

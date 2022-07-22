@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { NewReviewButtons, ReviewButtonProps } from './ReviewButtons'
+import ReviewButtons, { ReviewButtonProps } from './ReviewButtons'
 
 interface Props {
   embed: React.ReactNode
@@ -41,7 +41,7 @@ const AlbumWrapper: React.FC<Props> = ({
         </h2>
         {footer && <p>{footer}</p>}
         <div className={clsx('card-actions', 'justify-end', 'mt-2')}>
-          <NewReviewButtons {...reviewProps} />
+          <ReviewButtons {...reviewProps} />
         </div>
       </div>
     </div>

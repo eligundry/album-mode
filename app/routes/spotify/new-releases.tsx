@@ -24,12 +24,7 @@ export default function SpotifyNewReleases() {
 
   return (
     <Layout>
-      <Album
-        album={album.name}
-        albumURL={album.external_urls.spotify}
-        artist={album.artists?.[0].name}
-        artistURL={album.artists?.[0].external_urls.spotify}
-      />
+      <Album album={album} />
     </Layout>
   )
 }
