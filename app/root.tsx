@@ -18,13 +18,15 @@ import { withSentry } from '@sentry/remix'
 
 import Tracking from '~/components/Tracking'
 import { useDarkMode } from '~/hooks/useMediaQuery'
+import { useDaisyPallete } from '~/hooks/useTailwindTheme'
 import styles from './styles/app.css'
 
-export const meta: MetaFunction = () => ({
+export const meta: MetaFunction = ({ data }) => ({
   charset: 'utf-8',
   title: 'Album Mode.party 🎉',
   viewport: 'width=device-width,initial-scale=1',
   description: "Don't know what to listen to? Let us recommend an album!",
+  version: data.ENV.SENTRY_RELEASE,
 })
 
 export const links: LinksFunction = () => [
@@ -43,12 +45,14 @@ export const loader: LoaderFunction = async () =>
     ENV: {
       SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
       SENTRY_DSN: process.env.SENTRY_DSN,
+      SENTRY_RELEASE: process.env.COMMIT_REF,
     },
   })
 
 function App() {
   const data = useLoaderData()
   const isDarkMode = useDarkMode()
+  const pallete = useDaisyPallete()
 
   return (
     <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>
@@ -56,7 +60,7 @@ function App() {
         <Tracking />
         <Meta />
         <Links />
-        <meta name="theme-color" content={isDarkMode ? '#000' : '#fff'} />
+        <meta name="theme-color" content={pallete['base-100']} />
       </head>
       <body className={clsx('px-4')}>
         <Outlet />
