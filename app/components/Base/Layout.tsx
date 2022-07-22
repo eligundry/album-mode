@@ -9,7 +9,7 @@ const Layout: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
 }) => {
   return (
     <>
-      <header className={clsx('navbar')}>
+      <header className={clsx('navbar', 'pl-0')}>
         <Container>
           <h1 className={clsx('text-xl', 'font-bold', 'my-4')}>
             <Link

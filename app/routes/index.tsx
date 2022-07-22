@@ -58,14 +58,26 @@ export default function Index() {
   const data = useLoaderData<LoaderData>()
 
   return (
-    <Layout>
+    <Layout className={clsx('mt-0')}>
       <Container>
-        <div className={clsx('hero')}>
-          <div className={clsx('hero-content', 'text-center')}>
-            <Heading level="h2">
-              Don't know what to listen to?
-              <br /> Let us recommend an album.
-            </Heading>
+        <div className={clsx('hero', 'place-items-start')}>
+          <div
+            className={clsx('hero-content', 'flex', 'flex-row-reverse', 'p-0')}
+          >
+            <img
+              src="/img/dancing.png"
+              alt="man dancing to music"
+              className={clsx('w-48', 'hidden', 'md:block')}
+            />
+            <div>
+              <Heading level="h2" className={clsx('font-black')}>
+                It's time for new music
+              </Heading>
+              <p>
+                Tired of the same old songs? <br />
+                Let us recommend something that you might like.
+              </p>
+            </div>
           </div>
         </div>
         <div className="artist">
@@ -106,7 +118,7 @@ export default function Index() {
               color="primary"
               className={clsx('mr-2', 'mb-2')}
             >
-              Pick Me Something From My Spotify Library
+              Spotify Library
             </ButtonLink>
           )}
           <ButtonLink
@@ -124,7 +136,7 @@ export default function Index() {
             Featured Playlist
           </ButtonLink>
           <ButtonLink to="/spotify/categories" color="primary">
-            Categories
+            Playlist Categories
           </ButtonLink>
         </div>
         <div className="publications">

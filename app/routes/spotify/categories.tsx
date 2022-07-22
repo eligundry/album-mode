@@ -3,7 +3,7 @@ import { useLoaderData, Link } from '@remix-run/react'
 import clsx from 'clsx'
 
 import spotify from '~/lib/spotify'
-import { Layout, Container, Typography, Heading } from '~/components/Base'
+import { Layout, Container, Heading } from '~/components/Base'
 
 type LoaderData = {
   categories: Awaited<ReturnType<typeof spotify.getCategories>>
@@ -35,22 +35,19 @@ export default function SpotifyCategories() {
             <Link
               to={`/spotify/category/${category.id}`}
               key={category.id}
-              className={clsx('mb-3')}
+              className={clsx('mb-3', 'card', 'card-compact', 'shadow-xl')}
             >
               <img
                 src={category.icons[0].url}
                 width={category.icons[0].width}
                 height={category.icons[0].height}
                 alt={category.name}
-                className={clsx('rounded-3xl')}
+                className={clsx('hover:scale-105 ease-in duration-100')}
                 loading="lazy"
               />
-              <Typography
-                variant="hint"
-                className={clsx('text-center', 'mt-1')}
-              >
-                {category.name}
-              </Typography>
+              <div className={clsx('card-body')}>
+                <p className={clsx('card-title')}>{category.name}</p>
+              </div>
             </Link>
           ))}
         </div>

@@ -16,22 +16,21 @@ const AlbumErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
   return (
     <Layout>
       <Container>
-        <Heading level="h2">⛔️ Whoops!</Heading>
-        <Typography>
-          We seemed to have run into an error. We are working on fixing it now.
-          You should refresh the page to fix this issue.
-        </Typography>
-        <details>
-          <summary>Detailed error message</summary>
-          <Typography>{error.message}</Typography>
-        </details>
-        <ButtonLink
-          color="info"
-          to={pathname + search}
-          className={clsx('mt-2')}
-        >
-          🔄 &nbsp; Retry
-        </ButtonLink>
+        <div className={clsx('prose')}>
+          <Heading level="h2">⛔️ Whoops!</Heading>
+          <Typography>
+            We seemed to have run into an error. We are working on fixing it
+            now. You should refresh the page to fix this issue.
+          </Typography>
+          <pre>{error.message}</pre>
+          <ButtonLink
+            color="info"
+            to={pathname + search}
+            className={clsx('mt-2')}
+          >
+            🔄 &nbsp; Retry
+          </ButtonLink>
+        </div>
       </Container>
     </Layout>
   )

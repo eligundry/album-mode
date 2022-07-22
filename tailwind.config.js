@@ -5,16 +5,14 @@ const defaultTheme = require('tailwindcss/defaultTheme')
  */
 module.exports = {
   content: ['./app/**/*.{js,ts,jsx,tsx}'],
-  // theme: {
-  //   colors: {
-  //     white: '#fff',
-  //     black: '#000',
-  //     slate: 'rgb(226, 223, 240)',
-  //     grey: '#64748b',
-  //     formBorder: '#cccccc',
-  //     darkModeInput: '#202327',
-  //   },
-  // },
+  theme: {
+    container: {
+      screens: {
+        'xl': '1024px',
+        '2xl': '1024px',
+      },
+    },
+  },
   plugins: [require('@tailwindcss/typography'), require('daisyui')],
   daisyui: {
     themes: [
