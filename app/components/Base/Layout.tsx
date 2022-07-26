@@ -22,9 +22,7 @@ const Layout: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
           </h1>
         </Container>
       </header>
-      <main className={clsx('md:mt-8', 'mb-8', 'mt-2', className)}>
-        {children}
-      </main>
+      <main className={clsx('mb-8', className)}>{children}</main>
       <footer className={clsx('mb-4')}>
         <Container>
           <Typography>

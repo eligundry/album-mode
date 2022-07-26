@@ -1,3 +1,4 @@
+import util from 'util'
 import SpotifyWebApi from 'spotify-web-api-node'
 import { createCookie } from '@remix-run/node'
 import sample from 'lodash/sample'
@@ -107,7 +108,7 @@ const getRandomAlbumForSearchTerm = async (
 
   const albumOffsetToFetch = random(
     0,
-    Math.min(firstPage.body.albums.total, poolLimit)
+    Math.min(firstPage.body.albums.total - 1, poolLimit)
   )
 
   if (albumOffsetToFetch === 0) {
@@ -121,6 +122,10 @@ const getRandomAlbumForSearchTerm = async (
     })
     .then((resp) => {
       if (!resp.body.albums?.items?.[0]) {
+        console.error(
+          util.inspect(resp, false, 100000, true),
+          albumOffsetToFetch
+        )
         throw new Error(
           `could not fetch album for search term from offset (Spotify status code: ${resp.statusCode})`
         )

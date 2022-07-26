@@ -36,14 +36,10 @@ export const Heading: React.FC<HeadingProps> = ({
 
 export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   color?: 'primary' | 'info' | 'warning' | 'danger'
-  size?: 'base' | 'small' | 'large'
+  size?: 'lg' | 'md' | 'sm' | 'xs'
 }
 
-const buttonStyles = ({
-  color = 'primary',
-  className,
-  size = 'base',
-}: ButtonProps) =>
+const buttonStyles = ({ color = 'primary', className, size }: ButtonProps) =>
   clsx(
     'btn',
     {
@@ -53,7 +49,10 @@ const buttonStyles = ({
       'btn-accent': color === 'danger',
     },
     {
-      ['py-2 px-4']: size === 'base',
+      'btn-lg': size === 'lg',
+      'btn-md': size === 'md',
+      'btn-sm': size === 'sm',
+      'btn-xs': size === 'xs',
     },
     className
   )

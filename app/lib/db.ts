@@ -78,15 +78,21 @@ const getRandomArtistFromGroupSlug = async (groupSlug: string) =>
 const getRandomAlbumForPublication = async (publicationSlug: string) =>
   prisma
     .$queryRaw<
-      Pick<AlbumReviewedByPublication, 'id' | 'aritst' | 'album' | 'slug'>[]
+      (Pick<AlbumReviewedByPublication, 'id' | 'aritst' | 'album' | 'slug'> & {
+        publicationName: string
+        publicationBlurb: string | null
+      })[]
     >(
       Prisma.sql`
         SELECT
           a.id,
           a.aritst,
           a.album,
-          a.slug
+          a.slug,
+          p.name AS publicationName,
+          p.blurb AS publicationBlurb
         FROM albumReviewedByPublication a
+        JOIN publication AS p ON p.id = a.publicationID
         WHERE a.id = (
           SELECT albumReviewedByPublication.id
           FROM albumReviewedByPublication

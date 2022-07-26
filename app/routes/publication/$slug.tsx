@@ -3,10 +3,11 @@ import { useLoaderData } from '@remix-run/react'
 
 import db from '~/lib/db'
 import spotify from '~/lib/spotify'
-import { Layout, A, Container } from '~/components/Base'
+import { Layout, A } from '~/components/Base'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
+import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
 type LoaderData =
   | ({
@@ -58,9 +59,7 @@ export default function PublicationBySlug() {
   if (slug === 'bandcamp-daily' && !review && 'albumID' in album) {
     return (
       <Layout>
-        <Container>
-          <BandcampAlbum album={album} />
-        </Container>
+        <BandcampAlbum album={album} />
       </Layout>
     )
   }
@@ -94,6 +93,10 @@ export default function PublicationBySlug() {
 
   return (
     <Layout>
+      <SearchBreadcrumbs
+        parts={['Publications', review.publicationName]}
+        blurb={review.publicationBlurb}
+      />
       <Album album={album} footer={footer} />
     </Layout>
   )

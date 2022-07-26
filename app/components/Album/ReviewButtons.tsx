@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import Confetti from 'react-confetti'
 import useWindowSize from 'react-use/lib/useWindowSize'
-import { useLocation } from 'react-router-dom'
 
 import { ButtonLink } from '~/components/Base'
 import useRating from '~/hooks/useRating'
+import useCurrentPath from '~/hooks/useCurrentPath'
 import { LibraryItem } from '~/lib/types/library'
 
 export interface ReviewButtonProps {
@@ -15,8 +15,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
   const [party, setParty] = useState(false)
   const { positiveReview, negativeReview } = useRating()
   const { width, height } = useWindowSize()
-  const { pathname, search } = useLocation()
-  const refreshURL = pathname + search
+  const refreshURL = useCurrentPath()
 
   return (
     <>
