@@ -3,30 +3,27 @@ import clsx from 'clsx'
 
 import AlbumWrapper from './Wrapper'
 import { Container, A } from '~/components/Base'
-import { useIsMobile, useDarkMode } from '~/hooks/useMediaQuery'
+import { useIsMobile } from '~/hooks/useMediaQuery'
+import { useDaisyPallete } from '~/hooks/useTailwindTheme'
+import type { BandcampDailyAlbum } from '@prisma/client'
 
 interface Props {
-  albumID: string | number
-  artist: string
-  album: string
-  url: string
-  footer?: React.ReactNode
+  album: BandcampDailyAlbum
 }
 
-const BandcampAlbum: React.FC<Props> = ({
-  albumID,
-  artist,
-  album,
-  url,
-  footer,
-}) => {
+const searchParams = new URLSearchParams({
+  utm_campaign: 'album-mode.party',
+  utm_term: 'bandcamp-daily',
+})
+
+const BandcampAlbum: React.FC<Props> = ({ album }) => {
   const isMobile = useIsMobile()
-  const isDarkMode = useDarkMode()
+  const pallete = useDaisyPallete()
   const params = [
-    `album=${albumID}`,
+    `album=${album.albumID}`,
     'size=large',
-    `bgcol=${isDarkMode ? '000' : 'fff'}`,
-    'linkcol=0687f5',
+    `bgcol=${pallete['base-100'].replace('#', '')}`,
+    `linkcol=${pallete.primary.replace('#', '')}`,
     'tracklist=false',
     'transparent=true',
   ]
@@ -49,21 +46,41 @@ const BandcampAlbum: React.FC<Props> = ({
             seamless
             className={clsx('mx-auto')}
           >
-            <a href={url}>
-              {album} by {artist}
+            <a href={`${album.url}?${searchParams.toString()}`}>
+              {album.album} by {album.artist}
             </a>
           </iframe>
         }
         title={
           <>
-            <A href={url} target="_blank" className={clsx('italic')}>
-              {album}
+            <A
+              href={`${album.url}?${searchParams.toString()}`}
+              target="_blank"
+              className={clsx('italic')}
+            >
+              {album.album}
             </A>
-            <span className={clsx('text-base')}>{artist}</span>
+            <span className={clsx('text-base')}>{album.artist}</span>
           </>
         }
-        footer={footer}
-        reviewProps={{ albumURL: url }}
+        footer={
+          <>
+            Need convincing? Read the{' '}
+            <A
+              href={`${album.bandcampDailyURL}?${searchParams.toString()}`}
+              target="_blank"
+            >
+              Bandcamp Daily review
+            </A>
+            .
+          </>
+        }
+        reviewProps={{
+          item: {
+            ...album,
+            type: 'bandcamp',
+          },
+        }}
       />
     </Container>
   )

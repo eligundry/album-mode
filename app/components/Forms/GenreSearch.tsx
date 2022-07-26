@@ -41,6 +41,7 @@ const Control: React.FC<ControlProps> = (props) => {
         'border-box',
         'space-between',
         'relative',
+        'pr-0',
         isFocused && 'input-primary',
         className
       )}
@@ -81,13 +82,8 @@ const GenreSearchForm: React.FC<Props> = ({ defaultGenres }) => {
           valueContainer: (styles) => ({
             ...styles,
             paddingLeft: 0,
+            paddingRight: 0,
           }),
-          // control: (styles) => ({
-          //   ...styles,
-          //   backgroundColor: pallete['base-100'],
-          //   '--tw-border-opacity': 0.2,
-          //   borderColor: 'hsl(var(--bc) / var(--tw-border-opacity))',
-          // }),
           menu: (styles) => ({
             ...styles,
             backgroundColor: pallete['base-100'],

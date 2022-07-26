@@ -31,11 +31,7 @@ export default function RandomSpotifyFeaturedPlaylist() {
 
   return (
     <Layout>
-      <Playlist
-        playlistURL={playlist.external_urls.spotify}
-        name={playlist.name}
-        description={playlist.description}
-      />
+      <Playlist playlist={playlist} />
     </Layout>
   )
 }

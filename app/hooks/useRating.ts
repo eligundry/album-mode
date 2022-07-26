@@ -1,29 +1,33 @@
 import { useCallback, useMemo } from 'react'
 import useGTM from '~/hooks/useGTM'
-import useAlbumLibrary, { SavedAlbum } from '~/hooks/useAlbumLibrary'
-
-type Payload = Omit<SavedAlbum, 'savedAt'>
+import useLibrary, { LibraryItem } from '~/hooks/useLibrary'
 
 export default function useRating() {
-  const { addAlbum } = useAlbumLibrary()
+  const { saveItem } = useLibrary()
   const sendEvent = useGTM()
 
   const positiveReview = useCallback(
-    (payload: Payload) => {
-      addAlbum(payload)
+    (item: LibraryItem) => {
+      const albumURL =
+        item.type === 'bandcamp' ? item.url : item.external_urls.spotify
+
+      saveItem(item)
       sendEvent({
         event: 'Positive Review',
-        albumURL: payload.albumURL,
+        albumURL,
       })
     },
     [sendEvent]
   )
 
   const negativeReview = useCallback(
-    (payload: Payload) => {
+    (item: LibraryItem) => {
+      const albumURL =
+        item.type === 'bandcamp' ? item.url : item.external_urls.spotify
+
       sendEvent({
         event: 'Negative Review',
-        albumURL: payload.albumURL,
+        albumURL,
       })
     },
     [sendEvent]

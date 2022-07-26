@@ -114,7 +114,7 @@ export const Typography: React.FC<TypographyProps> = ({
   <p
     className={clsx(
       'text-base',
-      variant === 'hint' && ['italic', 'text-grey'],
+      variant === 'hint' && ['italic', 'text-gray-400'],
       variant === 'italics' && 'italic',
       variant === 'bold' && 'font-bold',
       className
@@ -137,6 +137,7 @@ export const Input: React.FC<InputProps> = ({
       'input',
       'input-bordered',
       'w-full',
+      'focus:outline-primary',
       width === 'half' && ['mb-2', 'w-1/2'],
       className
     )}

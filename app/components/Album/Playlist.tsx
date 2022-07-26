@@ -2,13 +2,11 @@ import SpotifyEmbed from 'react-spotify-embed'
 import clsx from 'clsx'
 
 import PlaylistWrapper from './Wrapper'
-import { Heading, Container, Typography, A } from '~/components/Base'
+import { Container, A } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 
 interface Props {
-  name: string
-  description: string | null
-  playlistURL: string
+  playlist: SpotifyApi.PlaylistObjectSimplified | SpotifyApi.PlaylistObjectFull
 }
 
 const linkParams = new URLSearchParams({
@@ -16,8 +14,9 @@ const linkParams = new URLSearchParams({
   go: '1',
 })
 
-const Playlist: React.FC<Props> = ({ playlistURL, name, description }) => {
+const Playlist: React.FC<Props> = ({ playlist }) => {
   const isMobile = useIsMobile()
+  const playlistURL = playlist.external_urls.spotify
 
   return (
     <Container center>
@@ -31,11 +30,14 @@ const Playlist: React.FC<Props> = ({ playlistURL, name, description }) => {
         }
         title={
           <A href={`${playlistURL}?${linkParams.toString()}`} target="_blank">
-            {name}
+            {playlist.name}
           </A>
         }
+        footer={
+          playlist.description ? <p>{playlist.description}</p> : undefined
+        }
         reviewProps={{
-          albumURL: playlistURL,
+          item: playlist,
         }}
       />
     </Container>

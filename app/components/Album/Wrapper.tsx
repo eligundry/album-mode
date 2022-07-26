@@ -1,7 +1,8 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { NewReviewButtons, ReviewButtonProps } from './ReviewButtons'
+import Card from '~/components/Base/Card'
+import ReviewButtons, { ReviewButtonProps } from './ReviewButtons'
 
 interface Props {
   embed: React.ReactNode
@@ -17,34 +18,13 @@ const AlbumWrapper: React.FC<Props> = ({
   reviewProps,
 }) => {
   return (
-    <div
-      className={clsx(
-        'card',
-        'card-compact',
-        'shadow-xl',
-        'text-left',
-        'lg:w-1/3',
-        'mx-auto'
-      )}
-    >
-      {embed}
-      <div className={clsx('card-body')}>
-        <h2
-          className={clsx(
-            'card-title',
-            'flex-col',
-            'items-start',
-            'leading-none'
-          )}
-        >
-          {title}
-        </h2>
-        {footer && <p>{footer}</p>}
-        <div className={clsx('card-actions', 'justify-end', 'mt-2')}>
-          <NewReviewButtons {...reviewProps} />
-        </div>
-      </div>
-    </div>
+    <Card
+      className={clsx('lg:w-1/3', 'mx-auto')}
+      media={embed}
+      title={title}
+      body={<>{footer && <p>{footer}</p>}</>}
+      actions={<ReviewButtons {...reviewProps} />}
+    />
   )
 }
 

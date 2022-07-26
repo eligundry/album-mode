@@ -46,6 +46,7 @@ model BandcampDailyAlbum {
   artistID Int
   artist String
   bandcampDailyURL String
+  imageURL String?
   url String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

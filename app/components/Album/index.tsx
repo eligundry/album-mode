@@ -7,13 +7,9 @@ import { Container, A } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 import useGTM from '~/hooks/useGTM'
 
-interface Props {
-  album: string
-  albumURL: string
-  artist: string
-  artistURL: string
+interface NewProps {
+  album: SpotifyApi.AlbumObjectSimplified
   footer?: React.ReactNode
-  headerPrefix?: string
 }
 
 const linkParams = new URLSearchParams({
@@ -21,22 +17,19 @@ const linkParams = new URLSearchParams({
   go: '1',
 })
 
-const Album: React.FC<Props> = ({
-  albumURL,
-  artist,
-  artistURL,
-  album,
-  footer,
-}) => {
+const Album: React.FC<NewProps> = ({ album, footer }) => {
   const isMobile = useIsMobile()
   const sendEvent = useGTM()
+  const albumURL = album.external_urls.spotify
+  const artistURL = album.artists[0].external_urls.spotify
+  const artist = album.artists[0].name
 
   return (
     <Container center>
       <AlbumWrapper
         embed={
           <SpotifyEmbed
-            wide={isMobile}
+            wide={isMobile || album.total_tracks < 4}
             className={clsx('mx-auto')}
             link={albumURL}
           />
@@ -54,7 +47,7 @@ const Album: React.FC<Props> = ({
                 })
               }}
             >
-              {album}
+              {album.name}
             </A>
             <A
               className={clsx('text-base')}
@@ -72,11 +65,7 @@ const Album: React.FC<Props> = ({
           </>
         }
         footer={footer}
-        reviewProps={{
-          albumURL,
-          artistName: artist,
-          albumName: album,
-        }}
+        reviewProps={{ item: album }}
       />
     </Container>
   )

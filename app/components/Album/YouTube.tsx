@@ -3,7 +3,6 @@ import clsx from 'clsx'
 import LiteYouTubeEmbed from 'react-lite-youtube-embed'
 
 import { Heading, Container, A } from '~/components/Base'
-import ReviewButtons from '~/components/Album/ReviewButtons'
 import useGTM from '~/hooks/useGTM'
 
 interface Props {
@@ -44,12 +43,6 @@ const YouTube: React.FC<Props> = ({
       </Heading>
       <LiteYouTubeEmbed id={youtubeID} title={title} />
       {footer}
-      <ReviewButtons
-        albumURL={url}
-        albumName={title}
-        artistName={title}
-        containerClassName={clsx(!footer && 'mt-4')}
-      />
     </Container>
   )
 }
