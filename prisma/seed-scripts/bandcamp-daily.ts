@@ -117,6 +117,7 @@ const scrape = async () => {
                 album: album.title,
                 artistID: album.raw.art_id,
                 artist: album.artist,
+                imageURL: album.imageUrl,
                 url: album.url,
                 bandcampDailyURL: album.bandcampDailyURL,
               },

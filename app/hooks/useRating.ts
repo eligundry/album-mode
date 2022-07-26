@@ -8,10 +8,13 @@ export default function useRating() {
 
   const positiveReview = useCallback(
     (item: LibraryItem) => {
+      const albumURL =
+        item.type === 'bandcamp' ? item.url : item.external_urls.spotify
+
       saveItem(item)
       sendEvent({
         event: 'Positive Review',
-        albumURL: item.external_urls.spotify,
+        albumURL,
       })
     },
     [sendEvent]
@@ -19,9 +22,12 @@ export default function useRating() {
 
   const negativeReview = useCallback(
     (item: LibraryItem) => {
+      const albumURL =
+        item.type === 'bandcamp' ? item.url : item.external_urls.spotify
+
       sendEvent({
         event: 'Negative Review',
-        albumURL: item.external_urls.spotify,
+        albumURL,
       })
     },
     [sendEvent]

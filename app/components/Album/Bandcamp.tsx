@@ -4,26 +4,17 @@ import clsx from 'clsx'
 import AlbumWrapper from './Wrapper'
 import { Container, A } from '~/components/Base'
 import { useIsMobile, useDarkMode } from '~/hooks/useMediaQuery'
+import type { BandcampDailyAlbum } from '@prisma/client'
 
 interface Props {
-  albumID: string | number
-  artist: string
-  album: string
-  url: string
-  footer?: React.ReactNode
+  album: BandcampDailyAlbum
 }
 
-const BandcampAlbum: React.FC<Props> = ({
-  albumID,
-  artist,
-  album,
-  url,
-  footer,
-}) => {
+const BandcampAlbum: React.FC<Props> = ({ album }) => {
   const isMobile = useIsMobile()
   const isDarkMode = useDarkMode()
   const params = [
-    `album=${albumID}`,
+    `album=${album.albumID}`,
     'size=large',
     `bgcol=${isDarkMode ? '000' : 'fff'}`,
     'linkcol=0687f5',
@@ -49,21 +40,34 @@ const BandcampAlbum: React.FC<Props> = ({
             seamless
             className={clsx('mx-auto')}
           >
-            <a href={url}>
-              {album} by {artist}
+            <a href={album.url}>
+              {album.album} by {album.artist}
             </a>
           </iframe>
         }
         title={
           <>
-            <A href={url} target="_blank" className={clsx('italic')}>
-              {album}
+            <A href={album.url} target="_blank" className={clsx('italic')}>
+              {album.album}
             </A>
-            <span className={clsx('text-base')}>{artist}</span>
+            <span className={clsx('text-base')}>{album.artist}</span>
           </>
         }
-        footer={footer}
-        reviewProps={{ albumURL: url }}
+        footer={
+          <>
+            Need convincing? Read the{' '}
+            <A href={album.bandcampDailyURL} target="_blank">
+              Bandcamp Daily review
+            </A>
+            .
+          </>
+        }
+        reviewProps={{
+          item: {
+            ...album,
+            type: 'bandcamp',
+          },
+        }}
       />
     </Container>
   )

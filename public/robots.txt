@@ -5,6 +5,8 @@ Disallow: /label/*
 Disallow: /related-artist/*
 Disallow: /spotify/*
 Disallow: /reddit/*
+Disallow: /genre*
+Disallow: /library*
 Allow: /
 
 Host: https://album-mode.party

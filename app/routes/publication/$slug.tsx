@@ -59,21 +59,7 @@ export default function PublicationBySlug() {
     return (
       <Layout>
         <Container>
-          <BandcampAlbum
-            albumID={album.albumID}
-            album={album.album}
-            artist={album.artist}
-            url={album.bandcampDailyURL}
-            footer={
-              <>
-                Need convincing? Read the{' '}
-                <A href={album.bandcampDailyURL} target="_blank">
-                  Bandcamp Daily review
-                </A>
-                .
-              </>
-            }
-          />
+          <BandcampAlbum album={album} />
         </Container>
       </Layout>
     )
