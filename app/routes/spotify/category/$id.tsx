@@ -29,7 +29,9 @@ export default function RandomSpotifyFeaturedPlaylist() {
 
   return (
     <Layout>
-      <SearchBreadcrumbs parts={['Spotify', 'Playlist Category', categoryID]} />
+      <SearchBreadcrumbs
+        crumbs={['Spotify', 'Playlist Category', categoryID]}
+      />
       <Playlist playlist={playlist} />
     </Layout>
   )

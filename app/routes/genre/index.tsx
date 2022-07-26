@@ -1,6 +1,5 @@
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import promiseHash from 'promise-hash'
 import clsx from 'clsx'
 
 import db from '~/lib/db'
@@ -9,41 +8,31 @@ import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout, Heading, ButtonLink, Container } from '~/components/Base'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
+import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
-type LoaderData =
-  | {
-      album: Awaited<ReturnType<typeof spotify.getRandomAlbumByGenre>>
-    }
-  | {
-      topGenres: Awaited<ReturnType<typeof db.getTopGenres>>
-    }
-
-export const loader: LoaderFunction = async ({ request }) => {
+export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
   const q = url.searchParams.get('q')
 
   if (!q) {
-    const data: LoaderData = await promiseHash({
-      topGenres: db.getTopGenres(300),
+    return json({
+      topGenres: await db.getTopGenres(300),
     })
-
-    return json(data)
   }
 
-  const data: LoaderData = await promiseHash({
-    album: spotify.getRandomAlbumByGenre(q),
+  return json({
+    album: await spotify.getRandomAlbumByGenre(q),
+    genre: q,
   })
-
-  return json(data)
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
 
 export default function GenreSearch() {
-  const data = useLoaderData<LoaderData>()
+  const data = useLoaderData<typeof loader>()
 
   if ('album' in data) {
-    const { album } = data
+    const { album, genre } = data
 
     if (!album?.external_urls?.spotify) {
       return null
@@ -51,6 +40,7 @@ export default function GenreSearch() {
 
     return (
       <Layout>
+        <SearchBreadcrumbs crumbs={['Genre', genre]} />
         <Album album={album} />
       </Layout>
     )

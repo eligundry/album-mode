@@ -8,7 +8,7 @@ import { useDaisyPallete } from '~/hooks/useTailwindTheme'
 import type { BandcampDailyAlbum } from '@prisma/client'
 
 interface Props {
-  album: BandcampDailyAlbum
+  album: Omit<BandcampDailyAlbum, 'createdAt' | 'updatedAt'>
 }
 
 const searchParams = new URLSearchParams({

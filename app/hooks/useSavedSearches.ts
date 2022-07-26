@@ -12,10 +12,10 @@ export default function useSavedSearches() {
   const saveable = !searches?.[path]
 
   const saveSearch = useCallback(
-    (parts: string[]) =>
+    (crumbs: string[]) =>
       setSearches((s) => ({
         ...s,
-        [path]: parts,
+        [path]: crumbs,
       })),
     [setSearches, path]
   )

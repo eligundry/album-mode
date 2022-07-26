@@ -1,38 +1,35 @@
 import { useLoaderData } from '@remix-run/react'
-import { json, LoaderFunction } from '@remix-run/node'
+import { json, LoaderArgs } from '@remix-run/node'
 
 import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
+import SearchBreadcrumb from '~/components/SearchBreadcrumbs'
 
-type LoaderData = {
-  album: Awaited<ReturnType<typeof spotify.getRandomAlbumForGroupSlug>>
-}
-
-export const loader: LoaderFunction = async ({ params }) => {
+export async function loader({ params }: LoaderArgs) {
   if (!params.slug) {
     throw new Error('slug must be provided to this route')
   }
 
-  const data: LoaderData = {
+  return json({
     album: await spotify.getRandomAlbumForGroupSlug(params.slug),
-  }
-
-  return json(data)
+    group: params.slug,
+  })
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
 
 export default function GroupBySlug() {
-  const { album } = useLoaderData<LoaderData>()
+  const { album, group } = useLoaderData<typeof loader>()
 
-  if (!album?.external_urls?.spotify) {
+  if (!album) {
     return null
   }
 
   return (
     <Layout>
+      <SearchBreadcrumbs crumbs={['Group', group]} />
       <Album album={album} />
     </Layout>
   )

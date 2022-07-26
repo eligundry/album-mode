@@ -1,4 +1,4 @@
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 import db from '~/lib/db'
@@ -7,19 +7,16 @@ import { Layout, A } from '~/components/Base'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
+import SearchBreadcrumbs, {
+  SearchBreadcrumbsProps,
+} from '~/components/SearchBreadcrumbs'
 
-type LoaderData =
-  | ({
-      slug: string
-    } & Awaited<ReturnType<typeof spotify.getRandomAlbumForPublication>>)
-  | {
-      slug: 'bandcamp-daily'
-      review?: undefined
-      album: Awaited<ReturnType<typeof db.getRandomBandcampDailyAlbum>>
-    }
+const searchParams = new URLSearchParams({
+  utm_campaign: 'album-mode.party',
+  utm_term: 'publication',
+})
 
-export const loader: LoaderFunction = async ({ params }) => {
+export async function loader({ params }: LoaderArgs) {
   const slug = params.slug
 
   if (!slug) {
@@ -27,48 +24,58 @@ export const loader: LoaderFunction = async ({ params }) => {
   }
 
   if (slug === 'bandcamp-daily') {
-    const data: LoaderData = {
+    return json({
       slug: 'bandcamp-daily',
       album: await db.getRandomBandcampDailyAlbum(),
-      review: undefined,
-    }
-
-    return json(data)
+      type: 'bandcamp',
+    })
   }
 
   const { album, review } = await spotify.getRandomAlbumForPublication(slug)
 
-  const data: LoaderData = {
+  return json({
     slug,
     review,
     album,
-  }
-
-  return json(data)
+    type: 'spotify',
+  })
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
 
 export default function PublicationBySlug() {
-  const { album, slug, review } = useLoaderData<LoaderData>()
+  const data = useLoaderData<typeof loader>()
 
-  if (!album) {
+  if (!data.album) {
     return null
   }
 
-  if (slug === 'bandcamp-daily' && !review && 'albumID' in album) {
+  if (data.type === 'bandcamp') {
     return (
       <Layout>
-        <BandcampAlbum album={album} />
+        <SearchBreadcrumbs
+          crumbs={[
+            'Publication',
+            [
+              'Bandcamp Daily',
+              <A href={`https://daily.bandcamp.com/${searchParams.toString()}`}>
+                Bandcamp Daily
+              </A>,
+            ],
+          ]}
+        />
+        <BandcampAlbum album={data.album} />
       </Layout>
     )
   }
 
   let footer = null
+  let breadcrumbs: SearchBreadcrumbsProps['crumbs'] = ['Publication']
 
-  if (slug?.includes('p4k')) {
-    const url = new URL('https://pitchfork.com' + review.slug)
-    url.searchParams.set('utm_campaign', 'album-mode.party')
+  if (data.slug.includes('p4k') && 'review' in data) {
+    const url = new URL(
+      `https://pitchfork.com${data.review.slug}?${searchParams.toString()}`
+    )
 
     footer = (
       <>
@@ -79,25 +86,45 @@ export default function PublicationBySlug() {
         .
       </>
     )
-  } else if (slug === 'needle-drop') {
+    breadcrumbs.push([
+      data.review.publicationName,
+      <A
+        href={`https://pitchfork.com?${searchParams.toString()}`}
+        target="_blank"
+      >
+        {data.review.publicationName}
+      </A>,
+    ])
+  } else if (data.slug === 'needle-drop' && 'review' in data) {
     footer = (
       <>
         Need convincing? Watch the{' '}
-        <A href={review.slug} target="_blank">
+        <A href={data.review.slug} target="_blank">
           Needle Drop review on YouTube
         </A>
         .
       </>
     )
+    breadcrumbs.push([
+      data.review.publicationName,
+      <A
+        href={`https://www.theneedledrop.com/?${searchParams.toString()}`}
+        target="_blank"
+      >
+        {data.review.publicationName}
+      </A>,
+    ])
+  } else {
+    breadcrumbs.push(data.review.publicationName)
   }
 
   return (
     <Layout>
       <SearchBreadcrumbs
-        parts={['Publications', review.publicationName]}
-        blurb={review.publicationBlurb}
+        crumbs={breadcrumbs}
+        blurb={data.review.publicationBlurb}
       />
-      <Album album={album} footer={footer} />
+      <Album album={data.album} footer={footer} />
     </Layout>
   )
 }

@@ -3,8 +3,8 @@ import {
   PrismaClient,
   AlbumReviewedByPublication,
   Artist,
+  BandcampDailyAlbum,
 } from '@prisma/client'
-import sample from 'lodash/sample'
 import groupBy from 'lodash/groupBy'
 
 export const prisma = new PrismaClient()
@@ -109,7 +109,28 @@ const getRandomAlbumForPublication = async (publicationSlug: string) =>
     .then((res) => res?.[0])
 
 const getRandomBandcampDailyAlbum = async () =>
-  prisma.bandcampDailyAlbum.findMany().then((albums) => sample(albums))
+  prisma
+    .$queryRaw<Omit<BandcampDailyAlbum, 'createdAt' | 'updatedAt'>[]>(
+      Prisma.sql`
+        SELECT
+          a.albumID,
+          a.album,
+          a.artistID,
+          a.artist,
+          a.bandcampDailyURL,
+          a.url,
+          a.imageURL
+        FROM BandcampDailyAlbum a
+        WHERE a.albumID = (
+          SELECT BandcampDailyAlbum.albumID
+          FROM BandcampDailyAlbum
+          ORDER BY random()
+          LIMIT 1
+        )
+        LIMIT 1
+      `
+    )
+    .then((res) => res[0])
 
 const searchGenres = async (q: string): Promise<string[]> =>
   prisma.spotifyGenere

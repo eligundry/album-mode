@@ -42,7 +42,7 @@ export default function RelatedArtistSearch() {
 
   return (
     <Layout>
-      <SearchBreadcrumbs parts={['Artist', data.q]} />
+      <SearchBreadcrumbs crumbs={['Artist', data.q]} />
       <Album album={data.album} />
     </Layout>
   )

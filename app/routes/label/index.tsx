@@ -1,6 +1,5 @@
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import promiseHash from 'promise-hash'
 import clsx from 'clsx'
 
 import db from '~/lib/db'
@@ -10,48 +9,39 @@ import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout, Heading, Container } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
+import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
-type LoaderData =
-  | {
-      album: Awaited<ReturnType<typeof spotify.getRandomAlbumForLabel>>
-    }
-  | {
-      labels: Awaited<ReturnType<typeof db.getLabels>>
-    }
-
-export const loader: LoaderFunction = async ({ request }) => {
+export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
   const q = url.searchParams.get('q')
 
   if (!q) {
-    const data: LoaderData = await promiseHash({
-      labels: db.getLabels(),
+    return json({
+      labels: await db.getLabels(),
     })
-
-    return json(data)
   }
 
-  const data: LoaderData = await promiseHash({
-    album: spotify.getRandomAlbumForLabel(q),
+  return json({
+    album: await spotify.getRandomAlbumForLabel(q),
+    label: q,
   })
-
-  return json(data)
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
 
 export default function LabelSearch() {
-  const data = useLoaderData<LoaderData>()
+  const data = useLoaderData<typeof loader>()
 
   if ('album' in data) {
     const { album } = data
 
-    if (!album?.external_urls?.spotify) {
+    if (!album) {
       return null
     }
 
     return (
       <Layout>
+        <SearchBreadcrumbs crumbs={['Labels', data.label]} />
         <Album album={album} />
       </Layout>
     )

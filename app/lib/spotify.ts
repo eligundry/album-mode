@@ -296,7 +296,7 @@ const getRandomFeaturedPlaylist = async (country = 'US') => {
     resp = await client.getFeaturedPlaylists({
       country,
       limit: 1,
-      offset: random(0, resp.body.playlists.total),
+      offset: random(0, resp.body.playlists.total - 1),
     })
   }
 
