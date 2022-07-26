@@ -14,7 +14,7 @@ const SearchBreadcrumbs: React.FC<Props> = ({ parts, blurb }) => {
   return (
     <Container className={clsx('mb-4')}>
       <nav className={clsx('flex', 'flex-row', 'justify-between')}>
-        <div className={clsx('breadcrumbs')}>
+        <div className={clsx('breadcrumbs', 'uppercase')}>
           <ul>
             <li>
               <Link to="/">Home</Link>

@@ -14,7 +14,7 @@ import { withSentry } from '@sentry/remix'
 import Tracking from '~/components/Tracking'
 import { useDarkMode } from '~/hooks/useMediaQuery'
 import { useDaisyPallete } from '~/hooks/useTailwindTheme'
-import CurrentPathContext from '~/context/CurrentPath'
+import CurrentPathProvider from '~/context/CurrentPath'
 import styles from './styles/app.css'
 
 export const meta: MetaFunction = ({ data }) => ({
@@ -64,7 +64,7 @@ function App() {
         <meta name="theme-color" content={pallete['base-100']} />
       </head>
       <body className={clsx('px-4')}>
-        <CurrentPathContext.Provider value={data.currentPath}>
+        <CurrentPathProvider initialPath={data.currentPath}>
           <Outlet />
           <ScrollRestoration />
           <script
@@ -74,7 +74,7 @@ function App() {
           />
           <Scripts />
           <LiveReload />
-        </CurrentPathContext.Provider>
+        </CurrentPathProvider>
       </body>
     </html>
   )

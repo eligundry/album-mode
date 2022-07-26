@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import type { ErrorBoundaryComponent } from '@remix-run/node'
-import { useLocation } from 'react-router-dom'
 
+import useCurrentPath from '~/hooks/useCurrentPath'
 import {
   Layout,
   Heading,
@@ -11,7 +11,7 @@ import {
 } from '~/components/Base'
 
 const AlbumErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
-  const { pathname, search } = useLocation()
+  const currentPath = useCurrentPath()
 
   return (
     <Layout>
@@ -23,11 +23,7 @@ const AlbumErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
             now. You should refresh the page to fix this issue.
           </Typography>
           <pre>{error.message}</pre>
-          <ButtonLink
-            color="info"
-            to={pathname + search}
-            className={clsx('mt-2')}
-          >
+          <ButtonLink color="info" to={currentPath} className={clsx('mt-2')}>
             🔄 &nbsp; Retry
           </ButtonLink>
         </div>

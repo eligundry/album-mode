@@ -4,6 +4,7 @@ import { createCookie } from '@remix-run/node'
 import sample from 'lodash/sample'
 import random from 'lodash/random'
 import db from './db'
+import cache from './cache'
 
 const spotifyAPIFactory = () =>
   new SpotifyWebApi({
@@ -303,27 +304,47 @@ const getRandomFeaturedPlaylist = async (country = 'US') => {
 }
 
 const getCategories = async (country = 'US') => {
+  const cacheKey = `spotify-categories-${country}`
+  let categories = cache.get<SpotifyApi.CategoryObject[]>(cacheKey)
+
+  if (categories) {
+    return categories
+  }
+
   const client = await getClient()
   const resp = await client.getCategories({
     country,
     limit: 50,
   })
 
-  return resp.body.categories.items
+  categories = resp.body.categories.items
+  cache.set(cacheKey, categories)
+
+  return categories
 }
 
 const getRandomPlaylistForCategory = async (
   categoryID: string,
   country = 'US'
 ) => {
+  const cacheKey = `spotify-category-${categoryID}-${country}`
+  const playlistIdx = random(0, 50)
+  let playlists = cache.get<SpotifyApi.PlaylistObjectSimplified[]>(cacheKey)
+
+  if (playlists) {
+    return playlists[playlistIdx]
+  }
+
   const client = await getClient()
   const resp = await client.getPlaylistsForCategory(categoryID, {
     country,
-    limit: 1,
-    offset: random(0, 50),
+    limit: 50,
   })
 
-  return resp.body.playlists.items[0]
+  playlists = resp.body.playlists.items
+  cache.set(cacheKey, playlists)
+
+  return playlists[playlistIdx]
 }
 
 const cookieFactory = createCookie('spotify', {
