@@ -3,21 +3,27 @@ import clsx from 'clsx'
 
 import AlbumWrapper from './Wrapper'
 import { Container, A } from '~/components/Base'
-import { useIsMobile, useDarkMode } from '~/hooks/useMediaQuery'
+import { useIsMobile } from '~/hooks/useMediaQuery'
+import { useDaisyPallete } from '~/hooks/useTailwindTheme'
 import type { BandcampDailyAlbum } from '@prisma/client'
 
 interface Props {
   album: BandcampDailyAlbum
 }
 
+const searchParams = new URLSearchParams({
+  utm_campaign: 'album-mode.party',
+  utm_term: 'bandcamp-daily',
+})
+
 const BandcampAlbum: React.FC<Props> = ({ album }) => {
   const isMobile = useIsMobile()
-  const isDarkMode = useDarkMode()
+  const pallete = useDaisyPallete()
   const params = [
     `album=${album.albumID}`,
     'size=large',
-    `bgcol=${isDarkMode ? '000' : 'fff'}`,
-    'linkcol=0687f5',
+    `bgcol=${pallete['base-100'].replace('#', '')}`,
+    `linkcol=${pallete.primary.replace('#', '')}`,
     'tracklist=false',
     'transparent=true',
   ]
@@ -40,14 +46,18 @@ const BandcampAlbum: React.FC<Props> = ({ album }) => {
             seamless
             className={clsx('mx-auto')}
           >
-            <a href={album.url}>
+            <a href={`${album.url}?${searchParams.toString()}`}>
               {album.album} by {album.artist}
             </a>
           </iframe>
         }
         title={
           <>
-            <A href={album.url} target="_blank" className={clsx('italic')}>
+            <A
+              href={`${album.url}?${searchParams.toString()}`}
+              target="_blank"
+              className={clsx('italic')}
+            >
               {album.album}
             </A>
             <span className={clsx('text-base')}>{album.artist}</span>
@@ -56,7 +66,10 @@ const BandcampAlbum: React.FC<Props> = ({ album }) => {
         footer={
           <>
             Need convincing? Read the{' '}
-            <A href={album.bandcampDailyURL} target="_blank">
+            <A
+              href={`${album.bandcampDailyURL}?${searchParams.toString()}`}
+              target="_blank"
+            >
               Bandcamp Daily review
             </A>
             .

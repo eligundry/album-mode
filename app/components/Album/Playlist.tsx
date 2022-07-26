@@ -17,7 +17,6 @@ const linkParams = new URLSearchParams({
 const Playlist: React.FC<Props> = ({ playlist }) => {
   const isMobile = useIsMobile()
   const playlistURL = playlist.external_urls.spotify
-  console.log(playlist)
 
   return (
     <Container center>
