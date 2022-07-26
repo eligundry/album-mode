@@ -24,7 +24,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   if (!q) {
     const data: LoaderData = await promiseHash({
-      topGenres: db.getTopGenres(),
+      topGenres: db.getTopGenres(300),
     })
 
     return json(data)

@@ -28,9 +28,7 @@ export default function SpotifyCategories() {
     <Layout>
       <Container>
         <Heading level="h2">Playlist Categories</Heading>
-        <div
-          className={clsx('flex', 'flex-row', 'flex-wrap', 'justify-between')}
-        >
+        <div className={clsx('flex', 'flex-row', 'flex-wrap', 'gap-4')}>
           {categories.map((category) => (
             <Link
               to={`/spotify/category/${category.id}`}

@@ -15,7 +15,7 @@ const searchParams = new URLSearchParams({
   go: '1',
 })
 
-export default function AccountPage() {
+export default function LibraryPage() {
   const { library } = useAlbumLibrary()
 
   return (
@@ -30,10 +30,12 @@ export default function AccountPage() {
         <section className={clsx('flex', 'flex-wrap', 'flex-row', 'gap-4')}>
           {library?.items.reverse().map((item) => (
             <Card
+              key={item.savedAt.toISOString()}
               component="a"
               href={`${item.external_urls.spotify}?${searchParams.toString()}`}
               className={clsx('w-48')}
               target="_blank"
+              mediaZoomOnHover
               media={
                 <img
                   src={item.images[0].url}
@@ -44,7 +46,44 @@ export default function AccountPage() {
                   decoding="async"
                 />
               }
-              title={item.name}
+              title={
+                <>
+                  <A
+                    className={clsx(
+                      'text-lg',
+                      'leading-none',
+                      'text-ellipsis',
+                      'block',
+                      'nowrap',
+                      'overflow-hidden'
+                    )}
+                    href={`${
+                      item.external_urls.spotify
+                    }?${searchParams.toString()}`}
+                    target="_blank"
+                  >
+                    {item.name}
+                  </A>
+                  {item.type === 'album' && (
+                    <A
+                      className={clsx(
+                        'text-base',
+                        'leading-none',
+                        'text-ellipsis',
+                        'block',
+                        'nowrap',
+                        'overflow-hidden'
+                      )}
+                      href={`${
+                        item.artists[0].external_urls.spotify
+                      }?${searchParams.toString()}`}
+                      target="_blank"
+                    >
+                      {item.artists[0].name}
+                    </A>
+                  )}
+                </>
+              }
             />
           ))}
         </section>

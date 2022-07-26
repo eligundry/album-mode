@@ -122,7 +122,7 @@ const searchGenres = async (q: string): Promise<string[]> =>
     })
     .then((res) => res.map(({ name }) => name))
 
-const getTopGenres = async (): Promise<string[]> =>
+const getTopGenres = async (limit = 100): Promise<string[]> =>
   prisma.spotifyGenere
     .findMany({
       select: {
@@ -131,7 +131,7 @@ const getTopGenres = async (): Promise<string[]> =>
       orderBy: {
         id: 'asc',
       },
-      take: 100,
+      take: limit,
     })
     .then((res) => res.map(({ name }) => name))
 

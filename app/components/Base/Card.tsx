@@ -7,6 +7,7 @@ interface Props<T extends 'a' | 'div' | 'section' = 'div'>
   title: React.ReactNode | string
   body?: React.ReactNode
   actions?: React.ReactNode
+  mediaZoomOnHover?: boolean
 }
 
 export const Card: React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const Card: React.FC<Props> = ({
   body,
   actions,
   className,
+  mediaZoomOnHover,
   ...props
 }) => {
   const Wrapper = component
@@ -27,6 +29,11 @@ export const Card: React.FC<Props> = ({
         'card-compact',
         'shadow-xl',
         'text-left',
+        mediaZoomOnHover && [
+          '[&>img]:hover:scale-105',
+          '[&>img]:ease-in',
+          '[&>img]:duration-100',
+        ],
         className
       )}
       {...props}
