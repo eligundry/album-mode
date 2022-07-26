@@ -14,7 +14,7 @@ const SpotifyLibraryCard: React.FC<{ item: SavedSpotifyItem }> = ({ item }) => (
   <Card
     component="a"
     href={`${item.external_urls.spotify}?${searchParams.toString()}`}
-    className={clsx('w-48')}
+    className={clsx('w-44')}
     target="_blank"
     mediaZoomOnHover
     media={

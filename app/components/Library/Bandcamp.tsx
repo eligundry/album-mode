@@ -16,7 +16,7 @@ const BandcampLibraryCard: React.FC<{ item: SavedBandcampItem }> = ({
   <Card
     component="a"
     href={`${item.url}?${searchParams.toString()}`}
-    className={clsx('w-48')}
+    className={clsx('w-44')}
     target="_blank"
     mediaZoomOnHover
     media={
