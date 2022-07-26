@@ -8,7 +8,6 @@ import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout, Heading, ButtonLink, Container } from '~/components/Base'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
-import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
@@ -39,9 +38,7 @@ export default function GenreSearch() {
     }
 
     return (
-      <Layout
-        headerBreadcrumbs={<SearchBreadcrumbs crumbs={['Genre', genre]} />}
-      >
+      <Layout headerBreadcrumbs={['Genre', genre]}>
         <Album album={album} />
       </Layout>
     )

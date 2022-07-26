@@ -9,7 +9,6 @@ import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout, Heading, Container } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
-import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
@@ -40,11 +39,7 @@ export default function LabelSearch() {
     }
 
     return (
-      <Layout
-        headerBreadcrumbs={
-          <SearchBreadcrumbs crumbs={['Labels', data.label]} />
-        }
-      >
+      <Layout headerBreadcrumbs={['Labels', data.label]}>
         <Album album={album} />
       </Layout>
     )

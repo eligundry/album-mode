@@ -5,7 +5,6 @@ import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
-import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
 export async function loader({ params }: LoaderArgs) {
   const label = params.slug
@@ -30,9 +29,7 @@ export default function LabelBySlug() {
   }
 
   return (
-    <Layout
-      headerBreadcrumbs={<SearchBreadcrumbs crumbs={['Labels', label]} />}
-    >
+    <Layout headerBreadcrumbs={['Labels', label]}>
       <Album album={album} />
     </Layout>
   )

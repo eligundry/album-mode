@@ -5,7 +5,6 @@ import auth from '~/lib/auth'
 import spotify from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
-import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
 export async function loader({ request }: LoaderArgs) {
   const cookie = await auth.getCookie(request)
@@ -38,9 +37,7 @@ export default function RandomAlbumFromSpotifyLibrary() {
   }
 
   return (
-    <Layout
-      headerBreadcrumbs={<SearchBreadcrumbs crumbs={['Spotify', 'Library']} />}
-    >
+    <Layout headerBreadcrumbs={['Spotify', 'Library']}>
       <Album album={data.album} />
     </Layout>
   )

@@ -1,11 +1,14 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { Container, A, ButtonLink, Link, Typography } from './index'
+import { Container, A, Link, Typography } from './index'
+import SearchBreadcrumbs, {
+  SearchBreadcrumbsProps,
+} from '~/components/SearchBreadcrumbs'
 
 interface LayoutProps {
   className?: string
-  headerBreadcrumbs?: React.ReactNode
+  headerBreadcrumbs?: SearchBreadcrumbsProps['crumbs']
 }
 
 const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
@@ -17,9 +20,17 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
     <>
       <header className={clsx('navbar', 'pl-0')}>
         <Container
-          className={clsx('flex', 'justify-between', 'my-4', 'align-center')}
+          className={clsx('flex', 'flex-wrap', 'my-4', 'align-center')}
         >
-          <h1 className={clsx('text-xl', 'font-bold', 'whitespace-nowrap')}>
+          <h1
+            className={clsx(
+              'text-xl',
+              'font-bold',
+              'whitespace-nowrap',
+              'order-1',
+              'mr-auto'
+            )}
+          >
             <Link
               to="/"
               color={false}
@@ -28,21 +39,34 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               💿 Album Mode.party 🎉
             </Link>
           </h1>
+          {headerBreadcrumbs && (
+            <SearchBreadcrumbs
+              className={clsx(
+                'order-3 md:order-2',
+                'flex-1',
+                'justify-between md:justify-center',
+                'ml-2 md:ml-0',
+                'basis-1/2'
+              )}
+              crumbs={headerBreadcrumbs}
+            />
+          )}
           <nav
             className={clsx(
               'navbar-end',
-              'flex-none',
+              // 'flex-none',
               'flex',
               'justify-items-end',
               'align-center',
-              'align-middle'
+              'align-middle',
+              'order-2 md:order-3',
+              'flex-1'
             )}
           >
-            {headerBreadcrumbs}
             <ul className={clsx('menu', 'menu-horizontal')}>
               <li tabIndex={0}>
                 <a>🍔</a>
-                <ul className={clsx('bg-base-100')}>
+                <ul className={clsx('bg-base-100', 'z-50')}>
                   <li>
                     <Link to="/library">Library</Link>
                   </li>

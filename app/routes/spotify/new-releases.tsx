@@ -5,7 +5,6 @@ import spotify from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
@@ -22,11 +21,7 @@ export default function SpotifyNewReleases() {
   const { album } = useLoaderData<typeof loader>()
 
   return (
-    <Layout
-      headerBreadcrumbs={
-        <SearchBreadcrumbs crumbs={['Spotify', 'New Releases']} />
-      }
-    >
+    <Layout headerBreadcrumbs={['Spotify', 'New Releases']}>
       <Album album={album} />
     </Layout>
   )

@@ -6,7 +6,6 @@ import spotify from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
@@ -41,9 +40,7 @@ export default function RelatedArtistSearch() {
   }
 
   return (
-    <Layout
-      headerBreadcrumbs={<SearchBreadcrumbs crumbs={['Artist', data.artist]} />}
-    >
+    <Layout headerBreadcrumbs={['Artist', data.artist]}>
       <Album album={data.album} />
     </Layout>
   )

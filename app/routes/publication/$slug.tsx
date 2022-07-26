@@ -7,9 +7,7 @@ import { Layout, A } from '~/components/Base'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import SearchBreadcrumbs, {
-  SearchBreadcrumbsProps,
-} from '~/components/SearchBreadcrumbs'
+import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 
 const searchParams = new URLSearchParams({
   utm_campaign: 'album-mode.party',
@@ -52,18 +50,17 @@ export default function PublicationBySlug() {
 
   if (data.type === 'bandcamp') {
     return (
-      <Layout>
-        <SearchBreadcrumbs
-          crumbs={[
-            'Publication',
-            [
-              'Bandcamp Daily',
-              <A href={`https://daily.bandcamp.com/${searchParams.toString()}`}>
-                Bandcamp Daily
-              </A>,
-            ],
-          ]}
-        />
+      <Layout
+        headerBreadcrumbs={[
+          'Publication',
+          [
+            'Bandcamp Daily',
+            <A href={`https://daily.bandcamp.com/${searchParams.toString()}`}>
+              Bandcamp Daily
+            </A>,
+          ],
+        ]}
+      >
         <BandcampAlbum album={data.album} />
       </Layout>
     )
@@ -119,14 +116,7 @@ export default function PublicationBySlug() {
   }
 
   return (
-    <Layout
-      headerBreadcrumbs={
-        <SearchBreadcrumbs
-          crumbs={breadcrumbs}
-          blurb={data.review.publicationBlurb}
-        />
-      }
-    >
+    <Layout headerBreadcrumbs={breadcrumbs}>
       <Album album={data.album} footer={footer} />
     </Layout>
   )
