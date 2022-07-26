@@ -7,6 +7,7 @@ Disallow: /spotify/*
 Disallow: /reddit/*
 Disallow: /genre*
 Disallow: /library*
+Disallow: /saved-searches*
 Allow: /
 
 Host: https://album-mode.party
