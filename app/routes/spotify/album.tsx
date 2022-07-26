@@ -38,8 +38,9 @@ export default function RandomAlbumFromSpotifyLibrary() {
   }
 
   return (
-    <Layout>
-      <SearchBreadcrumbs crumbs={['Spotify', 'Library']} />
+    <Layout
+      headerBreadcrumbs={<SearchBreadcrumbs crumbs={['Spotify', 'Library']} />}
+    >
       <Album album={data.album} />
     </Layout>
   )

@@ -22,8 +22,11 @@ export default function SpotifyNewReleases() {
   const { album } = useLoaderData<typeof loader>()
 
   return (
-    <Layout>
-      <SearchBreadcrumbs crumbs={['Spotify', 'New Releases']} />
+    <Layout
+      headerBreadcrumbs={
+        <SearchBreadcrumbs crumbs={['Spotify', 'New Releases']} />
+      }
+    >
       <Album album={album} />
     </Layout>
   )

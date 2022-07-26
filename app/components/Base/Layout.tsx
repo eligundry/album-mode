@@ -1,17 +1,25 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { Container, A, Link, Typography } from './index'
+import { Container, A, ButtonLink, Link, Typography } from './index'
 
-const Layout: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
+interface LayoutProps {
+  className?: string
+  headerBreadcrumbs?: React.ReactNode
+}
+
+const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   children,
   className,
+  headerBreadcrumbs,
 }) => {
   return (
     <>
       <header className={clsx('navbar', 'pl-0')}>
-        <Container>
-          <h1 className={clsx('text-xl', 'font-bold', 'my-4')}>
+        <Container
+          className={clsx('flex', 'justify-between', 'my-4', 'align-center')}
+        >
+          <h1 className={clsx('text-xl', 'font-bold', 'whitespace-nowrap')}>
             <Link
               to="/"
               color={false}
@@ -20,16 +28,49 @@ const Layout: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
               💿 Album Mode.party 🎉
             </Link>
           </h1>
+          <nav
+            className={clsx(
+              'navbar-end',
+              'flex-none',
+              'flex',
+              'justify-items-end',
+              'align-center',
+              'align-middle'
+            )}
+          >
+            {headerBreadcrumbs}
+            <ul className={clsx('menu', 'menu-horizontal')}>
+              <li tabIndex={0}>
+                <a>🍔</a>
+                <ul className={clsx('bg-base-100')}>
+                  <li>
+                    <Link to="/library">Library</Link>
+                  </li>
+                  <li>
+                    <Link to="/saved-searches">Saved Searches</Link>
+                  </li>
+                  <li>
+                    <Link to="/about">About</Link>
+                  </li>
+
+                  <li>
+                    <A
+                      href="mailto:eligundry+album-mode.party@gmail.com"
+                      target="_blank"
+                    >
+                      Contact
+                    </A>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </nav>
         </Container>
       </header>
       <main className={clsx('mb-8', className)}>{children}</main>
       <footer className={clsx('mb-4')}>
         <Container>
-          <Typography>
-            <Link to="/library">Library</Link> | <Link to="/about">About</Link>{' '}
-            | <A href="mailto:eligundry+album-mode.party@gmail.com">Contact</A>{' '}
-          </Typography>
-          <Typography>
+          <Typography className={clsx('text-right')}>
             Made with ❤️ &nbsp;by{' '}
             <A href="https://eligundry.com" target="_blank">
               Eli Gundry

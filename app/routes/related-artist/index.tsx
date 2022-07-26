@@ -25,7 +25,7 @@ export async function loader({ request }: LoaderArgs) {
 
   const data = await promiseHash({
     album: searchMethod(q),
-    q,
+    artist: q,
   })
 
   return json(data)
@@ -41,8 +41,9 @@ export default function RelatedArtistSearch() {
   }
 
   return (
-    <Layout>
-      <SearchBreadcrumbs crumbs={['Artist', data.q]} />
+    <Layout
+      headerBreadcrumbs={<SearchBreadcrumbs crumbs={['Artist', data.artist]} />}
+    >
       <Album album={data.album} />
     </Layout>
   )

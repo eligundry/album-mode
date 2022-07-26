@@ -39,8 +39,9 @@ export default function GenreSearch() {
     }
 
     return (
-      <Layout>
-        <SearchBreadcrumbs crumbs={['Genre', genre]} />
+      <Layout
+        headerBreadcrumbs={<SearchBreadcrumbs crumbs={['Genre', genre]} />}
+      >
         <Album album={album} />
       </Layout>
     )

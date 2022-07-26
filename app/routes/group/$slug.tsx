@@ -5,7 +5,7 @@ import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
-import SearchBreadcrumb from '~/components/SearchBreadcrumbs'
+import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
 export async function loader({ params }: LoaderArgs) {
   if (!params.slug) {
@@ -28,8 +28,7 @@ export default function GroupBySlug() {
   }
 
   return (
-    <Layout>
-      <SearchBreadcrumbs crumbs={['Group', group]} />
+    <Layout headerBreadcrumbs={<SearchBreadcrumbs crumbs={['Group', group]} />}>
       <Album album={album} />
     </Layout>
   )

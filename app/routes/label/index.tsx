@@ -40,8 +40,11 @@ export default function LabelSearch() {
     }
 
     return (
-      <Layout>
-        <SearchBreadcrumbs crumbs={['Labels', data.label]} />
+      <Layout
+        headerBreadcrumbs={
+          <SearchBreadcrumbs crumbs={['Labels', data.label]} />
+        }
+      >
         <Album album={album} />
       </Layout>
     )

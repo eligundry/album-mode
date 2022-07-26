@@ -30,8 +30,9 @@ export default function LabelBySlug() {
   }
 
   return (
-    <Layout>
-      <SearchBreadcrumbs crumbs={['Labels', label]} />
+    <Layout
+      headerBreadcrumbs={<SearchBreadcrumbs crumbs={['Labels', label]} />}
+    >
       <Album album={album} />
     </Layout>
   )

@@ -119,11 +119,14 @@ export default function PublicationBySlug() {
   }
 
   return (
-    <Layout>
-      <SearchBreadcrumbs
-        crumbs={breadcrumbs}
-        blurb={data.review.publicationBlurb}
-      />
+    <Layout
+      headerBreadcrumbs={
+        <SearchBreadcrumbs
+          crumbs={breadcrumbs}
+          blurb={data.review.publicationBlurb}
+        />
+      }
+    >
       <Album album={data.album} footer={footer} />
     </Layout>
   )

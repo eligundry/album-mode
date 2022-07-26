@@ -21,7 +21,7 @@ export default function useSavedSearches() {
   )
 
   return {
-    searches,
+    searches: searches ?? {},
     /**
      * Is the current path from `useCurrentPath` saveable?
      */

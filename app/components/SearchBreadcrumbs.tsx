@@ -1,21 +1,24 @@
 import clsx from 'clsx'
 
 import useSavedSearches from '~/hooks/useSavedSearches'
-import { Container, Button } from '~/components/Base'
+import { Button } from '~/components/Base'
 
-interface Props {
+export interface SearchBreadcrumbsProps {
   crumbs: (string | [string, React.ReactNode])[]
   blurb?: string | null
 }
 
-const SearchBreadcrumbs: React.FC<Props> = ({ crumbs, blurb }) => {
+const SearchBreadcrumbs: React.FC<SearchBreadcrumbsProps> = ({
+  crumbs,
+  blurb,
+}) => {
   const { saveSearch, saveable } = useSavedSearches()
 
   return (
-    <Container className={clsx('mb-4')}>
+    <>
       <nav className={clsx('flex', 'flex-row', 'justify-end', 'items-center')}>
-        <div className={clsx('breadcrumbs', 'uppercase', 'mr-4')}>
-          <ul>
+        <div className={clsx('breadcrumbs', 'capitalize', 'font-bold', 'mr-4')}>
+          <ul className={clsx('[&>li>*]:text-truncate')}>
             {crumbs.map((crumb) =>
               typeof crumb === 'string' ? (
                 <li key={crumb}>{crumb}</li>
@@ -40,7 +43,7 @@ const SearchBreadcrumbs: React.FC<Props> = ({ crumbs, blurb }) => {
         </Button>
       </nav>
       {blurb && <p dangerouslySetInnerHTML={{ __html: blurb }} />}
-    </Container>
+    </>
   )
 }
 

@@ -37,9 +37,15 @@ export const Heading: React.FC<HeadingProps> = ({
 export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   color?: 'primary' | 'info' | 'warning' | 'danger'
   size?: 'lg' | 'md' | 'sm' | 'xs'
+  ghost?: boolean
 }
 
-const buttonStyles = ({ color = 'primary', className, size }: ButtonProps) =>
+const buttonStyles = ({
+  color = 'primary',
+  className,
+  size,
+  ghost,
+}: ButtonProps) =>
   clsx(
     'btn',
     {
@@ -54,6 +60,7 @@ const buttonStyles = ({ color = 'primary', className, size }: ButtonProps) =>
       'btn-sm': size === 'sm',
       'btn-xs': size === 'xs',
     },
+    ghost && 'btn-ghost',
     className
   )
 
@@ -69,7 +76,7 @@ export const Button: React.FC<ButtonProps> = ({
   />
 )
 
-type ButtonLinkProps = (LinkProps | HTMLAnchorElement) & ButtonProps
+export type ButtonLinkProps = (LinkProps | HTMLAnchorElement) & ButtonProps
 
 export const ButtonLink: React.FC<ButtonLinkProps> = ({
   className,
