@@ -106,6 +106,7 @@ const GenreSearchForm: React.FC<Props> = ({ defaultGenres }) => {
               ...styles,
               backgroundColor,
               borderColor: isDarkMode ? pallete.neutral : styles.borderColor,
+              textTransform: 'capitalize',
               color,
             }
           },

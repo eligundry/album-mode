@@ -26,6 +26,7 @@ model Publication {
   updatedAt DateTime @updatedAt
   name String
   slug String @unique
+  blurb String?
   albums AlbumReviewedByPublication[]
 }
 

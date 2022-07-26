@@ -34,7 +34,9 @@ const Playlist: React.FC<Props> = ({ playlist }) => {
           </A>
         }
         footer={
-          playlist.description ? <p>{playlist.description}</p> : undefined
+          playlist.description ? (
+            <p dangerouslySetInnerHTML={{ __html: playlist.description }} />
+          ) : undefined
         }
         reviewProps={{
           item: playlist,

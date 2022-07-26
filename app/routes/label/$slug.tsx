@@ -1,41 +1,35 @@
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import promiseHash from 'promise-hash'
 
 import spotify from '~/lib/spotify'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 
-type LoaderData = {
-  album: Awaited<ReturnType<typeof spotify.getRandomAlbumForLabelSlug>>
-}
+export async function loader({ params }: LoaderArgs) {
+  const label = params.slug
 
-export const loader: LoaderFunction = async ({ params }) => {
-  const slug = params.slug
-
-  if (!slug) {
+  if (!label) {
     throw new Error('slug must be provided in URL')
   }
 
-  const data: LoaderData = await promiseHash({
-    album: spotify.getRandomAlbumForLabelSlug(slug),
+  return json({
+    album: await spotify.getRandomAlbumForLabelSlug(label),
+    label,
   })
-
-  return json(data)
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
 
 export default function LabelBySlug() {
-  const { album } = useLoaderData<LoaderData>()
+  const { album, label } = useLoaderData<typeof loader>()
 
-  if (!album?.external_urls?.spotify) {
+  if (!album) {
     return null
   }
 
   return (
-    <Layout>
+    <Layout headerBreadcrumbs={['Labels', label]}>
       <Album album={album} />
     </Layout>
   )

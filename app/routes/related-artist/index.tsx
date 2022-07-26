@@ -1,4 +1,4 @@
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import promiseHash from 'promise-hash'
 
@@ -7,11 +7,7 @@ import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 
-type LoaderData = {
-  album: Awaited<ReturnType<typeof spotify.getRandomAlbumForRelatedArtist>>
-}
-
-export const loader: LoaderFunction = async ({ request }) => {
+export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
   const q = url.searchParams.get('q')
 
@@ -26,8 +22,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     searchMethod = spotify.getRandomAlbumForArtist
   }
 
-  const data: LoaderData = await promiseHash({
+  const data = await promiseHash({
     album: searchMethod(q),
+    artist: q,
   })
 
   return json(data)
@@ -36,15 +33,15 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const ErrorBoundary = AlbumErrorBoundary
 
 export default function RelatedArtistSearch() {
-  const { album } = useLoaderData<LoaderData>()
+  const data = useLoaderData<typeof loader>()
 
-  if (!album) {
+  if (!('album' in data) || !data.album) {
     return null
   }
 
   return (
-    <Layout>
-      <Album album={album} />
+    <Layout headerBreadcrumbs={['Artist', data.artist]}>
+      <Album album={data.album} />
     </Layout>
   )
 }

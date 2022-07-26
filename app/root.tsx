@@ -1,9 +1,4 @@
-import {
-  MetaFunction,
-  LinksFunction,
-  LoaderFunction,
-  json,
-} from '@remix-run/node'
+import { MetaFunction, LinksFunction, LoaderArgs, json } from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -19,6 +14,7 @@ import { withSentry } from '@sentry/remix'
 import Tracking from '~/components/Tracking'
 import { useDarkMode } from '~/hooks/useMediaQuery'
 import { useDaisyPallete } from '~/hooks/useTailwindTheme'
+import CurrentPathProvider from '~/context/CurrentPath'
 import styles from './styles/app.css'
 
 export const meta: MetaFunction = ({ data }) => ({
@@ -40,17 +36,22 @@ export const links: LinksFunction = () => [
   },
 ]
 
-export const loader: LoaderFunction = async () =>
-  json({
+export async function loader(ctx: LoaderArgs) {
+  const currentURL = new URL(ctx.request.url)
+  const currentPath = currentURL.pathname + currentURL.search
+
+  return json({
+    currentPath,
     ENV: {
       SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
       SENTRY_DSN: process.env.SENTRY_DSN,
       SENTRY_RELEASE: process.env.COMMIT_REF,
     },
   })
+}
 
 function App() {
-  const data = useLoaderData()
+  const data = useLoaderData<typeof loader>()
   const isDarkMode = useDarkMode()
   const pallete = useDaisyPallete()
 
@@ -63,15 +64,17 @@ function App() {
         <meta name="theme-color" content={pallete['base-100']} />
       </head>
       <body className={clsx('px-4')}>
-        <Outlet />
-        <ScrollRestoration />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
-          }}
-        />
-        <Scripts />
-        <LiveReload />
+        <CurrentPathProvider initialPath={data.currentPath}>
+          <Outlet />
+          <ScrollRestoration />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+            }}
+          />
+          <Scripts />
+          <LiveReload />
+        </CurrentPathProvider>
       </body>
     </html>
   )

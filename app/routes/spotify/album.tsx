@@ -1,4 +1,4 @@
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 import auth from '~/lib/auth'
@@ -6,15 +6,7 @@ import spotify from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 
-type LoaderData =
-  | {
-      album: Awaited<ReturnType<typeof spotify.getRandomAlbumFromUserLibrary>>
-    }
-  | {
-      error: string
-    }
-
-export const loader: LoaderFunction = async ({ request }) => {
+export async function loader({ request }: LoaderArgs) {
   const cookie = await auth.getCookie(request)
 
   if (!('accessToken' in cookie.spotify)) {
@@ -24,7 +16,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     )
   }
 
-  const data: LoaderData = {
+  const data = {
     album: await spotify.getRandomAlbumFromUserLibrary(
       cookie.spotify.accessToken
     ),
@@ -38,14 +30,14 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export default function RandomAlbumFromSpotifyLibrary() {
-  const data = useLoaderData<LoaderData>()
+  const data = useLoaderData<typeof loader>()
 
   if ('error' in data) {
     return null
   }
 
   return (
-    <Layout>
+    <Layout headerBreadcrumbs={['Spotify', 'Library']}>
       <Album album={data.album} />
     </Layout>
   )

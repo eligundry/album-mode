@@ -1,5 +1,5 @@
 import promiseHash from 'promise-hash'
-import { json, LoaderFunction } from '@remix-run/node'
+import { json, LoaderArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
@@ -19,22 +19,10 @@ import LabelSearchForm from '~/components/Forms/LabelSearch'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import SpotifyLoginButton from '~/components/Spotify/LoginButton'
 
-type LoaderData = {
-  publications: Awaited<ReturnType<typeof db.getPublications>>
-  artistGroupings: Awaited<ReturnType<typeof db.getArtistGroupings>>
-  topGenres: Awaited<ReturnType<typeof db.getTopGenres>>
-  auth: {
-    spotify: {
-      loggedIn: boolean
-      loginState: string | null
-    }
-  }
-}
-
-export const loader: LoaderFunction = async ({ request }) => {
+export async function loader({ request }: LoaderArgs) {
   const authCookie = await auth.getCookie(request)
 
-  const data: LoaderData = await promiseHash({
+  const data = await promiseHash({
     publications: db.getPublications(),
     artistGroupings: db.getArtistGroupings(),
     topGenres: db.getTopGenres(),
@@ -55,7 +43,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export default function Index() {
-  const data = useLoaderData<LoaderData>()
+  const data = useLoaderData<typeof loader>()
 
   return (
     <Layout className={clsx('mt-0')}>

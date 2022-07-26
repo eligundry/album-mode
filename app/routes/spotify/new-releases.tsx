@@ -1,4 +1,4 @@
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 import spotify from '~/lib/spotify'
@@ -6,27 +6,22 @@ import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 
-type LoaderData = {
-  album: Awaited<ReturnType<typeof spotify.getRandomNewRelease>>
-}
-
-export const loader: LoaderFunction = async ({ request }) => {
+export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
   const country = url.searchParams.get('country') || undefined
-  const data: LoaderData = {
-    album: await spotify.getRandomNewRelease(country),
-  }
 
-  return json(data)
+  return json({
+    album: await spotify.getRandomNewRelease(country),
+  })
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
 
 export default function SpotifyNewReleases() {
-  const { album } = useLoaderData<LoaderData>()
+  const { album } = useLoaderData<typeof loader>()
 
   return (
-    <Layout>
+    <Layout headerBreadcrumbs={['Spotify', 'New Releases']}>
       <Album album={album} />
     </Layout>
   )
