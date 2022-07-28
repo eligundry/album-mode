@@ -19,9 +19,11 @@ import styles from './styles/app.css'
 export const meta: MetaFunction = ({ data }) => ({
   charset: 'utf-8',
   title: 'Album Mode.party 🎉',
-  viewport: 'width=device-width,initial-scale=1',
+  viewport:
+    'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
   description: "Don't know what to listen to? Let us recommend an album!",
   version: data.ENV.SENTRY_RELEASE,
+  generator: 'Remix <https://remix.run>',
 })
 
 export const links: LinksFunction = () => [

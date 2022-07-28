@@ -5,9 +5,9 @@
   "sideEffects": false,
   "scripts": {
     "build": "npm run build:css && npm run partytown && remix build",
-    "build:css": "tailwindcss -m -i ./styles/app.scss -o app/styles/app.css",
+    "build:css": "tailwindcss -m -i ./styles/app.scss -o app/styles/app.css --postcss postcss.config.js",
     "dev": "concurrently \"npm run dev:css\" \"npm run dev:netlify\"",
-    "dev:css": "tailwindcss -w -i ./styles/app.scss -o app/styles/app.css",
+    "dev:css": "tailwindcss -w -i ./styles/app.scss -o app/styles/app.css --postcss postcss.config.js",
     "dev:netlify": "cross-env NODE_ENV=development netlify dev",
     "start:netlify": "cross-env NODE_ENV=production netlify dev",
     "partytown": "partytown copylib public/~partytown",
