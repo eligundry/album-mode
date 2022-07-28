@@ -1,4 +1,4 @@
-import { MetaFunction, LinksFunction, LoaderArgs, json } from '@remix-run/node'
+import { MetaFunction, LinksFunction, json } from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -14,15 +14,16 @@ import { withSentry } from '@sentry/remix'
 import Tracking from '~/components/Tracking'
 import { useDarkMode } from '~/hooks/useMediaQuery'
 import { useDaisyPallete } from '~/hooks/useTailwindTheme'
-import CurrentPathProvider from '~/context/CurrentPath'
 import styles from './styles/app.css'
 
 export const meta: MetaFunction = ({ data }) => ({
   charset: 'utf-8',
   title: 'Album Mode.party 🎉',
-  viewport: 'width=device-width,initial-scale=1',
+  viewport:
+    'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
   description: "Don't know what to listen to? Let us recommend an album!",
   version: data.ENV.SENTRY_RELEASE,
+  generator: 'Remix <https://remix.run>',
 })
 
 export const links: LinksFunction = () => [
@@ -36,12 +37,8 @@ export const links: LinksFunction = () => [
   },
 ]
 
-export async function loader(ctx: LoaderArgs) {
-  const currentURL = new URL(ctx.request.url)
-  const currentPath = currentURL.pathname + currentURL.search
-
+export async function loader() {
   return json({
-    currentPath,
     ENV: {
       SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
       SENTRY_DSN: process.env.SENTRY_DSN,
@@ -64,17 +61,15 @@ function App() {
         <meta name="theme-color" content={pallete['base-100']} />
       </head>
       <body className={clsx('px-4')}>
-        <CurrentPathProvider initialPath={data.currentPath}>
-          <Outlet />
-          <ScrollRestoration />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
-            }}
-          />
-          <Scripts />
-          <LiveReload />
-        </CurrentPathProvider>
+        <Outlet />
+        <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+          }}
+        />
+        <Scripts />
+        <LiveReload />
       </body>
     </html>
   )

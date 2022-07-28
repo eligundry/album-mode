@@ -31,5 +31,6 @@ export default function useSavedSearches() {
      * path from `useCurrentPath`.
      */
     saveSearch,
+    hasSavedSearches: searches && Object.entries(searches).length > 0,
   }
 }

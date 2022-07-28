@@ -5,7 +5,6 @@ import spotify from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Playlist from '~/components/Album/Playlist'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
 export async function loader() {
   return json({

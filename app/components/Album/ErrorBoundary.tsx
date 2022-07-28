@@ -22,7 +22,11 @@ const AlbumErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
             We seemed to have run into an error. We are working on fixing it
             now. You should refresh the page to fix this issue.
           </Typography>
-          <pre>{error.message}</pre>
+          <pre className={clsx('whitespace-pre-line')}>
+            {error.name !== 'Error' && error.name + '\n'}
+            {error.message + '\n'}
+            {error.stack}
+          </pre>
           <ButtonLink color="info" to={currentPath} className={clsx('mt-2')}>
             🔄 &nbsp; Retry
           </ButtonLink>

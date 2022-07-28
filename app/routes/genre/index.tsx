@@ -8,6 +8,7 @@ import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout, Heading, ButtonLink, Container } from '~/components/Base'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
+import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
@@ -49,18 +50,13 @@ export default function GenreSearch() {
       <Container>
         <Heading level="h2">Search by Genre</Heading>
         <GenreSearchForm defaultGenres={data.topGenres} />
-        <div className={clsx('button-group', 'mt-4')}>
-          {data.topGenres.map((genre) => (
-            <ButtonLink
-              to={`/genre?q=${genre}`}
-              key={genre}
-              className={clsx('mr-2', 'mb-2')}
-              color="info"
-            >
-              {genre}
-            </ButtonLink>
-          ))}
-        </div>
+        <ButtonLinkGroup
+          items={data.topGenres}
+          toFunction={(genre) => `/genre?q=${genre}`}
+          keyFunction={(genre) => genre}
+          childFunction={(genre) => genre}
+          wrapperClassName={clsx('mt-4')}
+        />
       </Container>
     </Layout>
   )

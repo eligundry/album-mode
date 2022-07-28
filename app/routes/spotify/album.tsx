@@ -5,12 +5,13 @@ import auth from '~/lib/auth'
 import spotify from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 
 export async function loader({ request }: LoaderArgs) {
   const cookie = await auth.getCookie(request)
 
   if (!('accessToken' in cookie.spotify)) {
-    return json(
+    throw json(
       { error: 'You must be logged in via Spotify to access this' },
       401
     )
@@ -29,12 +30,10 @@ export async function loader({ request }: LoaderArgs) {
   })
 }
 
+export const ErrorBoundary = AlbumErrorBoundary
+
 export default function RandomAlbumFromSpotifyLibrary() {
   const data = useLoaderData<typeof loader>()
-
-  if ('error' in data) {
-    return null
-  }
 
   return (
     <Layout headerBreadcrumbs={['Spotify', 'Library']}>

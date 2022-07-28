@@ -1,7 +1,6 @@
-import { useContext } from 'react'
-
-import { CurrentPathContext } from '~/context/CurrentPath'
+import { useLocation } from '@remix-run/react'
 
 export default function useCurrentPath() {
-  return useContext(CurrentPathContext)
+  const { pathname, search } = useLocation()
+  return pathname + search
 }

@@ -66,7 +66,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
             <ul className={clsx('menu', 'menu-horizontal')}>
               <li tabIndex={0}>
                 <a>🍔</a>
-                <ul className={clsx('bg-base-100', 'z-50')}>
+                <ul className={clsx('bg-base-100', 'z-50', 'shadow-xl')}>
                   <li>
                     <Link to="/library">Library</Link>
                   </li>
@@ -76,7 +76,9 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
                   <li>
                     <Link to="/about">About</Link>
                   </li>
-
+                  <li>
+                    <Link to="/labs">Labs</Link>
+                  </li>
                   <li>
                     <A
                       href="mailto:eligundry+album-mode.party@gmail.com"

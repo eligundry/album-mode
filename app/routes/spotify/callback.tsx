@@ -1,6 +1,10 @@
 import clsx from 'clsx'
-import { LoaderFunction, json, redirect } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import {
+  LoaderFunction,
+  json,
+  redirect,
+  ErrorBoundaryComponent,
+} from '@remix-run/node'
 
 import auth from '~/lib/auth'
 import {
@@ -29,13 +33,11 @@ export const loader: LoaderFunction = async ({ request }) => {
       statusCode = 401
     }
 
-    return json({ error: e.message }, statusCode)
+    throw json({ error: e.message }, statusCode)
   }
 }
 
-export default function SpotifyLoginCallback() {
-  const { error } = useLoaderData()
-
+export const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
   return (
     <Layout>
       <Container>
