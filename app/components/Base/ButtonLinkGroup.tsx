@@ -19,16 +19,7 @@ function ButtonLinkGroup<T extends any>({
   ...props
 }: Props<T>) {
   return (
-    <div
-      className={clsx(
-        'button-link-group',
-        'flex',
-        'flex-wrap',
-        'flex-row',
-        'gap-2',
-        wrapperClassName
-      )}
-    >
+    <ButtonLinkGroupWrapper className={clsx(wrapperClassName)}>
       {items.map((item) => (
         <ButtonLink
           to={toFunction(item)}
@@ -39,8 +30,25 @@ function ButtonLinkGroup<T extends any>({
           {childFunction(item)}
         </ButtonLink>
       ))}
-    </div>
+    </ButtonLinkGroupWrapper>
   )
 }
+
+export const ButtonLinkGroupWrapper: React.FC<
+  React.PropsWithChildren<{ className?: string }>
+> = ({ className, children }) => (
+  <div
+    className={clsx(
+      'button-link-group',
+      'flex',
+      'flex-wrap',
+      'flex-row',
+      'gap-2',
+      className
+    )}
+  >
+    {children}
+  </div>
+)
 
 export default ButtonLinkGroup

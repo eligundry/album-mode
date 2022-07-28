@@ -1,12 +1,12 @@
-import clsx from 'clsx'
 import promiseHash from 'promise-hash'
 import { MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 import db from '~/lib/db'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
-import { Layout, Typography, Heading, Container, Link } from '~/components/Base'
+import { Layout, Heading, Container, Link } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
+import HomeSection from '~/components/Base/HomeSection'
 
 export const meta: MetaFunction = () => ({
   title: 'Labs 🧪 | Album Mode.party 🎉',
@@ -30,44 +30,37 @@ export default function LibraryPage() {
     <Layout>
       <Container>
         <Heading level="h2">Labs 🧪</Heading>
-        <div className="labels">
-          <Heading level="h3" className={clsx('mb-2')}>
-            <Link to="/label">Labels</Link>
-          </Heading>
-          <Typography variant="hint" className={clsx('mb-2')}>
-            You know labels? Search and we'll see what we have. Otherwise, the
-            link above has some ones to check out.
-          </Typography>
+        <HomeSection
+          title={<Link to="/label">Labels</Link>}
+          subtitle="You know labels? Search and we'll see what we have. Otherwise, the link above has some ones to check out."
+          className="labels"
+        >
           <LabelSearchForm />
-        </div>
-        <div className="labels">
-          <Heading level="h3" className={clsx('mb-2')}>
-            <Link to="/label">Subreddits</Link>
-          </Heading>
-          <Typography variant="hint" className={clsx('mb-2')}>
-            Hear what the frontpage of the internet is listening to.
-          </Typography>
+        </HomeSection>
+        <HomeSection
+          title="Subreddits"
+          subtitle="Hear what the frontpage of the internet is listening to."
+          className="subreddits"
+        >
           <ButtonLinkGroup
             items={data.subreddits}
             keyFunction={(subreddit) => subreddit}
             toFunction={(subreddit) => `/reddit/${subreddit}`}
             childFunction={(subreddit) => `/r/${subreddit}`}
           />
-        </div>
-        <div className="groups">
-          <Heading level="h3" className={clsx('mb-2')}>
-            Groups
-          </Heading>
-          <Typography variant="hint" className={clsx('mb-2')}>
-            Here are some groups that we think are cool.
-          </Typography>
+        </HomeSection>
+        <HomeSection
+          title="Groups"
+          subtitle="Here are some groups that we think are cool."
+          className="groups"
+        >
           <ButtonLinkGroup
             items={data.groups}
             keyFunction={(group) => group.slug}
             toFunction={(group) => `/group/${group.slug}`}
             childFunction={(group) => group.name}
           />
-        </div>
+        </HomeSection>
       </Container>
     </Layout>
   )
