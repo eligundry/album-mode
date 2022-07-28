@@ -8,26 +8,67 @@ const pathsToHideSaveButton = [
   '/spotify/featured-playlist',
 ]
 
+interface SavedSearch {
+  path: string
+  crumbs: string[]
+  savedAt: Date
+}
+
+interface SavedSearchData {
+  version: 1
+  searches: SavedSearch[]
+}
+
+const defaultState: SavedSearchData = {
+  version: 1,
+  searches: [],
+}
+
 export default function useSavedSearches() {
   const path = useCurrentPath()
-  const [searches, setSearches] = useLocalStorage<Record<string, string[]>>(
+  const [state, setState] = useLocalStorage<SavedSearchData>(
     'albumModeSavedSearches',
-    {}
+    defaultState,
+    {
+      raw: false,
+      serializer: (value) => JSON.stringify(value),
+      deserializer: (value) =>
+        JSON.parse(value, (key, value) => {
+          if (key === 'savedAt') {
+            return new Date(value)
+          }
+
+          return value
+        }),
+    }
   )
-  const saveable = !searches?.[path]
+  const saveable = state?.searches
+    ? !state.searches.find((s) => s.path === path)
+    : true
   const showSaveButton = !pathsToHideSaveButton.find((p) => path.startsWith(p))
 
   const saveSearch = useCallback(
     (crumbs: string[]) =>
-      setSearches((s) => ({
-        ...s,
-        [path]: crumbs,
-      })),
-    [setSearches, path]
+      setState((s) => {
+        let updatedState = s
+
+        if (!updatedState) {
+          updatedState = defaultState
+        }
+
+        updatedState.searches.push({
+          crumbs,
+          path,
+          savedAt: new Date(),
+        })
+
+        return updatedState
+      }),
+    [setState, path]
   )
 
   return {
-    searches: searches ?? {},
+    searches: state?.searches.reverse() ?? [],
     /**
      * Is the current path from `useCurrentPath` saveable?
      */
@@ -37,7 +78,7 @@ export default function useSavedSearches() {
      * path from `useCurrentPath`.
      */
     saveSearch,
-    hasSavedSearches: searches && Object.entries(searches).length > 0,
+    hasSavedSearches: !!state?.searches?.length,
     showSaveButton,
   }
 }

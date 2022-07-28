@@ -13,13 +13,13 @@ const SavedSearches: React.FC<Props> = ({ limit }) => {
   return (
     <ButtonLinkGroup
       className={clsx('breadcrumbs')}
-      items={Object.entries(searches).slice(0, limit)}
-      toFunction={([path]) => path}
-      keyFunction={([path]) => path}
-      childFunction={([, parts]) => (
+      items={searches.slice(0, limit)}
+      toFunction={({ path }) => path}
+      keyFunction={({ path }) => path}
+      childFunction={({ crumbs }) => (
         <ul>
-          {parts.map((p) => (
-            <li key={p}>{p}</li>
+          {crumbs.map((crumb) => (
+            <li key={crumb}>{crumb}</li>
           ))}
         </ul>
       )}
