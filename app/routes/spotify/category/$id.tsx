@@ -2,21 +2,25 @@ import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 import spotify from '~/lib/spotify'
-import { Layout } from '~/components/Base'
+import { Layout, Link } from '~/components/Base'
 import Playlist from '~/components/Album/Playlist'
 import PlaylistErrorBoundary from '~/components/Album/ErrorBoundary'
-import SearchBreadcrumbs from '~/components/SearchBreadcrumbs'
 
 export async function loader({ params }: LoaderArgs) {
   const categoryID = params.id
 
   if (!categoryID) {
-    throw new Error('the categoryID must be provided to this route')
+    throw json(
+      {
+        error: 'categoryID must be set as a route parameter',
+      },
+      401
+    )
   }
 
   const data = {
     playlist: await spotify.getRandomPlaylistForCategory(categoryID),
-    categoryID,
+    category: await spotify.getCategory(categoryID),
   }
 
   return json(data)
@@ -25,10 +29,19 @@ export async function loader({ params }: LoaderArgs) {
 export const ErrorBoundary = PlaylistErrorBoundary
 
 export default function RandomSpotifyFeaturedPlaylist() {
-  const { playlist, categoryID } = useLoaderData<typeof loader>()
+  const { playlist, category } = useLoaderData<typeof loader>()
 
   return (
-    <Layout headerBreadcrumbs={['Spotify', 'Playlist Category', categoryID]}>
+    <Layout
+      headerBreadcrumbs={[
+        'Spotify',
+        [
+          'Playlist Category',
+          <Link to="/spotify/categories">Playlist Category</Link>,
+        ],
+        category.name,
+      ]}
+    >
       <Playlist playlist={playlist} />
     </Layout>
   )
