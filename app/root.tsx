@@ -8,7 +8,6 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from '@remix-run/react'
-import clsx from 'clsx'
 import { withSentry } from '@sentry/remix'
 
 import Tracking from '~/components/Tracking'

@@ -7,6 +7,7 @@ import { prisma } from '~/lib/db'
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
+  release: process.env.COMMIT_REF,
   tracesSampleRate: 1,
   integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
 })
