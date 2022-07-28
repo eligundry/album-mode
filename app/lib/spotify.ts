@@ -270,7 +270,7 @@ export class Spotify {
 
   getRandomAlbumFromUserLibrary = async () => {
     if (!this.userAccessToken) {
-      throw new Error('user is not logged in')
+      throw new Error('User must be logged in to use this')
     }
 
     const client = await this.getClient()
@@ -292,6 +292,32 @@ export class Spotify {
         market: this.country,
       })
       .then((resp) => resp.body.items[0].album)
+  }
+
+  getRandomAlbumSimilarToWhatIsCurrentlyPlaying = async () => {
+    if (!this.userAccessToken) {
+      throw new Error('User must be logged in to use this')
+    }
+
+    const client = await this.getClient()
+    const playerState = await client
+      .getMyCurrentPlaybackState({
+        market: this.country,
+      })
+      .then((resp) => resp.body)
+    const currentlyPlayingItem = playerState.item
+
+    if (
+      playerState.currently_playing_type !== 'track' ||
+      !currentlyPlayingItem ||
+      !('album' in currentlyPlayingItem)
+    ) {
+      throw new Error('User must be listening to music to do this')
+    }
+
+    return this.getRandomAlbumForRelatedArtist(
+      currentlyPlayingItem.artists[0].name
+    )
   }
 
   getRandomNewRelease = async () => {

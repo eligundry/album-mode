@@ -88,7 +88,12 @@ export default function Index() {
             {data.auth.spotify.loginState ? (
               <SpotifyLoginButton state={data.auth.spotify.loginState} />
             ) : (
-              <ButtonLink to="/spotify/album">Spotify Library</ButtonLink>
+              <>
+                <ButtonLink to="/spotify/album">Spotify Library</ButtonLink>
+                <ButtonLink to="/spotify/currently-playing">
+                  Currently Playing
+                </ButtonLink>
+              </>
             )}
             <ButtonLink to="/spotify/new-releases">New Release</ButtonLink>
             <ButtonLink to="/spotify/featured-playlist">

@@ -14,7 +14,7 @@ const SearchBreadcrumbs: React.FC<SearchBreadcrumbsProps> = ({
   className,
 }) => {
   const isMobile = useIsMobile()
-  const { saveSearch, saveable } = useSavedSearches()
+  const { saveSearch, saveable, showSaveButton } = useSavedSearches()
 
   return (
     <nav
@@ -47,19 +47,21 @@ const SearchBreadcrumbs: React.FC<SearchBreadcrumbsProps> = ({
             )}
         </ul>
       </div>
-      <Button
-        size="sm"
-        onClick={() =>
-          saveSearch(
-            crumbs.map((crumb) =>
-              typeof crumb === 'string' ? crumb : crumb[0]
+      {showSaveButton && (
+        <Button
+          size="sm"
+          onClick={() =>
+            saveSearch(
+              crumbs.map((crumb) =>
+                typeof crumb === 'string' ? crumb : crumb[0]
+              )
             )
-          )
-        }
-        disabled={!saveable}
-      >
-        💾 {saveable ? 'Save Search' : 'Saved'}
-      </Button>
+          }
+          disabled={!saveable}
+        >
+          💾 {saveable ? 'Save Search' : 'Saved'}
+        </Button>
+      )}
     </nav>
   )
 }
