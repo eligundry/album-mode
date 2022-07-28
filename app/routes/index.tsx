@@ -73,7 +73,7 @@ export default function Index() {
           <RelatedArtistSearchForm />
         </HomeSection>
         <HomeSection
-          title={<Link to="/genre">Genre</Link>}
+          title={<Link to="/genres">Genre</Link>}
           subtitle="Have a genre in mind? Search for it and we'll find you something."
           className="genre"
         >

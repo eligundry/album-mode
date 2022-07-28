@@ -1,15 +1,17 @@
 import { useLoaderData } from '@remix-run/react'
 import { json, LoaderArgs } from '@remix-run/node'
 
-import spotify from '~/lib/spotify'
+import spotifyLib from '~/lib/spotify'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 
-export async function loader({ params }: LoaderArgs) {
+export async function loader({ params, request }: LoaderArgs) {
   if (!params.slug) {
     throw new Error('slug must be provided to this route')
   }
+
+  const spotify = await spotifyLib.initializeFromRequest(request)
 
   return json({
     album: await spotify.getRandomAlbumForGroupSlug(params.slug),

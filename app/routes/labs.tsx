@@ -31,7 +31,7 @@ export default function LibraryPage() {
       <Container>
         <Heading level="h2">Labs 🧪</Heading>
         <HomeSection
-          title={<Link to="/label">Labels</Link>}
+          title={<Link to="/labels">Labels</Link>}
           subtitle="You know labels? Search and we'll see what we have. Otherwise, the link above has some ones to check out."
           className="labels"
         >

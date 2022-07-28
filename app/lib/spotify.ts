@@ -5,21 +5,22 @@ import sample from 'lodash/sample'
 import random from 'lodash/random'
 import db from './db'
 import cache from './cache'
+import auth from './auth'
 
 interface SpotifyOptions {
   userAccessToken?: string | undefined
-  refreshToken?: string | undefined
+  refreshToken?: string | undefined | null
   country?: string
 }
 
 export class Spotify {
-  private userAccessToken: string | undefined
-  private refreshToken: string | undefined
-  private country: string | undefined
+  private userAccessToken: SpotifyOptions['userAccessToken']
+  private refreshToken: SpotifyOptions['refreshToken']
+  private country: string
   private api: SpotifyWebApi
   private clientCredentialsTokenCacheKey = 'spotify-clientCredentialsToken'
 
-  constructor(options: SpotifyOptions) {
+  constructor(options: SpotifyOptions = {}) {
     this.userAccessToken = options.userAccessToken
     this.refreshToken = options.refreshToken
     this.country = options.country ?? 'US'
@@ -33,7 +34,7 @@ export class Spotify {
     })
   }
 
-  async getClient() {
+  getClient = async () => {
     if (this.userAccessToken) {
       this.api.setAccessToken(this.userAccessToken)
 
@@ -59,7 +60,10 @@ export class Spotify {
     return this.api
   }
 
-  async getRandomAlbumForSearchTerm(searchTerm: string, poolLimit = 1000) {
+  getRandomAlbumForSearchTerm = async (
+    searchTerm: string,
+    poolLimit = 1000
+  ): Promise<SpotifyApi.AlbumObjectSimplified> => {
     const client = await this.getClient()
 
     const firstPage = await client.search(searchTerm, ['album'], {
@@ -94,14 +98,14 @@ export class Spotify {
 
     const album = resp.body.albums.items[0]
 
-    // if (album.album_type === 'single') {
-    //   return this.getRandomAlbumForSearchTerm(searchTerm, poolLimit)
-    // }
+    if (album.album_type === 'single') {
+      return this.getRandomAlbumForSearchTerm(searchTerm, poolLimit)
+    }
 
     return album
   }
 
-  async getRandomAlbumForArtist(artistName: string) {
+  getRandomAlbumForArtist = async (artistName: string) => {
     const client = await this.getClient()
     const artist = await client
       .search(`artist:"${artistName}"`, ['artist'], {
@@ -133,9 +137,9 @@ export class Spotify {
       .then((resp) => resp.body.items[0])
   }
 
-  async getRandomAlbumByGenre(
+  getRandomAlbumByGenre = async (
     genre: string
-  ): Promise<SpotifyApi.AlbumObjectSimplified | null> {
+  ): Promise<SpotifyApi.AlbumObjectSimplified | null> => {
     // First, we must fetch a random artist in this genre
     const limit = 1
     const searchTerm = `genre:"${genre}"`
@@ -189,7 +193,7 @@ export class Spotify {
     return sample(albums) ?? null
   }
 
-  async getRandomAlbumForRelatedArtist(artistName: string) {
+  getRandomAlbumForRelatedArtist = async (artistName: string) => {
     const client = await this.getClient()
     // First, we have to fetch the artist to get it's ID
     const artist = await client
@@ -222,10 +226,12 @@ export class Spotify {
     return this.getRandomAlbumForSearchTerm(`artist:"${targetArtist.name}"`)
   }
 
-  async getRandomAlbumForPublication(publicationSlug: string): Promise<{
+  getRandomAlbumForPublication = async (
+    publicationSlug: string
+  ): Promise<{
     review: Awaited<ReturnType<typeof db.getRandomAlbumForPublication>>
-    album: Awaited<ReturnType<typeof getAlbum>>
-  }> {
+    album: SpotifyApi.AlbumObjectSimplified
+  }> => {
     const review = await db.getRandomAlbumForPublication(publicationSlug)
     const album = await this.getAlbum(review.album, review.aritst)
 
@@ -262,7 +268,7 @@ export class Spotify {
     }
   }
 
-  async getRandomAlbumFromUserLibrary() {
+  getRandomAlbumFromUserLibrary = async () => {
     if (!this.userAccessToken) {
       throw new Error('user is not logged in')
     }
@@ -288,7 +294,7 @@ export class Spotify {
       .then((resp) => resp.body.items[0].album)
   }
 
-  async getRandomNewRelease() {
+  getRandomNewRelease = async () => {
     const client = await this.getClient()
     const resp = await client.getNewReleases({
       country: this.country,
@@ -299,7 +305,7 @@ export class Spotify {
     return resp.body.albums.items[0]
   }
 
-  async getRandomFeaturedPlaylist() {
+  getRandomFeaturedPlaylist = async () => {
     const client = await this.getClient()
     let resp = await client.getFeaturedPlaylists({
       country: this.country,
@@ -318,7 +324,7 @@ export class Spotify {
     return resp.body.playlists.items[0]
   }
 
-  async getCategories() {
+  getCategories = async () => {
     const cacheKey = `spotify-categories-${this.country}`
     let categories = cache.get<SpotifyApi.CategoryObject[]>(cacheKey)
 
@@ -338,12 +344,12 @@ export class Spotify {
     return categories
   }
 
-  async getCategory(categoryID: string) {
+  getCategory = async (categoryID: string) => {
     const categories = await this.getCategories()
     return categories.find((category) => category.id === categoryID)
   }
 
-  async getRandomPlaylistForCategory(categoryID: string) {
+  getRandomPlaylistForCategory = async (categoryID: string) => {
     const client = await this.getClient()
     const firstPage = await client.getPlaylistsForCategory(categoryID, {
       country: this.country,
@@ -364,7 +370,7 @@ export class Spotify {
     return playlistResp.body.playlists.items[0]
   }
 
-  async getRandomAlbumForGroupSlug(groupSlug: string) {
+  getRandomAlbumForGroupSlug = async (groupSlug: string) => {
     const artist = await db.getRandomArtistFromGroupSlug(groupSlug)
 
     if (!artist) {
@@ -374,7 +380,7 @@ export class Spotify {
     return this.getRandomAlbumForSearchTerm(`artist:"${artist.name}"`)
   }
 
-  async getRandomAlbumForLabelSlug(labelSlug: string) {
+  getRandomAlbumForLabelSlug = async (labelSlug: string) => {
     const label = await db.getLabelBySlug(labelSlug)
 
     if (!label) {
@@ -385,12 +391,53 @@ export class Spotify {
   }
 }
 
+const spotifyAPIFactory = () =>
+  new SpotifyWebApi({
+    clientId: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+    redirectUri:
+      process.env.NODE_ENV === 'production'
+        ? 'https://album-mode.party/spotify/callback'
+        : 'http://localhost:3000/spotify/callback',
+  })
+
+export const spotifyAPI = spotifyAPIFactory()
+
+const getUserClient = (accessToken: string, refreshToken?: string) => {
+  const api = spotifyAPIFactory()
+  api.setAccessToken(accessToken)
+
+  if (refreshToken) {
+    api.setRefreshToken(refreshToken)
+  }
+
+  return api
+}
+
 const cookieFactory = createCookie('spotify', {
   maxAge: 3600,
 })
 
+const initializeFromRequest = async (req: Request) => {
+  const cookie = await auth.getCookie(req)
+  const options: SpotifyOptions = {}
+
+  if ('accessToken' in cookie.spotify) {
+    options.userAccessToken = cookie.spotify.accessToken
+    options.refreshToken = cookie.spotify.refreshToken
+  }
+
+  const url = new URL(req.url)
+  options.country = url.searchParams.get('country') || undefined
+
+  return new Spotify(options)
+}
+
 const api = {
+  initializeFromRequest,
   cookieFactory,
+  spotifyAPI,
+  getUserClient,
 }
 
 export default api

@@ -2,7 +2,7 @@ import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 import db from '~/lib/db'
-import spotify from '~/lib/spotify'
+import spotifyLib from '~/lib/spotify'
 import { Layout, A } from '~/components/Base'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
@@ -14,7 +14,7 @@ const searchParams = new URLSearchParams({
   utm_term: 'publication',
 })
 
-export async function loader({ params }: LoaderArgs) {
+export async function loader({ params, request }: LoaderArgs) {
   const slug = params.slug
 
   if (!slug) {
@@ -29,6 +29,7 @@ export async function loader({ params }: LoaderArgs) {
     })
   }
 
+  const spotify = await spotifyLib.initializeFromRequest(request)
   const { album, review } = await spotify.getRandomAlbumForPublication(slug)
 
   return json({
@@ -43,10 +44,6 @@ export const ErrorBoundary = AlbumErrorBoundary
 
 export default function PublicationBySlug() {
   const data = useLoaderData<typeof loader>()
-
-  if (!data.album) {
-    return null
-  }
 
   if (data.type === 'bandcamp') {
     return (
