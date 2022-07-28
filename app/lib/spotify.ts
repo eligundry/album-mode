@@ -1,8 +1,10 @@
 import util from 'util'
 import SpotifyWebApi from 'spotify-web-api-node'
+import * as Sentry from '@sentry/remix'
 import { createCookie } from '@remix-run/node'
 import sample from 'lodash/sample'
 import random from 'lodash/random'
+
 import db from './db'
 import cache from './cache'
 import auth from './auth'
@@ -57,7 +59,51 @@ export class Spotify {
       this.api.setAccessToken(token)
     }
 
-    return this.api
+    // Wrap the SpotifyApi in a proxy that will automatically trace and leave
+    // breadcrumbs for all Spotify requests to Sentry.
+    return new Proxy(this.api, {
+      get(target, propKey, receiver) {
+        const originalMethod = target?.[propKey]
+
+        if (typeof originalMethod === 'function') {
+          return function (...args) {
+            const transaction = Sentry.startTransaction({
+              op: 'spotify',
+              name: propKey.toString(),
+            })
+
+            if (
+              !propKey.toString().startsWith('_') &&
+              propKey.toString() !== 'getAccessToken'
+            ) {
+              Sentry.addBreadcrumb({
+                type: 'spotify',
+                level: 'debug',
+                message: propKey.toString(),
+                data: args,
+              })
+            }
+
+            try {
+              const res = originalMethod.apply(this, args)
+
+              if (typeof res === 'object' && typeof res.then === 'function') {
+                return res.then((r) => {
+                  transaction.finish()
+                  return r
+                })
+              }
+
+              return res
+            } finally {
+              transaction.finish()
+            }
+          }
+        }
+
+        return Reflect.get(target, propKey, receiver)
+      },
+    })
   }
 
   getRandomAlbumForSearchTerm = async (
@@ -68,6 +114,7 @@ export class Spotify {
 
     const firstPage = await client.search(searchTerm, ['album'], {
       limit: 1,
+      market: this.country,
     })
 
     if (!firstPage.body.albums?.total) {
