@@ -4,8 +4,9 @@
   "license": "MIT",
   "sideEffects": false,
   "scripts": {
-    "build": "npm run build:css && npm run partytown && remix build",
+    "build": "npm run build:css && npm run partytown && npm run build:remix",
     "build:css": "tailwindcss -m -i ./styles/app.scss -o app/styles/app.css --postcss postcss.config.js",
+    "build:remix": "remix build --sourcemap",
     "dev": "concurrently \"npm run dev:css\" \"npm run dev:netlify\"",
     "dev:css": "tailwindcss -w -i ./styles/app.scss -o app/styles/app.css --postcss postcss.config.js",
     "dev:netlify": "cross-env NODE_ENV=development netlify dev",
@@ -44,6 +45,7 @@
   "devDependencies": {
     "@remix-run/dev": "^1.6.5",
     "@remix-run/eslint-config": "^1.6.5",
+    "@sentry/netlify-build-plugin": "^1.1.1",
     "@tailwindcss/typography": "^0.5.4",
     "@types/jsdom": "^16.2.14",
     "@types/lodash": "^4.14.181",
@@ -65,7 +67,7 @@
     "yargs": "^17.4.1"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "prettier": {
     "trailingComma": "es5",
