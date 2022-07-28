@@ -18,9 +18,7 @@ export async function loader({ request }: LoaderArgs) {
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
-  const data = {
-    album: await spotify.getRandomAlbumSimilarToWhatIsCurrentlyPlaying(),
-  }
+  const data = await spotify.getRandomAlbumSimilarToWhatIsCurrentlyPlaying()
 
   return json(data, {
     headers: {
@@ -35,7 +33,9 @@ export default function PlayMeSomethingLikeWhatsCurrentlyPlaying() {
   const data = useLoaderData<typeof loader>()
 
   return (
-    <Layout headerBreadcrumbs={['Spotify', 'Currently Playing']}>
+    <Layout
+      headerBreadcrumbs={['Artist', data.currentlyPlaying.artists[0].name]}
+    >
       <Album album={data.album} />
     </Layout>
   )

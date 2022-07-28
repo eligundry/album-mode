@@ -305,19 +305,24 @@ export class Spotify {
         market: this.country,
       })
       .then((resp) => resp.body)
-    const currentlyPlayingItem = playerState.item
+    const currentlyPlaying = playerState.item
 
     if (
       playerState.currently_playing_type !== 'track' ||
-      !currentlyPlayingItem ||
-      !('album' in currentlyPlayingItem)
+      !currentlyPlaying ||
+      !('album' in currentlyPlaying)
     ) {
       throw new Error('User must be listening to music to do this')
     }
 
-    return this.getRandomAlbumForRelatedArtist(
-      currentlyPlayingItem.artists[0].name
+    const album = await this.getRandomAlbumForRelatedArtist(
+      currentlyPlaying.artists[0].name
     )
+
+    return {
+      album,
+      currentlyPlaying,
+    }
   }
 
   getRandomNewRelease = async () => {
