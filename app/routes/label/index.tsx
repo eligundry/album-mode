@@ -8,18 +8,18 @@ import { Layout } from '~/components/Base'
 export async function loader({ request }: LoaderArgs) {
   const spotify = await spotifyLib.initializeFromRequest(request)
   const url = new URL(request.url)
-  const q = url.searchParams.get('q')
+  const label = url.searchParams.get('label')
 
-  if (!q) {
+  if (!label) {
     throw json(
-      { error: 'q search paramter must be provided to search labels' },
+      { error: 'label search paramter must be provided to search labels' },
       400
     )
   }
 
   return json({
-    album: await spotify.getRandomAlbumForLabel(q),
-    label: q,
+    album: await spotify.getRandomAlbumForLabel(label),
+    label: label,
   })
 }
 

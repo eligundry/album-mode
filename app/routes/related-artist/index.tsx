@@ -9,23 +9,23 @@ import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
-  const q = url.searchParams.get('q')
+  const artist = url.searchParams.get('artist')
 
-  if (!q) {
-    return json({ error: 'q query param must be provided' }, 400)
+  if (!artist) {
+    return json({ error: 'artist query param must be provided' }, 400)
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
   let searchMethod = spotify.getRandomAlbumForRelatedArtist
 
   // If the search term is quoted, get random album for just that artist
-  if (q.startsWith('"') && q.endsWith('"')) {
+  if (artist.startsWith('"') && artist.endsWith('"')) {
     searchMethod = spotify.getRandomAlbumForArtist
   }
 
   const data = await promiseHash({
-    album: searchMethod(q),
-    artist: q,
+    album: searchMethod(artist),
+    artist,
   })
 
   return json(data)

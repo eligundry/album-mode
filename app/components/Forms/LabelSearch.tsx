@@ -5,7 +5,11 @@ import { Input } from '~/components/Base'
 const LabelSearchForm: React.FC = () => {
   return (
     <Form method="get" action="/label">
-      <Input name="q" type="search" placeholder="Search for label (ex: OVO)" />
+      <Input
+        name="label"
+        type="search"
+        placeholder="Search for label (ex: OVO)"
+      />
     </Form>
   )
 }

@@ -1,5 +1,4 @@
 import { useRef } from 'react'
-import axios from 'axios'
 import { ControlProps } from 'react-select'
 import AsyncSelect from 'react-select/async'
 import { Form } from '@remix-run/react'
@@ -10,21 +9,21 @@ import { useDarkMode } from '~/hooks/useMediaQuery'
 
 interface Props {
   defaultGenres: string[]
+  className?: string
 }
 
-const searchGenres = async (inputValue: string) =>
-  axios
-    .get<string[]>('/api/genre', {
-      params: {
-        q: inputValue,
-      },
-    })
-    .then((resp) =>
-      resp.data.map((genre) => ({
-        value: genre,
-        label: genre,
-      }))
-    )
+const searchGenres = async (genre: string) => {
+  const url = new URL(`${window.location.origin}/api/genre`)
+  url.searchParams.set('genre', genre)
+
+  const resp = await fetch(url.toString())
+  const data: string[] = await resp.json()
+
+  return data.map((genre) => ({
+    value: genre,
+    label: genre,
+  }))
+}
 
 const Control: React.FC<ControlProps> = (props) => {
   const { children, className, innerProps, innerRef, isFocused } = props
@@ -52,16 +51,21 @@ const Control: React.FC<ControlProps> = (props) => {
   )
 }
 
-const GenreSearchForm: React.FC<Props> = ({ defaultGenres }) => {
+const GenreSearchForm: React.FC<Props> = ({ defaultGenres, className }) => {
   const theme = useTailwindTheme()
   const pallete = useDaisyPallete()
   const isDarkMode = useDarkMode()
   const formRef = useRef<HTMLFormElement>(null)
 
   return (
-    <Form method="get" action="/genre" ref={formRef}>
+    <Form
+      method="get"
+      action="/genre"
+      className={clsx(className)}
+      ref={formRef}
+    >
       <AsyncSelect
-        name="q"
+        name="genre"
         cacheOptions={false}
         defaultOptions={defaultGenres.map((genre) => ({
           value: genre,

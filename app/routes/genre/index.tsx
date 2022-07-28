@@ -8,11 +8,11 @@ import { Layout } from '~/components/Base'
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
-  const q = url.searchParams.get('q')
+  const genre = url.searchParams.get('genre')
 
-  if (!q) {
+  if (!genre) {
     throw json(
-      { error: 'q query param must be provided to search via genre' },
+      { error: 'genre query param must be provided to search via genre' },
       400
     )
   }
@@ -20,8 +20,8 @@ export async function loader({ request }: LoaderArgs) {
   const spotify = await spotifyLib.initializeFromRequest(request)
 
   return json({
-    album: await spotify.getRandomAlbumByGenre(q),
-    genre: q,
+    album: await spotify.getRandomAlbumByGenre(genre),
+    genre,
   })
 }
 

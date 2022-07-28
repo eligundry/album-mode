@@ -77,7 +77,13 @@ export default function Index() {
           subtitle="Have a genre in mind? Search for it and we'll find you something."
           className="genre"
         >
-          <GenreSearchForm defaultGenres={data.topGenres} />
+          <div className={clsx('flex', 'flex-row', 'gap-2')}>
+            <GenreSearchForm
+              defaultGenres={data.topGenres}
+              className={clsx('flex-1')}
+            />
+            <ButtonLink to="/genre/random">Random Genre</ButtonLink>
+          </div>
         </HomeSection>
         <HomeSection
           title="Spotify"

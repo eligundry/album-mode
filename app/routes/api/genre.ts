@@ -4,13 +4,16 @@ import db from '~/lib/db'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
-  const q = url.searchParams.get('q')
+  const genre = url.searchParams.get('genre')
 
-  if (!q) {
-    return json({ error: 'q must be provided in the query parameters' }, 400)
+  if (!genre) {
+    return json(
+      { error: 'genre must be provided in the query parameters' },
+      400
+    )
   }
 
-  const genres = await db.searchGenres(q)
+  const genres = await db.searchGenres(genre)
 
   return json(genres)
 }
