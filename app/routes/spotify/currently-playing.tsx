@@ -35,7 +35,7 @@ export default function PlayMeSomethingLikeWhatsCurrentlyPlaying() {
   const data = useLoaderData<typeof loader>()
 
   return (
-    <Layout headerBreadcrumbs={['Spotify', 'Library']}>
+    <Layout headerBreadcrumbs={['Spotify', 'Currently Playing']}>
       <Album album={data.album} />
     </Layout>
   )
