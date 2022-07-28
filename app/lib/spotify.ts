@@ -96,7 +96,10 @@ export class Spotify {
 
               return res
             } finally {
-              transaction.finish()
+              // If it's finished, it's finished
+              try {
+                transaction.finish()
+              } catch (e) {}
             }
           }
         }
