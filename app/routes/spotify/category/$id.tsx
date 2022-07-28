@@ -1,12 +1,12 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
-import spotify from '~/lib/spotify'
+import spotifyLib from '~/lib/spotify'
 import { Layout, Link } from '~/components/Base'
 import Playlist from '~/components/Album/Playlist'
 import PlaylistErrorBoundary from '~/components/Album/ErrorBoundary'
 
-export async function loader({ params }: LoaderArgs) {
+export async function loader({ params, request }: LoaderArgs) {
   const categoryID = params.id
 
   if (!categoryID) {
@@ -18,6 +18,7 @@ export async function loader({ params }: LoaderArgs) {
     )
   }
 
+  const spotify = await spotifyLib.initializeFromRequest(request)
   const data = {
     playlist: await spotify.getRandomPlaylistForCategory(categoryID),
     category: await spotify.getCategory(categoryID),

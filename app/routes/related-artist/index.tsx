@@ -2,7 +2,7 @@ import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import promiseHash from 'promise-hash'
 
-import spotify from '~/lib/spotify'
+import spotifyLib from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
@@ -15,6 +15,7 @@ export async function loader({ request }: LoaderArgs) {
     return json({ error: 'q query param must be provided' }, 400)
   }
 
+  const spotify = await spotifyLib.initializeFromRequest(request)
   let searchMethod = spotify.getRandomAlbumForRelatedArtist
 
   // If the search term is quoted, get random album for just that artist

@@ -2,7 +2,7 @@ import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 import auth from '~/lib/auth'
-import spotify from '~/lib/spotify'
+import spotifyLib from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
@@ -17,10 +17,9 @@ export async function loader({ request }: LoaderArgs) {
     )
   }
 
+  const spotify = await spotifyLib.initializeFromRequest(request)
   const data = {
-    album: await spotify.getRandomAlbumFromUserLibrary(
-      cookie.spotify.accessToken
-    ),
+    album: await spotify.getRandomAlbumFromUserLibrary(),
   }
 
   return json(data, {

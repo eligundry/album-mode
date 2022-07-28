@@ -1,15 +1,17 @@
-import { json, MetaFunction } from '@remix-run/node'
+import { json, MetaFunction, LoaderArgs } from '@remix-run/node'
 import { useLoaderData, Link } from '@remix-run/react'
 import clsx from 'clsx'
 
-import spotify from '~/lib/spotify'
+import spotifyLib from '~/lib/spotify'
 import { Layout, Container, Heading } from '~/components/Base'
 
 export const meta: MetaFunction = () => ({
   title: 'Spotify Playlist Categories | Album Mode.party 🎉',
 })
 
-export async function loader() {
+export async function loader({ request }: LoaderArgs) {
+  const spotify = await spotifyLib.initializeFromRequest(request)
+
   return json({
     categories: await spotify.getCategories(),
   })
