@@ -66,6 +66,14 @@ export default function About() {
             If you have any questions about your privacy on this site,{' '}
             <A href={emailHref}>please contact me</A>!
           </Typography>
+          <Heading level="h3">Thanks</Heading>
+          <Typography>
+            Thanks to{' '}
+            <A href="https://www.linkedin.com/in/paul-decotiis/">
+              Paul DeCotiis
+            </A>{' '}
+            for help checking my design!
+          </Typography>
           <Heading level="h3">Legal</Heading>
           <Typography>
             I do not own and am not associated with any publications listed on

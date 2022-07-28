@@ -33,7 +33,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           >
             <Link
               to="/"
-              color={false}
+              colorHover
               className={clsx('hover:text-primary', 'hover:no-underline')}
             >
               💿 Album Mode.party 🎉
@@ -51,7 +51,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               crumbs={headerBreadcrumbs}
             />
           )}
-          <nav
+          <div
             className={clsx(
               'navbar-end',
               // 'flex-none',
@@ -60,50 +60,42 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               'align-center',
               'align-middle',
               'order-2 md:order-3',
-              'flex-1'
+              'flex-1',
+              'font-bold'
             )}
           >
-            <ul className={clsx('menu', 'menu-horizontal')}>
-              <li tabIndex={0}>
-                <a>🍔</a>
-                <ul className={clsx('bg-base-100', 'z-50', 'shadow-xl')}>
-                  <li>
-                    <Link to="/library">Library</Link>
-                  </li>
-                  <li>
-                    <Link to="/saved-searches">Saved Searches</Link>
-                  </li>
-                  <li>
-                    <Link to="/about">About</Link>
-                  </li>
-                  <li>
-                    <Link to="/labs">Labs</Link>
-                  </li>
-                  <li>
-                    <A
-                      href="mailto:eligundry+album-mode.party@gmail.com"
-                      target="_blank"
-                    >
-                      Contact
-                    </A>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </nav>
+            <Link to="/library" colorHover>
+              📗 Library
+            </Link>
+          </div>
         </Container>
       </header>
       <main className={clsx('mb-8', className)}>{children}</main>
-      <footer className={clsx('mb-4')}>
-        <Container>
-          <Typography className={clsx('text-right')}>
-            Made with ❤️ &nbsp;by{' '}
-            <A href="https://eligundry.com" target="_blank">
-              Eli Gundry
+      <Container>
+        <footer
+          className={clsx('footer', 'items-start', 'justify-between', 'py-4')}
+        >
+          <section>
+            <h4 className={clsx('footer-title')}>Party Time</h4>
+            <Link to="/about">About</Link>
+            <A
+              href="mailto:eligundry+album.mode.party@gmail.com"
+              target="_blank"
+            >
+              Contact
             </A>
-          </Typography>
-        </Container>
-      </footer>
+            <Link to="/labs">Labs</Link>
+          </section>
+          <section>
+            <h4 className={clsx('footer-title')}>
+              Made with ❤️ by{' '}
+              <A href="https://eligundry.com" target="_blank">
+                Eli Gundry
+              </A>
+            </h4>
+          </section>
+        </footer>
+      </Container>
     </>
   )
 }

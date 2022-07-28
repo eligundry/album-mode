@@ -1,10 +1,11 @@
+import clsx from 'clsx'
 import promiseHash from 'promise-hash'
 import { MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 import db from '~/lib/db'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
-import { Layout, Heading, Container, Link } from '~/components/Base'
+import { Layout, Heading, Container, Link, Typography } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import HomeSection from '~/components/Base/HomeSection'
 
@@ -29,7 +30,13 @@ export default function LibraryPage() {
   return (
     <Layout>
       <Container>
-        <Heading level="h2">Labs 🧪</Heading>
+        <Heading level="h2" className={clsx('mb-0')}>
+          Labs 🧪
+        </Heading>
+        <Typography variant="hint">
+          These features are not ready for prime time (and may never be), but I
+          think they are cool to see.
+        </Typography>
         <HomeSection
           title={<Link to="/labels">Labels</Link>}
           subtitle="You know labels? Search and we'll see what we have. Otherwise, the link above has some ones to check out."
