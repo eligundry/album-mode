@@ -78,25 +78,29 @@ export class Spotify {
             ) {
               Sentry.addBreadcrumb({
                 type: 'spotify',
+                category: 'spotify',
                 level: 'debug',
                 message: propKey.toString(),
-                data: args,
+                data: args.reduce((acc, curr, i) => {
+                  acc[i] = curr
+                  return acc
+                }, {}),
               })
             }
 
             try {
               const res = originalMethod.apply(this, args)
 
-              if (typeof res === 'object' && typeof res.then === 'function') {
-                return res.then((r) => {
-                  transaction.finish()
-                  return r
-                })
+              if (
+                typeof res === 'object' &&
+                typeof res.finally === 'function'
+              ) {
+                return res.finally(() => transaction.finish())
               }
 
               return res
             } finally {
-              // If it's finished, it's finished
+              // If it dies, it dies
               try {
                 transaction.finish()
               } catch (e) {}
