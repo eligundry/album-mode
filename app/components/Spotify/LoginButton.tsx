@@ -16,7 +16,10 @@ const SpotifyLoginButton: React.FC<Props> = ({ className, state }) => {
     const loginURL = new URL('https://accounts.spotify.com/authorize')
     loginURL.searchParams.set('response_type', 'code')
     loginURL.searchParams.set('client_id', window.ENV.SPOTIFY_CLIENT_ID)
-    loginURL.searchParams.set('scope', 'user-library-read')
+    loginURL.searchParams.set(
+      'scope',
+      'user-library-read user-read-playback-state'
+    )
     loginURL.searchParams.set('redirect_uri', `${origin}/spotify/callback`)
     loginURL.searchParams.set('state', state)
 
