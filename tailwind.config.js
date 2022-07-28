@@ -1,5 +1,3 @@
-const defaultTheme = require('tailwindcss/defaultTheme')
-
 /**
  * @type {import("@types/tailwindcss/tailwind-config").TailwindConfig}
  */
@@ -8,7 +6,7 @@ module.exports = {
   theme: {
     container: {
       screens: {
-        'xl': '1024px',
+        xl: '1024px',
         '2xl': '1024px',
       },
     },

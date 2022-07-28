@@ -1,10 +1,11 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { Container, A, Link, Typography } from './index'
+import { Container, A, Link } from './index'
 import SearchBreadcrumbs, {
   SearchBreadcrumbsProps,
 } from '~/components/SearchBreadcrumbs'
+import LoadingHeader from '~/components/LoadingHeader'
 
 interface LayoutProps {
   className?: string
@@ -18,9 +19,10 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
 }) => {
   return (
     <>
-      <header className={clsx('navbar', 'pl-0')}>
+      <LoadingHeader />
+      <header className={clsx('navbar', 'px-4', 'pt-0')}>
         <Container
-          className={clsx('flex', 'flex-wrap', 'my-4', 'align-center')}
+          className={clsx('flex', 'flex-wrap', 'mb-4', 'align-center')}
         >
           <h1
             className={clsx(
@@ -70,10 +72,17 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           </div>
         </Container>
       </header>
-      <main className={clsx('mb-8', className)}>{children}</main>
+      <main className={clsx('mb-8', 'px-4', className)}>{children}</main>
       <Container>
         <footer
-          className={clsx('footer', 'items-start', 'justify-between', 'py-4')}
+          className={clsx(
+            'footer',
+            'items-start',
+            'justify-between',
+            'py-4',
+            'px-4',
+            'sm:px-0'
+          )}
         >
           <section>
             <h4 className={clsx('footer-title')}>Party Time</h4>

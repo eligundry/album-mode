@@ -60,7 +60,7 @@ function App() {
         <Links />
         <meta name="theme-color" content={pallete['base-100']} />
       </head>
-      <body className={clsx('px-4')}>
+      <body>
         <Outlet />
         <ScrollRestoration />
         <script
