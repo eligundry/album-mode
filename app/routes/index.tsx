@@ -24,7 +24,6 @@ export async function loader({ request }: LoaderArgs) {
 
   const data = await promiseHash({
     publications: db.getPublications(),
-    artistGroupings: db.getArtistGroupings(),
     topGenres: db.getTopGenres(),
     auth: {
       spotify: {
@@ -140,16 +139,6 @@ export default function Index() {
             keyFunction={(publication) => publication.slug}
             childFunction={(publication) => publication.name}
           />
-        </div>
-        <div className="labels">
-          <Heading level="h3" className={clsx('mb-2')}>
-            <Link to="/label">Labels</Link>
-          </Heading>
-          <Typography variant="hint" className={clsx('mb-2')}>
-            You know labels? Search and we'll see what we have. Otherwise, the
-            link above has some ones to check out.
-          </Typography>
-          <LabelSearchForm />
         </div>
       </Container>
     </Layout>
