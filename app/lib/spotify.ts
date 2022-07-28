@@ -427,8 +427,18 @@ const initializeFromRequest = async (req: Request) => {
     options.refreshToken = cookie.spotify.refreshToken
   }
 
+  if (req.headers.get('x-country')) {
+    options.country = req.headers.get('x-country') || undefined
+    console.log(
+      `setting the country to ${options.country} from the x-country header`
+    )
+  }
+
   const url = new URL(req.url)
-  options.country = url.searchParams.get('country') || undefined
+
+  if (url.searchParams.get('country')) {
+    options.country = url.searchParams.get('country') || undefined
+  }
 
   return new Spotify(options)
 }
