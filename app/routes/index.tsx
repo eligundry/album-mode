@@ -13,6 +13,8 @@ import ButtonLinkGroup, {
 } from '~/components/Base/ButtonLinkGroup'
 import SpotifyLoginButton from '~/components/Spotify/LoginButton'
 import HomeSection from '~/components/Base/HomeSection'
+import SavedSearches from '~/components/SavedSearches'
+import useSavedSearches from '~/hooks/useSavedSearches'
 
 export async function loader({ request }: LoaderArgs) {
   const authCookie = await auth.getCookie(request)
@@ -38,6 +40,7 @@ export async function loader({ request }: LoaderArgs) {
 
 export default function Index() {
   const data = useLoaderData<typeof loader>()
+  const { hasSavedSearches } = useSavedSearches()
 
   return (
     <Layout className={clsx('mt-0')}>
@@ -108,6 +111,15 @@ export default function Index() {
             childFunction={(publication) => publication.name}
           />
         </HomeSection>
+        {hasSavedSearches && (
+          <HomeSection
+            title={<Link to="/saved-searches">Saved Searches</Link>}
+            subtitle="Revisit a search that you performed on this site."
+            className="saved-searches"
+          >
+            <SavedSearches limit={20} />
+          </HomeSection>
+        )}
       </Container>
     </Layout>
   )
