@@ -101,12 +101,8 @@ export const Link: React.FC<
     className={clsx(
       'link',
       'link-hover',
-      color && 'link-primary',
-      colorHover && [
-        'link-neutral',
-        'hover:text-primary',
-        'hover:no-underline',
-      ],
+      color && !colorHover && 'link-primary',
+      colorHover && ['hover:text-primary', 'hover:no-underline'],
       className
     )}
     {...props}

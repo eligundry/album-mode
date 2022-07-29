@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { Container, A, Link } from './index'
+import { Container, A, Link, ButtonLink } from './index'
 import SearchBreadcrumbs, {
   SearchBreadcrumbsProps,
 } from '~/components/SearchBreadcrumbs'
@@ -47,7 +47,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
                 'order-3 md:order-2',
                 'flex-1',
                 'justify-between md:justify-center',
-                'ml-2 md:ml-0',
                 'basis-1/2'
               )}
               crumbs={headerBreadcrumbs}
@@ -66,13 +65,13 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               'font-bold'
             )}
           >
-            <Link to="/library" colorHover>
+            <ButtonLink to="/library" size="sm">
               📗 Library
-            </Link>
+            </ButtonLink>
           </div>
         </Container>
       </header>
-      <main className={clsx('mb-8', 'px-4', className)}>{children}</main>
+      <main className={clsx('my-8', 'px-4', className)}>{children}</main>
       <Container>
         <footer
           className={clsx(

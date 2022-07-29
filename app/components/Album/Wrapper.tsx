@@ -19,10 +19,17 @@ const AlbumWrapper: React.FC<Props> = ({
 }) => {
   return (
     <Card
-      className={clsx('lg:w-1/3', 'mx-auto')}
+      className={clsx(
+        'mx-auto',
+        'sm:card-side',
+        'album-card-wrapper',
+        'w-full',
+        'sm:w-3/4'
+      )}
       media={embed}
       title={title}
       body={<>{footer && <p>{footer}</p>}</>}
+      actionsClassName={clsx('flex-col')}
       actions={<ReviewButtons {...reviewProps} />}
     />
   )
