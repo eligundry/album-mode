@@ -29,7 +29,7 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
       <AlbumWrapper
         embed={
           <SpotifyEmbed
-            wide={isMobile || album.total_tracks < 4}
+            wide={isMobile}
             className={clsx('mx-auto')}
             link={albumURL}
           />
@@ -39,7 +39,7 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
             <A
               href={`${albumURL}?${linkParams.toString()}`}
               target="_blank"
-              className={clsx('italic', 'tooltip')}
+              className={clsx('italic', 'tooltip', 'tooltip-bottom')}
               data-tip="▶️ Play on Spotify"
               onClick={() => {
                 sendEvent({
@@ -51,7 +51,7 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
               {album.name}
             </A>
             <A
-              className={clsx('text-base', 'tooltip')}
+              className={clsx('text-base', 'tooltip', 'tooltip-bottom')}
               href={`${artistURL}?${linkParams.toString()}`}
               target="_blank"
               data-tip="View artist on Spotify"
