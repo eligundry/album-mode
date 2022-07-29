@@ -30,26 +30,7 @@ const AlbumWrapper: React.FC<Props> = ({
       title={title}
       body={<>{footer && <p>{footer}</p>}</>}
       actionsClassName={clsx('flex-col')}
-      actions={
-        <>
-          <h5 className={clsx('uppercase', 'font-bold', 'text-xs')}>
-            Rate to get the next recommendation
-          </h5>
-          <div
-            className={clsx(
-              'flex',
-              'flex-row',
-              'flext-wrap',
-              'justify-items-end',
-              'gap-2',
-              'w-full',
-              '[&>a]:w-1/2'
-            )}
-          >
-            <ReviewButtons {...reviewProps} />
-          </div>
-        </>
-      }
+      actions={<ReviewButtons {...reviewProps} />}
     />
   )
 }

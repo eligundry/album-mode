@@ -82,7 +82,7 @@ export const Card: React.FC<Props> = ({
   )
 }
 
-export const CardLink: React.FC<BaseProps & LinkProps> = ({
+export const CardLink: React.FC<BaseProps & Omit<LinkProps, 'children'>> = ({
   media,
   title,
   body,
