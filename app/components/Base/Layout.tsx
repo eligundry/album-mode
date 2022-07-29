@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { Container, A, Link } from './index'
+import { Container, A, Link, ButtonLink } from './index'
 import SearchBreadcrumbs, {
   SearchBreadcrumbsProps,
 } from '~/components/SearchBreadcrumbs'
@@ -66,9 +66,9 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               'font-bold'
             )}
           >
-            <Link to="/library" colorHover>
+            <ButtonLink to="/library" size="sm">
               📗 Library
-            </Link>
+            </ButtonLink>
           </div>
         </Container>
       </header>

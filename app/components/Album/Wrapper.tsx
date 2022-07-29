@@ -32,14 +32,7 @@ const AlbumWrapper: React.FC<Props> = ({
       actionsClassName={clsx('flex-col')}
       actions={
         <>
-          <h5
-            className={clsx(
-              'uppercase',
-              'font-bold',
-              'text-xs',
-              'text-base-300'
-            )}
-          >
+          <h5 className={clsx('uppercase', 'font-bold', 'text-xs')}>
             Rate to get the next recommendation
           </h5>
           <div
