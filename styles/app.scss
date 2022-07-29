@@ -5,3 +5,7 @@
 input[type="search"] {
   -webkit-appearance: none;
 }
+
+.tooltip:before {
+  font-style: normal;
+}

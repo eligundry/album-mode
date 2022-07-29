@@ -8,6 +8,7 @@ interface Props<T extends 'a' | 'div' | 'section' = 'div'>
   body?: React.ReactNode
   actions?: React.ReactNode
   mediaZoomOnHover?: boolean
+  actionsClassName?: string
 }
 
 export const Card: React.FC<Props> = ({
@@ -18,6 +19,7 @@ export const Card: React.FC<Props> = ({
   actions,
   className,
   mediaZoomOnHover,
+  actionsClassName,
   ...props
 }) => {
   const Wrapper = component
@@ -52,7 +54,14 @@ export const Card: React.FC<Props> = ({
         </h2>
         {body}
         {actions && (
-          <div className={clsx('card-actions', 'justify-end', 'mt-2')}>
+          <div
+            className={clsx(
+              'card-actions',
+              'justify-end',
+              'mt-2',
+              actionsClassName
+            )}
+          >
             {actions}
           </div>
         )}

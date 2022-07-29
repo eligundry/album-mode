@@ -56,7 +56,8 @@ const BandcampAlbum: React.FC<Props> = ({ album }) => {
             <A
               href={`${album.url}?${searchParams.toString()}`}
               target="_blank"
-              className={clsx('italic')}
+              className={clsx('italic', 'tooltip')}
+              data-tip="▶️ Play on Bandcamp"
             >
               {album.album}
             </A>
