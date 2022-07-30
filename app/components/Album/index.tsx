@@ -39,7 +39,12 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
             <A
               href={`${albumURL}?${linkParams.toString()}`}
               target="_blank"
-              className={clsx('italic', 'tooltip', 'tooltip-bottom')}
+              className={clsx(
+                'italic',
+                'tooltip',
+                'tooltip-bottom',
+                'text-left'
+              )}
               data-tip="▶️ Play on Spotify"
               onClick={() => {
                 sendEvent({
