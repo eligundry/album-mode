@@ -3,7 +3,7 @@ import { useLoaderData } from '@remix-run/react'
 
 import db from '~/lib/db'
 import spotifyLib from '~/lib/spotify'
-import { Layout, A } from '~/components/Base'
+import { Layout, A, Heading } from '~/components/Base'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
@@ -79,7 +79,7 @@ export default function PublicationBySlug() {
           album={data.album}
           footer={
             <>
-              <p>
+              <Heading level="h5">
                 Need convincing? Read the{' '}
                 <A
                   href={`${
@@ -90,7 +90,7 @@ export default function PublicationBySlug() {
                   Bandcamp Daily review
                 </A>
                 .
-              </p>
+              </Heading>
               <WikipediaSummary summary={data.wiki} />
             </>
           }
@@ -108,13 +108,13 @@ export default function PublicationBySlug() {
     )
 
     footer = (
-      <p>
+      <Heading level="h5">
         Read the{' '}
         <A href={url.toString()} target="_blank">
           Pitchfork Review
         </A>
         .
-      </p>
+      </Heading>
     )
     breadcrumbs.push([
       data.review.publicationName,
@@ -127,13 +127,13 @@ export default function PublicationBySlug() {
     ])
   } else if (data.slug === 'needle-drop' && 'review' in data) {
     footer = (
-      <p>
+      <Heading level="h5">
         Watch the{' '}
         <A href={data.review.slug} target="_blank">
           Needle Drop review on YouTube
         </A>
         .
-      </p>
+      </Heading>
     )
     breadcrumbs.push([
       data.review.publicationName,
@@ -154,8 +154,8 @@ export default function PublicationBySlug() {
         album={data.album}
         footer={
           <>
-            <WikipediaSummary summary={data.wiki} />
             {footer}
+            <WikipediaSummary summary={data.wiki} />
           </>
         }
       />

@@ -6,11 +6,13 @@ export { default as Layout } from './Layout'
 
 export interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
   level: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  noSpacing?: boolean
 }
 
 export const Heading: React.FC<HeadingProps> = ({
   level,
   className,
+  noSpacing = false,
   ...props
 }) => {
   const Component = level as JSX.IntrinsicElements[typeof level]
@@ -23,10 +25,10 @@ export const Heading: React.FC<HeadingProps> = ({
           ['text-3xl md:text-4xl']: level === 'h2',
           ['text-2xl md:text-3xl']: level === 'h3',
           ['text-xl md:text-2xl']: level === 'h4',
-          ['text-lg md:text-xl']: level === 'h5',
-          ['text-lg']: level === 'h6',
+          ['uppercase font-bold text-xs']: level === 'h5',
+          ['text-xs font-bold']: level === 'h6',
         },
-        'my-4',
+        !noSpacing && 'my-4',
         className
       )}
       {...props}

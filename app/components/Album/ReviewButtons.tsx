@@ -3,7 +3,7 @@ import Confetti from 'react-confetti'
 import useWindowSize from 'react-use/lib/useWindowSize'
 import clsx from 'clsx'
 
-import { ButtonLink } from '~/components/Base'
+import { ButtonLink, Heading } from '~/components/Base'
 import useRating from '~/hooks/useRating'
 import useCurrentPath from '~/hooks/useCurrentPath'
 import { LibraryItem } from '~/lib/types/library'
@@ -49,9 +49,9 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
   return (
     <>
       <div className={clsx('flex', 'flex-col', 'gap-2', 'w-full')}>
-        <h5 className={clsx('uppercase', 'font-bold', 'text-xs')}>
+        <Heading level="h5" noSpacing>
           Rate to get the next recommendation
-        </h5>
+        </Heading>
         <div
           className={clsx(
             'grid',
