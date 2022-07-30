@@ -1,3 +1,4 @@
+import React from 'react'
 import clsx from 'clsx'
 import { Link, LinkProps } from '@remix-run/react'
 
@@ -32,55 +33,61 @@ const cardWrapperClasses = (
     props.className
   )
 
-export const Card: React.FC<Props> = ({
-  component = 'div',
-  media,
-  title,
-  body,
-  actions,
-  className,
-  mediaZoomOnHover,
-  actionsClassName,
-  ...props
-}) => {
-  const Wrapper = component
+export const Card = React.forwardRef<any, Props>(
+  (
+    {
+      component = 'div',
+      media,
+      title,
+      body,
+      actions,
+      className,
+      mediaZoomOnHover,
+      actionsClassName,
+      ...props
+    },
+    ref
+  ) => {
+    const Wrapper = component
 
-  return (
-    <Wrapper
-      className={cardWrapperClasses({ mediaZoomOnHover, className })}
-      {...props}
-    >
-      {media}
-      <div className={clsx('card-body', 'justify-between')}>
-        <div>
-          <h2
-            className={clsx(
-              'card-title',
-              'flex-col',
-              'items-start',
-              'leading-none'
-            )}
-          >
-            {title}
-          </h2>
-          {body}
-        </div>
-        {actions && (
-          <div
-            className={clsx(
-              'card-actions',
-              'justify-end',
-              'mt-2',
-              actionsClassName
-            )}
-          >
-            {actions}
+    return (
+      <Wrapper
+        className={cardWrapperClasses({ mediaZoomOnHover, className })}
+        ref={ref}
+        {...props}
+      >
+        {media}
+        <div className={clsx('card-body', 'justify-between')}>
+          <div>
+            <h2
+              className={clsx(
+                'card-title',
+                'flex-col',
+                'items-start',
+                'leading-none'
+              )}
+            >
+              {title}
+            </h2>
+            {body}
           </div>
-        )}
-      </div>
-    </Wrapper>
-  )
-}
+          {actions && (
+            <div
+              className={clsx(
+                'card-actions',
+                'justify-end',
+                'mt-2',
+                actionsClassName
+              )}
+            >
+              {actions}
+            </div>
+          )}
+        </div>
+      </Wrapper>
+    )
+  }
+)
 
 export const CardLink: React.FC<BaseProps & Omit<LinkProps, 'children'>> = ({
   media,

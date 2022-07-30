@@ -164,6 +164,7 @@ export class Spotify {
     const artist = await client
       .search(`artist:"${artistName}"`, ['artist'], {
         limit: 1,
+        market: this.country,
       })
       .then((resp) => resp.body.artists?.items?.[0])
 
@@ -171,18 +172,24 @@ export class Spotify {
       throw new Error('not found: could not find artist with that name')
     }
 
-    const firstPage = await client.getArtistAlbums(artist.id, {
+    return this.getRandomAlbumForArtistByID(artist.id)
+  }
+
+  getRandomAlbumForArtistByID = async (artistID: string) => {
+    const client = await this.getClient()
+    const firstPageOfAlbums = await client.getArtistAlbums(artistID, {
       limit: 1,
       include_groups: 'album',
+      country: this.country,
     })
-    const offset = random(0, firstPage.body.total - 1)
+    const offset = random(0, Math.max(firstPageOfAlbums.body.total - 1, 0))
 
     if (offset === 0) {
-      return firstPage.body.items[0]
+      return firstPageOfAlbums.body.items[0]
     }
 
     return client
-      .getArtistAlbums(artist.id, {
+      .getArtistAlbums(artistID, {
         limit: 1,
         offset,
         include_groups: 'album',
@@ -193,7 +200,7 @@ export class Spotify {
 
   getRandomAlbumByGenre = async (
     genre: string
-  ): Promise<SpotifyApi.AlbumObjectSimplified | null> => {
+  ): Promise<SpotifyApi.AlbumObjectSimplified> => {
     // First, we must fetch a random artist in this genre
     const limit = 1
     const searchTerm = `genre:"${genre}"`
@@ -244,7 +251,7 @@ export class Spotify {
       return this.getRandomAlbumByGenre(genre)
     }
 
-    return sample(albums) ?? null
+    return sample(albums) as SpotifyApi.AlbumObjectSimplified
   }
 
   getRandomAlbumForRelatedArtist = async (artistName: string) => {
@@ -270,14 +277,18 @@ export class Spotify {
 
     // Find a random related artist (or the artist that was provided in the
     // original search term)
-    const targetArtist = sample([...relatedArtists.body.artists, artist])
+    const targetArtistID = sample([
+      artist.id,
+      ...relatedArtists.body.artists.map((a) => a.id),
+      artist.id,
+    ])
 
-    if (!targetArtist) {
+    if (!targetArtistID) {
       throw new Error('could not sample to find target artist')
     }
 
     // Finally, return a random album from the targetArtist
-    return this.getRandomAlbumForSearchTerm(`artist:"${targetArtist.name}"`)
+    return this.getRandomAlbumForArtistByID(targetArtistID)
   }
 
   getRandomAlbumForPublication = async (

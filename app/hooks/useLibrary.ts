@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react'
 import useLocalStorage from 'react-use/lib/useLocalStorage'
-import useUpdate from 'react-use/lib/useUpdate'
 
 import { Library, LibraryItem, defaultLibrary } from '~/lib/types/library'
 
@@ -11,7 +10,6 @@ export type { LibraryItem }
  * to in the browser's local storage.
  */
 export default function useLibrary() {
-  const update = useUpdate()
   const [library, setLibrary] = useLocalStorage<Library>(
     'albumModeLibrary',
     defaultLibrary,
@@ -68,13 +66,10 @@ export default function useLibrary() {
   )
 
   return useMemo(() => {
-    console.log('memo called')
-    update()
-
     return {
       library: library?.items ? [...library.items].reverse() : [],
       saveItem,
       removeItem,
     }
-  }, [libraryLength, saveItem, removeItem, update])
+  }, [libraryLength, saveItem, removeItem])
 }

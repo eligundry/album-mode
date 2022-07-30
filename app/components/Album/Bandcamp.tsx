@@ -71,23 +71,7 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
             <span className={clsx('text-base')}>{album.artist}</span>
           </>
         }
-        footer={
-          <>
-            {'bandcampDailyURL' in album && (
-              <>
-                Need convincing? Read the{' '}
-                <A
-                  href={`${album.bandcampDailyURL}?${searchParams.toString()}`}
-                  target="_blank"
-                >
-                  Bandcamp Daily review
-                </A>
-                .
-              </>
-            )}
-            {footer}
-          </>
-        }
+        footer={footer}
         reviewProps={{
           item: {
             ...album,

@@ -5,18 +5,26 @@ import spotifyLib from '~/lib/spotify'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
+import wikipedia from '~/lib/wikipedia.server'
+import WikipediaSummary from '~/components/WikipediaSummary'
 
 export async function loader({ params, request }: LoaderArgs) {
   const label = params.slug
 
   if (!label) {
-    throw new Error('slug must be provided in URL')
+    throw json({ error: 'slug must be provided in URL' }, 400)
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
+  const album = await spotify.getRandomAlbumForLabel(label)
+  const wiki = await wikipedia.getSummaryForAlbum({
+    album: album.name,
+    artist: album.artists[0].name,
+  })
 
   return json({
-    album: await spotify.getRandomAlbumForLabelSlug(label),
+    album,
+    wiki,
     label,
   })
 }
@@ -24,15 +32,14 @@ export async function loader({ params, request }: LoaderArgs) {
 export const ErrorBoundary = AlbumErrorBoundary
 
 export default function LabelBySlug() {
-  const { album, label } = useLoaderData<typeof loader>()
-
-  if (!album) {
-    return null
-  }
+  const data = useLoaderData<typeof loader>()
 
   return (
-    <Layout headerBreadcrumbs={['Labels', label]}>
-      <Album album={album} />
+    <Layout headerBreadcrumbs={['Labels', data.label]}>
+      <Album
+        album={data.album}
+        footer={<WikipediaSummary summary={data.wiki} />}
+      />
     </Layout>
   )
 }
