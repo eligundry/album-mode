@@ -219,6 +219,18 @@ const getRandomTweet = async (username: string) =>
     )
     .then((tweets) => tweets[0])
 
+const getTwitterUsers = async () =>
+  prisma.twitterUser
+    .findMany({
+      select: {
+        username: true,
+      },
+      orderBy: {
+        username: 'asc',
+      },
+    })
+    .then((users) => users.map(({ username }) => username))
+
 const api = {
   prisma,
   getArtistGroupings,
@@ -232,6 +244,7 @@ const api = {
   getRandomTweet,
   getSubreddits,
   getTopGenres,
+  getTwitterUsers,
   searchGenres,
 }
 

@@ -12,6 +12,8 @@ const TweetEmbed: React.FC<Props> = ({ tweet }) => {
   const [render, setRender] = useState(true)
   const isDarkMode = useDarkMode()
 
+  // TwitterTweetEmbed does not refresh automatically when the tweet ID or dark
+  // mode changes, so this will force it to do so.
   useEffect(() => {
     setRender(false)
     const timeoutID = window.setTimeout(() => setRender(true), 2)
