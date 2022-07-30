@@ -1,5 +1,6 @@
 import SpotifyEmbed from 'react-spotify-embed'
 import clsx from 'clsx'
+import useMeasure from 'react-use/lib/useMeasure'
 
 import PlaylistWrapper from './Wrapper'
 import { Container, A } from '~/components/Base'
@@ -18,15 +19,18 @@ const linkParams = new URLSearchParams({
 const Playlist: React.FC<Props> = ({ playlist, footer }) => {
   const isMobile = useIsMobile()
   const playlistURL = playlist.external_urls.spotify
+  const [wrapperRef, { height }] = useMeasure()
 
   return (
     <Container center>
       <PlaylistWrapper
+        ref={wrapperRef}
         embed={
           <SpotifyEmbed
             wide={isMobile}
             className={clsx('mx-auto')}
             link={playlistURL}
+            height={!isMobile ? Math.max(height, 380) : undefined}
           />
         }
         title={

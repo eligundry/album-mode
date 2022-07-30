@@ -11,28 +11,26 @@ interface Props {
   reviewProps: ReviewButtonProps
 }
 
-const AlbumWrapper: React.FC<Props> = ({
-  embed,
-  title,
-  footer,
-  reviewProps,
-}) => {
-  return (
-    <Card
-      className={clsx(
-        'mx-auto',
-        'sm:card-side',
-        'album-card-wrapper',
-        'w-full',
-        'sm:w-3/4'
-      )}
-      media={embed}
-      title={title}
-      body={footer}
-      actionsClassName={clsx('flex-col')}
-      actions={<ReviewButtons {...reviewProps} />}
-    />
-  )
-}
+const AlbumWrapper = React.forwardRef<any, Props>(
+  ({ embed, title, footer, reviewProps }, ref) => {
+    return (
+      <Card
+        className={clsx(
+          'mx-auto',
+          'sm:card-side',
+          'album-card-wrapper',
+          'w-full',
+          'sm:w-3/4'
+        )}
+        media={embed}
+        title={title}
+        body={footer}
+        actionsClassName={clsx('flex-col')}
+        actions={<ReviewButtons {...reviewProps} />}
+        ref={ref}
+      />
+    )
+  }
+)
 
 export default AlbumWrapper
