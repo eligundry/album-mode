@@ -1,14 +1,16 @@
 import React from 'react'
 import clsx from 'clsx'
+import type { BandcampDailyAlbum } from '@prisma/client'
 
 import AlbumWrapper from './Wrapper'
 import { Container, A } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 import { useDaisyPallete } from '~/hooks/useTailwindTheme'
-import type { BandcampDailyAlbum } from '@prisma/client'
+import type { Tweet } from '~/lib/types/twitter'
 
 interface Props {
-  album: Omit<BandcampDailyAlbum, 'createdAt' | 'updatedAt'>
+  album: Omit<BandcampDailyAlbum, 'createdAt' | 'updatedAt'> | Tweet
+  footer?: string | React.ReactNode
 }
 
 const searchParams = new URLSearchParams({
@@ -16,7 +18,7 @@ const searchParams = new URLSearchParams({
   utm_term: 'bandcamp-daily',
 })
 
-const BandcampAlbum: React.FC<Props> = ({ album }) => {
+const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
   const isMobile = useIsMobile()
   const pallete = useDaisyPallete()
   const params = [
@@ -71,14 +73,19 @@ const BandcampAlbum: React.FC<Props> = ({ album }) => {
         }
         footer={
           <>
-            Need convincing? Read the{' '}
-            <A
-              href={`${album.bandcampDailyURL}?${searchParams.toString()}`}
-              target="_blank"
-            >
-              Bandcamp Daily review
-            </A>
-            .
+            {'bandcampDailyURL' in album && (
+              <>
+                Need convincing? Read the{' '}
+                <A
+                  href={`${album.bandcampDailyURL}?${searchParams.toString()}`}
+                  target="_blank"
+                >
+                  Bandcamp Daily review
+                </A>
+                .
+              </>
+            )}
+            {footer}
           </>
         }
         reviewProps={{

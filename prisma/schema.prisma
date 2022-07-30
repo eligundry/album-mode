@@ -98,10 +98,13 @@ model TweetAlbum {
   user TwitterUser @relation(fields: [twitterUserID], references: [userID])
   tweetID String
   service String
-  album String?
-  artist String?
+  itemType String
+  album String
+  albumID String
+  artist String
+  artistID String
   url String
-  imageURL String?
+  imageURL String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@unique([tweetID, url])

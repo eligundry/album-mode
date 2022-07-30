@@ -1,19 +1,15 @@
 import axios from 'axios'
-import bandcamp from 'bandcamp-scraper'
 import { JSDOM } from 'jsdom'
 import Bottleneck from 'bottleneck'
 import { PrismaClient } from '@prisma/client'
 import { chromium, BrowserContext } from 'playwright'
 
 import { BandcampAlbum } from '~/lib/types/bandcamp'
+import bandcamp from '~/lib/bandcamp'
 
 const bandcampDailyBase = 'https://daily.bandcamp.com'
 const prisma = new PrismaClient()
 const dailyLimiter = new Bottleneck({
-  maxConcurrent: 2,
-  minTime: 1000 * 3,
-})
-const bandcampLimiter = new Bottleneck({
   maxConcurrent: 2,
   minTime: 1000 * 3,
 })
@@ -173,7 +169,7 @@ const getAlbumInfoFromBandcampDailyPath = dailyLimiter.wrap(
         return false
       }
 
-      return getBandcampAlbum(albumURL)
+      return bandcamp.getAlbum(albumURL)
     } catch (e) {
       console.error(`could not fetch album for ${bandcampDailyBase + path}`, e)
       return false
@@ -181,19 +177,6 @@ const getAlbumInfoFromBandcampDailyPath = dailyLimiter.wrap(
       await page.close()
     }
   }
-)
-
-const getBandcampAlbum = bandcampLimiter.wrap(
-  (url: string): Promise<BandcampAlbum> =>
-    new Promise((resolve, reject) =>
-      bandcamp.getAlbumInfo(url, (error: string, data: BandcampAlbum) => {
-        if (error) {
-          reject(error)
-        } else {
-          resolve(data)
-        }
-      })
-    )
 )
 
 scrape()

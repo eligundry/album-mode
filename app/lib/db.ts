@@ -8,6 +8,8 @@ import {
 } from '@prisma/client'
 import groupBy from 'lodash/groupBy'
 
+import type { Tweet } from '~/lib/types/twitter'
+
 export const prisma = new PrismaClient()
 
 const getLabels = async () =>
@@ -190,6 +192,33 @@ const getSubreddits = async () =>
     })
     .then((res) => res.map(({ slug }) => slug))
 
+const getRandomTweet = async (username: string) =>
+  prisma
+    .$queryRaw<Tweet[]>(
+      Prisma.sql`
+        SELECT
+          TwitterUser.username,
+          TwitterUser.userID,
+          TweetAlbum.tweetID,
+          TweetAlbum.service,
+          TweetAlbum.itemType,
+          TweetAlbum.album,
+          TweetAlbum.albumID,
+          TweetAlbum.artist,
+          TweetAlbum.artistID,
+          TweetAlbum.url,
+          TweetAlbum.imageURL
+        FROM TweetAlbum
+        JOIN TwitterUser ON (
+          TwitterUser.userID = TweetAlbum.twitterUserID
+          AND TwitterUser.username = ${username}
+        )
+        ORDER BY RANDOM()
+        LIMIT 1
+      `
+    )
+    .then((tweets) => tweets[0])
+
 const api = {
   prisma,
   getArtistGroupings,
@@ -200,6 +229,7 @@ const api = {
   getRandomArtistFromGroupSlug,
   getRandomBandcampDailyAlbum,
   getRandomGenre,
+  getRandomTweet,
   getSubreddits,
   getTopGenres,
   searchGenres,
