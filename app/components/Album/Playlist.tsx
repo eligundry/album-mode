@@ -7,6 +7,7 @@ import { useIsMobile } from '~/hooks/useMediaQuery'
 
 interface Props {
   playlist: SpotifyApi.PlaylistObjectSimplified | SpotifyApi.PlaylistObjectFull
+  footer?: string | React.ReactNode
 }
 
 const linkParams = new URLSearchParams({
@@ -14,7 +15,7 @@ const linkParams = new URLSearchParams({
   go: '1',
 })
 
-const Playlist: React.FC<Props> = ({ playlist }) => {
+const Playlist: React.FC<Props> = ({ playlist, footer }) => {
   const isMobile = useIsMobile()
   const playlistURL = playlist.external_urls.spotify
 
@@ -34,9 +35,12 @@ const Playlist: React.FC<Props> = ({ playlist }) => {
           </A>
         }
         footer={
-          playlist.description ? (
-            <p dangerouslySetInnerHTML={{ __html: playlist.description }} />
-          ) : undefined
+          <>
+            {playlist.description && (
+              <p dangerouslySetInnerHTML={{ __html: playlist.description }} />
+            )}
+            {footer}
+          </>
         }
         reviewProps={{
           item: playlist,

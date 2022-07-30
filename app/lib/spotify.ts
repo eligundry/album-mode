@@ -488,6 +488,18 @@ const spotifyAPIFactory = () =>
 
 export const spotifyAPI = spotifyAPIFactory()
 
+export const getMachineClient = async () => {
+  const client = spotifyAPIFactory()
+
+  if (!client.getAccessToken()) {
+    await client
+      .clientCredentialsGrant()
+      .then(({ body }) => client.setAccessToken(body.access_token))
+  }
+
+  return client
+}
+
 const getUserClient = (accessToken: string, refreshToken?: string) => {
   const api = spotifyAPIFactory()
   api.setAccessToken(accessToken)
@@ -532,6 +544,7 @@ const api = {
   cookieFactory,
   spotifyAPI,
   getUserClient,
+  getMachineClient,
 }
 
 export default api

@@ -20,6 +20,7 @@ export async function loader() {
     await promiseHash({
       groups: db.getArtistGroupings(),
       subreddits: db.getSubreddits(),
+      twitterUsers: db.getTwitterUsers(),
     })
   )
 }
@@ -37,6 +38,18 @@ export default function LibraryPage() {
           These features are not ready for prime time (and may never be), but I
           think they are cool to see.
         </Typography>
+        <HomeSection
+          title="Twitter"
+          subtitle="Here are some Twitter accounts that we think are recommending good stuff."
+          className="twitter"
+        >
+          <ButtonLinkGroup
+            items={data.twitterUsers}
+            keyFunction={(username) => username}
+            childFunction={(username) => `@${username}`}
+            toFunction={(username) => `/twitter/${username}`}
+          />
+        </HomeSection>
         <HomeSection
           title={<Link to="/labels">Labels</Link>}
           subtitle="You know labels? Search and we'll see what we have. Otherwise, the link above has some ones to check out."

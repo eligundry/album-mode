@@ -84,3 +84,28 @@ model Subreddit {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model TwitterUser {
+  userID String @id @unique
+  username String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tweets TweetAlbum[]
+}
+
+model TweetAlbum {
+  twitterUserID String
+  user TwitterUser @relation(fields: [twitterUserID], references: [userID])
+  tweetID String
+  service String
+  itemType String
+  album String
+  albumID String
+  artist String
+  artistID String
+  url String
+  imageURL String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([tweetID, url])
+}
