@@ -200,7 +200,7 @@ export class Spotify {
 
   getRandomAlbumByGenre = async (
     genre: string
-  ): Promise<SpotifyApi.AlbumObjectSimplified | null> => {
+  ): Promise<SpotifyApi.AlbumObjectSimplified> => {
     // First, we must fetch a random artist in this genre
     const limit = 1
     const searchTerm = `genre:"${genre}"`
@@ -251,7 +251,7 @@ export class Spotify {
       return this.getRandomAlbumByGenre(genre)
     }
 
-    return sample(albums) ?? null
+    return sample(albums) as SpotifyApi.AlbumObjectSimplified
   }
 
   getRandomAlbumForRelatedArtist = async (artistName: string) => {

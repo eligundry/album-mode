@@ -5,6 +5,8 @@ import spotifyLib from '~/lib/spotify'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
+import wikipedia from '~/lib/wikipedia.server'
+import WikipediaSummary from '~/components/WikipediaSummary'
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
@@ -18,10 +20,16 @@ export async function loader({ request }: LoaderArgs) {
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
+  const album = await spotify.getRandomAlbumByGenre(genre)
+  const wiki = await wikipedia.getSummaryForAlbum({
+    album: album.name,
+    artist: album.artists[0].name,
+  })
 
   return json({
-    album: await spotify.getRandomAlbumByGenre(genre),
+    album,
     genre,
+    wiki,
   })
 }
 
@@ -38,7 +46,7 @@ export default function GenreSearch() {
 
   return (
     <Layout headerBreadcrumbs={['Genre', genre]}>
-      <Album album={album} />
+      <Album album={album} footer={<WikipediaSummary summary={data.wiki} />} />
     </Layout>
   )
 }

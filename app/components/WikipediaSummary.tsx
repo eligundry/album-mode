@@ -12,6 +12,10 @@ interface Props {
 const WikipediaSummary: React.FC<Props> = ({ summary }) => {
   const isMobile = useIsMobile()
 
+  if (!summary) {
+    return null
+  }
+
   return (
     <div className={clsx('wikipedia-summary')}>
       <p dangerouslySetInnerHTML={{ __html: summary.extract_html }} />
