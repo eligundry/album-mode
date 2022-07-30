@@ -28,7 +28,7 @@ const AlbumWrapper: React.FC<Props> = ({
       )}
       media={embed}
       title={title}
-      body={<>{footer && <p>{footer}</p>}</>}
+      body={footer}
       actionsClassName={clsx('flex-col')}
       actions={<ReviewButtons {...reviewProps} />}
     />

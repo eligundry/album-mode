@@ -6,6 +6,8 @@ import spotifyLib from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
+import wikipedia from '~/lib/wikipedia.server'
+import WikipediaSummary from '~/components/WikipediaSummary'
 
 export async function loader({ request }: LoaderArgs) {
   const cookie = await auth.getCookie(request)
@@ -18,15 +20,23 @@ export async function loader({ request }: LoaderArgs) {
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
-  const data = {
-    album: await spotify.getRandomAlbumFromUserLibrary(),
-  }
-
-  return json(data, {
-    headers: {
-      'Set-Cookie': await auth.cookieFactory.serialize(cookie),
-    },
+  const album = await spotify.getRandomAlbumFromUserLibrary()
+  const wiki = await wikipedia.getSummaryForAlbum({
+    album: album.name,
+    artist: album.artists[0].name,
   })
+
+  return json(
+    {
+      album,
+      wiki,
+    },
+    {
+      headers: {
+        'Set-Cookie': await auth.cookieFactory.serialize(cookie),
+      },
+    }
+  )
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
@@ -36,7 +46,10 @@ export default function RandomAlbumFromSpotifyLibrary() {
 
   return (
     <Layout headerBreadcrumbs={['Spotify', 'Library']}>
-      <Album album={data.album} />
+      <Album
+        album={data.album}
+        footer={<WikipediaSummary summary={data.wiki} />}
+      />
     </Layout>
   )
 }
