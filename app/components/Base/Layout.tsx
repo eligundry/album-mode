@@ -19,10 +19,10 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
 }) => {
   return (
     <>
-      <LoadingHeader />
-      <header className={clsx('navbar', 'px-4', 'pt-0')}>
+      <header className={clsx('navbar', 'px-4', 'pt-2', 'flex', 'flex-col')}>
+        <LoadingHeader />
         <Container
-          className={clsx('flex', 'flex-wrap', 'mb-4', 'align-center')}
+          className={clsx('flex', 'flex-wrap', 'md:mb-4', 'align-center')}
         >
           <h1
             className={clsx(
@@ -71,7 +71,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           </div>
         </Container>
       </header>
-      <main className={clsx('my-8', 'px-4', className)}>{children}</main>
+      <main className={clsx('md:my-8', 'px-4', className)}>{children}</main>
       <Container>
         <footer
           className={clsx(

@@ -3,6 +3,7 @@ import clsx from 'clsx'
 
 import Card from '~/components/Base/Card'
 import ReviewButtons, { ReviewButtonProps } from './ReviewButtons'
+import { useIsMobile } from '~/hooks/useMediaQuery'
 
 interface Props {
   embed: React.ReactNode
@@ -13,6 +14,7 @@ interface Props {
 
 const AlbumWrapper = React.forwardRef<any, Props>(
   ({ embed, title, footer, reviewProps }, ref) => {
+    const isMobile = useIsMobile()
     return (
       <Card
         className={clsx(
@@ -27,6 +29,7 @@ const AlbumWrapper = React.forwardRef<any, Props>(
         body={footer}
         actionsClassName={clsx('flex-col')}
         actions={<ReviewButtons {...reviewProps} />}
+        style={isMobile ? { height: 'calc(100vh - 150px)' } : undefined}
         ref={ref}
       />
     )
