@@ -40,7 +40,8 @@
     "react-select": "^5.3.1",
     "react-spotify-embed": "^0.2.3",
     "react-use": "^17.3.2",
-    "spotify-web-api-node": "^5.0.2"
+    "spotify-web-api-node": "^5.0.2",
+    "wikipedia": "^1.1.9"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.6.5",

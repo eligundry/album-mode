@@ -1,18 +1,19 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import promiseHash from 'promise-hash'
 
 import spotifyLib from '~/lib/spotify'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
+import wikipedia from '~/lib/wikipedia.server'
+import WikipediaSummary from '~/components/WikipediaSummary'
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
   const artist = url.searchParams.get('artist')
 
   if (!artist) {
-    return json({ error: 'artist query param must be provided' }, 400)
+    throw json({ error: 'artist query param must be provided' }, 400)
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
@@ -23,12 +24,22 @@ export async function loader({ request }: LoaderArgs) {
     searchMethod = spotify.getRandomAlbumForArtist
   }
 
-  const data = await promiseHash({
-    album: searchMethod(artist),
-    artist,
+  const album = await searchMethod(artist)
+
+  if (!album) {
+    throw json({ error: 'could not fetch album' }, 500)
+  }
+
+  const wiki = await wikipedia.getSummaryForAlbum({
+    album: album.name,
+    artist: album.artists[0].name,
   })
 
-  return json(data)
+  return json({
+    album,
+    artist,
+    wiki,
+  })
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
@@ -36,13 +47,12 @@ export const ErrorBoundary = AlbumErrorBoundary
 export default function RelatedArtistSearch() {
   const data = useLoaderData<typeof loader>()
 
-  if (!('album' in data) || !data.album) {
-    return null
-  }
-
   return (
     <Layout headerBreadcrumbs={['Artist', data.artist]}>
-      <Album album={data.album} />
+      <Album
+        album={data.album}
+        footer={<WikipediaSummary summary={data.wiki} />}
+      />
     </Layout>
   )
 }
