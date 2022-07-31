@@ -13,6 +13,7 @@ export async function loader({ request }: LoaderArgs) {
   let artist = url.searchParams.get('artist')
   const artistID = url.searchParams.get('artistID')
   const spotify = await spotifyLib.initializeFromRequest(request)
+  let album: SpotifyApi.AlbumObjectSimplified | undefined
 
   if (artist) {
     let searchMethod = spotify.getRandomAlbumForRelatedArtist
@@ -22,9 +23,9 @@ export async function loader({ request }: LoaderArgs) {
       searchMethod = spotify.getRandomAlbumForArtist
     }
 
-    var album = await searchMethod(artist)
+    album = await searchMethod(artist)
   } else if (artistID) {
-    var album = await spotify.getRandomAlbumForRelatedArtistByID(artistID)
+    album = await spotify.getRandomAlbumForRelatedArtistByID(artistID)
     artist = await spotify
       .getClient()
       .then((client) => client.getArtist(artistID))
