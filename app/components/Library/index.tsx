@@ -19,7 +19,7 @@ const Library: React.FC = () => {
   const { library } = useLibrary()
 
   return (
-    <section className={clsx('flex', 'flex-wrap', 'flex-row', 'gap-4')}>
+    <section className={clsx('grid', 'grid-cols-2', 'sm:grid-cols-4', 'gap-4')}>
       {library.map((item) => (
         <LibraryCard item={item} key={item.savedAt.toISOString()} />
       ))}

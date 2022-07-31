@@ -20,7 +20,6 @@ const SpotifyLibraryCard: React.FC<{ item: SavedSpotifyItem }> = ({ item }) => {
   return (
     <Card
       href={url}
-      className={clsx('w-48')}
       mediaZoomOnHover
       media={
         <img
