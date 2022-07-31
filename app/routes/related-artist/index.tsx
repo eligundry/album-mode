@@ -10,21 +10,31 @@ import WikipediaSummary from '~/components/WikipediaSummary'
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
-  const artist = url.searchParams.get('artist')
-
-  if (!artist) {
-    throw json({ error: 'artist query param must be provided' }, 400)
-  }
-
+  let artist = url.searchParams.get('artist')
+  const artistID = url.searchParams.get('artistID')
   const spotify = await spotifyLib.initializeFromRequest(request)
-  let searchMethod = spotify.getRandomAlbumForRelatedArtist
 
-  // If the search term is quoted, get random album for just that artist
-  if (artist.startsWith('"') && artist.endsWith('"')) {
-    searchMethod = spotify.getRandomAlbumForArtist
+  if (artist) {
+    let searchMethod = spotify.getRandomAlbumForRelatedArtist
+
+    // If the search term is quoted, get random album for just that artist
+    if (artist.startsWith('"') && artist.endsWith('"')) {
+      searchMethod = spotify.getRandomAlbumForArtist
+    }
+
+    var album = await searchMethod(artist)
+  } else if (artistID) {
+    var album = await spotify.getRandomAlbumForRelatedArtistByID(artistID)
+    artist = await spotify
+      .getClient()
+      .then((client) => client.getArtist(artistID))
+      .then((resp) => resp.body.name)
+  } else {
+    throw json(
+      { error: 'artist OR artistID query param must be provided' },
+      400
+    )
   }
-
-  const album = await searchMethod(artist)
 
   if (!album) {
     throw json({ error: 'could not fetch album' }, 500)
@@ -48,7 +58,7 @@ export default function RelatedArtistSearch() {
   const data = useLoaderData<typeof loader>()
 
   return (
-    <Layout headerBreadcrumbs={['Artist', data.artist]}>
+    <Layout headerBreadcrumbs={['Artist', data.artist ?? '']}>
       <Album
         album={data.album}
         footer={<WikipediaSummary summary={data.wiki} />}

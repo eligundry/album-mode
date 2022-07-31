@@ -5,6 +5,7 @@ import clsx from 'clsx'
 
 import auth from '~/lib/auth'
 import db from '~/lib/db'
+import spotifyLib from '~/lib/spotify'
 import { Heading, Layout, Container, Link, ButtonLink } from '~/components/Base'
 import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
@@ -18,10 +19,12 @@ import useSavedSearches from '~/hooks/useSavedSearches'
 
 export async function loader({ request }: LoaderArgs) {
   const authCookie = await auth.getCookie(request)
+  const spotify = await spotifyLib.initializeFromRequest(request)
 
   const data = await promiseHash({
     publications: db.getPublications(),
     topGenres: db.getTopGenres(),
+    topArtists: spotify.getTopArtists(),
     auth: {
       spotify: {
         loggedIn: 'accessToken' in authCookie.spotify,
@@ -70,7 +73,7 @@ export default function Index() {
           subtitle="Want an album from an artist similar to one you like? What's their name?"
           className="artist"
         >
-          <RelatedArtistSearchForm />
+          <RelatedArtistSearchForm defaultArtists={data.topArtists} />
         </HomeSection>
         <HomeSection
           title={<Link to="/genres">Genre</Link>}
