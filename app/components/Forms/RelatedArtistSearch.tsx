@@ -39,7 +39,6 @@ const RelatedArtistSearchForm: React.FC<Props> = ({
         loadOptions={searchAritsts}
         getOptionValue={(option: SpotifyArtist) => option.id}
         formatOptionLabel={(option: SpotifyArtist, meta) => {
-          console.log(meta)
           return (
             <div className={clsx('flex', 'flex-row', 'items-center')}>
               {meta.selectValue.length === 0 && option.image && (
