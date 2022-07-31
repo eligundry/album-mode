@@ -8,6 +8,7 @@ import random from 'lodash/random'
 import db from './db'
 import cache from './cache'
 import auth from './auth'
+import type { SpotifyArtist } from './types/spotify'
 
 interface SpotifyOptions {
   userAccessToken?: string | undefined
@@ -268,8 +269,13 @@ export class Spotify {
       throw new Error('could not find artist with that name')
     }
 
+    return this.getRandomAlbumForRelatedArtistByID(artist.id)
+  }
+
+  getRandomAlbumForRelatedArtistByID = async (artistID: string) => {
+    const client = await this.getClient()
     // Next, we need to fetch the related artists
-    const relatedArtists = await client.getArtistRelatedArtists(artist.id)
+    const relatedArtists = await client.getArtistRelatedArtists(artistID)
 
     if (relatedArtists.statusCode !== 200) {
       throw new Error('could not fetch related artists')
@@ -278,9 +284,9 @@ export class Spotify {
     // Find a random related artist (or the artist that was provided in the
     // original search term)
     const targetArtistID = sample([
-      artist.id,
+      artistID,
       ...relatedArtists.body.artists.map((a) => a.id),
-      artist.id,
+      artistID,
     ])
 
     if (!targetArtistID) {
@@ -484,6 +490,47 @@ export class Spotify {
     }
 
     return this.getRandomAlbumForLabel(label.name)
+  }
+
+  searchArists = async (term: string): Promise<SpotifyArtist[]> => {
+    const client = await this.getClient()
+    const results = await client.search(term, ['artist'], {
+      market: this.country,
+    })
+
+    return (
+      results.body.artists?.items.map((artist) => ({
+        name: artist.name,
+        id: artist.id,
+        image: artist.images.at(-1),
+      })) ?? []
+    )
+  }
+
+  getTopArtists = async (): Promise<SpotifyArtist[]> => {
+    const client = await this.getClient()
+    // https://open.spotify.com/playlist/37i9dQZEVXbLp5XoPON0wI?si=ec81b7dcedf843a4
+    const topSongsPlaylist = await client.getPlaylist('37i9dQZEVXbLp5XoPON0wI')
+    const topArtistIDs = topSongsPlaylist.body.tracks.items.reduce(
+      (acc, track) => {
+        const artistID = track.track?.artists[0].id
+
+        if (artistID) {
+          acc.add(artistID)
+        }
+
+        return acc
+      },
+      new Set<string>()
+    )
+    const artistsResp = await client.getArtists([...topArtistIDs])
+    const artists: SpotifyArtist[] = artistsResp.body.artists.map((artist) => ({
+      name: artist.name,
+      id: artist.id,
+      image: artist.images.at(-1),
+    }))
+
+    return artists
   }
 }
 

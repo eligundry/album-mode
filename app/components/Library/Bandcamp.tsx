@@ -20,7 +20,6 @@ const BandcampLibraryCard: React.FC<{ item: SavedBandcampItem }> = ({
   return (
     <Card
       href={url}
-      className={clsx('w-44')}
       mediaZoomOnHover
       media={
         <img
