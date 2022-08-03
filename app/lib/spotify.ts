@@ -508,6 +508,13 @@ export class Spotify {
   }
 
   getTopArtists = async (): Promise<SpotifyArtist[]> => {
+    const cacheKey = `spotify-topArtists-${this.country}`
+    let artists = cache.get<SpotifyArtist[]>(cacheKey)
+
+    if (artists) {
+      return artists
+    }
+
     const client = await this.getClient()
     // https://open.spotify.com/playlist/37i9dQZEVXbLp5XoPON0wI?si=ec81b7dcedf843a4
     const topSongsPlaylist = await client.getPlaylist('37i9dQZEVXbLp5XoPON0wI')
@@ -524,13 +531,19 @@ export class Spotify {
       new Set<string>()
     )
     const artistsResp = await client.getArtists([...topArtistIDs])
-    const artists: SpotifyArtist[] = artistsResp.body.artists.map((artist) => ({
+    artists = artistsResp.body.artists.map((artist) => ({
       name: artist.name,
       id: artist.id,
       image: artist.images.at(-1),
     }))
+    cache.set(cacheKey, artists)
 
     return artists
+  }
+
+  getRandomTopArtist = async () => {
+    const artists = await this.getTopArtists()
+    return sample(artists) ?? artists[0]
   }
 }
 

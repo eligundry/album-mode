@@ -61,10 +61,11 @@ export default function Index() {
               <Heading level="h2" className={clsx('font-black')}>
                 It's time for new music
               </Heading>
-              <p>
+              <p className={clsx('pb-4')}>
                 Tired of the same old songs? <br />
                 Let us recommend something that you might like.
               </p>
+              <ButtonLink to="/random">▶️ Play me someting</ButtonLink>
             </div>
           </div>
         </div>
