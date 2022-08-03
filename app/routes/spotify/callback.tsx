@@ -6,7 +6,7 @@ import {
   ErrorBoundaryComponent,
 } from '@remix-run/node'
 
-import auth from '~/lib/auth'
+import auth from '~/lib/auth.server'
 import {
   Layout,
   Heading,

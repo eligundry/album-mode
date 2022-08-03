@@ -1,8 +1,8 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
-import db from '~/lib/db'
-import spotifyLib from '~/lib/spotify'
+import db from '~/lib/db.server'
+import spotifyLib from '~/lib/spotify.server'
 import { Layout, A, Heading } from '~/components/Base'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'

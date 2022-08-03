@@ -1,8 +1,8 @@
 import { LoaderFunction, ActionFunction, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import db from '~/lib/db'
-import admin from '~/lib/admin'
+import db from '~/lib/db.server'
+import admin from '~/lib/admin.server'
 import ProtectedRoute, {
   protectedRouteHeaders,
   isAuthorized,

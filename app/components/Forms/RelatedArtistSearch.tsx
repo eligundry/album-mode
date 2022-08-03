@@ -3,7 +3,7 @@ import { Form } from '@remix-run/react'
 import clsx from 'clsx'
 
 import FunSelect from './FunSelect'
-import type { SpotifyArtist } from '~/lib/types/spotify'
+import type { SpotifyArtist } from '~/lib/types/spotify.server'
 
 interface Props {
   defaultArtists: SpotifyArtist[]

@@ -3,9 +3,9 @@ import dotenv from 'dotenv'
 import type { TwitterUser } from '@prisma/client'
 import yargs from 'yargs'
 
-import { prisma } from '~/lib/db'
-import bandcamp from '~/lib/bandcamp'
-import { getMachineClient as getSpotifyClient } from '~/lib/spotify'
+import { prisma } from '~/lib/db.server'
+import bandcamp from '~/lib/bandcamp.server'
+import { getMachineClient as getSpotifyClient } from '~/lib/spotify.server'
 
 dotenv.config()
 

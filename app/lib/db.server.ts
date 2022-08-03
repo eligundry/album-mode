@@ -5,6 +5,7 @@ import {
   Artist,
   BandcampDailyAlbum,
   SpotifyGenere,
+  Publication,
 } from '@prisma/client'
 import groupBy from 'lodash/groupBy'
 
@@ -180,6 +181,25 @@ const getRandomGenre = async (): Promise<string> =>
     )
     .then((res) => res[0].name)
 
+const getRandomTopGenre = async (limit = 50): Promise<string> =>
+  prisma
+    .$queryRaw<Pick<SpotifyGenere, 'name'>[]>(
+      Prisma.sql`
+        SELECT name
+        FROM SpotifyGenere
+        WHERE (
+          id = (
+            SELECT id
+            FROM SpotifyGenere
+            WHERE id < ${limit}
+            ORDER BY RANDOM()
+            LIMIT 1
+          )
+        )
+      `
+    )
+    .then((res) => res[0].name)
+
 const getSubreddits = async () =>
   prisma.subreddit
     .findMany({
@@ -231,6 +251,18 @@ const getTwitterUsers = async () =>
     })
     .then((users) => users.map(({ username }) => username))
 
+const getRandomPublication = async () =>
+  prisma
+    .$queryRaw<Pick<Publication, 'slug'>[]>(
+      Prisma.sql`
+        SELECT slug
+        FROM Publication
+        ORDER BY RANDOM()
+        LIMIT 1
+      `
+    )
+    .then((res) => res[0].slug)
+
 const api = {
   prisma,
   getArtistGroupings,
@@ -241,6 +273,8 @@ const api = {
   getRandomArtistFromGroupSlug,
   getRandomBandcampDailyAlbum,
   getRandomGenre,
+  getRandomPublication,
+  getRandomTopGenre,
   getRandomTweet,
   getSubreddits,
   getTopGenres,

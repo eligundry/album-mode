@@ -1,7 +1,7 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
-import spotifyLib from '~/lib/spotify'
+import spotifyLib from '~/lib/spotify.server'
 import { Layout, Link } from '~/components/Base'
 import Playlist from '~/components/Album/Playlist'
 import PlaylistErrorBoundary from '~/components/Album/ErrorBoundary'

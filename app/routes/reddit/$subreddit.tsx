@@ -8,7 +8,7 @@ import YouTube from '~/components/Album/YouTube'
 import Spotify from '~/components/Spotify/SimpleEmbed'
 import Bandcamp from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import reddit from '~/lib/reddit'
+import reddit from '~/lib/reddit.server'
 
 import youtubeStyles from 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css'
 

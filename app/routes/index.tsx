@@ -3,9 +3,9 @@ import { json, LoaderArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
-import auth from '~/lib/auth'
-import db from '~/lib/db'
-import spotifyLib from '~/lib/spotify'
+import auth from '~/lib/auth.server'
+import db from '~/lib/db.server'
+import spotifyLib from '~/lib/spotify.server'
 import { Heading, Layout, Container, Link, ButtonLink } from '~/components/Base'
 import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
@@ -61,10 +61,11 @@ export default function Index() {
               <Heading level="h2" className={clsx('font-black')}>
                 It's time for new music
               </Heading>
-              <p>
+              <p className={clsx('pb-4')}>
                 Tired of the same old songs? <br />
                 Let us recommend something that you might like.
               </p>
+              <ButtonLink to="/random">▶️ Play me someting</ButtonLink>
             </div>
           </div>
         </div>

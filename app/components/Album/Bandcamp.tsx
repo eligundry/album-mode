@@ -6,7 +6,7 @@ import AlbumWrapper from './Wrapper'
 import { Container, A } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 import { useDaisyPallete } from '~/hooks/useTailwindTheme'
-import type { Tweet } from '~/lib/types/twitter'
+import type { Tweet } from '~/lib/types/twitter.server'
 
 interface Props {
   album: Omit<BandcampDailyAlbum, 'createdAt' | 'updatedAt'> | Tweet

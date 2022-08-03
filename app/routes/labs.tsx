@@ -3,7 +3,7 @@ import promiseHash from 'promise-hash'
 import { MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
-import db from '~/lib/db'
+import db from '~/lib/db.server'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
 import { Layout, Heading, Container, Link, Typography } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'

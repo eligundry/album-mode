@@ -2,7 +2,7 @@ import { json, MetaFunction, LoaderArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
-import spotifyLib from '~/lib/spotify'
+import spotifyLib from '~/lib/spotify.server'
 import { Layout, Container, Heading } from '~/components/Base'
 import { CardLink } from '~/components/Base/Card'
 
