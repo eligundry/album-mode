@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import { Layout, Container, Heading, Typography, A } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 
-import db from '~/lib/db'
+import db from '~/lib/db.server'
 
 type LoaderData = {
   subreddits: Awaited<ReturnType<typeof db.getSubreddits>>

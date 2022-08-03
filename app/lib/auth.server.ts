@@ -1,6 +1,6 @@
 import { createCookie } from '@remix-run/node'
 import dateAddSeconds from 'date-fns/addSeconds'
-import spotify, { spotifyAPI } from './spotify'
+import spotify, { spotifyAPI } from '~/lib/spotify.server'
 
 export type AuthCookie = {
   spotify:

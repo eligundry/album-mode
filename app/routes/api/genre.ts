@@ -1,6 +1,6 @@
 import { LoaderFunction, json } from '@remix-run/node'
 
-import db from '~/lib/db'
+import db from '~/lib/db.server'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)

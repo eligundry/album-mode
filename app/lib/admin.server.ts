@@ -1,5 +1,5 @@
 import kebabCase from 'lodash/kebabCase'
-import db from '~/lib/db'
+import db from '~/lib/db.server'
 
 export enum AdminFormActions {
   AddLabel = 'add-label',

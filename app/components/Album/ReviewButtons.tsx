@@ -6,7 +6,7 @@ import clsx from 'clsx'
 import { ButtonLink, Heading } from '~/components/Base'
 import useRating from '~/hooks/useRating'
 import useCurrentPath from '~/hooks/useCurrentPath'
-import { LibraryItem } from '~/lib/types/library'
+import { LibraryItem } from '~/lib/types/library.server'
 import useGTM from '~/hooks/useGTM'
 
 export interface ReviewButtonProps {

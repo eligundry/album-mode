@@ -3,7 +3,7 @@ import useUpdate from 'react-use/lib/useUpdate'
 
 import Card from '~/components/Base/Card'
 import { A, Button, ButtonLink } from '~/components/Base'
-import type { SavedSpotifyItem } from '~/lib/types/library'
+import type { SavedSpotifyItem } from '~/lib/types/library.server'
 import useLibrary from '~/hooks/useLibrary'
 
 const searchParams = new URLSearchParams({

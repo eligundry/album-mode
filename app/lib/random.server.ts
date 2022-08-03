@@ -1,7 +1,7 @@
 import sample from 'lodash/sample'
 
-import db from '~/lib/db'
-import { Spotify } from '~/lib/spotify'
+import db from '~/lib/db.server'
+import { Spotify } from '~/lib/spotify.server'
 
 const options = ['artist', 'genre', 'publication'] as const
 

@@ -3,8 +3,8 @@ import bandcamp from 'bandcamp-scraper'
 import sample from 'lodash/sample'
 import * as Sentry from '@sentry/remix'
 
-import { RandomRedditResponse } from './types/reddit'
-import { BandcampAlbum } from './types/bandcamp'
+import { RandomRedditResponse } from '~/lib/types/reddit'
+import { BandcampAlbum } from '~/lib/types/bandcamp'
 
 const redditClient = axios.create({
   baseURL: 'https://reddit.com',

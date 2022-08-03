@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client'
 import { chromium, BrowserContext } from 'playwright'
 
 import { BandcampAlbum } from '~/lib/types/bandcamp'
-import bandcamp from '~/lib/bandcamp'
+import bandcamp from '~/lib/bandcamp.server'
 
 const bandcampDailyBase = 'https://daily.bandcamp.com'
 const prisma = new PrismaClient()

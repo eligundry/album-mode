@@ -3,7 +3,7 @@ import { RemixServer } from '@remix-run/react'
 import { renderToString } from 'react-dom/server'
 import * as Sentry from '@sentry/remix'
 
-import { prisma } from '~/lib/db'
+import { prisma } from '~/lib/db.server'
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,

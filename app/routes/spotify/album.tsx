@@ -1,8 +1,8 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
-import auth from '~/lib/auth'
-import spotifyLib from '~/lib/spotify'
+import auth from '~/lib/auth.server'
+import spotifyLib from '~/lib/spotify.server'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'

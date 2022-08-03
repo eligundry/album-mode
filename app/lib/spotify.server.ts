@@ -5,9 +5,9 @@ import { createCookie } from '@remix-run/node'
 import sample from 'lodash/sample'
 import random from 'lodash/random'
 
-import db from './db'
-import cache from './cache'
-import auth from './auth'
+import db from '~/lib/db.server'
+import cache from '~/lib/cache.server'
+import auth from '~/lib/auth.server'
 import type { SpotifyArtist } from './types/spotify'
 
 interface SpotifyOptions {
