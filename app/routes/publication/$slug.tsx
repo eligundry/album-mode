@@ -80,7 +80,7 @@ export default function PublicationBySlug() {
           footer={
             <>
               <Heading level="h5">
-                Need convincing? Read the{' '}
+                Read the{' '}
                 <A
                   href={`${
                     data.album.bandcampDailyURL

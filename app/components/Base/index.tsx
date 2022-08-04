@@ -41,6 +41,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   color?: 'primary' | 'info' | 'warning' | 'danger'
   size?: 'lg' | 'md' | 'sm' | 'xs'
   ghost?: boolean
+  disabled?: boolean
 }
 
 const buttonStyles = ({
@@ -48,6 +49,7 @@ const buttonStyles = ({
   className,
   size,
   ghost,
+  disabled,
 }: ButtonProps) =>
   clsx(
     'btn',
@@ -64,6 +66,7 @@ const buttonStyles = ({
       'btn-xs': size === 'xs',
     },
     ghost && 'btn-ghost',
+    disabled && 'btn-disabled',
     className
   )
 

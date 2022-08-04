@@ -8,6 +8,7 @@ import useRating from '~/hooks/useRating'
 import useCurrentPath from '~/hooks/useCurrentPath'
 import { LibraryItem } from '~/lib/types/library'
 import useGTM from '~/hooks/useGTM'
+import useLoading from '~/hooks/useLoading'
 
 export interface ReviewButtonProps {
   item: LibraryItem
@@ -43,6 +44,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
   const [party, setParty] = useState(false)
   const { positiveReview, negativeReview } = useRating()
   const { width, height } = useWindowSize()
+  const { loading } = useLoading()
   const refreshURL = useCurrentPath()
   const sendEvent = useGTM()
   const playURL = getPlayURL(item)
@@ -71,6 +73,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
               setParty(true)
             }}
             replace={true}
+            disabled={loading}
           >
             <EmojiText emoji="🙌" label="raised hands">
               Great!
@@ -81,6 +84,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
             onClick={() => negativeReview(item)}
             color="danger"
             replace={true}
+            disabled={loading}
           >
             <EmojiText
               emoji="👎"

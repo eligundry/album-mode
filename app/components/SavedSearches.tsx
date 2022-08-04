@@ -2,6 +2,7 @@ import clsx from 'clsx'
 
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import useSavedSearches from '~/hooks/useSavedSearches'
+import useLoading from '~/hooks/useLoading'
 
 interface Props {
   limit?: number
@@ -9,6 +10,7 @@ interface Props {
 
 const SavedSearches: React.FC<Props> = ({ limit }) => {
   const { searches } = useSavedSearches()
+  const { loading } = useLoading()
 
   return (
     <ButtonLinkGroup
@@ -23,6 +25,7 @@ const SavedSearches: React.FC<Props> = ({ limit }) => {
           ))}
         </ul>
       )}
+      disabled={loading}
     />
   )
 }

@@ -12,14 +12,14 @@ const MobileLoader: React.FC = () => {
   return (
     <button
       aria-label="Loading indicator"
+      style={{ left: '85%' }}
       className={clsx(
         'btn',
         'btn-square',
         'btn-primary',
         'loading',
-        'absolute',
+        'sticky',
         'bottom-4',
-        'right-4',
         'pointer-events-none'
       )}
     />

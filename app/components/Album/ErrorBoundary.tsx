@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import type { ErrorBoundaryComponent } from '@remix-run/node'
 
 import useCurrentPath from '~/hooks/useCurrentPath'
+import useLoading from '~/hooks/useLoading'
 import {
   Layout,
   Heading,
@@ -13,6 +14,7 @@ import {
 
 const AlbumErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
   const currentPath = useCurrentPath()
+  const { loading } = useLoading()
 
   return (
     <Layout>
@@ -31,7 +33,11 @@ const AlbumErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
               {error.stack}
             </pre>
           </details>
-          <ButtonLink to={currentPath} className={clsx('mt-2')}>
+          <ButtonLink
+            to={currentPath}
+            disabled={loading}
+            className={clsx('mt-2')}
+          >
             <EmojiText emoji="🔄" label="refresh icon">
               Retry
             </EmojiText>

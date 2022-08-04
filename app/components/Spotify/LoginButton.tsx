@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import useLocation from 'react-use/lib/useLocation'
 
 import { ButtonLink } from '~/components/Base'
+import useLoading from '~/hooks/useLoading'
 
 interface Props {
   className?: string
@@ -11,6 +12,7 @@ interface Props {
 const SpotifyLoginButton: React.FC<Props> = ({ className, state }) => {
   const { origin } = useLocation()
   const [loginURL, setLoginURL] = useState<URL>()
+  const { loading } = useLoading()
 
   useEffect(() => {
     const loginURL = new URL('https://accounts.spotify.com/authorize')
@@ -29,8 +31,8 @@ const SpotifyLoginButton: React.FC<Props> = ({ className, state }) => {
   return (
     <ButtonLink
       href={loginURL?.toString() ?? '#'}
-      color="primary"
       className={className}
+      disabled={loading}
     >
       Login with Spotify
     </ButtonLink>

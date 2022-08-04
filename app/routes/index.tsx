@@ -23,6 +23,7 @@ import SpotifyLoginButton from '~/components/Spotify/LoginButton'
 import HomeSection from '~/components/Base/HomeSection'
 import SavedSearches from '~/components/SavedSearches'
 import useSavedSearches from '~/hooks/useSavedSearches'
+import useLoading from '~/hooks/useLoading'
 
 export async function loader({ request }: LoaderArgs) {
   const authCookie = await auth.getCookie(request)
@@ -51,6 +52,7 @@ export async function loader({ request }: LoaderArgs) {
 export default function Index() {
   const data = useLoaderData<typeof loader>()
   const { hasSavedSearches } = useSavedSearches()
+  const { loading } = useLoading()
 
   return (
     <Layout className={clsx('mt-0')}>
@@ -72,7 +74,7 @@ export default function Index() {
                 Tired of the same old songs? <br />
                 Let us recommend something that you might like.
               </p>
-              <ButtonLink to="/random">
+              <ButtonLink to="/random" disabled={loading}>
                 <EmojiText emoji="▶️" label="play button">
                   Play me someting
                 </EmojiText>
@@ -97,7 +99,11 @@ export default function Index() {
               defaultGenres={data.topGenres}
               className={clsx('flex-1')}
             />
-            <ButtonLink to="/genre/random" className={clsx('self-start')}>
+            <ButtonLink
+              to="/genre/random"
+              className={clsx('self-start')}
+              disabled={loading}
+            >
               Random Genre
             </ButtonLink>
           </div>
@@ -112,17 +118,21 @@ export default function Index() {
               <SpotifyLoginButton state={data.auth.spotify.loginState} />
             ) : (
               <>
-                <ButtonLink to="/spotify/album">Spotify Library</ButtonLink>
-                <ButtonLink to="/spotify/currently-playing">
+                <ButtonLink to="/spotify/album" disabled={loading}>
+                  Spotify Library
+                </ButtonLink>
+                <ButtonLink to="/spotify/currently-playing" disabled={loading}>
                   Currently Playing
                 </ButtonLink>
               </>
             )}
-            <ButtonLink to="/spotify/new-releases">New Release</ButtonLink>
-            <ButtonLink to="/spotify/featured-playlist">
+            <ButtonLink to="/spotify/new-releases" disabled={loading}>
+              New Release
+            </ButtonLink>
+            <ButtonLink to="/spotify/featured-playlist" disabled={loading}>
               Featured Playlist
             </ButtonLink>
-            <ButtonLink to="/spotify/categories" color="primary">
+            <ButtonLink to="/spotify/categories" disabled={loading}>
               Playlist Categories
             </ButtonLink>
           </ButtonLinkGroupWrapper>
@@ -137,6 +147,7 @@ export default function Index() {
             toFunction={(publication) => `/publication/${publication.slug}`}
             keyFunction={(publication) => publication.slug}
             childFunction={(publication) => publication.name}
+            disabled={loading}
           />
         </HomeSection>
         {hasSavedSearches && (
