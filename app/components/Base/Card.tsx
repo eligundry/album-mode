@@ -27,6 +27,8 @@ const cardWrapperClasses = (
     'text-left',
     props.mediaZoomOnHover && [
       '[&>img]:hover:scale-105',
+      '[&:has(*:active)>img]:hover:scale-105',
+      '[&:has(*:focus)>img]:hover:scale-105',
       '[&>img]:ease-in',
       '[&>img]:duration-100',
     ],
