@@ -1,8 +1,7 @@
-import clsx from 'clsx'
+import { useState, useEffect } from 'react'
 import { useTransition } from '@remix-run/react'
-import { useEffect, useState } from 'react'
 
-const LoadingHeader: React.FC = () => {
+export default function useLoading() {
   const { state } = useTransition()
   const [showLoader, setShowLoader] = useState(false)
 
@@ -14,6 +13,7 @@ const LoadingHeader: React.FC = () => {
       timeoutID = window.setTimeout(() => setShowLoader(true), 200)
     } else {
       setShowLoader(false)
+      window.clearTimeout(timeoutID)
     }
 
     return () => {
@@ -21,21 +21,8 @@ const LoadingHeader: React.FC = () => {
     }
   }, [state])
 
-  return (
-    <progress
-      value={showLoader ? undefined : 0}
-      max={showLoader ? undefined : 100}
-      className={clsx(
-        'progress',
-        'progress-primary',
-        'align-top',
-        'rounded-none',
-        'bg-transparent',
-        '[&::-webkit-progress-bar]:bg-transparent',
-        showLoader && ['sticky', 'top-0']
-      )}
-    />
-  )
+  return {
+    loading: state === 'loading' || state === 'submitting',
+    showLoader,
+  }
 }
-
-export default LoadingHeader

@@ -1,11 +1,13 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { Container, A, Link, ButtonLink } from './index'
+import { Container, A, Link, ButtonLink, EmojiText } from './index'
 import SearchBreadcrumbs, {
   SearchBreadcrumbsProps,
 } from '~/components/SearchBreadcrumbs'
-import LoadingHeader from '~/components/LoadingHeader'
+import { DesktopLoader, MobileLoader } from '~/components/Loading'
+import useLoading from '~/hooks/useLoading'
+import { useIsMobile } from '~/hooks/useMediaQuery'
 
 interface LayoutProps {
   className?: string
@@ -17,12 +19,30 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   className,
   headerBreadcrumbs,
 }) => {
+  const { loading } = useLoading()
+  const isMobile = useIsMobile()
+
   return (
     <>
-      <header className={clsx('navbar', 'px-4', 'pt-2', 'flex', 'flex-col')}>
-        <LoadingHeader />
+      <header
+        className={clsx(
+          'navbar',
+          ['px-4', 'md:px-0'],
+          ['pt-4', 'md:pt-0'],
+          'flex',
+          'flex-col'
+        )}
+      >
+        {!isMobile && <DesktopLoader />}
         <Container
-          className={clsx('flex', 'flex-wrap', 'md:mb-4', 'align-center')}
+          className={clsx(
+            'flex',
+            'flex-wrap',
+            ['pt-0', 'md:pt-2'],
+            'sm:pb-4',
+            'sm:mb-4',
+            'align-center'
+          )}
         >
           <h1
             className={clsx(
@@ -38,16 +58,19 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               colorHover
               className={clsx('hover:text-primary', 'hover:no-underline')}
             >
-              💿 Album Mode.party 🎉
+              <EmojiText emoji="💿" label="compact disk" />
+              Album Mode.party{' '}
+              <EmojiText emoji="🎉" label="party streamer" noPadding />
             </Link>
           </h1>
           {headerBreadcrumbs && (
             <SearchBreadcrumbs
               className={clsx(
-                'order-3 md:order-2',
+                ['order-3', 'md:order-2'],
                 'flex-1',
-                'justify-between md:justify-center',
-                'basis-1/2'
+                ['justify-between', 'md:justify-center'],
+                'basis-1/2',
+                '[&>.breadcrumbs]:md:py-0'
               )}
               crumbs={headerBreadcrumbs}
             />
@@ -66,12 +89,24 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
             )}
           >
             <ButtonLink to="/library" size="sm">
-              📗 Library
+              <EmojiText
+                emoji="📗"
+                label="green book"
+                className={clsx('mt-0.5')}
+              >
+                Library
+              </EmojiText>
             </ButtonLink>
           </div>
         </Container>
       </header>
-      <main className={clsx('md:my-8', 'px-4', className)}>{children}</main>
+      <main
+        className={clsx('md:my-8', 'px-4', className)}
+        aria-live="polite"
+        aria-busy={loading}
+      >
+        {children}
+      </main>
       <Container>
         <footer
           className={clsx(
@@ -96,7 +131,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           </section>
           <section>
             <h4 className={clsx('footer-title')}>
-              Made with ❤️ by{' '}
+              Made with <EmojiText emoji="❤️" label="heart" noPadding /> by{' '}
               <A href="https://eligundry.com" target="_blank">
                 Eli Gundry
               </A>
@@ -104,6 +139,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           </section>
         </footer>
       </Container>
+      {isMobile && <MobileLoader />}
     </>
   )
 }

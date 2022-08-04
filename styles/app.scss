@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+details > summary {
+  cursor: pointer;
+}
+
 input[type="search"] {
   -webkit-appearance: none;
 }

@@ -5,6 +5,8 @@ import spotifyLib from '~/lib/spotify.server'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
+import wikipedia from '~/lib/wikipedia.server'
+import WikipediaSummary from '~/components/WikipediaSummary'
 
 export async function loader({ params, request }: LoaderArgs) {
   if (!params.slug) {
@@ -12,9 +14,15 @@ export async function loader({ params, request }: LoaderArgs) {
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
+  const album = await spotify.getRandomAlbumForGroupSlug(params.slug)
+  const wiki = await wikipedia.getSummaryForAlbum({
+    album: album.name,
+    artist: album.artists[0].name,
+  })
 
   return json({
-    album: await spotify.getRandomAlbumForGroupSlug(params.slug),
+    album,
+    wiki,
     group: params.slug,
   })
 }
@@ -22,7 +30,7 @@ export async function loader({ params, request }: LoaderArgs) {
 export const ErrorBoundary = AlbumErrorBoundary
 
 export default function GroupBySlug() {
-  const { album, group } = useLoaderData<typeof loader>()
+  const { album, group, wiki } = useLoaderData<typeof loader>()
 
   if (!album) {
     return null
@@ -30,7 +38,7 @@ export default function GroupBySlug() {
 
   return (
     <Layout headerBreadcrumbs={['Group', group]}>
-      <Album album={album} />
+      <Album album={album} footer={<WikipediaSummary summary={wiki} />} />
     </Layout>
   )
 }

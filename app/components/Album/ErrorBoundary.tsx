@@ -8,6 +8,7 @@ import {
   Typography,
   ButtonLink,
   Container,
+  EmojiText,
 } from '~/components/Base'
 
 const AlbumErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
@@ -22,13 +23,18 @@ const AlbumErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
             We seemed to have run into an error. We are working on fixing it
             now. You should refresh the page to fix this issue.
           </Typography>
-          <pre className={clsx('whitespace-pre-line')}>
-            {error.name !== 'Error' && error.name + '\n'}
-            {error.message + '\n'}
-            {error.stack}
-          </pre>
-          <ButtonLink color="info" to={currentPath} className={clsx('mt-2')}>
-            🔄 &nbsp; Retry
+          <details className={clsx('mb-6')}>
+            <summary>Detailed error message</summary>
+            <pre className={clsx('whitespace-pre-line')}>
+              {error.name !== 'Error' && error.name + '\n'}
+              {error.message + '\n'}
+              {error.stack}
+            </pre>
+          </details>
+          <ButtonLink to={currentPath} className={clsx('mt-2')}>
+            <EmojiText emoji="🔄" label="refresh icon">
+              Retry
+            </EmojiText>
           </ButtonLink>
         </div>
       </Container>

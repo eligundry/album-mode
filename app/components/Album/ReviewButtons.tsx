@@ -3,14 +3,15 @@ import Confetti from 'react-confetti'
 import useWindowSize from 'react-use/lib/useWindowSize'
 import clsx from 'clsx'
 
-import { ButtonLink, Heading } from '~/components/Base'
+import { ButtonLink, Heading, EmojiText } from '~/components/Base'
 import useRating from '~/hooks/useRating'
 import useCurrentPath from '~/hooks/useCurrentPath'
-import { LibraryItem } from '~/lib/types/library.server'
+import { LibraryItem } from '~/lib/types/library'
 import useGTM from '~/hooks/useGTM'
 
 export interface ReviewButtonProps {
   item: LibraryItem
+  className?: string
 }
 
 const getPlayURL = (item: LibraryItem) => {
@@ -69,15 +70,25 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
               positiveReview(item)
               setParty(true)
             }}
+            replace={true}
           >
-            🙌 &nbsp; Great!
+            <EmojiText emoji="🙌" label="raised hands">
+              Great!
+            </EmojiText>
           </ButtonLink>
           <ButtonLink
             to={refreshURL}
             onClick={() => negativeReview(item)}
             color="danger"
+            replace={true}
           >
-            👎 &nbsp; Nope!
+            <EmojiText
+              emoji="👎"
+              label="thumbs down"
+              className={clsx('mt-1.5')}
+            >
+              Nope!
+            </EmojiText>
           </ButtonLink>
         </div>
         <ButtonLink
@@ -92,7 +103,9 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
             })
           }
         >
-          ▶️ Play
+          <EmojiText emoji="▶️" label="play button">
+            Play
+          </EmojiText>
         </ButtonLink>
       </div>
       {typeof window !== 'undefined' && (

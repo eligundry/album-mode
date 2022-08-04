@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 
 import useLibrary from '~/hooks/useLibrary'
-import type { SavedLibraryItem } from '~/lib/types/library.server'
+import type { SavedLibraryItem } from '~/lib/types/library'
 import BandcampLibraryCard from './Bandcamp'
 import SpotifyLibraryCard from './Spotify'
 
