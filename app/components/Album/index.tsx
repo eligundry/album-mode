@@ -29,15 +29,19 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
       <AlbumWrapper
         className={clsx('sm:items-stretch')}
         embed={
-          <div className={clsx()}>
+          <div>
             <SpotifyEmbed
               wide={isMobile}
               className={clsx('mx-auto', 'sm:h-full')}
               link={albumURL}
-              style={{
-                maxWidth: '300px',
-                minHeight: '380px',
-              }}
+              style={
+                !isMobile
+                  ? {
+                      maxWidth: '300px',
+                      minHeight: '380px',
+                    }
+                  : undefined
+              }
             />
           </div>
         }
