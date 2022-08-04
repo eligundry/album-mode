@@ -121,7 +121,6 @@ export class Spotify {
     const client = await this.getClient()
 
     const firstPage = await client.search(searchTerm, ['album'], {
-      limit: 1,
       market: this.country,
     })
 
@@ -134,8 +133,8 @@ export class Spotify {
       Math.min(firstPage.body.albums.total - 1, poolLimit)
     )
 
-    if (albumOffsetToFetch === 0) {
-      return firstPage.body.albums.items[0]
+    if (albumOffsetToFetch < firstPage.body.albums.items.length - 1) {
+      return firstPage.body.albums.items[albumOffsetToFetch]
     }
 
     const resp = await client.search(searchTerm, ['album'], {
@@ -179,14 +178,13 @@ export class Spotify {
   getRandomAlbumForArtistByID = async (artistID: string) => {
     const client = await this.getClient()
     const firstPageOfAlbums = await client.getArtistAlbums(artistID, {
-      limit: 1,
       include_groups: 'album',
       country: this.country,
     })
     const offset = random(0, Math.max(firstPageOfAlbums.body.total - 1, 0))
 
-    if (offset === 0) {
-      return firstPageOfAlbums.body.items[0]
+    if (offset < firstPageOfAlbums.body.items.length - 1) {
+      return firstPageOfAlbums.body.items[offset]
     }
 
     return client
@@ -203,11 +201,9 @@ export class Spotify {
     genre: string
   ): Promise<SpotifyApi.AlbumObjectSimplified> => {
     // First, we must fetch a random artist in this genre
-    const limit = 1
     const searchTerm = `genre:"${genre}"`
     const client = await this.getClient()
     const firstPageOfArtists = await client.search(searchTerm, ['artist'], {
-      limit,
       market: this.country,
     })
 
@@ -220,9 +216,10 @@ export class Spotify {
       Math.min(firstPageOfArtists.body.artists.total - 1, 300)
     )
 
-    let artistID = firstPageOfArtists.body.artists.items[0].id
+    let artistID =
+      firstPageOfArtists.body.artists.items[artistOffsetToFetch]?.id
 
-    if (artistOffsetToFetch > 0) {
+    if (!artistID) {
       const artist = await client
         .search(searchTerm, ['artist'], {
           limit: 1,
@@ -252,7 +249,7 @@ export class Spotify {
       return this.getRandomAlbumByGenre(genre)
     }
 
-    return sample(albums) as SpotifyApi.AlbumObjectSimplified
+    return sample(albums) ?? albums[0]
   }
 
   getRandomAlbumForRelatedArtist = async (artistName: string) => {
@@ -346,14 +343,12 @@ export class Spotify {
 
     const client = await this.getClient()
     const firstPage = await client.getMySavedAlbums({
-      limit: 1,
       market: this.country,
     })
+    const targetOffset = random(0, firstPage.body.total - 1)
 
-    const targetOffset = random(0, firstPage.body.total)
-
-    if (targetOffset === 0) {
-      return firstPage.body.items[0].album
+    if (targetOffset < firstPage.body.items.length - 1) {
+      return firstPage.body.items[targetOffset].album
     }
 
     return client
@@ -411,19 +406,20 @@ export class Spotify {
     const client = await this.getClient()
     let resp = await client.getFeaturedPlaylists({
       country: this.country,
-      limit: 1,
-      offset: random(0, 49),
     })
+    const offset = random(0, resp.body.playlists.total - 1)
 
-    if (resp.body.playlists.items.length === 0) {
+    if (offset > resp.body.playlists.items.length - 1) {
       resp = await client.getFeaturedPlaylists({
         country: this.country,
         limit: 1,
-        offset: random(0, resp.body.playlists.total - 1),
+        offset,
       })
+
+      return resp.body.playlists.items[0]
     }
 
-    return resp.body.playlists.items[0]
+    return resp.body.playlists.items[offset]
   }
 
   getCategories = async () => {
@@ -455,12 +451,11 @@ export class Spotify {
     const client = await this.getClient()
     const firstPage = await client.getPlaylistsForCategory(categoryID, {
       country: this.country,
-      limit: 1,
     })
     const playlistIdx = random(0, firstPage.body.playlists.total - 1)
 
-    if (playlistIdx === 0) {
-      return firstPage.body.playlists.items[0]
+    if (playlistIdx < firstPage.body.playlists.items.length - 1) {
+      return firstPage.body.playlists.items[playlistIdx]
     }
 
     const playlistResp = await client.getPlaylistsForCategory(categoryID, {
