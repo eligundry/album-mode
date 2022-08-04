@@ -24,10 +24,25 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
 
   return (
     <>
-      <header className={clsx('navbar', 'px-4', 'pt-2', 'flex', 'flex-col')}>
+      <header
+        className={clsx(
+          'navbar',
+          ['px-4', 'md:px-0'],
+          ['pt-4', 'md:pt-0'],
+          'flex',
+          'flex-col'
+        )}
+      >
         {!isMobile && <DesktopLoader />}
         <Container
-          className={clsx('flex', 'flex-wrap', 'md:mb-4', 'align-center')}
+          className={clsx(
+            'flex',
+            'flex-wrap',
+            ['pt-0', 'md:pt-2'],
+            'sm:pb-4',
+            'sm:mb-4',
+            'align-center'
+          )}
         >
           <h1
             className={clsx(
@@ -51,10 +66,11 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           {headerBreadcrumbs && (
             <SearchBreadcrumbs
               className={clsx(
-                'order-3 md:order-2',
+                ['order-3', 'md:order-2'],
                 'flex-1',
-                'justify-between md:justify-center',
-                'basis-1/2'
+                ['justify-between', 'md:justify-center'],
+                'basis-1/2',
+                '[&>.breadcrumbs]:md:py-0'
               )}
               crumbs={headerBreadcrumbs}
             />
