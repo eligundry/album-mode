@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import { Container, A, Link, ButtonLink } from './index'
+import { Container, A, Link, ButtonLink, EmojiText } from './index'
 import SearchBreadcrumbs, {
   SearchBreadcrumbsProps,
 } from '~/components/SearchBreadcrumbs'
@@ -38,7 +38,9 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               colorHover
               className={clsx('hover:text-primary', 'hover:no-underline')}
             >
-              💿 Album Mode.party 🎉
+              <EmojiText emoji="💿" label="compact disk" />
+              Album Mode.party{' '}
+              <EmojiText emoji="🎉" label="party streamer" noPadding />
             </Link>
           </h1>
           {headerBreadcrumbs && (
@@ -66,7 +68,13 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
             )}
           >
             <ButtonLink to="/library" size="sm">
-              📗 Library
+              <EmojiText
+                emoji="📗"
+                label="green book"
+                className={clsx('mt-0.5')}
+              >
+                Library
+              </EmojiText>
             </ButtonLink>
           </div>
         </Container>
@@ -96,7 +104,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           </section>
           <section>
             <h4 className={clsx('footer-title')}>
-              Made with ❤️ by{' '}
+              Made with <EmojiText emoji="❤️" label="heart" noPadding /> by{' '}
               <A href="https://eligundry.com" target="_blank">
                 Eli Gundry
               </A>

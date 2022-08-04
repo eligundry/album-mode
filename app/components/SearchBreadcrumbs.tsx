@@ -2,7 +2,7 @@ import clsx from 'clsx'
 
 import useSavedSearches from '~/hooks/useSavedSearches'
 import { useIsMobile } from '~/hooks/useMediaQuery'
-import { Button } from '~/components/Base'
+import { Button, EmojiText } from '~/components/Base'
 
 export interface SearchBreadcrumbsProps {
   crumbs: (string | [string, React.ReactNode])[]
@@ -17,15 +17,7 @@ const SearchBreadcrumbs: React.FC<SearchBreadcrumbsProps> = ({
   const { saveSearch, saveable, showSaveButton } = useSavedSearches()
 
   return (
-    <nav
-      className={clsx(
-        'flex',
-        'flex-row',
-        // 'justify-end',
-        'items-center',
-        className
-      )}
-    >
+    <nav className={clsx('flex', 'flex-row', 'items-center', className)}>
       <div
         className={clsx(
           'breadcrumbs',
@@ -59,7 +51,9 @@ const SearchBreadcrumbs: React.FC<SearchBreadcrumbsProps> = ({
           }
           disabled={!saveable}
         >
-          💾 {saveable ? 'Save Search' : 'Saved'}
+          <EmojiText emoji="💾" label="floppy disk">
+            {saveable ? 'Save Search' : 'Saved'}
+          </EmojiText>
         </Button>
       )}
     </nav>

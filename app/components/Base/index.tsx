@@ -3,6 +3,7 @@ import { Link as RemixLink, LinkProps } from '@remix-run/react'
 import clsx from 'clsx'
 
 export { default as Layout } from './Layout'
+export { default as EmojiText } from './EmojiText'
 
 export interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
   level: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'

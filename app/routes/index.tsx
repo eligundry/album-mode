@@ -6,7 +6,14 @@ import clsx from 'clsx'
 import auth from '~/lib/auth.server'
 import db from '~/lib/db.server'
 import spotifyLib from '~/lib/spotify.server'
-import { Heading, Layout, Container, Link, ButtonLink } from '~/components/Base'
+import {
+  Heading,
+  Layout,
+  Container,
+  Link,
+  ButtonLink,
+  EmojiText,
+} from '~/components/Base'
 import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 import ButtonLinkGroup, {
@@ -65,7 +72,11 @@ export default function Index() {
                 Tired of the same old songs? <br />
                 Let us recommend something that you might like.
               </p>
-              <ButtonLink to="/random">▶️ Play me someting</ButtonLink>
+              <ButtonLink to="/random">
+                <EmojiText emoji="▶️" label="play button">
+                  Play me someting
+                </EmojiText>
+              </ButtonLink>
             </div>
           </div>
         </div>
