@@ -6,6 +6,7 @@ import SearchBreadcrumbs, {
   SearchBreadcrumbsProps,
 } from '~/components/SearchBreadcrumbs'
 import LoadingHeader from '~/components/LoadingHeader'
+import useLoading from '~/hooks/useLoading'
 
 interface LayoutProps {
   className?: string
@@ -17,6 +18,8 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   className,
   headerBreadcrumbs,
 }) => {
+  const { loading } = useLoading()
+
   return (
     <>
       <header className={clsx('navbar', 'px-4', 'pt-2', 'flex', 'flex-col')}>
@@ -79,7 +82,13 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           </div>
         </Container>
       </header>
-      <main className={clsx('md:my-8', 'px-4', className)}>{children}</main>
+      <main
+        className={clsx('md:my-8', 'px-4', className)}
+        aria-live="polite"
+        aria-busy={loading}
+      >
+        {children}
+      </main>
       <Container>
         <footer
           className={clsx(

@@ -1,25 +1,9 @@
 import clsx from 'clsx'
-import { useTransition } from '@remix-run/react'
-import { useEffect, useState } from 'react'
+
+import useLoading from '~/hooks/useLoading'
 
 const LoadingHeader: React.FC = () => {
-  const { state } = useTransition()
-  const [showLoader, setShowLoader] = useState(false)
-
-  // Only show the loader if a request takes more than 200ms
-  useEffect(() => {
-    let timeoutID: number | undefined
-
-    if (state === 'loading' || state === 'submitting') {
-      timeoutID = window.setTimeout(() => setShowLoader(true), 200)
-    } else {
-      setShowLoader(false)
-    }
-
-    return () => {
-      window.clearTimeout(timeoutID)
-    }
-  }, [state])
+  const { showLoader } = useLoading()
 
   return (
     <progress
