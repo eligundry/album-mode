@@ -2,7 +2,7 @@ import clsx from 'clsx'
 
 import useLoading from '~/hooks/useLoading'
 
-const LoadingHeader: React.FC = () => {
+const DesktopLoader: React.FC = () => {
   const { showLoader } = useLoading()
 
   return (
@@ -22,4 +22,4 @@ const LoadingHeader: React.FC = () => {
   )
 }
 
-export default LoadingHeader
+export default DesktopLoader

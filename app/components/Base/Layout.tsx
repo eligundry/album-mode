@@ -5,8 +5,9 @@ import { Container, A, Link, ButtonLink, EmojiText } from './index'
 import SearchBreadcrumbs, {
   SearchBreadcrumbsProps,
 } from '~/components/SearchBreadcrumbs'
-import LoadingHeader from '~/components/LoadingHeader'
+import { DesktopLoader, MobileLoader } from '~/components/Loading'
 import useLoading from '~/hooks/useLoading'
+import { useIsMobile } from '~/hooks/useMediaQuery'
 
 interface LayoutProps {
   className?: string
@@ -19,11 +20,12 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   headerBreadcrumbs,
 }) => {
   const { loading } = useLoading()
+  const isMobile = useIsMobile()
 
   return (
     <>
       <header className={clsx('navbar', 'px-4', 'pt-2', 'flex', 'flex-col')}>
-        <LoadingHeader />
+        {!isMobile && <DesktopLoader />}
         <Container
           className={clsx('flex', 'flex-wrap', 'md:mb-4', 'align-center')}
         >
@@ -121,6 +123,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           </section>
         </footer>
       </Container>
+      {isMobile && <MobileLoader />}
     </>
   )
 }
