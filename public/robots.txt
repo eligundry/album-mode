@@ -2,12 +2,14 @@ User-agent: *
 Disallow: /group/*
 Disallow: /publication/*
 Disallow: /label/*
-Disallow: /related-artist/*
+Disallow: /related-artist*
 Disallow: /spotify/*
 Disallow: /reddit/*
 Disallow: /genre*
 Disallow: /library*
 Disallow: /saved-searches*
+Disallow: /random*
+Disallow: /twitter/*
 Allow: /
 
 Host: https://album-mode.party
