@@ -12,13 +12,13 @@ interface Props {
 const WikipediaSummary: React.FC<Props> = ({ summary }) => {
   const isMobile = useIsMobile()
 
-  if (!summary) {
+  if (!summary || !summary.content_urls) {
     return null
   }
 
   return (
     <div className={clsx('wikipedia-summary')}>
-      <p dangerouslySetInnerHTML={{ __html: summary.extract_html }} />
+      <div dangerouslySetInnerHTML={{ __html: summary.extract_html }} />
       <p>
         <A
           href={summary.content_urls[isMobile ? 'mobile' : 'desktop'].page}

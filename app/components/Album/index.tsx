@@ -1,7 +1,6 @@
 import React from 'react'
 import SpotifyEmbed from 'react-spotify-embed'
 import clsx from 'clsx'
-import useMeasure from 'react-use/lib/useMeasure'
 
 import AlbumWrapper from './Wrapper'
 import { Container, A } from '~/components/Base'
@@ -19,7 +18,6 @@ const linkParams = new URLSearchParams({
 })
 
 const Album: React.FC<NewProps> = ({ album, footer }) => {
-  const [wrapperRef, { height }] = useMeasure()
   const isMobile = useIsMobile()
   const sendEvent = useGTM()
   const albumURL = album.external_urls.spotify
@@ -29,14 +27,19 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
   return (
     <Container center>
       <AlbumWrapper
-        ref={wrapperRef}
+        className={clsx('sm:items-stretch')}
         embed={
-          <SpotifyEmbed
-            wide={isMobile}
-            className={clsx('mx-auto')}
-            link={albumURL}
-            height={!isMobile ? Math.max(height, 380) : undefined}
-          />
+          <div className={clsx()}>
+            <SpotifyEmbed
+              wide={isMobile}
+              className={clsx('mx-auto', 'sm:h-full')}
+              link={albumURL}
+              style={{
+                maxWidth: '300px',
+                minHeight: '380px',
+              }}
+            />
+          </div>
         }
         title={
           <>

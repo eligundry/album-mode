@@ -11,6 +11,7 @@ import useGTM from '~/hooks/useGTM'
 
 export interface ReviewButtonProps {
   item: LibraryItem
+  className?: string
 }
 
 const getPlayURL = (item: LibraryItem) => {

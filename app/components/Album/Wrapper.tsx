@@ -10,10 +10,11 @@ interface Props {
   title: React.ReactNode
   footer?: React.ReactNode
   reviewProps: ReviewButtonProps
+  className?: string
 }
 
 const AlbumWrapper = React.forwardRef<any, Props>(
-  ({ embed, title, footer, reviewProps }, ref) => {
+  ({ embed, title, footer, reviewProps, className }, ref) => {
     const isMobile = useIsMobile()
     return (
       <Card
@@ -22,14 +23,20 @@ const AlbumWrapper = React.forwardRef<any, Props>(
           'sm:card-side',
           'album-card-wrapper',
           'w-full',
-          'sm:w-3/4'
+          'sm:w-3/4',
+          className
         )}
         media={embed}
         title={title}
         body={footer}
         actionsClassName={clsx('flex-col')}
-        actions={<ReviewButtons {...reviewProps} />}
-        style={isMobile ? { height: 'calc(100vh - 150px)' } : undefined}
+        actions={
+          <ReviewButtons
+            className={clsx(isMobile && ['sticky', 'bottom-0'])}
+            {...reviewProps}
+          />
+        }
+        // style={isMobile ? { height: 'calc(100vh - 150px)' } : undefined}
         ref={ref}
       />
     )
