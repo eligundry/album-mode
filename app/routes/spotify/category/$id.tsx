@@ -2,6 +2,7 @@ import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 import spotifyLib from '~/lib/spotify.server'
+import lastPresented from '~/lib/lastPresented.server'
 import { Layout, Link } from '~/components/Base'
 import Playlist from '~/components/Album/Playlist'
 import PlaylistErrorBoundary from '~/components/Album/ErrorBoundary'
@@ -24,7 +25,11 @@ export async function loader({ params, request }: LoaderArgs) {
     category: await spotify.getCategory(categoryID),
   }
 
-  return json(data)
+  return json(data, {
+    headers: {
+      'Set-Cookie': await lastPresented.set(request, data.playlist.id),
+    },
+  })
 }
 
 export const ErrorBoundary = PlaylistErrorBoundary

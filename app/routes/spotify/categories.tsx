@@ -25,12 +25,11 @@ export default function SpotifyCategories() {
     <Layout>
       <Container>
         <Heading level="h2">Playlist Categories</Heading>
-        <div className={clsx('flex', 'flex-wrap', 'flex-row', 'gap-4')}>
+        <div className={clsx('grid', 'grid-cols-2', 'sm:grid-cols-4', 'gap-4')}>
           {categories.map((category) => (
             <CardLink
               to={`/spotify/category/${category.id}`}
               key={category.id}
-              className={clsx('w-44')}
               mediaZoomOnHover
               media={
                 <img

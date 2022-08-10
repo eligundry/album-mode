@@ -6,6 +6,7 @@ import clsx from 'clsx'
 import auth from '~/lib/auth.server'
 import db from '~/lib/db.server'
 import spotifyLib from '~/lib/spotify.server'
+import lastPresented from '~/lib/lastPresented.server'
 import {
   Heading,
   Layout,
@@ -42,11 +43,11 @@ export async function loader({ request }: LoaderArgs) {
     },
   })
 
-  return json(data, {
-    headers: {
-      'Set-Cookie': await auth.cookieFactory.serialize(authCookie),
-    },
-  })
+  const headers = new Headers()
+  headers.append('Set-Cookie', await auth.cookieFactory.serialize(authCookie))
+  headers.append('Set-Cookie', await lastPresented.clearCookie())
+
+  return json(data, { headers })
 }
 
 export default function Index() {
