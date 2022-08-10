@@ -12,10 +12,18 @@ export const meta: MetaFunction = () => ({
 
 export async function loader({ request }: LoaderArgs) {
   const spotify = await spotifyLib.initializeFromRequest(request)
+  const cacheLifetime = 60 * 60 * 24 * 7
 
-  return json({
-    categories: await spotify.getCategories(),
-  })
+  return json(
+    {
+      categories: await spotify.getCategories(),
+    },
+    {
+      headers: {
+        'Cache-Control': `public, max-age=${cacheLifetime}, s-maxage=${cacheLifetime}`,
+      },
+    }
+  )
 }
 
 export default function SpotifyCategories() {
