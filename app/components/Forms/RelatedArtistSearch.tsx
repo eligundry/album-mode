@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Form } from '@remix-run/react'
+import { Form, useSubmit } from '@remix-run/react'
 import clsx from 'clsx'
 import useAsync from 'react-use/lib/useAsync'
 
@@ -24,6 +24,7 @@ const searchAritsts = async (artist?: string): Promise<SpotifyArtist[]> => {
 }
 
 const RelatedArtistSearchForm: React.FC<Props> = ({ className }) => {
+  const submit = useSubmit()
   const formRef = useRef<HTMLFormElement>(null)
   const { value: defaultArtists } = useAsync(searchAritsts)
 
@@ -56,7 +57,7 @@ const RelatedArtistSearchForm: React.FC<Props> = ({ className }) => {
           )
         }}
         className={className}
-        onChange={() => setTimeout(() => formRef.current?.submit(), 10)}
+        onChange={() => setTimeout(() => submit(formRef.current), 5)}
       />
     </Form>
   )
