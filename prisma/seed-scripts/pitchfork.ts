@@ -24,7 +24,7 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   }
 
   const searchParams = new URLSearchParams()
-  searchParams.set('utm_campaign', 'album-mode.party')
+  searchParams.set('utm_source', 'album-mode.party')
   searchParams.set('utm_term', `p4k-${slug}`)
 
   // Since we have bootstrapped all the older albums, limit the update jobs to
@@ -53,7 +53,9 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
           data: {
             publicationID: publication.id,
             album: album.seoTitle || album.title,
-            slug: `${album.url}?${searchParams.toString()}`,
+            slug: `https://pitchfork.com${
+              album.url
+            }?${searchParams.toString()}`,
             artist: album.artists?.[0]?.display_name || '',
           },
         })
