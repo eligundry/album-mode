@@ -39,8 +39,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
             'flex',
             'flex-wrap',
             ['pt-0', 'md:pt-2'],
-            'sm:pb-4',
-            'sm:mb-4',
             'align-center'
           )}
         >
@@ -78,7 +76,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           <div
             className={clsx(
               'navbar-end',
-              // 'flex-none',
               'flex',
               'justify-items-end',
               'align-center',
@@ -101,7 +98,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
         </Container>
       </header>
       <main
-        className={clsx('md:my-8', 'px-4', className)}
+        className={clsx('md:my-4', 'px-4', className)}
         aria-live="polite"
         aria-busy={loading}
       >

@@ -3,6 +3,7 @@ import { useLoaderData } from '@remix-run/react'
 
 import auth from '~/lib/auth.server'
 import spotifyLib from '~/lib/spotify.server'
+import lastPresented from '~/lib/lastPresented.server'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
@@ -26,6 +27,9 @@ export async function loader({ request }: LoaderArgs) {
     album: album.name,
     artist: album.artists[0].name,
   })
+  const headers = new Headers()
+  headers.append('Set-Cookie', await auth.cookieFactory.serialize(cookie))
+  headers.append('Set-Cookie', await lastPresented.set(request, album.id))
 
   return json(
     {
@@ -33,11 +37,7 @@ export async function loader({ request }: LoaderArgs) {
       currentlyPlaying,
       wiki,
     },
-    {
-      headers: {
-        'Set-Cookie': await auth.cookieFactory.serialize(cookie),
-      },
-    }
+    { headers }
   )
 }
 

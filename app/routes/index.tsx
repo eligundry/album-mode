@@ -5,7 +5,7 @@ import clsx from 'clsx'
 
 import auth from '~/lib/auth.server'
 import db from '~/lib/db.server'
-import spotifyLib from '~/lib/spotify.server'
+import lastPresented from '~/lib/lastPresented.server'
 import {
   Heading,
   Layout,
@@ -27,12 +27,9 @@ import useLoading from '~/hooks/useLoading'
 
 export async function loader({ request }: LoaderArgs) {
   const authCookie = await auth.getCookie(request)
-  const spotify = await spotifyLib.initializeFromRequest(request)
 
   const data = await promiseHash({
     publications: db.getPublications(),
-    topGenres: db.getTopGenres(),
-    topArtists: spotify.getTopArtists(),
     auth: {
       spotify: {
         loggedIn: 'accessToken' in authCookie.spotify,
@@ -42,11 +39,11 @@ export async function loader({ request }: LoaderArgs) {
     },
   })
 
-  return json(data, {
-    headers: {
-      'Set-Cookie': await auth.cookieFactory.serialize(authCookie),
-    },
-  })
+  const headers = new Headers()
+  headers.append('Set-Cookie', await auth.cookieFactory.serialize(authCookie))
+  headers.append('Set-Cookie', await lastPresented.clearCookie())
+
+  return json(data, { headers })
 }
 
 export default function Index() {
@@ -87,7 +84,7 @@ export default function Index() {
           subtitle="Want an album from an artist similar to one you like? What's their name?"
           className="artist"
         >
-          <RelatedArtistSearchForm defaultArtists={data.topArtists} />
+          <RelatedArtistSearchForm />
         </HomeSection>
         <HomeSection
           title={<Link to="/genres">Genre</Link>}
@@ -95,10 +92,7 @@ export default function Index() {
           className="genre"
         >
           <div className={clsx('flex', 'flex-col', 'sm:flex-row', 'gap-2')}>
-            <GenreSearchForm
-              defaultGenres={data.topGenres}
-              className={clsx('flex-1')}
-            />
+            <GenreSearchForm className={clsx('flex-1')} />
             <ButtonLink
               to="/genre/random"
               className={clsx('self-start')}

@@ -77,9 +77,17 @@ const getRandomArtistFromGroupSlug = async (groupSlug: string) =>
     )
     .then((res) => res?.[0])
 
+interface GetRandomAlbumForPublication {
+  publicationSlug: string
+  exceptID?: number | string | null
+}
+
 // @TODO We can't natively search by random using the query builder
 // https://github.com/prisma/prisma/discussions/5886
-const getRandomAlbumForPublication = async (publicationSlug: string) =>
+const getRandomAlbumForPublication = async ({
+  publicationSlug,
+  exceptID = 0,
+}: GetRandomAlbumForPublication) =>
   prisma
     .$queryRaw<
       (Pick<AlbumReviewedByPublication, 'id' | 'artist' | 'album' | 'slug'> & {
@@ -104,7 +112,10 @@ const getRandomAlbumForPublication = async (publicationSlug: string) =>
             publication.slug = ${publicationSlug}
             AND albumReviewedByPublication.publicationID = publication.id
           )
-          WHERE albumReviewedByPublication.resolvable = true
+          WHERE (
+            albumReviewedByPublication.resolvable = true
+            AND albumReviewedByPublication.id != ${Number(exceptID ?? 0)}
+          )
           ORDER BY random()
           LIMIT 1
         )
@@ -113,7 +124,13 @@ const getRandomAlbumForPublication = async (publicationSlug: string) =>
     )
     .then((res) => res?.[0])
 
-const getRandomBandcampDailyAlbum = async () =>
+interface GetRandomBandcampDailyAlbum {
+  exceptID?: string | number
+}
+
+const getRandomBandcampDailyAlbum = async ({
+  exceptID = 0,
+}: GetRandomBandcampDailyAlbum) =>
   prisma
     .$queryRaw<Omit<BandcampDailyAlbum, 'createdAt' | 'updatedAt'>[]>(
       Prisma.sql`
@@ -129,6 +146,7 @@ const getRandomBandcampDailyAlbum = async () =>
         WHERE a.albumID = (
           SELECT BandcampDailyAlbum.albumID
           FROM BandcampDailyAlbum
+          WHERE BandcampDailyAlbum.albumID != ${Number(exceptID)}
           ORDER BY random()
           LIMIT 1
         )

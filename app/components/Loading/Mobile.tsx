@@ -18,7 +18,7 @@ const MobileLoader: React.FC = () => {
         'btn-square',
         'btn-primary',
         'loading',
-        'sticky',
+        'fixed',
         'bottom-4',
         'pointer-events-none'
       )}

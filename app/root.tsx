@@ -11,6 +11,7 @@ import {
 import { withSentry } from '@sentry/remix'
 
 import Tracking from '~/components/Tracking'
+import LoadingProvider from '~/context/Loading'
 import { useDarkMode } from '~/hooks/useMediaQuery'
 import { useDaisyPallete } from '~/hooks/useTailwindTheme'
 import styles from './styles/app.css'
@@ -33,6 +34,10 @@ export const links: LinksFunction = () => [
   {
     rel: 'icon',
     href: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💿</text></svg>',
+  },
+  {
+    rel: 'shortcut icon',
+    href: '/favicon.png',
   },
 ]
 
@@ -60,7 +65,9 @@ function App() {
         <meta name="theme-color" content={pallete['base-100']} />
       </head>
       <body>
-        <Outlet />
+        <LoadingProvider>
+          <Outlet />
+        </LoadingProvider>
         <ScrollRestoration />
         <script
           dangerouslySetInnerHTML={{

@@ -3,6 +3,7 @@ import { useLoaderData } from '@remix-run/react'
 
 import db from '~/lib/db.server'
 import spotifyLib from '~/lib/spotify.server'
+import lastPresented from '~/lib/lastPresented.server'
 import { Layout, A, Heading } from '~/components/Base'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
@@ -11,31 +12,37 @@ import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
 
-const searchParams = new URLSearchParams({
-  utm_campaign: 'album-mode.party',
-  utm_term: 'publication',
-})
-
 export async function loader({ params, request }: LoaderArgs) {
   const slug = params.slug
+  const headers = new Headers()
+  const lastPresentedID = await lastPresented.getLastPresentedID(request)
 
   if (!slug) {
     throw new Error('slug must be provided in URL')
   }
 
   if (slug === 'bandcamp-daily') {
-    const album = await db.getRandomBandcampDailyAlbum()
+    const album = await db.getRandomBandcampDailyAlbum({
+      exceptID: lastPresentedID ?? undefined,
+    })
     const wiki = await wikipedia.getSummaryForAlbum({
       album: album.album,
       artist: album.artist,
     })
+    headers.set(
+      'Set-Cookie',
+      await lastPresented.set(request, album.albumID.toString())
+    )
 
-    return json({
-      slug: 'bandcamp-daily',
-      album,
-      wiki,
-      type: 'bandcamp',
-    })
+    return json(
+      {
+        slug: 'bandcamp-daily',
+        album,
+        wiki,
+        type: 'bandcamp',
+      },
+      { headers }
+    )
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
@@ -44,14 +51,21 @@ export async function loader({ params, request }: LoaderArgs) {
     album: album.name,
     artist: album.artists[0].name,
   })
+  headers.set(
+    'Set-Cookie',
+    await lastPresented.set(request, review.id.toString())
+  )
 
-  return json({
-    slug,
-    review,
-    album,
-    wiki,
-    type: 'spotify',
-  })
+  return json(
+    {
+      slug,
+      review,
+      album,
+      wiki,
+      type: 'spotify',
+    },
+    { headers }
+  )
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
@@ -60,6 +74,12 @@ export default function PublicationBySlug() {
   const data = useLoaderData<typeof loader>()
 
   if (data.type === 'bandcamp') {
+    const searchParams = new URLSearchParams({
+      utm_source: 'album-mode.party',
+      utm_campaign: 'publication',
+      utm_term: 'bandcamp-daily',
+    })
+
     return (
       <Layout
         headerBreadcrumbs={[
@@ -116,7 +136,7 @@ export default function PublicationBySlug() {
     breadcrumbs.push([
       data.review.publicationName,
       <A
-        href={`https://pitchfork.com?${searchParams.toString()}`}
+        href={`https://pitchfork.com?${url.searchParams.toString()}`}
         target="_blank"
       >
         {data.review.publicationName}
@@ -137,7 +157,7 @@ export default function PublicationBySlug() {
     breadcrumbs.push([
       data.review.publicationName,
       <A
-        href={`https://www.theneedledrop.com/?${searchParams.toString()}`}
+        href={`https://www.theneedledrop.com/?${url.searchParams.toString()}`}
         target="_blank"
       >
         {data.review.publicationName}

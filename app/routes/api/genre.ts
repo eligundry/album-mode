@@ -5,12 +5,12 @@ import db from '~/lib/db.server'
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
   const genre = url.searchParams.get('genre')
+  const genres = await (!genre ? db.getTopGenres() : db.searchGenres(genre))
+  const cacheLifetime = 60 * 60 * 24
 
-  if (!genre) {
-    throw json({ error: 'genre must be provided in the query parameters' }, 400)
-  }
-
-  const genres = await db.searchGenres(genre)
-
-  return json(genres)
+  return json(genres, {
+    headers: {
+      'Cache-Control': `public, max-age=${cacheLifetime}, s-maxage=${cacheLifetime}`,
+    },
+  })
 }
