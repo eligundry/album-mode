@@ -73,7 +73,7 @@ const needleDrop = async () => {
 
         const [artist, album] = artistAlbum.split(' - ')
         const uniqueURL = new URL(reviewURL)
-        uniqueURL.searchParams.set('utm_campaign', 'album-mode.party')
+        uniqueURL.searchParams.set('utm_source', 'album-mode.party')
         uniqueURL.searchParams.set('utm_term', kebabCase(artistAlbum))
 
         albumArtistMap[album] = {
