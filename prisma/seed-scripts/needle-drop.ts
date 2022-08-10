@@ -110,7 +110,7 @@ const needleDrop = async () => {
         data: {
           publicationID: publication.id,
           album: album,
-          aritst: artist,
+          artist: artist,
           slug: reviewURL,
         },
       })

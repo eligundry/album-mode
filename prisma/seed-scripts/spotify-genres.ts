@@ -15,7 +15,7 @@ const main = async () => {
 
     await Promise.all(
       genres.map((genre) =>
-        txn.spotifyGenere
+        txn.spotifyGenre
           .create({
             data: {
               name: genre,

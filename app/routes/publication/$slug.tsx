@@ -89,7 +89,6 @@ export default function PublicationBySlug() {
                 >
                   Bandcamp Daily review
                 </A>
-                .
               </Heading>
               <WikipediaSummary summary={data.wiki} />
             </>
@@ -103,9 +102,8 @@ export default function PublicationBySlug() {
   let breadcrumbs: SearchBreadcrumbsProps['crumbs'] = ['Publication']
 
   if (data.slug.includes('p4k') && 'review' in data) {
-    const url = new URL(
-      `https://pitchfork.com${data.review.slug}?${searchParams.toString()}`
-    )
+    const url = new URL(data.review.slug)
+    url.searchParams.set('utm_campaign', 'publication')
 
     footer = (
       <Heading level="h5">
@@ -113,7 +111,6 @@ export default function PublicationBySlug() {
         <A href={url.toString()} target="_blank">
           Pitchfork Review
         </A>
-        .
       </Heading>
     )
     breadcrumbs.push([
@@ -126,13 +123,15 @@ export default function PublicationBySlug() {
       </A>,
     ])
   } else if (data.slug === 'needle-drop' && 'review' in data) {
+    const url = new URL(data.review.slug)
+    url.searchParams.set('utm_campaign', 'publication')
+
     footer = (
       <Heading level="h5">
         Watch the{' '}
-        <A href={data.review.slug} target="_blank">
+        <A href={url.toString()} target="_blank">
           Needle Drop review on YouTube
         </A>
-        .
       </Heading>
     )
     breadcrumbs.push([

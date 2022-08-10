@@ -36,9 +36,10 @@ model AlbumReviewedByPublication {
   updatedAt DateTime @updatedAt
   publication Publication @relation(fields: [publicationID], references: [id])
   publicationID Int
-  aritst String
+  artist String
   album String
   slug String @unique
+  resolvable Boolean @default(true)
 }
 
 model BandcampDailyAlbum {
@@ -71,7 +72,7 @@ model Artist {
   name String
 }
 
-model SpotifyGenere {
+model SpotifyGenre {
   id Int @id @default(autoincrement())
   name String @unique
   createdAt DateTime @default(now())

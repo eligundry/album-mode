@@ -4,7 +4,7 @@ import {
   AlbumReviewedByPublication,
   Artist,
   BandcampDailyAlbum,
-  SpotifyGenere,
+  SpotifyGenre,
   Publication,
 } from '@prisma/client'
 import groupBy from 'lodash/groupBy'
@@ -82,7 +82,7 @@ const getRandomArtistFromGroupSlug = async (groupSlug: string) =>
 const getRandomAlbumForPublication = async (publicationSlug: string) =>
   prisma
     .$queryRaw<
-      (Pick<AlbumReviewedByPublication, 'id' | 'aritst' | 'album' | 'slug'> & {
+      (Pick<AlbumReviewedByPublication, 'id' | 'artist' | 'album' | 'slug'> & {
         publicationName: string
         publicationBlurb: string | null
       })[]
@@ -90,7 +90,7 @@ const getRandomAlbumForPublication = async (publicationSlug: string) =>
       Prisma.sql`
         SELECT
           a.id,
-          a.aritst,
+          a.artist,
           a.album,
           a.slug,
           p.name AS publicationName,
@@ -104,6 +104,7 @@ const getRandomAlbumForPublication = async (publicationSlug: string) =>
             publication.slug = ${publicationSlug}
             AND albumReviewedByPublication.publicationID = publication.id
           )
+          WHERE albumReviewedByPublication.resolvable = true
           ORDER BY random()
           LIMIT 1
         )
@@ -137,7 +138,7 @@ const getRandomBandcampDailyAlbum = async () =>
     .then((res) => res[0])
 
 const searchGenres = async (q: string): Promise<string[]> => {
-  return prisma.spotifyGenere
+  return prisma.spotifyGenre
     .findMany({
       select: {
         name: true,
@@ -157,7 +158,7 @@ const searchGenres = async (q: string): Promise<string[]> => {
 }
 
 const getTopGenres = async (limit = 100): Promise<string[]> =>
-  prisma.spotifyGenere
+  prisma.spotifyGenre
     .findMany({
       select: {
         name: true,
@@ -171,10 +172,10 @@ const getTopGenres = async (limit = 100): Promise<string[]> =>
 
 const getRandomGenre = async (): Promise<string> =>
   prisma
-    .$queryRaw<Pick<SpotifyGenere, 'name'>[]>(
+    .$queryRaw<Pick<SpotifyGenre, 'name'>[]>(
       Prisma.sql`
         SELECT name
-        FROM SpotifyGenere
+        FROM SpotifyGenre
         ORDER BY RANDOM()
         LIMIT 1
       `
@@ -183,14 +184,14 @@ const getRandomGenre = async (): Promise<string> =>
 
 const getRandomTopGenre = async (limit = 50): Promise<string> =>
   prisma
-    .$queryRaw<Pick<SpotifyGenere, 'name'>[]>(
+    .$queryRaw<Pick<SpotifyGenre, 'name'>[]>(
       Prisma.sql`
         SELECT name
-        FROM SpotifyGenere
+        FROM SpotifyGenre
         WHERE (
           id = (
             SELECT id
-            FROM SpotifyGenere
+            FROM SpotifyGenre
             WHERE id < ${limit}
             ORDER BY RANDOM()
             LIMIT 1

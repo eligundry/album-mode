@@ -41,6 +41,7 @@
     "react-spotify-embed": "^0.2.3",
     "react-use": "^17.3.2",
     "spotify-web-api-node": "^5.0.2",
+    "string-strip-html": "^11.1.0",
     "wikipedia": "^1.1.9"
   },
   "devDependencies": {

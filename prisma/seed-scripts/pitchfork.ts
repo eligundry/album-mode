@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import axios from 'axios'
 import yargs from 'yargs'
 import Bottleneck from 'bottleneck'
+import { stripHtml } from 'string-strip-html'
 import { PitchforkSearchResponse, ListEntity } from '~/lib/types/pitchfork'
 
 const prisma = new PrismaClient()
@@ -24,7 +25,7 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   }
 
   const searchParams = new URLSearchParams()
-  searchParams.set('utm_campaign', 'album-mode.party')
+  searchParams.set('utm_source', 'album-mode.party')
   searchParams.set('utm_term', `p4k-${slug}`)
 
   // Since we have bootstrapped all the older albums, limit the update jobs to
@@ -52,9 +53,11 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
         .create({
           data: {
             publicationID: publication.id,
-            album: album.promoTitle,
-            slug: `${album.url}?${searchParams.toString()}`,
-            aritst: album.artists?.[0]?.display_name || '',
+            album: stripHtml(album.seoTitle || album.title).result,
+            slug: `https://pitchfork.com${
+              album.url
+            }?${searchParams.toString()}`,
+            artist: album.artists?.[0]?.display_name || '',
           },
         })
         .then(() => inserted++)

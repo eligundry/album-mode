@@ -67,7 +67,7 @@ const seedPazzAndJop = async () => {
                 data: {
                   publicationID: 1,
                   album,
-                  aritst: artist,
+                  artist: artist,
                   slug: `/christgau/${path}#${kebabCase(`${artist} ${album}`)}`,
                 },
               })
