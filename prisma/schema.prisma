@@ -39,6 +39,7 @@ model AlbumReviewedByPublication {
   aritst String
   album String
   slug String @unique
+  resolvable Boolean @default(true)
 }
 
 model BandcampDailyAlbum {

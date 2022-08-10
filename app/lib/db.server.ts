@@ -104,6 +104,7 @@ const getRandomAlbumForPublication = async (publicationSlug: string) =>
             publication.slug = ${publicationSlug}
             AND albumReviewedByPublication.publicationID = publication.id
           )
+          WHERE albumReviewedByPublication.resolvable = true
           ORDER BY random()
           LIMIT 1
         )
