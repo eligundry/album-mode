@@ -11,6 +11,7 @@ import {
 import { withSentry } from '@sentry/remix'
 
 import Tracking from '~/components/Tracking'
+import LoadingProvider from '~/context/Loading'
 import { useDarkMode } from '~/hooks/useMediaQuery'
 import { useDaisyPallete } from '~/hooks/useTailwindTheme'
 import styles from './styles/app.css'
@@ -64,7 +65,9 @@ function App() {
         <meta name="theme-color" content={pallete['base-100']} />
       </head>
       <body>
-        <Outlet />
+        <LoadingProvider>
+          <Outlet />
+        </LoadingProvider>
         <ScrollRestoration />
         <script
           dangerouslySetInnerHTML={{
