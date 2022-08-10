@@ -102,9 +102,7 @@ export default function PublicationBySlug() {
   let breadcrumbs: SearchBreadcrumbsProps['crumbs'] = ['Publication']
 
   if (data.slug.includes('p4k') && 'review' in data) {
-    const url = new URL(
-      `https://pitchfork.com${data.review.slug}?${searchParams.toString()}`
-    )
+    const url = new URL(`https://pitchfork.com${data.review.slug}`)
 
     footer = (
       <Heading level="h5">

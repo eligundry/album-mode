@@ -52,7 +52,7 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
         .create({
           data: {
             publicationID: publication.id,
-            album: album.promoTitle,
+            album: album.seoTitle || album.title,
             slug: `${album.url}?${searchParams.toString()}`,
             artist: album.artists?.[0]?.display_name || '',
           },
