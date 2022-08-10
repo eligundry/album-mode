@@ -89,7 +89,6 @@ export default function PublicationBySlug() {
                 >
                   Bandcamp Daily review
                 </A>
-                .
               </Heading>
               <WikipediaSummary summary={data.wiki} />
             </>
@@ -113,7 +112,6 @@ export default function PublicationBySlug() {
         <A href={url.toString()} target="_blank">
           Pitchfork Review
         </A>
-        .
       </Heading>
     )
     breadcrumbs.push([
@@ -132,7 +130,6 @@ export default function PublicationBySlug() {
         <A href={data.review.slug} target="_blank">
           Needle Drop review on YouTube
         </A>
-        .
       </Heading>
     )
     breadcrumbs.push([
