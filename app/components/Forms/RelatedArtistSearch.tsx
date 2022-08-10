@@ -1,18 +1,21 @@
 import { useRef } from 'react'
 import { Form } from '@remix-run/react'
 import clsx from 'clsx'
+import useAsync from 'react-use/lib/useAsync'
 
 import FunSelect from './FunSelect'
-import type { SpotifyArtist } from '~/lib/types/spotify.server'
+import type { SpotifyArtist } from '~/lib/types/spotify'
 
 interface Props {
-  defaultArtists: SpotifyArtist[]
   className?: string
 }
 
-const searchAritsts = async (artist: string): Promise<SpotifyArtist[]> => {
+const searchAritsts = async (artist?: string): Promise<SpotifyArtist[]> => {
   const url = new URL(`${window.location.origin}/api/artists`)
-  url.searchParams.set('artist', artist)
+
+  if (artist) {
+    url.searchParams.set('artist', artist)
+  }
 
   const resp = await fetch(url.toString())
   const data: SpotifyArtist[] = await resp.json()
@@ -20,11 +23,9 @@ const searchAritsts = async (artist: string): Promise<SpotifyArtist[]> => {
   return data
 }
 
-const RelatedArtistSearchForm: React.FC<Props> = ({
-  defaultArtists,
-  className,
-}) => {
+const RelatedArtistSearchForm: React.FC<Props> = ({ className }) => {
   const formRef = useRef<HTMLFormElement>(null)
+  const { value: defaultArtists } = useAsync(searchAritsts)
 
   return (
     <Form

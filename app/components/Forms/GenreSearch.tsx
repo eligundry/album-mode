@@ -1,17 +1,20 @@
 import { useRef } from 'react'
 import { Form } from '@remix-run/react'
 import clsx from 'clsx'
+import useAsync from 'react-use/lib/useAsync'
 
 import FunSelect from './FunSelect'
 
 interface Props {
-  defaultGenres: string[]
   className?: string
 }
 
-const searchGenres = async (genre: string) => {
+const searchGenres = async (genre?: string) => {
   const url = new URL(`${window.location.origin}/api/genre`)
-  url.searchParams.set('genre', genre)
+
+  if (genre) {
+    url.searchParams.set('genre', genre)
+  }
 
   const resp = await fetch(url.toString())
   const data: string[] = await resp.json()
@@ -22,8 +25,9 @@ const searchGenres = async (genre: string) => {
   }))
 }
 
-const GenreSearchForm: React.FC<Props> = ({ defaultGenres, className }) => {
+const GenreSearchForm: React.FC<Props> = ({ className }) => {
   const formRef = useRef<HTMLFormElement>(null)
+  const { value: defaultGenres } = useAsync(searchGenres)
 
   return (
     <Form
@@ -34,10 +38,7 @@ const GenreSearchForm: React.FC<Props> = ({ defaultGenres, className }) => {
     >
       <FunSelect
         name="genre"
-        defaultOptions={defaultGenres.map((genre) => ({
-          value: genre,
-          label: genre,
-        }))}
+        defaultOptions={defaultGenres}
         loadOptions={searchGenres}
         className={className}
         onChange={() => setTimeout(() => formRef.current?.submit(), 10)}
