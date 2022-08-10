@@ -301,7 +301,7 @@ export class Spotify {
     album: SpotifyApi.AlbumObjectSimplified
   }> => {
     const review = await db.getRandomAlbumForPublication(publicationSlug)
-    const album = await this.getAlbum(review.album, review.aritst)
+    const album = await this.getAlbum(review.album, review.artist)
 
     if (!album) {
       return this.getRandomAlbumForPublication(publicationSlug)

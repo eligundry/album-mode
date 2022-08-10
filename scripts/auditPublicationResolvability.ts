@@ -41,7 +41,7 @@ const main = async () => {
   })
 
   await Promise.all(
-    albums.map(({ id, aritst: artist, album }) =>
+    albums.map(({ id, artist, album }) =>
       updateAlbumResolvability(id, artist, album)
     )
   )

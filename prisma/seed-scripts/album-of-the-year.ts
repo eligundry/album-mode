@@ -91,7 +91,7 @@ const seedAlbumOfTheYear = async (options: Options) => {
         data: {
           publicationID: publication.id,
           album: album,
-          aritst: artist,
+          artist: artist,
           slug: `albumoftheyear.org/list/${options.listID}#${kebabCase(
             `${album}-${artist}`
           )}`,
