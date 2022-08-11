@@ -1,9 +1,7 @@
-import promiseHash from 'promise-hash'
-import { json, LoaderArgs } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
-import auth from '~/lib/auth.server'
 import db from '~/lib/db.server'
 import lastPresented from '~/lib/lastPresented.server'
 import {
@@ -24,32 +22,28 @@ import HomeSection from '~/components/Base/HomeSection'
 import SavedSearches from '~/components/SavedSearches'
 import useSavedSearches from '~/hooks/useSavedSearches'
 import useLoading from '~/hooks/useLoading'
+import useUser from '~/hooks/useUser'
+import config from '~/config'
 
-export async function loader({ request }: LoaderArgs) {
-  const authCookie = await auth.getCookie(request)
-
-  const data = await promiseHash({
-    publications: db.getPublications(),
-    auth: {
-      spotify: {
-        loggedIn: 'accessToken' in authCookie.spotify,
-        loginState:
-          'state' in authCookie.spotify ? authCookie.spotify.state : null,
-      },
+export async function loader() {
+  return json(
+    {
+      publications: await db.getPublications(),
     },
-  })
-
-  const headers = new Headers()
-  headers.append('Set-Cookie', await auth.cookieFactory.serialize(authCookie))
-  headers.append('Set-Cookie', await lastPresented.clearCookie())
-
-  return json(data, { headers })
+    {
+      headers: {
+        'Set-Cookie': await lastPresented.clearCookie(),
+        'Cache-Control': config.cacheControl.public,
+      },
+    }
+  )
 }
 
 export default function Index() {
   const data = useLoaderData<typeof loader>()
   const { hasSavedSearches } = useSavedSearches()
   const { loading } = useLoading()
+  const user = useUser()
 
   return (
     <Layout className={clsx('mt-0')}>
@@ -108,8 +102,8 @@ export default function Index() {
           className="spotify"
         >
           <ButtonLinkGroupWrapper>
-            {data.auth.spotify.loginState ? (
-              <SpotifyLoginButton state={data.auth.spotify.loginState} />
+            {!user ? (
+              <SpotifyLoginButton state={'#'} />
             ) : (
               <>
                 <ButtonLink to="/spotify/album" disabled={loading}>

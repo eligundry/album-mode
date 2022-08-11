@@ -1,4 +1,4 @@
-import { MetaFunction, LinksFunction, json } from '@remix-run/node'
+import { MetaFunction, LinksFunction, json, LoaderArgs } from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -10,11 +10,15 @@ import {
 } from '@remix-run/react'
 import { withSentry } from '@sentry/remix'
 
+import auth from '~/lib/auth.server'
+import spotifyLib from '~/lib/spotify.server'
 import Tracking from '~/components/Tracking'
 import LoadingProvider from '~/context/Loading'
+import UserContext from '~/context/User'
 import { useDarkMode } from '~/hooks/useMediaQuery'
 import { useDaisyPallete } from '~/hooks/useTailwindTheme'
 import styles from './styles/app.css'
+import config from '~/config'
 
 export const meta: MetaFunction = ({ data }) => ({
   charset: 'utf-8',
@@ -41,14 +45,33 @@ export const links: LinksFunction = () => [
   },
 ]
 
-export async function loader() {
-  return json({
-    ENV: {
-      SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
-      SENTRY_DSN: process.env.SENTRY_DSN,
-      SENTRY_RELEASE: process.env.COMMIT_REF,
+export async function loader({ request }: LoaderArgs) {
+  const authCookie = await auth.getCookie(request)
+  let user = null
+  console.log(authCookie)
+
+  if (authCookie?.spotify) {
+    const spotify = await spotifyLib.initializeFromRequest(request)
+    user = await spotify.getUser()
+    console.log(user)
+  }
+
+  return json(
+    {
+      user,
+      ENV: {
+        SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
+        SENTRY_DSN: process.env.SENTRY_DSN,
+        SENTRY_RELEASE: process.env.COMMIT_REF,
+      },
     },
-  })
+    {
+      headers: {
+        'Set-Cookie': await auth.cookieFactory.serialize(authCookie),
+        'Cache-Control': config.cacheControl.private,
+      },
+    }
+  )
 }
 
 function App() {
@@ -66,7 +89,9 @@ function App() {
       </head>
       <body>
         <LoadingProvider>
-          <Outlet />
+          <UserContext.Provider value={data.user}>
+            <Outlet />
+          </UserContext.Provider>
         </LoadingProvider>
         <ScrollRestoration />
         <script
