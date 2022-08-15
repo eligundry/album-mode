@@ -15,6 +15,7 @@ import spotifyLib from '~/lib/spotify.server'
 import Tracking from '~/components/Tracking'
 import LoadingProvider from '~/context/Loading'
 import UserContext from '~/context/User'
+import PeerProvider from '~/context/Peer'
 import { useDarkMode } from '~/hooks/useMediaQuery'
 import { useDaisyPallete } from '~/hooks/useTailwindTheme'
 import styles from './styles/app.css'
@@ -53,7 +54,6 @@ export async function loader({ request }: LoaderArgs) {
   if (authCookie?.spotify) {
     const spotify = await spotifyLib.initializeFromRequest(request)
     user = await spotify.getUser()
-    console.log(user)
   }
 
   return json(
@@ -63,11 +63,11 @@ export async function loader({ request }: LoaderArgs) {
         SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
         SENTRY_DSN: process.env.SENTRY_DSN,
         SENTRY_RELEASE: process.env.COMMIT_REF,
+        NODE_ENV: process.env.NODE_ENV,
       },
     },
     {
       headers: {
-        'Set-Cookie': await auth.cookieFactory.serialize(authCookie),
         'Cache-Control': config.cacheControl.private,
       },
     }
@@ -88,11 +88,13 @@ function App() {
         <meta name="theme-color" content={pallete['base-100']} />
       </head>
       <body>
-        <LoadingProvider>
-          <UserContext.Provider value={data.user}>
-            <Outlet />
-          </UserContext.Provider>
-        </LoadingProvider>
+        <UserContext.Provider value={data.user}>
+          <PeerProvider>
+            <LoadingProvider>
+              <Outlet />
+            </LoadingProvider>
+          </PeerProvider>
+        </UserContext.Provider>
         <ScrollRestoration />
         <script
           dangerouslySetInnerHTML={{

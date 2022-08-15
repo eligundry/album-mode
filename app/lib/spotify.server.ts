@@ -586,14 +586,18 @@ export class Spotify {
 
   getUser = async () => {
     if (!this.userAccessToken) {
-      throw new Error('User must be logged in to use this')
+      return null
     }
 
-    const client = await this.getClient()
-    const resp = await client.getMe()
-    const user = resp.body
+    try {
+      const client = await this.getClient()
+      const resp = await client.getMe()
+      const user = resp.body
 
-    return pick(user, ['id', 'display_name', 'href', 'images', 'uri'])
+      return pick(user, ['id', 'display_name', 'href', 'images', 'uri'])
+    } catch (e) {
+      return null
+    }
   }
 }
 

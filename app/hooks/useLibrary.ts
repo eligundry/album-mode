@@ -1,10 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import useLocalStorage from 'react-use/lib/useLocalStorage'
-import useDeepCompareEffect from 'react-use/lib/useDeepCompareEffect'
-// import { Peer } from 'peerjs'
 
 import { Library, LibraryItem, defaultLibrary } from '~/lib/types/library'
-import useUser from '~/hooks/useUser'
 
 export type { LibraryItem }
 
@@ -13,7 +10,6 @@ export type { LibraryItem }
  * to in the browser's local storage.
  */
 export default function useLibrary() {
-  const user = useUser()
   const [library, setLibrary] = useLocalStorage<Library>(
     'albumModeLibrary',
     defaultLibrary,
@@ -68,14 +64,6 @@ export default function useLibrary() {
     },
     [setLibrary]
   )
-
-  useDeepCompareEffect(() => {
-    if (!user) {
-      return
-    }
-
-    console.log({ user })
-  }, [user])
 
   return useMemo(() => {
     return {
