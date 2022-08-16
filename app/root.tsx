@@ -12,6 +12,7 @@ import { withSentry } from '@sentry/remix'
 
 import auth from '~/lib/auth.server'
 import spotifyLib from '~/lib/spotify.server'
+import RootProvider from '~/context/Root'
 import Tracking from '~/components/Tracking'
 import LoadingProvider from '~/context/Loading'
 import UserContext from '~/context/User'
@@ -49,7 +50,6 @@ export const links: LinksFunction = () => [
 export async function loader({ request }: LoaderArgs) {
   const authCookie = await auth.getCookie(request)
   let user = null
-  console.log(authCookie)
 
   if (authCookie?.spotify) {
     const spotify = await spotifyLib.initializeFromRequest(request)
@@ -88,13 +88,9 @@ function App() {
         <meta name="theme-color" content={pallete['base-100']} />
       </head>
       <body>
-        <UserContext.Provider value={data.user}>
-          <PeerProvider>
-            <LoadingProvider>
-              <Outlet />
-            </LoadingProvider>
-          </PeerProvider>
-        </UserContext.Provider>
+        <RootProvider user={data.user}>
+          <Outlet />
+        </RootProvider>
         <ScrollRestoration />
         <script
           dangerouslySetInnerHTML={{

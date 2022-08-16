@@ -10,7 +10,7 @@ import db from '~/lib/db.server'
 import cache from '~/lib/cache.server'
 import auth from '~/lib/auth.server'
 import lastPresented from '~/lib/lastPresented.server'
-import type { SpotifyArtist } from './types/spotify'
+import type { SpotifyArtist, SpotifyUser } from './types/spotify'
 
 interface SpotifyOptions {
   userAccessToken?: string | undefined
@@ -584,7 +584,7 @@ export class Spotify {
     return sample(artists) ?? artists[0]
   }
 
-  getUser = async () => {
+  getUser = async (): Promise<SpotifyUser | null> => {
     if (!this.userAccessToken) {
       return null
     }
