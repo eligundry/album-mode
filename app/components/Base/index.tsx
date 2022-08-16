@@ -10,38 +10,38 @@ export interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
   noSpacing?: boolean
 }
 
-export const Heading: React.FC<HeadingProps> = ({
-  level,
-  className,
-  noSpacing = false,
-  ...props
-}) => {
-  const Component = level as JSX.IntrinsicElements[typeof level]
+export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
+  ({ level, className, noSpacing = false, ...props }, ref) => {
+    const Component = level as JSX.IntrinsicElements[typeof level]
 
-  return (
-    <Component
-      className={clsx(
-        {
-          ['text-4xl md:text-5xl']: level === 'h1',
-          ['text-3xl md:text-4xl']: level === 'h2',
-          ['text-2xl md:text-3xl']: level === 'h3',
-          ['text-xl md:text-2xl']: level === 'h4',
-          ['uppercase font-bold text-xs']: level === 'h5',
-          ['text-xs font-bold']: level === 'h6',
-        },
-        !noSpacing && 'my-4',
-        className
-      )}
-      {...props}
-    />
-  )
-}
+    return (
+      <Component
+        ref={ref}
+        className={clsx(
+          {
+            ['text-4xl md:text-5xl']: level === 'h1',
+            ['text-3xl md:text-4xl']: level === 'h2',
+            ['text-2xl md:text-3xl']: level === 'h3',
+            ['text-xl md:text-2xl']: level === 'h4',
+            ['uppercase font-bold text-xs']: level === 'h5',
+            ['text-xs font-bold']: level === 'h6',
+          },
+          !noSpacing && 'my-4',
+          className
+        )}
+        {...props}
+      />
+    )
+  }
+)
 
-export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps<T = HTMLButtonElement>
+  extends React.HTMLAttributes<T> {
   color?: 'primary' | 'info' | 'warning' | 'danger'
   size?: 'lg' | 'md' | 'sm' | 'xs'
   ghost?: boolean
   disabled?: boolean
+  loading?: boolean
 }
 
 const buttonStyles = ({
@@ -50,6 +50,7 @@ const buttonStyles = ({
   size,
   ghost,
   disabled,
+  loading,
 }: ButtonProps) =>
   clsx(
     'btn',
@@ -67,20 +68,30 @@ const buttonStyles = ({
     },
     ghost && 'btn-ghost',
     disabled && 'btn-disabled',
+    loading && 'loading',
     className
   )
 
-export const Button: React.FC<ButtonProps> = ({
-  className,
-  color = 'primary',
-  size = 'base',
-  ...props
-}) => (
-  <button
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, color = 'primary', size = 'md', loading, ...props }, ref) => (
+    <button
+      ref={ref}
+      className={buttonStyles({ color, className, size, loading, ...props })}
+      {...props}
+    />
+  )
+)
+
+export const LabelButton = React.forwardRef<
+  HTMLLabelElement,
+  ButtonProps<HTMLLabelElement>
+>(({ className, color = 'primary', size = 'md', loading, ...props }, ref) => (
+  <label
+    ref={ref}
     className={buttonStyles({ color, className, size, ...props })}
     {...props}
   />
-)
+))
 
 export type ButtonLinkProps = (LinkProps | HTMLAnchorElement) & ButtonProps
 
@@ -125,12 +136,12 @@ export interface TypographyProps
   variant?: 'base' | 'italics' | 'bold' | 'hint'
 }
 
-export const Typography: React.FC<TypographyProps> = ({
-  variant = 'base',
-  className,
-  ...props
-}) => (
+export const Typography = React.forwardRef<
+  HTMLParagraphElement,
+  TypographyProps
+>(({ variant = 'base', className, ...props }, ref) => (
   <p
+    ref={ref}
     className={clsx(
       'text-base',
       variant === 'hint' && ['italic', 'text-gray-400'],
@@ -140,95 +151,97 @@ export const Typography: React.FC<TypographyProps> = ({
     )}
     {...props}
   />
-)
+))
 
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   width?: 'full' | 'half'
 }
 
-export const Input: React.FC<InputProps> = ({
-  className,
-  width = 'full',
-  ...props
-}) => (
-  <input
-    className={clsx(
-      'input',
-      'input-bordered',
-      'w-full',
-      'focus:outline-primary',
-      width === 'half' && ['mb-2', 'w-1/2'],
-      className
-    )}
-    {...props}
-  />
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, width = 'full', ...props }, ref) => (
+    <input
+      ref={ref}
+      className={clsx(
+        'input',
+        'input-bordered',
+        'w-full',
+        'focus:outline-primary',
+        width === 'half' && ['mb-2', 'w-1/2'],
+        className
+      )}
+      {...props}
+    />
+  )
 )
 
 export interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   center?: boolean
 }
 
-export const Container: React.FC<ContainerProps> = ({
-  className,
-  center,
-  ...props
-}) => (
-  <div
-    className={clsx(
-      'container',
-      'mx-auto',
-      center && [
-        'text-center',
-        'flex',
-        'justify-items-center',
-        'align-items-center',
-        'flex-col',
-      ],
-      className
-    )}
-    {...props}
-  />
+export const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
+  ({ className, center, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={clsx(
+        'container',
+        'mx-auto',
+        center && [
+          'text-center',
+          'flex',
+          'justify-items-center',
+          'align-items-center',
+          'flex-col',
+        ],
+        className
+      )}
+      {...props}
+    />
+  )
 )
 
-export const A: React.FC<React.HTMLAttributes<HTMLAnchorElement>> = ({
-  className,
-  ...props
-}) => (
+export const A = React.forwardRef<
+  HTMLAnchorElement,
+  React.HTMLAttributes<HTMLAnchorElement>
+>(({ className, ...props }, ref) => (
   <a
+    ref={ref}
     className={clsx('link', 'link-hover', 'link-primary', className)}
     {...props}
   />
-)
+))
 
 export interface FieldsetProps
   extends React.HTMLAttributes<HTMLFieldSetElement> {
   flexDirection?: 'row' | 'column'
 }
 
-export const Fieldset: React.FC<FieldsetProps> = ({
-  className,
-  flexDirection,
-  ...props
-}) => (
-  <fieldset
-    className={clsx(
-      'my-4',
-      'p-2',
-      'border-2',
-      'border-slate',
-      {
-        'flex flex-row': flexDirection === 'row',
-        'flex flex-col': flexDirection === 'column',
-      },
-      className
-    )}
-    {...props}
-  />
+export const Fieldset = React.forwardRef<HTMLFieldSetElement, FieldsetProps>(
+  ({ className, flexDirection, ...props }, ref) => (
+    <fieldset
+      ref={ref}
+      className={clsx(
+        'my-4',
+        'p-2',
+        'border-2',
+        'border-slate',
+        {
+          'flex flex-row': flexDirection === 'row',
+          'flex flex-col': flexDirection === 'column',
+        },
+        className
+      )}
+      {...props}
+    />
+  )
 )
 
-export const Legend: React.FC<React.HTMLAttributes<HTMLLegendElement>> = ({
-  className,
-  ...props
-}) => (
-  <legend className={clsx('font-bold', 'mb-2', 'px-2', className)} {...props} />
-)
+export const Legend = React.forwardRef<
+  HTMLLegendElement,
+  React.HTMLAttributes<HTMLLegendElement>
+>(({ className, ...props }, ref) => (
+  <legend
+    ref={ref}
+    className={clsx('font-bold', 'mb-2', 'px-2', className)}
+    {...props}
+  />
+))

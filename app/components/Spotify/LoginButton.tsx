@@ -7,9 +7,13 @@ import useLoading from '~/hooks/useLoading'
 
 interface Props {
   className?: string
+  children?: React.ReactNode
 }
 
-const SpotifyLoginButton: React.FC<Props> = ({ className }) => {
+const SpotifyLoginButton: React.FC<Props> = ({
+  className,
+  children = 'Login with Spotify',
+}) => {
   const { origin } = useLocation()
   const [loginURL, setLoginURL] = useState<URL>()
   const { loading } = useLoading()
@@ -37,7 +41,7 @@ const SpotifyLoginButton: React.FC<Props> = ({ className }) => {
       className={className}
       disabled={loading}
     >
-      Login with Spotify
+      {children}
     </ButtonLink>
   )
 }

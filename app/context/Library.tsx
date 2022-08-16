@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import useLocalStorage from 'react-use/lib/useLocalStorage'
-import useDeepCompareEffect from 'react-use/lib/useDeepCompareEffect'
 import uniqBy from 'lodash/uniqBy'
 import dateCompareDesc from 'date-fns/compareDesc'
 import parseISO from 'date-fns/parseISO'
@@ -32,7 +31,13 @@ export const LibraryContext = React.createContext<ILibraryContext>({
 const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
-  const { addBroadcastCallback, sendBroadcast } = usePeer()
+  const [hasFiredLibrarySync, setHasFiredLibrarySync] = useState(false)
+  const {
+    addBroadcastListener,
+    addConnectionListener,
+    sendBroadcast,
+    isSyncCapable,
+  } = usePeer()
 
   const [library, setLibrary] = useLocalStorage<Library>(
     'albumModeLibrary',
@@ -106,50 +111,32 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
   )
 
   useEffect(() => {
-    addBroadcastCallback('LIBRARY_REMOVE_ITEM', ({ savedAt }) => {
+    addBroadcastListener('LIBRARY_REMOVE_ITEM', ({ savedAt }) => {
       console.log('got a LIBRARY_REMOVE_ITEM event', savedAt)
       removeItem(savedAt)
     })
-  }, [addBroadcastCallback, removeItem])
+  }, [addBroadcastListener, removeItem])
 
   useEffect(() => {
-    addBroadcastCallback('LIBRARY_SAVE_ITEM', ({ item }) => {
+    addBroadcastListener('LIBRARY_SAVE_ITEM', ({ item }) => {
       console.log('got a LIBRARY_SAVE_ITEM event', { item })
       saveItem(item)
     })
-  }, [addBroadcastCallback, saveItem])
+  }, [addBroadcastListener, saveItem])
 
-  // useEffect(() => {
-  //   console.log('hello')
-  //   addBroadcastCallback('LIBRARY_SYNC', (peerLibrary: Library) => {
-  //     console.log('updating the library from an external peer')
-  //     setLibrary((localLibrary) => {
-  //       let newLibraryItems = [
-  //         ...peerLibrary.items.map((item) => ({
-  //           ...item,
-  //           savedAt:
-  //             typeof item.savedAt === 'string'
-  //               ? parseISO(item.savedAt)
-  //               : item.savedAt,
-  //         })),
-  //         ...(localLibrary?.items ?? []),
-  //       ]
-  //       newLibraryItems = uniqBy(newLibraryItems, (item) =>
-  //         item.savedAt.toISOString()
-  //       ).sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
+  useEffect(() => {
+    console.log('setting LIBRARY_SYNC addBroadcastListener')
+    addBroadcastListener('LIBRARY_SYNC', ({ library: peerLibrary }) => {
+      console.log('handling LIBRARY_SYNC', peerLibrary)
+      setLibrary((localLibrary) =>
+        mergeLibraryItems(localLibrary ?? defaultLibrary, peerLibrary)
+      )
+    })
+  }, [addBroadcastListener])
 
-  //       return {
-  //         ...(localLibrary ?? defaultLibrary),
-  //         items: newLibraryItems,
-  //       }
-  //     })
-  //   })
-  // }, [addBroadcastCallback])
-
-  // useDeepCompareEffect(() => {
-  //   console.log('useDeepCompareEffect fired')
-  //   sendBroadcast('LIBRARY_SYNC', library)
-  // }, [library])
+  useEffect(() => {
+    addConnectionListener('LIBRARY_SYNC', () => ({ library }))
+  }, [addConnectionListener, libraryLength])
 
   const value = useMemo<ILibraryContext>(
     () => ({
@@ -165,6 +152,30 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
   return (
     <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>
   )
+}
+
+const mergeLibraryItems = (
+  localLibrary: Library,
+  peerLibrary: Library
+): Library => {
+  let newLibraryItems = [
+    ...peerLibrary.items.map((item) => ({
+      ...item,
+      savedAt:
+        typeof item.savedAt === 'string'
+          ? parseISO(item.savedAt)
+          : item.savedAt,
+    })),
+    ...localLibrary.items,
+  ]
+  newLibraryItems = uniqBy(newLibraryItems, (item) =>
+    item.savedAt.toISOString()
+  ).sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
+
+  return {
+    ...(localLibrary ?? defaultLibrary),
+    items: newLibraryItems,
+  }
 }
 
 export default LibraryProvider

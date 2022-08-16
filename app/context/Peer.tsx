@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useReducer,
-} from 'react'
+import React, { useEffect, useCallback, useReducer } from 'react'
 import type { Peer, DataConnection } from 'peerjs'
 import useLocalStorage from 'react-use/lib/useLocalStorage'
 import produce from 'immer'
@@ -15,44 +9,44 @@ type PeerBroadcastCallback = (data: any) => void | Promise<void>
 type PeerConnectionInitializationCallback = () => any | Promise<any>
 
 interface PeerData {
+  // Private
   client: Peer | null
   connections: DataConnection[]
   connectToDevice: (deviceID: string) => Promise<boolean>
+  connectionListeners: Record<string, PeerConnectionInitializationCallback>
+  broadcastListeners: Record<string, PeerBroadcastCallback>
+  // Public API
+  deviceID: string | null
   isSyncCapable: boolean
-  addConnectionInitializationCallback: (
+  addConnectionListener: (
     name: string,
     callback: PeerConnectionInitializationCallback
   ) => void
-  connectionInitializationCallbacks: Record<
-    string,
-    PeerConnectionInitializationCallback
-  >
-  broadcastCallbacks: Record<string, PeerBroadcastCallback>
-  addBroadcastCallback: (event: string, callback: PeerBroadcastCallback) => void
+  addBroadcastListener: (event: string, callback: PeerBroadcastCallback) => void
   sendBroadcast: (event: string, data: Record<string, unknown>) => void
 }
 
 const defaultData: PeerData = Object.freeze({
+  // Private
   client: null,
   connections: [],
   connectToDevice: async (deviceID) => {
     console.warn(`connectToDevice called without a context`, { deviceID })
     return false
   },
+  broadcastListeners: {},
+  connectionListeners: {},
+  // Public API
+  deviceID: null,
   isSyncCapable: false,
-  broadcastCallbacks: {},
-  connectionInitializationCallbacks: {},
-  addConnectionInitializationCallback: (event, callback) => {
-    console.warn(
-      `addConnectionInitializationCallback called without a context`,
-      {
-        event,
-        callback,
-      }
-    )
+  addConnectionListener: (event, callback) => {
+    console.warn(`addConnectionListener called without a context`, {
+      event,
+      callback,
+    })
   },
-  addBroadcastCallback: (event, callback) => {
-    console.warn(`addBroadcastCallback called without a context`, {
+  addBroadcastListener: (event, callback) => {
+    console.warn(`addBroadcastListener called without a context`, {
       event,
       callback,
     })
@@ -118,10 +112,10 @@ const PeerProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
           newConnection.on('data', (data) => {
             if (
               typeof data?.type === 'string' &&
-              value.broadcastCallbacks[data.type]
+              value.broadcastListeners[data.type]
             ) {
               console.log('firing a callback')
-              value.broadcastCallbacks[data.type](data.data)
+              value.broadcastListeners[data.type](data.data)
             } else {
               console.log(
                 'got some data from a peer that did not have a callback',
@@ -135,14 +129,30 @@ const PeerProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
             deviceID,
           })
 
+          Object.entries(value.connectionListeners).forEach(([name, cb]) => {
+            console.log(`sending ${name} from connectToDevice`, cb())
+            sendBroadcast(name, cb())
+          })
+
           return resolve(true)
         })
       }),
     [value.client, prefix]
   )
 
-  const addBroadcastCallback = useCallback(
-    (event: string, callback: PeerBroadcastCallback) => {
+  const addConnectionListener = useCallback<PeerData['addConnectionListener']>(
+    (name, callback) => {
+      dispatch({
+        type: 'ADD_CONNECTION_INITIALIZATION_CALLBACK',
+        name,
+        callback,
+      })
+    },
+    []
+  )
+
+  const addBroadcastListener = useCallback<PeerData['addBroadcastListener']>(
+    (event, callback) => {
       dispatch({
         type: 'ADD_BROADCAST_CALLBACK',
         event,
@@ -256,10 +266,6 @@ const PeerProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     }
 
     value.client.on('connection', (conn) => {
-      Object.values(value.connectionInitializationCallbacks).forEach((cb) => {
-        conn.send(cb())
-      })
-
       conn.on('data', (data) => {
         switch (data?.type) {
           case 'SEND_DEVICE_ID':
@@ -273,30 +279,31 @@ const PeerProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
             })
             break
           default:
-            if (data?.type && value.broadcastCallbacks[data.type]) {
+            if (data?.type && value.broadcastListeners[data.type]) {
               console.log('firing this callback', data)
-              value.broadcastCallbacks[data.type](data.data)
+              value.broadcastListeners[data.type](data.data)
             } else {
               console.log('got this data from a peer in the last effect', data)
             }
         }
       })
     })
-  }, [value.client, value.connectionInitializationCallbacks])
-
-  const actualValue = useMemo<PeerData>(
-    () => ({
-      ...value,
-      connectToDevice,
-      isSyncCapable: !!peerID,
-      addBroadcastCallback,
-      sendBroadcast,
-    }),
-    [value, connectToDevice, peerID, addBroadcastCallback, sendBroadcast]
-  )
+  }, [value.client, value.connectionListeners])
 
   return (
-    <PeerContext.Provider value={actualValue}>{children}</PeerContext.Provider>
+    <PeerContext.Provider
+      value={{
+        ...value,
+        deviceID: deviceID ?? null,
+        connectToDevice,
+        isSyncCapable: !!peerID,
+        addBroadcastListener,
+        sendBroadcast,
+        addConnectionListener,
+      }}
+    >
+      {children}
+    </PeerContext.Provider>
   )
 }
 
@@ -350,11 +357,11 @@ const reducer = (state: PeerData, action: PeerAction) =>
         break
 
       case 'ADD_BROADCAST_CALLBACK':
-        draft.broadcastCallbacks[action.event] = action.callback
+        draft.broadcastListeners[action.event] = action.callback
         break
 
       case 'ADD_CONNECTION_INITIALIZATION_CALLBACK':
-        draft.connectionInitializationCallbacks[action.name] = action.callback
+        draft.connectionListeners[action.name] = action.callback
         break
     }
   })
