@@ -1,11 +1,15 @@
 import {
   DynamoDBClient,
   PutItemCommand,
-  DeleteItemCommand,
+  UpdateItemCommand,
   QueryCommand,
 } from '@aws-sdk/client-dynamodb'
 
-import { SavedLibraryItem } from '~/lib/types/library'
+import {
+  SavedLibraryItem,
+  CurrentLibrary,
+  defaultLibrary,
+} from '~/lib/types/library'
 
 const client = new DynamoDBClient({
   region: 'us-east-2',
@@ -39,7 +43,7 @@ const saveItem = async (username: string, item: SavedLibraryItem) =>
 
 const removeItem = async (username: string, savedAt: string) =>
   client.send(
-    new DeleteItemCommand({
+    new UpdateItemCommand({
       TableName,
       Key: {
         Username: {
@@ -49,10 +53,16 @@ const removeItem = async (username: string, savedAt: string) =>
           S: savedAt,
         },
       },
+      UpdateExpression: 'SET DeletedAt = :deletedAt',
+      ExpressionAttributeValues: {
+        ':deletedAt': {
+          S: new Date().toString(),
+        },
+      },
     })
   )
 
-const getLibrary = async (username: string) => {
+const getLibrary = async (username: string): Promise<CurrentLibrary> => {
   const items = await client.send(
     new QueryCommand({
       TableName,
@@ -65,7 +75,21 @@ const getLibrary = async (username: string) => {
     })
   )
 
-  const library = items.Items?.map((item) => JSON.parse(item.Record.S))
+  const library = { ...defaultLibrary }
+
+  items.Items?.forEach((record) => {
+    const item: SavedLibraryItem = JSON.parse(record.Record.S)
+
+    if (record.DeletedAt) {
+      library.removedItemTimestamps.push(
+        typeof item.savedAt === 'string'
+          ? item.savedAt
+          : item.savedAt.toISOString()
+      )
+    } else {
+      library.items.push(item)
+    }
+  })
 
   return library
 }

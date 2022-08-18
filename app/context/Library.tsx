@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 import useLocalStorage from 'react-use/lib/useLocalStorage'
 import useAsync from 'react-use/lib/useAsync'
 import uniqBy from 'lodash/uniqBy'
@@ -7,6 +7,8 @@ import parseISO from 'date-fns/parseISO'
 
 import useUser from '~/hooks/useUser'
 import {
+  CurrentLibrary,
+  CurrentLibraryVersion,
   Library,
   LibraryItem,
   SavedLibraryItem,
@@ -34,7 +36,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
 }) => {
   const user = useUser()
   const [loadedServerLibrary, setLoadedServerLibrary] = useState(false)
-  const [library, setLibrary] = useLocalStorage<Library>(
+  const [library, setLibrary] = useLocalStorage<CurrentLibrary>(
     'albumModeLibrary',
     defaultLibrary,
     {
@@ -50,8 +52,6 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
         }),
     }
   )
-
-  const libraryLength = library?.items.length ?? 0
 
   const saveItem = useCallback(
     async (item: LibraryItem | SavedLibraryItem) => {
@@ -90,12 +90,6 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
       const strSavedAt =
         typeof savedAt === 'string' ? savedAt : savedAt.toISOString()
 
-      if (user?.uri) {
-        await fetch(`/api/library/${strSavedAt}`, {
-          method: 'DELETE',
-        })
-      }
-
       setLibrary((lib) => {
         if (!lib) {
           return defaultLibrary
@@ -106,21 +100,19 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
           items: lib.items.filter(
             (l) => l.savedAt.toISOString() !== strSavedAt
           ),
+          removedItemTimestamps: Array.from(
+            new Set([...lib.removedItemTimestamps, strSavedAt])
+          ),
         }
       })
+
+      if (user?.uri) {
+        await fetch(`/api/library/${strSavedAt}`, {
+          method: 'DELETE',
+        })
+      }
     },
     [setLibrary]
-  )
-
-  const value = useMemo<ILibraryContext>(
-    () => ({
-      library: library?.items
-        ? library.items.sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
-        : [],
-      saveItem,
-      removeItem,
-    }),
-    [libraryLength, saveItem, removeItem]
   )
 
   /**
@@ -128,14 +120,14 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
    * and then merges them together. This allows the library to by synced across
    * devices, if the user is logged in via Spotify.
    */
-  useAsync(async () => {
+  const librarySyncState = useAsync(async () => {
     if (loadedServerLibrary || !library || !user?.uri) {
       return
     }
 
     const resp = await fetch('/api/library')
-    const serverLibraryItems: SavedLibraryItem[] = await resp.json()
-    const serverLibraryItemsSavedAt = serverLibraryItems.map((item) =>
+    const serverLibrary: CurrentLibrary = await resp.json()
+    const serverLibraryItemsSavedAt = serverLibrary.items.map((item) =>
       typeof item.savedAt === 'string'
         ? item.savedAt
         : item.savedAt.toISOString()
@@ -143,9 +135,15 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
     await Promise.all(
       library.items.map(async (localItem) => {
-        if (
-          serverLibraryItemsSavedAt.includes(localItem.savedAt.toISOString())
-        ) {
+        const shouldBySynced =
+          !serverLibraryItemsSavedAt.includes(
+            localItem.savedAt.toISOString()
+          ) &&
+          !serverLibrary?.removedItemTimestamps?.includes(
+            localItem.savedAt.toISOString()
+          )
+
+        if (!shouldBySynced) {
           return
         }
 
@@ -159,9 +157,26 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
       })
     )
 
-    setLibrary(mergeLibraryItems(library, serverLibraryItems))
+    setLibrary(mergeLibraryItems(library, serverLibrary))
     setLoadedServerLibrary(true)
   }, [loadedServerLibrary, user?.uri])
+
+  useEffect(() => {
+    if (librarySyncState.error) {
+      console.error(librarySyncState.error)
+    }
+  }, [librarySyncState.error])
+
+  const value = useMemo<ILibraryContext>(
+    () => ({
+      library: library?.items
+        ? library.items.sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
+        : [],
+      saveItem,
+      removeItem,
+    }),
+    [library, saveItem, removeItem, librarySyncState.loading]
+  )
 
   return (
     <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>
@@ -170,10 +185,20 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
 const mergeLibraryItems = (
   localLibrary: Library,
-  serverLibraryItems: SavedLibraryItem[]
-): Library => {
+  serverLibrary: Library
+): CurrentLibrary => {
+  const newRemovedAtTimeStamps = Array.from(
+    new Set([
+      ...('removedItemTimestamps' in localLibrary
+        ? localLibrary.removedItemTimestamps
+        : []),
+      ...('removedItemTimestamps' in serverLibrary
+        ? serverLibrary.removedItemTimestamps
+        : []),
+    ])
+  )
   let newLibraryItems = [
-    ...serverLibraryItems.map((item) => ({
+    ...serverLibrary.items.map((item) => ({
       ...item,
       savedAt:
         typeof item.savedAt === 'string'
@@ -184,11 +209,21 @@ const mergeLibraryItems = (
   ]
   newLibraryItems = uniqBy(newLibraryItems, (item) =>
     item.savedAt.toISOString()
-  ).sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
+  )
+    .filter(
+      (item) =>
+        !newRemovedAtTimeStamps.includes(
+          typeof item.savedAt === 'string'
+            ? item.savedAt
+            : item.savedAt.toISOString()
+        )
+    )
+    .sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
 
   return {
-    ...(localLibrary ?? defaultLibrary),
+    version: CurrentLibraryVersion,
     items: newLibraryItems,
+    removedItemTimestamps: newRemovedAtTimeStamps,
   }
 }
 
