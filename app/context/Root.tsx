@@ -1,6 +1,5 @@
 import LoadingProvider from '~/context/Loading'
 import UserContext from '~/context/User'
-import PeerProvider from '~/context/Peer'
 import LibraryProvider from '~/context/Library'
 import type { SpotifyUser } from '~/lib/types/spotify'
 
@@ -14,11 +13,9 @@ const RootProvider: React.FC<React.PropsWithChildren<Props>> = ({
 }) => {
   return (
     <UserContext.Provider value={user}>
-      <PeerProvider>
-        <LibraryProvider>
-          <LoadingProvider>{children}</LoadingProvider>
-        </LibraryProvider>
-      </PeerProvider>
+      <LibraryProvider>
+        <LoadingProvider>{children}</LoadingProvider>
+      </LibraryProvider>
     </UserContext.Provider>
   )
 }
