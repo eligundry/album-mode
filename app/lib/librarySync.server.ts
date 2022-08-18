@@ -67,6 +67,19 @@ const getLibrary = async (username: string): Promise<CurrentLibrary> => {
     new QueryCommand({
       TableName,
       KeyConditionExpression: 'Username = :username',
+      FilterExpression: 'attribute_not_exists(DeletedAt)',
+      ExpressionAttributeValues: {
+        ':username': {
+          S: username,
+        },
+      },
+    })
+  )
+  const removedItems = await client.send(
+    new QueryCommand({
+      TableName,
+      KeyConditionExpression: 'Username = :username',
+      FilterExpression: 'attribute_exists(DeletedAt)',
       ExpressionAttributeValues: {
         ':username': {
           S: username,
@@ -75,21 +88,20 @@ const getLibrary = async (username: string): Promise<CurrentLibrary> => {
     })
   )
 
-  const library = { ...defaultLibrary }
-
-  items.Items?.forEach((record) => {
-    const item: SavedLibraryItem = JSON.parse(record.Record.S)
-
-    if (record.DeletedAt) {
-      library.removedItemTimestamps.push(
-        typeof item.savedAt === 'string'
-          ? item.savedAt
-          : item.savedAt.toISOString()
-      )
-    } else {
-      library.items.push(item)
-    }
-  })
+  const library: CurrentLibrary = {
+    ...defaultLibrary,
+    items:
+      items.Items?.map((item) => JSON.parse(item.Record.S ?? 'null')).filter(
+        (item) => !!item
+      ) ?? [],
+    removedItemTimestamps:
+      removedItems.Items?.map((item) => {
+        console.log(item.DeletedAt)
+        return item.DeletedAt.S
+          ? new Date(item.DeletedAt.S).toISOString()
+          : null
+      }).filter((ts): ts is string => !!ts) ?? [],
+  }
 
   return library
 }
