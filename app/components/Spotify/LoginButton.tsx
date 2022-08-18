@@ -1,20 +1,27 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import useLocation from 'react-use/lib/useLocation'
+import useAsync from 'react-use/lib/useAsync'
 
 import { ButtonLink } from '~/components/Base'
 import useLoading from '~/hooks/useLoading'
 
 interface Props {
   className?: string
-  state: string
+  children?: React.ReactNode
 }
 
-const SpotifyLoginButton: React.FC<Props> = ({ className, state }) => {
+const SpotifyLoginButton: React.FC<Props> = ({
+  className,
+  children = 'Login with Spotify',
+}) => {
   const { origin } = useLocation()
   const [loginURL, setLoginURL] = useState<URL>()
   const { loading } = useLoading()
 
-  useEffect(() => {
+  useAsync(async () => {
+    const stateResp = await fetch('/api/spotify-state')
+    const { state } = await stateResp.json()
+
     const loginURL = new URL('https://accounts.spotify.com/authorize')
     loginURL.searchParams.set('response_type', 'code')
     loginURL.searchParams.set('client_id', window.ENV.SPOTIFY_CLIENT_ID)
@@ -34,7 +41,7 @@ const SpotifyLoginButton: React.FC<Props> = ({ className, state }) => {
       className={className}
       disabled={loading}
     >
-      Login with Spotify
+      {children}
     </ButtonLink>
   )
 }

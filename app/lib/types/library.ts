@@ -21,9 +21,16 @@ export interface LibraryV1 {
   items: SavedLibraryItem[]
 }
 
-export type Library = LibraryV1
-export const CurrentLibraryVersion = 1
-export const defaultLibrary: LibraryV1 = Object.freeze({
-  version: 1,
+export interface LibraryV2 extends Omit<LibraryV1, 'version'> {
+  version: 2
+  removedItemTimestamps: string[]
+}
+
+export type Library = LibraryV1 | LibraryV2
+export type CurrentLibrary = LibraryV2
+export const CurrentLibraryVersion = 2
+export const defaultLibrary: LibraryV2 = Object.freeze({
+  version: CurrentLibraryVersion,
   items: [],
+  removedItemTimestamps: [],
 })

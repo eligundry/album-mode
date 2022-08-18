@@ -4,12 +4,13 @@ import * as Sentry from '@sentry/remix'
 import { createCookie } from '@remix-run/node'
 import sample from 'lodash/sample'
 import random from 'lodash/random'
+import pick from 'lodash/pick'
 
 import db from '~/lib/db.server'
 import cache from '~/lib/cache.server'
 import auth from '~/lib/auth.server'
 import lastPresented from '~/lib/lastPresented.server'
-import type { SpotifyArtist } from './types/spotify'
+import type { SpotifyArtist, SpotifyUser } from './types/spotify'
 
 interface SpotifyOptions {
   userAccessToken?: string | undefined
@@ -581,6 +582,22 @@ export class Spotify {
   getRandomTopArtist = async () => {
     const artists = await this.getTopArtists()
     return sample(artists) ?? artists[0]
+  }
+
+  getUser = async (): Promise<SpotifyUser | null> => {
+    if (!this.userAccessToken) {
+      return null
+    }
+
+    try {
+      const client = await this.getClient()
+      const resp = await client.getMe()
+      const user = resp.body
+
+      return pick(user, ['id', 'display_name', 'href', 'images', 'uri'])
+    } catch (e) {
+      return null
+    }
   }
 }
 

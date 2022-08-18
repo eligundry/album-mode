@@ -9,3 +9,8 @@ export interface SpotifyArtist {
       }
     | undefined
 }
+
+export type SpotifyUser = Pick<
+  SpotifyApi.CurrentUsersProfileResponse,
+  'id' | 'display_name' | 'href' | 'images' | 'uri'
+>
