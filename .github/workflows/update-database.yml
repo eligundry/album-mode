@@ -18,51 +18,57 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: main
+
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: bahmutov/npm-install@v1
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: 'Pull Pitchfork Best New Music reviews'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
-          max_attempt: 5
+          max_attempts: 5
           command: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug bnm
 
       - name: 'Pull Pitchfork Best New Reissue reviews'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
-          max_attempt: 5
+          max_attempts: 5
           command: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug bnr
 
       - name: 'Pull Pitchfork Sunday Reviews'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
-          max_attempt: 5
+          max_attempts: 5
           command: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug sunday-reviews
 
       - name: 'Pull Pitchfork 8.0+ reviews'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
-          max_attempt: 5
+          max_attempts: 5
           command: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug 8-plus
 
       - name: 'Pull Pitchfork 7.0+ reviews'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
-          max_attempt: 5
+          max_attempts: 5
           command: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug 7-plus
 
       - name: 'Pull Bandcamp Daily reviews'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
-          max_attempt: 5
+          max_attempts: 5
           command: npm run seed-script -- prisma/seed-scripts/bandcamp-daily.ts
 
       - name: 'Commit changes, if needed'
@@ -92,7 +98,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: bahmutov/npm-install@v1
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: "Pull albums from @${{ matrix.user }}"
         run: npm run seed-script -- prisma/seed-scripts/twitter.ts --username "${{ matrix.user }}" --pageLimit 4
