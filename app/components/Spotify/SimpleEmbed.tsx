@@ -1,10 +1,10 @@
-import SpotifyEmbed from 'react-spotify-embed'
 import clsx from 'clsx'
 
 import { Heading, Container, A } from '~/components/Base'
 import ReviewButtons from '~/components/Album/ReviewButtons'
 import useGTM from '~/hooks/useGTM'
 import { useIsMobile } from '~/hooks/useMediaQuery'
+import SpotifyEmbed from '~/components/Spotify/Embed'
 
 interface Props {
   title: string

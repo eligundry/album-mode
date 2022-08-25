@@ -1,8 +1,8 @@
 import React from 'react'
-import SpotifyEmbed from 'react-spotify-embed'
 import clsx from 'clsx'
 
 import AlbumWrapper from './Wrapper'
+import SpotifyEmbed from '~/components/Spotify/Embed'
 import { Container, A } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 import useGTM from '~/hooks/useGTM'

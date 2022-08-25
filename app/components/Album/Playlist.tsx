@@ -1,7 +1,7 @@
-import SpotifyEmbed from 'react-spotify-embed'
 import clsx from 'clsx'
 import useMeasure from 'react-use/lib/useMeasure'
 
+import SpotifyEmbed from '~/components/Spotify/Embed'
 import PlaylistWrapper from './Wrapper'
 import { Container, A } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
