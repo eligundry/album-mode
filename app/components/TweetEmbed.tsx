@@ -2,7 +2,7 @@ import { TwitterTweetEmbed } from 'react-twitter-embed'
 import { useEffect, useState } from 'react'
 
 import { useDarkMode } from '~/hooks/useMediaQuery'
-import type { Tweet } from '~/lib/types/twitter.server'
+import type { Tweet } from '~/lib/types/twitter'
 
 interface Props {
   tweet: Tweet

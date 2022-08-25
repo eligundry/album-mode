@@ -7,18 +7,20 @@ import lastPresented from '~/lib/lastPresented.server'
 import { Layout, A, Heading } from '~/components/Base'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
-import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
+import AlbumErrorBoundary, {
+  AlbumCatchBoundary,
+} from '~/components/Album/ErrorBoundary'
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
 
 export async function loader({ params, request }: LoaderArgs) {
-  const slug = params.slug
+  const slug = params.slug?.trim()
   const headers = new Headers()
   const lastPresentedID = await lastPresented.getLastPresentedID(request)
 
   if (!slug) {
-    throw new Error('slug must be provided in URL')
+    throw json({ error: 'slug must be provided in the URL' }, 400)
   }
 
   if (slug === 'bandcamp-daily') {
@@ -39,7 +41,7 @@ export async function loader({ params, request }: LoaderArgs) {
         slug: 'bandcamp-daily',
         album,
         wiki,
-        type: 'bandcamp',
+        type: 'bandcamp' as const,
       },
       { headers }
     )
@@ -62,13 +64,14 @@ export async function loader({ params, request }: LoaderArgs) {
       review,
       album,
       wiki,
-      type: 'spotify',
+      type: 'spotify' as const,
     },
     { headers }
   )
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
+export const CatchBoundary = AlbumCatchBoundary
 
 export default function PublicationBySlug() {
   const data = useLoaderData<typeof loader>()
@@ -87,6 +90,7 @@ export default function PublicationBySlug() {
           [
             'Bandcamp Daily',
             <A
+              key="publication-url"
               href={`https://daily.bandcamp.com/${searchParams.toString()}`}
               target="_blank"
             >
@@ -138,6 +142,7 @@ export default function PublicationBySlug() {
       <A
         href={`https://pitchfork.com?${url.searchParams.toString()}`}
         target="_blank"
+        key="publication-url"
       >
         {data.review.publicationName}
       </A>,
@@ -159,6 +164,7 @@ export default function PublicationBySlug() {
       <A
         href={`https://www.theneedledrop.com/?${url.searchParams.toString()}`}
         target="_blank"
+        key="publication-url"
       >
         {data.review.publicationName}
       </A>,

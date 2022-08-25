@@ -6,7 +6,7 @@ import clsx from 'clsx'
 import { ButtonLink, Heading, EmojiText } from '~/components/Base'
 import useRating from '~/hooks/useRating'
 import useCurrentPath from '~/hooks/useCurrentPath'
-import { LibraryItem } from '~/lib/types/library'
+import type { LibraryItem } from '~/lib/types/library'
 import useGTM from '~/hooks/useGTM'
 import useLoading from '~/hooks/useLoading'
 

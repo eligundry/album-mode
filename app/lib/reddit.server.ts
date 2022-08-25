@@ -1,4 +1,5 @@
 import axios from 'axios'
+// @ts-ignore
 import bandcamp from 'bandcamp-scraper'
 import sample from 'lodash/sample'
 import * as Sentry from '@sentry/remix'

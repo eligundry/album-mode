@@ -24,6 +24,10 @@ import useSavedSearches from '~/hooks/useSavedSearches'
 import useLoading from '~/hooks/useLoading'
 import useUser from '~/hooks/useUser'
 import config from '~/config'
+import {
+  GenericErrorBoundary,
+  GenericCatchBoundary,
+} from '~/components/ErrorBoundary'
 
 export async function loader() {
   return json(
@@ -38,6 +42,9 @@ export async function loader() {
     }
   )
 }
+
+export const ErrorBoundary = GenericErrorBoundary
+export const CatchBoundary = GenericCatchBoundary
 
 export default function Index() {
   const data = useLoaderData<typeof loader>()
@@ -56,6 +63,8 @@ export default function Index() {
               src="/img/dancing.png"
               alt="man dancing to music"
               className={clsx('w-48', 'hidden', 'md:block')}
+              width={296}
+              height={400}
             />
             <div>
               <Heading level="h2" className={clsx('font-black')}>
@@ -103,7 +112,7 @@ export default function Index() {
         >
           <ButtonLinkGroupWrapper>
             {!user ? (
-              <SpotifyLoginButton state={'#'} />
+              <SpotifyLoginButton />
             ) : (
               <>
                 <ButtonLink to="/spotify/album" disabled={loading}>

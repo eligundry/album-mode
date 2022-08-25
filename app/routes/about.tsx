@@ -8,9 +8,11 @@ import {
   A,
   Container,
 } from '~/components/Base'
+import config from '~/config'
 
 export const meta: MetaFunction = () => ({
-  title: 'About | Album Mode.party 🎉',
+  title: `About | ${config.siteTitle}`,
+  description: `Everything you need to know about ${config.siteTitle}`,
 })
 
 const emailHref = 'mailto:eligundry+album-mode.party@gmail.com'
@@ -52,11 +54,15 @@ export default function About() {
           </Typography>
           <Heading level="h3">Privacy</Heading>
           <Typography>
-            I take your privacy extremely seriously. We use Google Analytics +
+            I take your privacy extremely seriously. I use Google Analytics +
             Google Tag Manager only to collect metrics on if you like my
             recommendations or not. If you login with Spotify, I save your
-            access token to your cookies locally and retain absolutely no
-            personally identifiable information about you on our servers.{' '}
+            access token to your cookies locally and will sync the albums that
+            you like to the Cloud™️. I do this so that you can sync saved albums
+            across devices and doing this peer to peer is way harder than it
+            should be.
+          </Typography>
+          <Typography>
             <strong>
               You are not, nor will you ever be, my funding source for this
               application.

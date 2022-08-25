@@ -13,10 +13,10 @@ import Debug from '~/components/Debug'
 import TweetEmbed from '~/components/TweetEmbed'
 
 export async function loader({ params, request }: LoaderArgs) {
-  const username = params.username
+  const username = params.username?.trim()
 
   if (!username) {
-    throw new Error('username param must be present')
+    throw json({ error: 'username param must be present' }, 400)
   }
 
   const tweet = await db.getRandomTweet(username)
@@ -53,7 +53,10 @@ export async function loader({ params, request }: LoaderArgs) {
           break
         }
         default:
-          throw new Error(`unsupported spotify embed type ${tweet.itemType}`)
+          throw json(
+            { error: `unsupported spotify embed type ${tweet.itemType}` },
+            500
+          )
       }
 
       return json({
@@ -63,7 +66,7 @@ export async function loader({ params, request }: LoaderArgs) {
       })
     }
     default:
-      throw new Error(`unsupported service ${tweet.service}`)
+      throw json({ error: `unsupported service ${tweet.service}` }, 400)
   }
 }
 
@@ -83,7 +86,7 @@ export default function AlbumFromTwitter() {
         throw new Error('embed must be present for spotify')
       }
 
-      switch (data.embed.type) {
+      switch (data.embed?.type) {
         case 'album':
           album = <Album album={data.embed} footer={tweet} />
           break
@@ -106,7 +109,10 @@ export default function AlbumFromTwitter() {
             href={`https://twitter.com/${data.tweet.username}`}
             target="_blank"
             className={clsx('normal-case')}
-          >{`@${data.tweet.username}`}</A>,
+            key="twitter-link"
+          >
+            <>{`@${data.tweet.username}`}</>
+          </A>,
         ],
       ]}
     >

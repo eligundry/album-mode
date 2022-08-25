@@ -3,7 +3,9 @@ import { useLoaderData } from '@remix-run/react'
 
 import spotifyLib from '~/lib/spotify.server'
 import Album from '~/components/Album'
-import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
+import AlbumErrorBoundary, {
+  AlbumCatchBoundary,
+} from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
@@ -30,6 +32,7 @@ export async function loader({ params, request }: LoaderArgs) {
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
+export const CatchBoundary = AlbumCatchBoundary
 
 export default function LabelBySlug() {
   const data = useLoaderData<typeof loader>()

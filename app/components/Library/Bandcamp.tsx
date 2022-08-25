@@ -2,7 +2,7 @@ import clsx from 'clsx'
 
 import Card from '~/components/Base/Card'
 import { A, Button, ButtonLink } from '~/components/Base'
-import type { SavedBandcampItem } from '~/lib/types/library.server'
+import type { SavedBandcampItem } from '~/lib/types/library'
 import useLibrary from '~/hooks/useLibrary'
 
 const searchParams = new URLSearchParams({
@@ -19,15 +19,16 @@ const BandcampLibraryCard: React.FC<{ item: SavedBandcampItem }> = ({
 
   return (
     <Card
-      href={url}
       mediaZoomOnHover
       media={
-        <img
-          src={item.imageURL}
-          alt={item.album}
-          loading="lazy"
-          decoding="async"
-        />
+        item.imageURL ? (
+          <img
+            src={item.imageURL}
+            alt={item.album}
+            loading="lazy"
+            decoding="async"
+          />
+        ) : undefined
       }
       title={
         <>

@@ -1,12 +1,16 @@
-import { json } from '@remix-run/node'
+import { json, MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
 import db from '~/lib/db.server'
-import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
+import config from '~/config'
 import { Layout, Heading, Container } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
+import {
+  GenericErrorBoundary,
+  GenericCatchBoundary,
+} from '~/components/ErrorBoundary'
 
 export async function loader() {
   return json({
@@ -14,7 +18,12 @@ export async function loader() {
   })
 }
 
-export const ErrorBoundary = AlbumErrorBoundary
+export const meta: MetaFunction = () => ({
+  title: `Labels 🏷 | ${config.siteTitle}`,
+})
+
+export const ErrorBoundary = GenericErrorBoundary
+export const CatchBoundary = GenericCatchBoundary
 
 export default function LabelSearch() {
   const data = useLoaderData<typeof loader>()
@@ -39,6 +48,7 @@ export default function LabelSearch() {
           href="https://genius.com/Gza-labels-lyrics"
           target="_blank"
           className={clsx('block', 'w-3/4', 'mx-auto', 'mt-2')}
+          rel="noreferrer"
         >
           <img
             src="/img/rza-labels.png"

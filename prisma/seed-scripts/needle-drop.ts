@@ -13,6 +13,25 @@ type DataMap = Record<
 >
 
 const needleDrop = async () => {
+  const publication = await prisma.publication
+    .create({
+      data: {
+        name: 'Needle Drop',
+        slug: 'needle-drop',
+      },
+    })
+    .catch(() =>
+      prisma.publication.findFirst({
+        where: {
+          slug: 'needle-drop',
+        },
+      })
+    )
+
+  if (!publication) {
+    throw new Error('could not create or fetch publication')
+  }
+
   const albumArtistMap: DataMap = {}
   const browser = await chromium.launch()
 
@@ -88,21 +107,6 @@ const needleDrop = async () => {
   } finally {
     await browser.close()
   }
-
-  const publication = await prisma.publication
-    .create({
-      data: {
-        name: 'Needle Drop',
-        slug: 'needle-drop',
-      },
-    })
-    .catch(() =>
-      prisma.publication.findFirst({
-        where: {
-          slug: 'needle-drop',
-        },
-      })
-    )
 
   await Promise.all(
     Object.entries(albumArtistMap).map(([album, { artist, reviewURL }]) =>

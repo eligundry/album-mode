@@ -69,19 +69,25 @@ export class Spotify {
     // breadcrumbs for all Spotify requests to Sentry.
     return new Proxy(this.api, {
       get(target, propKey, receiver) {
+        // @ts-ignore
         const originalMethod = target?.[propKey]
 
         if (typeof originalMethod === 'function') {
+          // @ts-ignore
           return function (...args) {
-            const transaction = Sentry.startTransaction({
-              op: 'spotify',
-              name: propKey.toString(),
-            })
+            const methodName = propKey.toString()
+            const shouldTrack =
+              methodName !== 'getAccessToken' && !methodName.startsWith('_')
+            let transaction:
+              | ReturnType<typeof Sentry.startTransaction>
+              | undefined
 
-            if (
-              !propKey.toString().startsWith('_') &&
-              propKey.toString() !== 'getAccessToken'
-            ) {
+            if (shouldTrack) {
+              transaction = Sentry.startTransaction({
+                op: 'spotify',
+                name: propKey.toString(),
+              })
+
               Sentry.addBreadcrumb({
                 type: 'spotify',
                 category: 'spotify',
@@ -95,20 +101,21 @@ export class Spotify {
             }
 
             try {
+              // @ts-ignore
               const res = originalMethod.apply(this, args)
 
               if (
                 typeof res === 'object' &&
                 typeof res.finally === 'function'
               ) {
-                return res.finally(() => transaction.finish())
+                return res.finally(() => transaction?.finish?.())
               }
 
               return res
             } finally {
               // If it dies, it dies
               try {
-                transaction.finish()
+                transaction?.finish?.()
               } catch (e) {}
             }
           }

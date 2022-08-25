@@ -5,7 +5,9 @@ import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
 import { Layout } from '~/components/Base'
 import Album from '~/components/Album'
-import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
+import AlbumErrorBoundary, {
+  AlbumCatchBoundary,
+} from '~/components/Album/ErrorBoundary'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
 
@@ -31,6 +33,7 @@ export async function loader({ request }: LoaderArgs) {
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
+export const CatchBoundary = AlbumCatchBoundary
 
 export default function SpotifyNewReleases() {
   const data = useLoaderData<typeof loader>()

@@ -19,6 +19,7 @@ const seedPazzAndJop = async () => {
 
       document
         .querySelectorAll('a[href*=pjres]')
+        // @ts-ignore
         .forEach((a) => paths.push(a.href as string))
 
       return paths

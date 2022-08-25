@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import useGTM from '~/hooks/useGTM'
 import useLibrary, { LibraryItem } from '~/hooks/useLibrary'
 
@@ -17,7 +17,7 @@ export default function useRating() {
         albumURL,
       })
     },
-    [sendEvent]
+    [sendEvent, saveItem]
   )
 
   const negativeReview = useCallback(
@@ -33,11 +33,5 @@ export default function useRating() {
     [sendEvent]
   )
 
-  return useMemo(
-    () => ({
-      positiveReview,
-      negativeReview,
-    }),
-    [positiveReview, negativeReview]
-  )
+  return { positiveReview, negativeReview }
 }

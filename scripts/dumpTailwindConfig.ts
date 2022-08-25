@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+// @ts-ignore
 import resolveConfig from 'tailwindcss/resolveConfig'
 import pick from 'lodash/pick'
 import tailwindConfig from '../tailwind.config'

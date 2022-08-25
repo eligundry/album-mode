@@ -30,7 +30,7 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
 
   // Since we have bootstrapped all the older albums, limit the update jobs to
   // the first 3 pages
-  const resp = await getSearchPage(slug)
+  const resp = await getSearchPage(slug, 12, 0)
   const totalAlbums = resp.count
   const pages = Math.min(Math.round(totalAlbums / 12), 4)
   // const pages = Math.round(totalAlbums / 12)
@@ -69,7 +69,7 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
 }
 
 const getSearchPage = searchLimiter.wrap(
-  async (slug: PitchforkSlug, size = 12, start = 0) => {
+  async (slug: PitchforkSlug, size: number, start: number) => {
     console.log(`fetching page ${start / size}`)
     const params: Record<string, string | number> = {
       types: 'reviews',
@@ -107,7 +107,7 @@ const getSearchPage = searchLimiter.wrap(
       )
 
       return resp.data
-    } catch (e) {
+    } catch (e: any) {
       if (e.response) {
         throw new Error(
           `Request for page starting with offset ${start} failed with ${e.response.statusCode}: ${e.response.data}`
@@ -131,7 +131,7 @@ const main = async () => {
     })
     .help().argv
 
-  await scrapeP4k(args.slug)
+  await scrapeP4k(args.slug as PitchforkSlug)
 }
 
 main()

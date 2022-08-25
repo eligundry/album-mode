@@ -39,7 +39,9 @@ const RelatedArtistSearchForm: React.FC<Props> = ({ className }) => {
         name="artistID"
         defaultOptions={defaultArtists}
         loadOptions={searchAritsts}
+        // @ts-ignore
         getOptionValue={(option: SpotifyArtist) => option.id}
+        // @ts-ignore
         formatOptionLabel={(option: SpotifyArtist, meta) => {
           return (
             <div className={clsx('flex', 'flex-row', 'items-center')}>

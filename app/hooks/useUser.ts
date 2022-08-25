@@ -1,6 +1,6 @@
 import { useContext } from 'react'
-import UserContext, { User } from '~/context/User'
+import UserContext from '~/context/User'
 
-export default function useUser(): User | null {
+export default function useUser() {
   return useContext(UserContext)
 }

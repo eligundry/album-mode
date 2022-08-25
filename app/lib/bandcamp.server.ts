@@ -1,3 +1,4 @@
+// @ts-ignore
 import bandcamp from 'bandcamp-scraper'
 import Bottleneck from 'bottleneck'
 

@@ -1,3 +1,5 @@
+Host: https://album-mode.party
+Sitemap: https://album-mode.party/sitemap.xml
 User-agent: *
 Disallow: /group/*
 Disallow: /publication/*
@@ -11,5 +13,3 @@ Disallow: /saved-searches*
 Disallow: /random*
 Disallow: /twitter/*
 Allow: /
-
-Host: https://album-mode.party

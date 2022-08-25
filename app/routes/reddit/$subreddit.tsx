@@ -27,7 +27,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   const subreddit = params.subreddit
 
   if (!subreddit) {
-    throw new Error('subreddit must be provided in the URL')
+    throw json({ error: 'subreddit must be provided in the URL' }, 400)
   }
 
   const post = await reddit.getRandomPost(subreddit)
@@ -65,15 +65,8 @@ export default function SongFromSubreddit() {
       content = <Spotify url={post.url} title={post.title} footer={footer} />
       break
     case 'bandcamp':
-      content = (
-        <Bandcamp
-          albumID={post.bandcamp.albumID}
-          artist={post.bandcamp.artist}
-          album={post.bandcamp.album}
-          url={post.url}
-          footer={footer}
-        />
-      )
+      // @ts-ignore
+      content = <Bandcamp album={post.bandcamp} footer={footer} />
   }
 
   return <Layout>{content}</Layout>

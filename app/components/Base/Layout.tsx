@@ -118,6 +118,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           <section>
             <h4 className={clsx('footer-title')}>Party Time</h4>
             <Link to="/about">About</Link>
+            <Link to="/help">Help</Link>
             <A
               href="mailto:eligundry+album.mode.party@gmail.com"
               target="_blank"

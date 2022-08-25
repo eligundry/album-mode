@@ -3,10 +3,13 @@ import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
 import db from '~/lib/db.server'
-import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout, Heading, Container } from '~/components/Base'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
+import {
+  GenericErrorBoundary,
+  GenericCatchBoundary,
+} from '~/components/ErrorBoundary'
 
 export async function loader() {
   return json({
@@ -14,7 +17,8 @@ export async function loader() {
   })
 }
 
-export const ErrorBoundary = AlbumErrorBoundary
+export const ErrorBoundary = GenericErrorBoundary
+export const CatchBoundary = GenericCatchBoundary
 
 export default function Genres() {
   const data = useLoaderData<typeof loader>()
@@ -23,7 +27,7 @@ export default function Genres() {
     <Layout>
       <Container>
         <Heading level="h2">Search by Genre</Heading>
-        <GenreSearchForm defaultGenres={data.topGenres} />
+        <GenreSearchForm />
         <ButtonLinkGroup
           items={data.topGenres}
           toFunction={(genre) => `/genre?genre=${genre}`}

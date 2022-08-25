@@ -1,19 +1,10 @@
-import clsx from 'clsx'
-import {
-  LoaderFunction,
-  json,
-  redirect,
-  ErrorBoundaryComponent,
-} from '@remix-run/node'
+import { LoaderFunction, json, redirect } from '@remix-run/node'
 
 import auth from '~/lib/auth.server'
 import {
-  Layout,
-  Heading,
-  Typography,
-  ButtonLink,
-  Container,
-} from '~/components/Base'
+  GenericErrorBoundary,
+  GenericCatchBoundary,
+} from '~/components/ErrorBoundary'
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
@@ -24,12 +15,12 @@ export const loader: LoaderFunction = async ({ request }) => {
         'Set-Cookie': await auth.cookieFactory.serialize(cookie),
       },
     })
-  } catch (e) {
+  } catch (e: any) {
     let statusCode = 500
 
-    if (e.message.startsWith('bad request:')) {
+    if (e?.message?.startsWith('bad request:')) {
       statusCode = 400
-    } else if (e.message.startsWith('unauthorized:')) {
+    } else if (e?.message?.startsWith('unauthorized:')) {
       statusCode = 401
     }
 
@@ -37,26 +28,5 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 }
 
-export const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
-  return (
-    <Layout>
-      <Container>
-        <Heading level="h2">⛔️ Whoops!</Heading>
-        <Typography>
-          We seem to have run into an error. We are working on fixing it now.
-        </Typography>
-        <details>
-          <summary>Detailed error message</summary>
-          <Typography>{error}</Typography>
-        </details>
-        <ButtonLink
-          color="info"
-          to="/"
-          className={clsx('mt-2', 'inline-block')}
-        >
-          🏚 &nbsp; Return Home
-        </ButtonLink>
-      </Container>
-    </Layout>
-  )
-}
+export const ErrorBoundary = GenericErrorBoundary
+export const CatchBoundary = GenericCatchBoundary
