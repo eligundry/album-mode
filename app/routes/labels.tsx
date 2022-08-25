@@ -48,6 +48,7 @@ export default function LabelSearch() {
           href="https://genius.com/Gza-labels-lyrics"
           target="_blank"
           className={clsx('block', 'w-3/4', 'mx-auto', 'mt-2')}
+          rel="noreferrer"
         >
           <img
             src="/img/rza-labels.png"

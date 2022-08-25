@@ -106,6 +106,7 @@ export default function AlbumFromTwitter() {
             href={`https://twitter.com/${data.tweet.username}`}
             target="_blank"
             className={clsx('normal-case')}
+            key="twitter-link"
           >{`@${data.tweet.username}`}</A>,
         ],
       ]}

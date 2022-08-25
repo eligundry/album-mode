@@ -112,7 +112,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
         })
       }
     },
-    [setLibrary]
+    [setLibrary, user?.uri]
   )
 
   /**
@@ -175,7 +175,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
       saveItem,
       removeItem,
     }),
-    [library, saveItem, removeItem, librarySyncState.loading]
+    [library, saveItem, removeItem]
   )
 
   return (

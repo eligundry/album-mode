@@ -2,7 +2,8 @@ import React from 'react'
 import clsx from 'clsx'
 
 import Card from '~/components/Base/Card'
-import ReviewButtons, { ReviewButtonProps } from './ReviewButtons'
+import ReviewButtons from './ReviewButtons'
+import type { ReviewButtonProps } from './ReviewButtons'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 
 interface Props {

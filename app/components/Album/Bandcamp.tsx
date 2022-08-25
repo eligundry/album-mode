@@ -39,6 +39,7 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
       <AlbumWrapper
         embed={
           <iframe
+            title="Bandcamp embed"
             style={{
               border: 0,
               width: '350px',

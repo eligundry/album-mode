@@ -1,5 +1,6 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import promiseHash from 'promise-hash'
 
 import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -17,10 +18,10 @@ export async function loader({ params, request }: LoaderArgs) {
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
-  const data = {
-    playlist: await spotify.getRandomPlaylistForCategory(categoryID),
-    category: await spotify.getCategory(categoryID),
-  }
+  const data = await promiseHash({
+    playlist: spotify.getRandomPlaylistForCategory(categoryID),
+    category: spotify.getCategory(categoryID),
+  })
 
   return json(data, {
     headers: {
@@ -41,7 +42,9 @@ export default function RandomSpotifyFeaturedPlaylist() {
         'Spotify',
         [
           'Playlist Category',
-          <Link to="/spotify/categories">Playlist Category</Link>,
+          <Link to="/spotify/categories" key="link">
+            Playlist Category
+          </Link>,
         ],
         category.name,
       ]}

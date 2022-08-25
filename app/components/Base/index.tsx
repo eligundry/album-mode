@@ -19,12 +19,12 @@ export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
         ref={ref}
         className={clsx(
           {
-            ['text-4xl md:text-5xl']: level === 'h1',
-            ['text-3xl md:text-4xl']: level === 'h2',
-            ['text-2xl md:text-3xl']: level === 'h3',
-            ['text-xl md:text-2xl']: level === 'h4',
-            ['uppercase font-bold text-xs']: level === 'h5',
-            ['text-xs font-bold']: level === 'h6',
+            'text-4xl md:text-5xl': level === 'h1',
+            'text-3xl md:text-4xl': level === 'h2',
+            'text-2xl md:text-3xl': level === 'h3',
+            'text-xl md:text-2xl': level === 'h4',
+            'uppercase font-bold text-xs': level === 'h5',
+            'text-xs font-bold': level === 'h6',
           },
           !noSpacing && 'my-4',
           className
@@ -100,6 +100,7 @@ export const ButtonLink: React.FC<ButtonLinkProps> = ({
   ...props
 }) => {
   if ('href' in props) {
+    /* eslint-disable-next-line jsx-a11y/anchor-has-content */
     return <a className={buttonStyles({ className, ...props })} {...props} />
   }
 
@@ -203,6 +204,7 @@ export const A = React.forwardRef<
   HTMLAnchorElement,
   React.HTMLAttributes<HTMLAnchorElement>
 >(({ className, ...props }, ref) => (
+  /* eslint-disable-next-line jsx-a11y/anchor-has-content */
   <a
     ref={ref}
     className={clsx('link', 'link-hover', 'link-primary', className)}

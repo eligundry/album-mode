@@ -90,6 +90,7 @@ export default function PublicationBySlug() {
           [
             'Bandcamp Daily',
             <A
+              key="publication-url"
               href={`https://daily.bandcamp.com/${searchParams.toString()}`}
               target="_blank"
             >
@@ -141,6 +142,7 @@ export default function PublicationBySlug() {
       <A
         href={`https://pitchfork.com?${url.searchParams.toString()}`}
         target="_blank"
+        key="publication-url"
       >
         {data.review.publicationName}
       </A>,
@@ -162,6 +164,7 @@ export default function PublicationBySlug() {
       <A
         href={`https://www.theneedledrop.com/?${url.searchParams.toString()}`}
         target="_blank"
+        key="publication-url"
       >
         {data.review.publicationName}
       </A>,
