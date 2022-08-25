@@ -56,6 +56,8 @@ export default function Index() {
               src="/img/dancing.png"
               alt="man dancing to music"
               className={clsx('w-48', 'hidden', 'md:block')}
+              width={296}
+              height={400}
             />
             <div>
               <Heading level="h2" className={clsx('font-black')}>

@@ -1,4 +1,4 @@
-const paths = ['', 'about', 'help', 'labs', 'genres']
+const paths = ['', 'about', 'help', 'labs', 'genres', 'labels']
 
 const content = `
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

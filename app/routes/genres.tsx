@@ -23,7 +23,7 @@ export default function Genres() {
     <Layout>
       <Container>
         <Heading level="h2">Search by Genre</Heading>
-        <GenreSearchForm defaultGenres={data.topGenres} />
+        <GenreSearchForm />
         <ButtonLinkGroup
           items={data.topGenres}
           toFunction={(genre) => `/genre?genre=${genre}`}

@@ -8,9 +8,10 @@ import LabelSearchForm from '~/components/Forms/LabelSearch'
 import { Layout, Heading, Container, Link, Typography } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import HomeSection from '~/components/Base/HomeSection'
+import config from '~/config'
 
 export const meta: MetaFunction = () => ({
-  title: 'Labs 🧪 | Album Mode.party 🎉',
+  title: `Labs 🧪 | ${config.siteTitle}`,
   descriptions:
     'Features for Album Mode.party that are not ready for prime time.',
 })

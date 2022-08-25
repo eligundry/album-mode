@@ -1,8 +1,9 @@
-import { json } from '@remix-run/node'
+import { json, MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
 import db from '~/lib/db.server'
+import config from '~/config'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout, Heading, Container } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
@@ -13,6 +14,10 @@ export async function loader() {
     labels: await db.getLabels(),
   })
 }
+
+export const meta: MetaFunction = () => ({
+  title: `Labels 🏷 | ${config.siteTitle}`,
+})
 
 export const ErrorBoundary = AlbumErrorBoundary
 

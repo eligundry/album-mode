@@ -21,7 +21,7 @@ import config from '~/config'
 
 export const meta: MetaFunction = ({ data }) => ({
   charset: 'utf-8',
-  title: 'Album Mode.party 🎉',
+  title: config.siteTitle,
   viewport:
     'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
   description: "Don't know what to listen to? Let us recommend an album!",
