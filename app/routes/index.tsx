@@ -24,6 +24,10 @@ import useSavedSearches from '~/hooks/useSavedSearches'
 import useLoading from '~/hooks/useLoading'
 import useUser from '~/hooks/useUser'
 import config from '~/config'
+import {
+  GenericErrorBoundary,
+  GenericCatchBoundary,
+} from '~/components/ErrorBoundary'
 
 export async function loader() {
   return json(
@@ -38,6 +42,9 @@ export async function loader() {
     }
   )
 }
+
+export const ErrorBoundary = GenericErrorBoundary
+export const CatchBoundary = GenericCatchBoundary
 
 export default function Index() {
   const data = useLoaderData<typeof loader>()

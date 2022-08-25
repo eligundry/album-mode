@@ -1,8 +1,6 @@
 import clsx from 'clsx'
 import { useCatch } from '@remix-run/react'
 
-import useCurrentPath from '~/hooks/useCurrentPath'
-import useLoading from '~/hooks/useLoading'
 import {
   Layout,
   Heading,
@@ -12,18 +10,15 @@ import {
   EmojiText,
 } from '~/components/Base'
 
-interface AlbumErrorBoundaryProps {
+interface GenericErrorBoundaryProps {
   error: Error
   hideStack?: boolean
 }
 
-const AlbumErrorBoundary: React.FC<AlbumErrorBoundaryProps> = ({
+export const GenericErrorBoundary: React.FC<GenericErrorBoundaryProps> = ({
   error,
   hideStack = false,
 }) => {
-  const currentPath = useCurrentPath()
-  const { loading } = useLoading()
-
   return (
     <Layout>
       <Container>
@@ -31,7 +26,7 @@ const AlbumErrorBoundary: React.FC<AlbumErrorBoundaryProps> = ({
           <Heading level="h2">⛔️ Whoops!</Heading>
           <Typography>
             We seemed to have run into an error. We are working on fixing it
-            now. You should refresh the page to fix this issue.
+            now.
           </Typography>
           <details className={clsx('mb-6')}>
             <summary>Detailed error message</summary>
@@ -41,13 +36,9 @@ const AlbumErrorBoundary: React.FC<AlbumErrorBoundaryProps> = ({
               {!hideStack && error.stack}
             </pre>
           </details>
-          <ButtonLink
-            to={currentPath}
-            disabled={loading}
-            className={clsx('mt-2')}
-          >
-            <EmojiText emoji="🔄" label="refresh icon">
-              Retry
+          <ButtonLink to="/">
+            <EmojiText emoji="🏚" label="refresh icon">
+              Head Home
             </EmojiText>
           </ButtonLink>
         </div>
@@ -56,13 +47,11 @@ const AlbumErrorBoundary: React.FC<AlbumErrorBoundaryProps> = ({
   )
 }
 
-export const AlbumCatchBoundary = () => {
+export const GenericCatchBoundary: React.FC = () => {
   const caught = useCatch()
   const error = new Error(
     `${caught.status}: ${caught.data?.error ?? caught.data.toString()}`
   )
 
-  return <AlbumErrorBoundary error={error} hideStack />
+  return <GenericErrorBoundary hideStack error={error} />
 }
-
-export default AlbumErrorBoundary

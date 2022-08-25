@@ -3,14 +3,16 @@ import { json, LoaderArgs } from '@remix-run/node'
 
 import spotifyLib from '~/lib/spotify.server'
 import Album from '~/components/Album'
-import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
+import AlbumErrorBoundary, {
+  AlbumCatchBoundary,
+} from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
 
 export async function loader({ params, request }: LoaderArgs) {
   if (!params.slug) {
-    throw new Error('slug must be provided to this route')
+    throw json({ error: 'slug must be provided to this route' }, 400)
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
@@ -28,6 +30,7 @@ export async function loader({ params, request }: LoaderArgs) {
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
+export const CatchBoundary = AlbumCatchBoundary
 
 export default function GroupBySlug() {
   const { album, group, wiki } = useLoaderData<typeof loader>()

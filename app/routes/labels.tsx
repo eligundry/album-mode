@@ -4,10 +4,13 @@ import clsx from 'clsx'
 
 import db from '~/lib/db.server'
 import config from '~/config'
-import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout, Heading, Container } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
+import {
+  GenericErrorBoundary,
+  GenericCatchBoundary,
+} from '~/components/ErrorBoundary'
 
 export async function loader() {
   return json({
@@ -19,7 +22,8 @@ export const meta: MetaFunction = () => ({
   title: `Labels 🏷 | ${config.siteTitle}`,
 })
 
-export const ErrorBoundary = AlbumErrorBoundary
+export const ErrorBoundary = GenericErrorBoundary
+export const CatchBoundary = GenericCatchBoundary
 
 export default function LabelSearch() {
   const data = useLoaderData<typeof loader>()

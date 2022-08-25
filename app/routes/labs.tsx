@@ -9,6 +9,10 @@ import { Layout, Heading, Container, Link, Typography } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import HomeSection from '~/components/Base/HomeSection'
 import config from '~/config'
+import {
+  GenericErrorBoundary,
+  GenericCatchBoundary,
+} from '~/components/ErrorBoundary'
 
 export const meta: MetaFunction = () => ({
   title: `Labs 🧪 | ${config.siteTitle}`,
@@ -25,6 +29,9 @@ export async function loader() {
     })
   )
 }
+
+export const ErrorBoundary = GenericErrorBoundary
+export const CatchBoundary = GenericCatchBoundary
 
 export default function LibraryPage() {
   const data = useLoaderData<typeof loader>()

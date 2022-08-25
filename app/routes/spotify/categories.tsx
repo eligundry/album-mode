@@ -5,6 +5,11 @@ import clsx from 'clsx'
 import spotifyLib from '~/lib/spotify.server'
 import { Layout, Container, Heading } from '~/components/Base'
 import { CardLink } from '~/components/Base/Card'
+import config from '~/config'
+import {
+  GenericErrorBoundary,
+  GenericCatchBoundary,
+} from '~/components/ErrorBoundary'
 
 export const meta: MetaFunction = () => ({
   title: 'Spotify Playlist Categories | Album Mode.party 🎉',
@@ -12,7 +17,6 @@ export const meta: MetaFunction = () => ({
 
 export async function loader({ request }: LoaderArgs) {
   const spotify = await spotifyLib.initializeFromRequest(request)
-  const cacheLifetime = 60 * 60 * 24 * 7
 
   return json(
     {
@@ -20,11 +24,14 @@ export async function loader({ request }: LoaderArgs) {
     },
     {
       headers: {
-        'Cache-Control': `public, max-age=${cacheLifetime}, s-maxage=${cacheLifetime}`,
+        'Cache-Control': config.cacheControl.public,
       },
     }
   )
 }
+
+export const ErrorBoundary = GenericErrorBoundary
+export const CatchBoundary = GenericCatchBoundary
 
 export default function SpotifyCategories() {
   const { categories } = useLoaderData<typeof loader>()

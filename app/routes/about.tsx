@@ -8,9 +8,11 @@ import {
   A,
   Container,
 } from '~/components/Base'
+import config from '~/config'
 
 export const meta: MetaFunction = () => ({
-  title: 'About | Album Mode.party 🎉',
+  title: `About | ${config.siteTitle}`,
+  description: `Everything you need to know about ${config.siteTitle}`,
 })
 
 const emailHref = 'mailto:eligundry+album-mode.party@gmail.com'

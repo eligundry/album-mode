@@ -6,6 +6,7 @@ import config from '~/config'
 
 export const meta: MetaFunction = () => ({
   title: `Help | ${config.siteTitle}`,
+  description: `Answers to commonly asked questions for ${config.siteTitle}`,
 })
 
 export default function Help() {

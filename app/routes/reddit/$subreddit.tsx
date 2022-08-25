@@ -27,7 +27,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   const subreddit = params.subreddit
 
   if (!subreddit) {
-    throw new Error('subreddit must be provided in the URL')
+    throw json({ error: 'subreddit must be provided in the URL' }, 400)
   }
 
   const post = await reddit.getRandomPost(subreddit)

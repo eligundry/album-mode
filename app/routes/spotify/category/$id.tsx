@@ -5,18 +5,15 @@ import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
 import { Layout, Link } from '~/components/Base'
 import Playlist from '~/components/Album/Playlist'
-import PlaylistErrorBoundary from '~/components/Album/ErrorBoundary'
+import PlaylistErrorBoundary, {
+  AlbumCatchBoundary as PlaylistCatchBoundary,
+} from '~/components/Album/ErrorBoundary'
 
 export async function loader({ params, request }: LoaderArgs) {
-  const categoryID = params.id
+  const categoryID = params.id?.trim()
 
   if (!categoryID) {
-    throw json(
-      {
-        error: 'categoryID must be set as a route parameter',
-      },
-      401
-    )
+    throw json({ error: 'categoryID must be set as a route parameter' }, 400)
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
@@ -33,6 +30,7 @@ export async function loader({ params, request }: LoaderArgs) {
 }
 
 export const ErrorBoundary = PlaylistErrorBoundary
+export const CatchBoundary = PlaylistCatchBoundary
 
 export default function RandomSpotifyFeaturedPlaylist() {
   const { playlist, category } = useLoaderData<typeof loader>()

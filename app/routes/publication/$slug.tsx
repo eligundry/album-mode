@@ -7,18 +7,20 @@ import lastPresented from '~/lib/lastPresented.server'
 import { Layout, A, Heading } from '~/components/Base'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
-import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
+import AlbumErrorBoundary, {
+  AlbumCatchBoundary,
+} from '~/components/Album/ErrorBoundary'
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
 
 export async function loader({ params, request }: LoaderArgs) {
-  const slug = params.slug
+  const slug = params.slug?.trim()
   const headers = new Headers()
   const lastPresentedID = await lastPresented.getLastPresentedID(request)
 
   if (!slug) {
-    throw new Error('slug must be provided in URL')
+    throw json({ error: 'slug must be provided in the URL' }, 400)
   }
 
   if (slug === 'bandcamp-daily') {
@@ -69,6 +71,7 @@ export async function loader({ params, request }: LoaderArgs) {
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
+export const CatchBoundary = AlbumCatchBoundary
 
 export default function PublicationBySlug() {
   const data = useLoaderData<typeof loader>()
