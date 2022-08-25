@@ -1,6 +1,5 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import promiseHash from 'promise-hash'
 
 import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -18,16 +17,21 @@ export async function loader({ params, request }: LoaderArgs) {
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
-  const data = await promiseHash({
-    playlist: spotify.getRandomPlaylistForCategory(categoryID),
-    category: spotify.getCategory(categoryID),
-  })
+  const category = await spotify.getCategory(categoryID)
+  const playlist = await spotify.getRandomPlaylistForCategory(categoryID)
 
-  return json(data, {
-    headers: {
-      'Set-Cookie': await lastPresented.set(request, data.playlist.id),
-    },
-  })
+  if (!category) {
+    throw json({ error: 'could not pull category' }, 500)
+  }
+
+  return json(
+    { playlist, category },
+    {
+      headers: {
+        'Set-Cookie': await lastPresented.set(request, playlist.id),
+      },
+    }
+  )
 }
 
 export const ErrorBoundary = PlaylistErrorBoundary

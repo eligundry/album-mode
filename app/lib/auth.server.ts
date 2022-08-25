@@ -128,7 +128,7 @@ const handleSpotifyLoginCallback = async (
         expires: dateAddSeconds(new Date(), resp.body.expires_in).toISOString(),
       },
     }
-  } catch (e) {
+  } catch (e: any) {
     throw new Error(
       `could not exchange authorization code for access token: ${e.message}`
     )

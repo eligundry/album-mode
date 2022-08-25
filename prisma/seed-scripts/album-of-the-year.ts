@@ -85,6 +85,10 @@ const seedAlbumOfTheYear = async (options: Options) => {
       })
     )
 
+  if (!publication) {
+    throw new Error('could not fetch or create publication')
+  }
+
   await Promise.all(
     Object.entries(albumArtistMap).map(([album, artist]) =>
       prisma.albumReviewedByPublication.create({

@@ -41,7 +41,7 @@ export async function loader({ params, request }: LoaderArgs) {
         slug: 'bandcamp-daily',
         album,
         wiki,
-        type: 'bandcamp',
+        type: 'bandcamp' as const,
       },
       { headers }
     )
@@ -64,7 +64,7 @@ export async function loader({ params, request }: LoaderArgs) {
       review,
       album,
       wiki,
-      type: 'spotify',
+      type: 'spotify' as const,
     },
     { headers }
   )

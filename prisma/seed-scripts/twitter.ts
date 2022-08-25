@@ -19,6 +19,7 @@ const pullAlbumsFromTwitterTimeline = async (
 ) => {
   const spotify = await getSpotifyClient()
   const twitter = await new TwitterApi({
+    // @ts-ignore
     appKey: process.env.TWITTER_APP_KEY,
     appSecret: process.env.TWITTER_APP_SECRET,
     accessToken: process.env.TWITTER_ACCESS_TOKEN,

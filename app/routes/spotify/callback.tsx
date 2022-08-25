@@ -15,12 +15,12 @@ export const loader: LoaderFunction = async ({ request }) => {
         'Set-Cookie': await auth.cookieFactory.serialize(cookie),
       },
     })
-  } catch (e) {
+  } catch (e: any) {
     let statusCode = 500
 
-    if (e.message.startsWith('bad request:')) {
+    if (e?.message?.startsWith('bad request:')) {
       statusCode = 400
-    } else if (e.message.startsWith('unauthorized:')) {
+    } else if (e?.message?.startsWith('unauthorized:')) {
       statusCode = 401
     }
 

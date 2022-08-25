@@ -25,7 +25,7 @@ export async function action({ request, params }: ActionArgs) {
 
   try {
     await librarySync.removeItem(user.uri, savedAt)
-  } catch (e) {
+  } catch (e: any) {
     throw json({ error: 'could not remove item', detail: e?.message }, 500)
   }
 

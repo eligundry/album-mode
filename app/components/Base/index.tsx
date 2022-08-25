@@ -12,7 +12,9 @@ export interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
 
 export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
   ({ level, className, noSpacing = false, ...props }, ref) => {
-    const Component = level as JSX.IntrinsicElements[typeof level]
+    const Component = level as unknown as React.FC<
+      JSX.IntrinsicElements[typeof level]
+    >
 
     return (
       <Component
@@ -42,17 +44,18 @@ export interface ButtonProps<T = HTMLButtonElement>
   ghost?: boolean
   disabled?: boolean
   loading?: boolean
+  type?: 'button' | 'reset' | 'submit'
 }
 
-const buttonStyles = ({
+function buttonStyles<T>({
   color = 'primary',
   className,
   size,
   ghost,
   disabled,
   loading,
-}: ButtonProps) =>
-  clsx(
+}: ButtonProps<T>) {
+  return clsx(
     'btn',
     {
       'btn-primary': color === 'primary',
@@ -71,16 +74,18 @@ const buttonStyles = ({
     loading && 'loading',
     className
   )
+}
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, color = 'primary', size = 'md', loading, ...props }, ref) => (
-    <button
-      ref={ref}
-      className={buttonStyles({ color, className, size, loading, ...props })}
-      {...props}
-    />
-  )
-)
+export const Button = React.forwardRef<
+  HTMLButtonElement,
+  ButtonProps<HTMLButtonElement>
+>(({ className, color = 'primary', size = 'md', loading, ...props }, ref) => (
+  <button
+    ref={ref}
+    className={buttonStyles({ color, className, size, loading, ...props })}
+    {...props}
+  />
+))
 
 export const LabelButton = React.forwardRef<
   HTMLLabelElement,
@@ -93,7 +98,14 @@ export const LabelButton = React.forwardRef<
   />
 ))
 
-export type ButtonLinkProps = (LinkProps | HTMLAnchorElement) & ButtonProps
+export type ButtonLinkProps = (
+  | LinkProps
+  | (React.HTMLAttributes<HTMLAnchorElement> & {
+      href: string
+      target?: string
+    })
+) &
+  ButtonProps
 
 export const ButtonLink: React.FC<ButtonLinkProps> = ({
   className,
@@ -156,6 +168,9 @@ export const Typography = React.forwardRef<
 
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   width?: 'full' | 'half'
+  name?: string
+  required?: boolean
+  type?: string
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -200,17 +215,21 @@ export const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
   )
 )
 
-export const A = React.forwardRef<
-  HTMLAnchorElement,
-  React.HTMLAttributes<HTMLAnchorElement>
->(({ className, ...props }, ref) => (
-  /* eslint-disable-next-line jsx-a11y/anchor-has-content */
-  <a
-    ref={ref}
-    className={clsx('link', 'link-hover', 'link-primary', className)}
-    {...props}
-  />
-))
+type AProps = React.HTMLAttributes<HTMLHyperlinkElementUtils> & {
+  href: string
+  target?: string
+}
+
+export const A = React.forwardRef<HTMLAnchorElement, AProps>(
+  ({ className, ...props }, ref) => (
+    /* eslint-disable-next-line jsx-a11y/anchor-has-content */
+    <a
+      ref={ref}
+      className={clsx('link', 'link-hover', 'link-primary', className)}
+      {...props}
+    />
+  )
+)
 
 export interface FieldsetProps
   extends React.HTMLAttributes<HTMLFieldSetElement> {

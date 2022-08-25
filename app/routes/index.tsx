@@ -112,7 +112,7 @@ export default function Index() {
         >
           <ButtonLinkGroupWrapper>
             {!user ? (
-              <SpotifyLoginButton state={'#'} />
+              <SpotifyLoginButton />
             ) : (
               <>
                 <ButtonLink to="/spotify/album" disabled={loading}>

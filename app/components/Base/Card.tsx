@@ -2,19 +2,14 @@ import React from 'react'
 import clsx from 'clsx'
 import { Link, LinkProps } from '@remix-run/react'
 
-interface BaseProps {
+interface Props
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'media' | 'title'> {
   media?: React.ReactNode
   title: React.ReactNode | string
   body?: React.ReactNode
   actions?: React.ReactNode
   mediaZoomOnHover?: boolean
   actionsClassName?: string
-}
-
-interface Props<T extends 'a' | 'div' | 'section' = 'div'>
-  extends React.HTMLAttributes<HTMLAnchorElement>,
-    BaseProps {
-  component?: T
 }
 
 const cardWrapperClasses = (
@@ -38,7 +33,6 @@ const cardWrapperClasses = (
 export const Card = React.forwardRef<any, Props>(
   (
     {
-      component = 'div',
       media,
       title,
       body,
@@ -50,10 +44,8 @@ export const Card = React.forwardRef<any, Props>(
     },
     ref
   ) => {
-    const Wrapper = component
-
     return (
-      <Wrapper
+      <div
         className={cardWrapperClasses({ mediaZoomOnHover, className })}
         ref={ref}
         {...props}
@@ -86,12 +78,14 @@ export const Card = React.forwardRef<any, Props>(
             </div>
           )}
         </div>
-      </Wrapper>
+      </div>
     )
   }
 )
 
-export const CardLink: React.FC<BaseProps & Omit<LinkProps, 'children'>> = ({
+export const CardLink: React.FC<
+  Props & Omit<LinkProps, 'children' | 'media'>
+> = ({
   media,
   title,
   body,

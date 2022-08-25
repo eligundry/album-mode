@@ -8,5 +8,7 @@ declare global {
       SENTRY_RELEASE: string
       NODE_ENV: typeof process.env.NODE_ENV
     }
+
+    dataLayer: any[]
   }
 }

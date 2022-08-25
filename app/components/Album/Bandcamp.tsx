@@ -6,7 +6,7 @@ import AlbumWrapper from './Wrapper'
 import { Container, A } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 import { useDaisyPallete } from '~/hooks/useTailwindTheme'
-import type { Tweet } from '~/lib/types/twitter.server'
+import type { Tweet } from '~/lib/types/twitter'
 
 interface Props {
   album: Omit<BandcampDailyAlbum, 'createdAt' | 'updatedAt'> | Tweet
@@ -74,6 +74,8 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
         }
         footer={footer}
         reviewProps={{
+          // @TODO figure out how I want to save bandcamp tweets
+          // @ts-ignore
           item: {
             ...album,
             type: 'bandcamp',

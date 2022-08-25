@@ -69,9 +69,11 @@ export class Spotify {
     // breadcrumbs for all Spotify requests to Sentry.
     return new Proxy(this.api, {
       get(target, propKey, receiver) {
+        // @ts-ignore
         const originalMethod = target?.[propKey]
 
         if (typeof originalMethod === 'function') {
+          // @ts-ignore
           return function (...args) {
             const methodName = propKey.toString()
             const shouldTrack =
@@ -99,6 +101,7 @@ export class Spotify {
             }
 
             try {
+              // @ts-ignore
               const res = originalMethod.apply(this, args)
 
               if (

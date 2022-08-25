@@ -12,13 +12,7 @@ interface Props {
   footer?: React.ReactNode
 }
 
-const YouTube: React.FC<Props> = ({
-  title,
-  url,
-  redditURL,
-  youtubeID,
-  footer,
-}) => {
+const YouTube: React.FC<Props> = ({ title, url, youtubeID, footer }) => {
   const sendEvent = useGTM()
 
   return (
