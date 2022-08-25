@@ -96,7 +96,6 @@ const getLibrary = async (username: string): Promise<CurrentLibrary> => {
       ) ?? [],
     removedItemTimestamps:
       removedItems.Items?.map((item) => {
-        console.log(item.DeletedAt)
         return item.DeletedAt.S
           ? new Date(item.DeletedAt.S).toISOString()
           : null
