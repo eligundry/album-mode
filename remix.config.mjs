@@ -3,7 +3,7 @@
  */
 export default {
   serverBuildTarget: 'netlify',
-  server: './server.js',
+  server: './server.mjs',
   ignoredRouteFiles: ['.*'],
   // appDirectory: "app",
   // assetsBuildDirectory: "public/build",

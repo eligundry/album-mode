@@ -8,6 +8,8 @@ import * as build from '@remix-run/dev/server-build'
  *    `netlify-graph-auth`.
  *  - `netlifyGraphSignature`: a signature for subscription events. Will be
  *    present if a secret is set.
+ *
+ * @type {import('@remix-run/netlify').GetLoadContextFunction}
  */
 function getLoadContext(event, context) {
   let rawAuthorizationString
