@@ -27,6 +27,7 @@ model Publication {
   name String
   slug String @unique
   blurb String?
+  url String?
   albums AlbumReviewedByPublication[]
 }
 
