@@ -137,16 +137,6 @@ export default function PublicationBySlug() {
         </A>
       </Heading>
     )
-    breadcrumbs.push([
-      data.review.publicationName,
-      <A
-        href={`https://pitchfork.com?${url.searchParams.toString()}`}
-        target="_blank"
-        key="publication-url"
-      >
-        {data.review.publicationName}
-      </A>,
-    ])
   } else if (data.slug === 'needle-drop' && 'review' in data) {
     const url = new URL(data.review.slug)
     url.searchParams.set('utm_campaign', 'publication')
@@ -159,13 +149,17 @@ export default function PublicationBySlug() {
         </A>
       </Heading>
     )
+  }
+
+  if (data.review.publicationURL) {
+    const publicationURL = new URL(data.review.publicationURL)
+    publicationURL.searchParams.set('utm_source', 'album-mode.party')
+    publicationURL.searchParams.set('utm_campaign', 'publication')
+    publicationURL.searchParams.set('utm_term', data.review.publicationSlug)
+
     breadcrumbs.push([
       data.review.publicationName,
-      <A
-        href={`https://www.theneedledrop.com/?${url.searchParams.toString()}`}
-        target="_blank"
-        key="publication-url"
-      >
+      <A href={publicationURL.toString()} target="_blank" key="publication-url">
         {data.review.publicationName}
       </A>,
     ])
