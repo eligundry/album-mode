@@ -134,30 +134,37 @@ export default function PublicationBySlug() {
   let footer = null
   let breadcrumbs: SearchBreadcrumbsProps['crumbs'] = ['Publication']
 
-  if (data.slug.includes('p4k') && 'review' in data) {
+  if ('review' in data) {
     const url = new URL(data.review.slug)
     url.searchParams.set('utm_campaign', 'publication')
 
-    footer = (
-      <Heading level="h5">
-        Read the{' '}
-        <A href={url.toString()} target="_blank">
-          Pitchfork Review
-        </A>
-      </Heading>
-    )
-  } else if (data.slug === 'needle-drop' && 'review' in data) {
-    const url = new URL(data.review.slug)
-    url.searchParams.set('utm_campaign', 'publication')
-
-    footer = (
-      <Heading level="h5">
-        Watch the{' '}
-        <A href={url.toString()} target="_blank">
-          Needle Drop review on YouTube
-        </A>
-      </Heading>
-    )
+    if (data.slug.includes('p4k')) {
+      footer = (
+        <Heading level="h5">
+          Read the{' '}
+          <A href={url.toString()} target="_blank">
+            Pitchfork Review
+          </A>
+        </Heading>
+      )
+    } else if (data.slug === 'needle-drop') {
+      footer = (
+        <Heading level="h5">
+          Watch the{' '}
+          <A href={url.toString()} target="_blank">
+            Needle Drop review on YouTube
+          </A>
+        </Heading>
+      )
+    } else if (data.slug === '33-13' && 'review' in data) {
+      footer = (
+        <Heading level="h5">
+          <A href={url.toString()} target="_blank">
+            Buy the {data.review.publicationName} book on this album
+          </A>
+        </Heading>
+      )
+    }
   }
 
   if (data.review.publicationURL) {
