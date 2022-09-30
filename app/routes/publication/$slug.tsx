@@ -1,5 +1,6 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import retry from 'async-retry'
 
 import db from '~/lib/db.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -48,7 +49,15 @@ export async function loader({ params, request }: LoaderArgs) {
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)
-  const { album, review } = await spotify.getRandomAlbumForPublication(slug)
+  const { album, review } = await retry(
+    async () => spotify.getRandomAlbumForPublication(slug),
+    {
+      retries: 5,
+      factor: 0,
+      minTimeout: 0,
+      randomize: false,
+    }
+  )
   const wiki = await wikipedia.getSummaryForAlbum({
     album: album.name,
     artist: album.artists[0].name,
