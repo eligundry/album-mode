@@ -156,7 +156,7 @@ export default function PublicationBySlug() {
           </A>
         </Heading>
       )
-    } else if (data.slug === '33-13' && 'review' in data) {
+    } else if (data.slug === '33-13-sound' && 'review' in data) {
       footer = (
         <Heading level="h5">
           <A href={url.toString()} target="_blank">
