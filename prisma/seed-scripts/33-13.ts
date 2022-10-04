@@ -8,15 +8,15 @@ const bloomsburyScraper = async (storeSlug: string) => {
   const publication = (await prisma.publication
     .create({
       data: {
-        name: '33 ⅓',
-        slug: '33-13',
+        name: '33 ⅓ Sound',
+        slug: '33-13-sound',
         url: 'https://333sound.com/33-13-series/',
       },
     })
     .catch(() =>
       prisma.publication.findFirst({
         where: {
-          slug: '33-13',
+          slug: '33-13-sound',
         },
       })
     )) as Publication
