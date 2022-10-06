@@ -134,7 +134,7 @@ export default function PublicationBySlug() {
   let footer = null
   let breadcrumbs: SearchBreadcrumbsProps['crumbs'] = ['Publication']
 
-  if ('review' in data) {
+  if ('review' in data && data.review.slug.startsWith('http')) {
     const url = new URL(data.review.slug)
     url.searchParams.set('utm_campaign', 'publication')
 
@@ -156,7 +156,7 @@ export default function PublicationBySlug() {
           </A>
         </Heading>
       )
-    } else if (data.slug === '33-13-sound' && 'review' in data) {
+    } else if (data.slug === '33-13-sound') {
       footer = (
         <Heading level="h5">
           <A href={url.toString()} target="_blank">
