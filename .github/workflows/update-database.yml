@@ -24,7 +24,7 @@ jobs:
         with:
           ref: main
 
-      - run: git checkout ${{ env.UPDATE_JOB_TAG }}
+      - run: git checkout -b ${{ env.UPDATE_JOB_TAG }}
 
       - uses: actions/setup-node@v3
         with:
