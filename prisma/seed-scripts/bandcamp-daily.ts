@@ -109,9 +109,9 @@ const scrape = async () => {
           .filter((album): album is DailyBandcampAlbum => !!album)
           .map(async (album) => {
             const data = {
-              albumID: album.raw.id,
+              albumID: album.raw.id.toString(),
               album: album.title,
-              artistID: album.raw.art_id,
+              artistID: album.raw.art_id.toString(),
               artist: album.artist,
               imageURL: album.imageUrl,
               url: album.url,

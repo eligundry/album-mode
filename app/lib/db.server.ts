@@ -133,31 +133,33 @@ interface GetRandomBandcampDailyAlbum {
 }
 
 const getRandomBandcampDailyAlbum = async ({
-  exceptID = 0,
-}: GetRandomBandcampDailyAlbum) =>
-  prisma
-    .$queryRaw<Omit<BandcampDailyAlbum, 'createdAt' | 'updatedAt'>[]>(
-      Prisma.sql`
-        SELECT
-          a.albumID,
-          a.album,
-          a.artistID,
-          a.artist,
-          a.bandcampDailyURL,
-          a.url,
-          a.imageURL
-        FROM BandcampDailyAlbum a
-        WHERE a.albumID = (
-          SELECT BandcampDailyAlbum.albumID
-          FROM BandcampDailyAlbum
-          WHERE BandcampDailyAlbum.albumID != ${Number(exceptID)}
-          ORDER BY random()
-          LIMIT 1
-        )
-        LIMIT 1
-      `
+  exceptID = '0',
+}: GetRandomBandcampDailyAlbum) => {
+  const query = Prisma.sql`
+    SELECT
+      a.albumID,
+      a.album,
+      a.artistID,
+      a.artist,
+      a.bandcampDailyURL,
+      a.url,
+      a.imageURL
+    FROM BandcampDailyAlbum a
+    WHERE a.albumID = (
+      SELECT BandcampDailyAlbum.albumID
+      FROM BandcampDailyAlbum
+      WHERE BandcampDailyAlbum.albumID != ${exceptID ?? '0'}
+      ORDER BY random()
+      LIMIT 1
     )
-    .then((res) => res[0])
+    LIMIT 1
+  `
+  const albums = await prisma.$queryRaw<
+    Omit<BandcampDailyAlbum, 'createdAt' | 'updatedAt'>[]
+  >(query)
+
+  return albums[0]
+}
 
 const searchGenres = async (q: string): Promise<string[]> => {
   return prisma.spotifyGenre

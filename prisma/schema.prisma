@@ -1,10 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+  provider        = "prisma-client-js"
   previewFeatures = ["interactiveTransactions"]
+  binaryTargets   = ["native", "rhel-openssl-1.0.x"]
 }
 
 datasource db {
@@ -13,101 +10,102 @@ datasource db {
 }
 
 model Label {
-  id Int @id @default(autoincrement())
-  name String
+  id          Int     @id @default(autoincrement())
+  name        String
   displayName String?
-  slug String @unique
-  genre String?
+  slug        String  @unique
+  genre       String?
 }
 
 model Publication {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name String
-  slug String @unique
-  blurb String?
-  url String?
-  albums AlbumReviewedByPublication[]
+  id        Int                          @id @default(autoincrement())
+  createdAt DateTime                     @default(now())
+  updatedAt DateTime                     @updatedAt
+  name      String
+  slug      String                       @unique
+  blurb     String?
+  url       String?
+  albums    AlbumReviewedByPublication[]
 }
 
 model AlbumReviewedByPublication {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  publication Publication @relation(fields: [publicationID], references: [id])
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   publicationID Int
-  artist String
-  album String
-  slug String @unique
-  resolvable Boolean @default(true)
+  artist        String
+  album         String
+  slug          String      @unique
+  resolvable    Boolean     @default(true)
+  publication   Publication @relation(fields: [publicationID], references: [id])
 }
 
 model BandcampDailyAlbum {
-  albumID Int @id
-  album String
-  artistID Int
-  artist String
+  albumID          String      @id
+  album            String
+  artistID         String
+  artist           String
   bandcampDailyURL String
-  imageURL String?
-  url String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  imageURL         String?
+  url              String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model ArtistGrouping {
-  id Int @id @default(autoincrement())
-  name String
-  slug String
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  artists Artist[]
+  artists   Artist[]
 }
 
 model Artist {
-  id Int @id @default(autoincrement())
-  groupID Int
-  group ArtistGrouping @relation(fields: [groupID], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name String
+  id        Int            @id @default(autoincrement())
+  groupID   Int
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  name      String
+  group     ArtistGrouping @relation(fields: [groupID], references: [id])
 }
 
 model SpotifyGenre {
-  id Int @id @default(autoincrement())
-  name String @unique
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Subreddit {
-  id Int @id @default(autoincrement())
-  slug String @unique
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model TwitterUser {
-  userID String @id @unique
-  username String @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tweets TweetAlbum[]
+  userID    String       @id @unique
+  username  String       @unique
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  tweets    TweetAlbum[]
 }
 
 model TweetAlbum {
   twitterUserID String
-  user TwitterUser @relation(fields: [twitterUserID], references: [userID])
-  tweetID String
-  service String
-  itemType String
-  album String
-  albumID String
-  artist String
-  artistID String
-  url String
-  imageURL String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  tweetID       String
+  service       String
+  itemType      String
+  album         String
+  albumID       String
+  artist        String
+  artistID      String
+  url           String
+  imageURL      String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          TwitterUser @relation(fields: [twitterUserID], references: [userID])
+
   @@unique([tweetID, url])
 }
