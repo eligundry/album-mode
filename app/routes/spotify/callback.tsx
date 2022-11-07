@@ -30,3 +30,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const ErrorBoundary = GenericErrorBoundary
 export const CatchBoundary = GenericCatchBoundary
+
+export default function Callback() {
+  return null
+}

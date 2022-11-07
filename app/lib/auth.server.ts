@@ -14,7 +14,7 @@ export type AuthCookie = {
 
 const cookieFactory = createCookie('auth', {
   httpOnly: true,
-  sameSite: 'strict',
+  // sameSite: 'strict',
   secure: true,
 })
 

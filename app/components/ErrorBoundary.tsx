@@ -25,8 +25,7 @@ export const GenericErrorBoundary: React.FC<GenericErrorBoundaryProps> = ({
         <div className={clsx('prose')}>
           <Heading level="h2">⛔️ Whoops!</Heading>
           <Typography>
-            We seemed to have run into an error. We are working on fixing it
-            now.
+            We seem to have run into an error. We are working on fixing it now.
           </Typography>
           <details className={clsx('mb-6')}>
             <summary>Detailed error message</summary>
@@ -37,7 +36,7 @@ export const GenericErrorBoundary: React.FC<GenericErrorBoundaryProps> = ({
             </pre>
           </details>
           <ButtonLink to="/">
-            <EmojiText emoji="🏚" label="refresh icon">
+            <EmojiText emoji="🏚" label="broken home">
               Head Home
             </EmojiText>
           </ButtonLink>

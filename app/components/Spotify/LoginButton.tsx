@@ -19,7 +19,9 @@ const SpotifyLoginButton: React.FC<Props> = ({
   const { loading } = useLoading()
 
   useAsync(async () => {
-    const stateResp = await fetch('/api/spotify-state')
+    const stateResp = await fetch('/api/spotify-state', {
+      credentials: 'include',
+    })
     const { state } = await stateResp.json()
 
     const loginURL = new URL('https://accounts.spotify.com/authorize')
