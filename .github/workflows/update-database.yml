@@ -76,12 +76,14 @@ jobs:
           max_attempts: 5
           command: npm run seed-script -- prisma/seed-scripts/bandcamp-daily.ts
 
-      - name: 'Pull 33⅓ reviews'
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 10
-          max_attempts: 5
-          command: npm run seed-script -- prisma/seed-scripts/33-13.ts
+      # @TODO This keeps timing out on the last pages. Data doesn't update
+      # often, so we can run it manually for now.
+      # - name: 'Pull 33⅓ reviews'
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 10
+      #     max_attempts: 5
+      #     command: npm run seed-script -- prisma/seed-scripts/33-13.ts
 
       - name: 'Pull Needle Drop reviews'
         uses: nick-fields/retry@v2
