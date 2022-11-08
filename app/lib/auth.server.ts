@@ -14,6 +14,7 @@ export type AuthCookie = {
 
 const cookieFactory = createCookie('auth', {
   httpOnly: true,
+  // This doesn't play well with iOS Safari for reasons I do not care about
   // sameSite: 'strict',
   secure: true,
 })
