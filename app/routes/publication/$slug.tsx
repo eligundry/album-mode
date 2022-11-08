@@ -14,28 +14,35 @@ import AlbumErrorBoundary, {
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
+import ServerTiming from '~/lib/serverTiming.server'
 
 export async function loader({ params, request }: LoaderArgs) {
-  const slug = params.slug?.trim()
   const headers = new Headers()
+  const slug = params.slug?.trim()
   const lastPresentedID = await lastPresented.getLastPresentedID(request)
+  const serverTiming = new ServerTiming()
 
   if (!slug) {
     throw json({ error: 'slug must be provided in the URL' }, 400)
   }
 
   if (slug === 'bandcamp-daily') {
-    const album = await db.getRandomBandcampDailyAlbum({
-      exceptID: lastPresentedID ?? undefined,
-    })
-    const wiki = await wikipedia.getSummaryForAlbum({
-      album: album.album,
-      artist: album.artist,
-    })
+    const album = await serverTiming.time('db', () =>
+      db.getRandomBandcampDailyAlbum({
+        exceptID: lastPresentedID ?? undefined,
+      })
+    )
+    const wiki = await serverTiming.time('wikipedia', () =>
+      wikipedia.getSummaryForAlbum({
+        album: album.album,
+        artist: album.artist,
+      })
+    )
     headers.set(
       'Set-Cookie',
       await lastPresented.set(request, album.albumID.toString())
     )
+    headers.set(serverTiming.headerKey, serverTiming.header())
 
     return json(
       {
@@ -48,9 +55,25 @@ export async function loader({ params, request }: LoaderArgs) {
     )
   }
 
-  const spotify = await spotifyLib.initializeFromRequest(request)
+  const spotify = await serverTiming.time('spotify-init', () =>
+    spotifyLib.initializeFromRequest(request)
+  )
+
   const { album, review } = await retry(
-    async () => spotify.getRandomAlbumForPublication(slug),
+    async (_, attempt) => {
+      const review = await serverTiming.time(`db-attempt-${attempt}`, () =>
+        db.getRandomAlbumForPublication({
+          publicationSlug: slug,
+          exceptID: lastPresentedID,
+        })
+      )
+      const album = await serverTiming.time(
+        `spotify-fetch-attempt-${attempt}`,
+        () => spotify.getAlbum(review.album, review.artist)
+      )
+
+      return { album, review }
+    },
     {
       retries: 5,
       factor: 0,
@@ -58,14 +81,17 @@ export async function loader({ params, request }: LoaderArgs) {
       randomize: false,
     }
   )
-  const wiki = await wikipedia.getSummaryForAlbum({
-    album: album.name,
-    artist: album.artists[0].name,
-  })
+  const wiki = await serverTiming.time('wikipedia', () =>
+    wikipedia.getSummaryForAlbum({
+      album: album.name,
+      artist: album.artists[0].name,
+    })
+  )
   headers.set(
     'Set-Cookie',
     await lastPresented.set(request, review.id.toString())
   )
+  headers.set(serverTiming.headerKey, serverTiming.header())
 
   return json(
     {

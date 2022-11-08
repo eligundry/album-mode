@@ -317,25 +317,6 @@ export class Spotify {
     return this.getRandomAlbumForArtistByID(targetArtistID)
   }
 
-  getRandomAlbumForPublication = async (
-    publicationSlug: string
-  ): Promise<{
-    review: Awaited<ReturnType<typeof db.getRandomAlbumForPublication>>
-    album: SpotifyApi.AlbumObjectSimplified
-  }> => {
-    const review = await db.getRandomAlbumForPublication({
-      publicationSlug,
-      exceptID: this.lastPresentedID,
-    })
-    const album = await this.getAlbum(review.album, review.artist)
-
-    if (!album) {
-      return this.getRandomAlbumForPublication(publicationSlug)
-    }
-
-    return { review, album }
-  }
-
   async getRandomAlbumForLabel(label: string) {
     return this.getRandomAlbumForSearchTerm(`label:"${label}"`, 500)
   }
