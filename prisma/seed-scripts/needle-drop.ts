@@ -34,13 +34,12 @@ const needleDrop = async () => {
 
   const albumArtistMap: DataMap = {}
   const browser = await chromium.launch()
+  let scoresAboveSix = true
+  let shouldContinue = true
+  let pageNum = 1
 
   try {
-    for (
-      let pageNum = 1, shouldContinue = true;
-      shouldContinue && pageNum <= 72;
-      pageNum++
-    ) {
+    while (scoresAboveSix && shouldContinue) {
       const context = await browser.newContext({
         userAgent:
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36',
@@ -76,18 +75,22 @@ const needleDrop = async () => {
       const reviewsCount = await reviewRows.count()
 
       for (let i = 0; i < reviewsCount; i++) {
-        const artistAlbum = await reviewRows
-          .nth(i)
-          .locator('.albumListTitle a')
-          .textContent()
-        const reviewURL = await reviewRows
-          .nth(i)
-          .locator('.scoreText a')
-          .getAttribute('href')
+        const row = reviewRows.nth(i)
+        const artistAlbum = await row.locator('.albumListTitle a').textContent()
+        const reviewURL = await row.locator('.scoreText a').getAttribute('href')
+        const score = parseInt(
+          (await row.locator('.scoreValue').textContent()) ?? '0'
+        )
 
         if (!artistAlbum || !reviewURL) {
           console.warn(`could not pull data for row ${i}`)
           continue
+        }
+
+        if (score < 60) {
+          scoresAboveSix = false
+          console.log('score is below 6, finishing fetching reviews')
+          break
         }
 
         const [artist, album] = artistAlbum.split(' - ')
@@ -103,25 +106,31 @@ const needleDrop = async () => {
 
       await page.close()
       await context.close()
+      pageNum++
     }
   } finally {
     await browser.close()
   }
 
+  let inserted = 0
+
   await Promise.all(
     Object.entries(albumArtistMap).map(([album, { artist, reviewURL }]) =>
-      prisma.albumReviewedByPublication.create({
-        data: {
-          publicationID: publication.id,
-          album: album,
-          artist: artist,
-          slug: reviewURL,
-        },
-      })
+      prisma.albumReviewedByPublication
+        .create({
+          data: {
+            publicationID: publication.id,
+            album: album,
+            artist: artist,
+            slug: reviewURL,
+          },
+        })
+        .then(() => inserted++)
+        .catch(() => {})
     )
   )
 
-  console.log(albumArtistMap)
+  console.log(`inserted ${inserted} albums`)
 }
 
 needleDrop()
