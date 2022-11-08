@@ -22,11 +22,20 @@ const getSummaryForAlbum = async (search: AlbumSearch) => {
 
   try {
     const searchResp = await wiki.search(`${search.album} ${search.artist}`)
-    // console.log(searchResp.results)
     const pageResp = await wiki.page(searchResp.results[0].pageid)
     const summary = await pageResp.summary()
 
-    return summary
+    return {
+      extract_html: summary.extract_html,
+      content_urls: {
+        desktop: {
+          page: summary.content_urls.desktop.page,
+        },
+        mobile: {
+          page: summary.content_urls.mobile.page,
+        },
+      },
+    }
   } catch (e) {
     return null
   } finally {

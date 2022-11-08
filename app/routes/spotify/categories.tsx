@@ -10,24 +10,26 @@ import {
   GenericErrorBoundary,
   GenericCatchBoundary,
 } from '~/components/ErrorBoundary'
+import ServerTiming from '~/lib/serverTiming.server'
 
 export const meta: MetaFunction = () => ({
   title: 'Spotify Playlist Categories | Album Mode.party 🎉',
 })
 
 export async function loader({ request }: LoaderArgs) {
-  const spotify = await spotifyLib.initializeFromRequest(request)
-
-  return json(
-    {
-      categories: await spotify.getCategories(),
-    },
-    {
-      headers: {
-        'Cache-Control': config.cacheControl.public,
-      },
-    }
+  const serverTiming = new ServerTiming()
+  const headers = new Headers({
+    'Cache-Control': config.cacheControl.public,
+  })
+  const spotify = await serverTiming.time('spotify-init', () =>
+    spotifyLib.initializeFromRequest(request)
   )
+  const categories = await serverTiming.time('spotify-fetch', () =>
+    spotify.getCategories()
+  )
+  headers.set(serverTiming.headerKey, serverTiming.header())
+
+  return json({ categories }, { headers })
 }
 
 export const ErrorBoundary = GenericErrorBoundary

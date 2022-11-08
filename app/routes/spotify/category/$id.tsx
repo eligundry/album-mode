@@ -1,5 +1,6 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import promiseHash from 'promise-hash'
 
 import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -8,6 +9,7 @@ import Playlist from '~/components/Album/Playlist'
 import PlaylistErrorBoundary, {
   AlbumCatchBoundary as PlaylistCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
+import ServerTiming from '~/lib/serverTiming.server'
 
 export async function loader({ params, request }: LoaderArgs) {
   const categoryID = params.id?.trim()
@@ -16,22 +18,28 @@ export async function loader({ params, request }: LoaderArgs) {
     throw json({ error: 'categoryID must be set as a route parameter' }, 400)
   }
 
-  const spotify = await spotifyLib.initializeFromRequest(request)
-  const category = await spotify.getCategory(categoryID)
-  const playlist = await spotify.getRandomPlaylistForCategory(categoryID)
+  const headers = new Headers()
+  const serverTiming = new ServerTiming()
+  const spotify = await serverTiming.time('spotify-init', () =>
+    spotifyLib.initializeFromRequest(request)
+  )
+  const { category, playlist } = await promiseHash({
+    category: serverTiming.time('spotify-fetch-category', () =>
+      spotify.getCategory(categoryID)
+    ),
+    playlist: serverTiming.time('spotify-fetch-playlist', () =>
+      spotify.getRandomPlaylistForCategory(categoryID)
+    ),
+  })
 
   if (!category) {
     throw json({ error: 'could not pull category' }, 500)
   }
 
-  return json(
-    { playlist, category },
-    {
-      headers: {
-        'Set-Cookie': await lastPresented.set(request, playlist.id),
-      },
-    }
-  )
+  headers.set('Set-Cookie', await lastPresented.set(request, playlist.id))
+  headers.set(serverTiming.headerKey, serverTiming.header())
+
+  return json({ playlist, category }, { headers })
 }
 
 export const ErrorBoundary = PlaylistErrorBoundary

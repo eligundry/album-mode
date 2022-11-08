@@ -8,19 +8,21 @@ import Playlist from '~/components/Album/Playlist'
 import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
+import ServerTiming from '~/lib/serverTiming.server'
 
 export async function loader({ request }: LoaderArgs) {
-  const spotify = await spotifyLib.initializeFromRequest(request)
-  const playlist = await spotify.getRandomFeaturedPlaylist()
-
-  return json(
-    { playlist },
-    {
-      headers: {
-        'Set-Cookie': await lastPresented.set(request, playlist.id),
-      },
-    }
+  const headers = new Headers()
+  const serverTiming = new ServerTiming()
+  const spotify = await serverTiming.time('spotify-init', () =>
+    spotifyLib.initializeFromRequest(request)
   )
+  const playlist = await serverTiming.time('spotify-fetch', () =>
+    spotify.getRandomFeaturedPlaylist()
+  )
+  headers.set('Set-Cookie', await lastPresented.set(request, playlist.id))
+  headers.set(serverTiming.headerKey, serverTiming.header())
+
+  return json({ playlist }, { headers })
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
