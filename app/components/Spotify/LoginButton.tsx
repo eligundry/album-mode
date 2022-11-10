@@ -41,7 +41,7 @@ const SpotifyLoginButton: React.FC<Props> = ({
     <ButtonLink
       href={loginURL?.toString() ?? '#'}
       className={className}
-      disabled={loading}
+      disabled={loading || !loginURL}
     >
       {children}
     </ButtonLink>
