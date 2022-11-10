@@ -1,5 +1,6 @@
 import { json, LoaderArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import ServerTiming from '@eligundry/server-timing'
 
 import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -8,19 +9,18 @@ import Playlist from '~/components/Album/Playlist'
 import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
-import ServerTiming from '~/lib/serverTiming.server'
 
 export async function loader({ request }: LoaderArgs) {
   const headers = new Headers()
   const serverTiming = new ServerTiming()
-  const spotify = await serverTiming.time('spotify-init', () =>
+  const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
-  const playlist = await serverTiming.time('spotify-fetch', () =>
+  const playlist = await serverTiming.track('spotify.fetch', () =>
     spotify.getRandomFeaturedPlaylist()
   )
   headers.set('Set-Cookie', await lastPresented.set(request, playlist.id))
-  headers.set(serverTiming.headerKey, serverTiming.header())
+  headers.set(serverTiming.headerKey, serverTiming.toString())
 
   return json({ playlist }, { headers })
 }

@@ -1,6 +1,7 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
+import ServerTiming from '@eligundry/server-timing'
 
 import db from '~/lib/db.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -14,7 +15,6 @@ import AlbumErrorBoundary, {
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
-import ServerTiming from '~/lib/serverTiming.server'
 
 export async function loader({ params, request }: LoaderArgs) {
   const headers = new Headers()
@@ -27,12 +27,12 @@ export async function loader({ params, request }: LoaderArgs) {
   }
 
   if (slug === 'bandcamp-daily') {
-    const album = await serverTiming.time('db', () =>
+    const album = await serverTiming.track('db', () =>
       db.getRandomBandcampDailyAlbum({
         exceptID: lastPresentedID ?? undefined,
       })
     )
-    const wiki = await serverTiming.time('wikipedia', () =>
+    const wiki = await serverTiming.track('wikipedia', () =>
       wikipedia.getSummaryForAlbum({
         album: album.album,
         artist: album.artist,
@@ -42,7 +42,7 @@ export async function loader({ params, request }: LoaderArgs) {
       'Set-Cookie',
       await lastPresented.set(request, album.albumID.toString())
     )
-    headers.set(serverTiming.headerKey, serverTiming.header())
+    headers.set(serverTiming.headerKey, serverTiming.toString())
 
     return json(
       {
@@ -55,22 +55,25 @@ export async function loader({ params, request }: LoaderArgs) {
     )
   }
 
-  const spotify = await serverTiming.time('spotify-init', () =>
+  const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
 
   const { album, review } = await retry(
     async (_, attempt) => {
-      const review = await serverTiming.time(`db-attempt-${attempt}`, () =>
+      const review = await serverTiming.track(`db`, () =>
         db.getRandomAlbumForPublication({
           publicationSlug: slug,
           exceptID: lastPresentedID,
         })
       )
-      const album = await serverTiming.time(
-        `spotify-fetch-attempt-${attempt}`,
-        () => spotify.getAlbum(review.album, review.artist)
+      const album = await serverTiming.track(`spotify.fetch`, () =>
+        spotify.getAlbum(review.album, review.artist)
       )
+      serverTiming.add({
+        label: 'attempts',
+        desc: `${attempt} Attempt(s)`,
+      })
 
       return { album, review }
     },
@@ -81,7 +84,7 @@ export async function loader({ params, request }: LoaderArgs) {
       randomize: false,
     }
   )
-  const wiki = await serverTiming.time('wikipedia', () =>
+  const wiki = await serverTiming.track('wikipedia', () =>
     wikipedia.getSummaryForAlbum({
       album: album.name,
       artist: album.artists[0].name,
@@ -91,7 +94,7 @@ export async function loader({ params, request }: LoaderArgs) {
     'Set-Cookie',
     await lastPresented.set(request, review.id.toString())
   )
-  headers.set(serverTiming.headerKey, serverTiming.header())
+  headers.set(serverTiming.headerKey, serverTiming.toString())
 
   return json(
     {

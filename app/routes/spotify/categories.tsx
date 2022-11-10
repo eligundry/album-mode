@@ -1,6 +1,7 @@
 import { json, MetaFunction, LoaderArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
+import ServerTiming from '@eligundry/server-timing'
 
 import spotifyLib from '~/lib/spotify.server'
 import { Layout, Container, Heading } from '~/components/Base'
@@ -10,7 +11,6 @@ import {
   GenericErrorBoundary,
   GenericCatchBoundary,
 } from '~/components/ErrorBoundary'
-import ServerTiming from '~/lib/serverTiming.server'
 
 export const meta: MetaFunction = () => ({
   title: 'Spotify Playlist Categories | Album Mode.party 🎉',
@@ -21,13 +21,13 @@ export async function loader({ request }: LoaderArgs) {
   const headers = new Headers({
     'Cache-Control': config.cacheControl.public,
   })
-  const spotify = await serverTiming.time('spotify-init', () =>
+  const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
-  const categories = await serverTiming.time('spotify-fetch', () =>
+  const categories = await serverTiming.track('spotify.fetch', () =>
     spotify.getCategories()
   )
-  headers.set(serverTiming.headerKey, serverTiming.header())
+  headers.set(serverTiming.headerKey, serverTiming.toString())
 
   return json({ categories }, { headers })
 }
