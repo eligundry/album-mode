@@ -1,5 +1,6 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import ServerTiming from '@eligundry/server-timing'
 
 import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -10,7 +11,6 @@ import AlbumErrorBoundary, {
 import { Layout } from '~/components/Base'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
-import ServerTiming from '~/lib/serverTiming.server'
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
@@ -25,13 +25,13 @@ export async function loader({ request }: LoaderArgs) {
 
   const headers = new Headers()
   const serverTiming = new ServerTiming()
-  const spotify = await serverTiming.time('spotify-init', () =>
+  const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
-  const album = await serverTiming.time('spotify-fetch', () =>
+  const album = await serverTiming.track('spotify.fetch', () =>
     spotify.getRandomAlbumByGenre(genre)
   )
-  const wiki = await serverTiming.time('wikipedia', () =>
+  const wiki = await serverTiming.track('wikipedia', () =>
     wikipedia.getSummaryForAlbum({
       album: album.name,
       artist: album.artists[0].name,
@@ -39,7 +39,7 @@ export async function loader({ request }: LoaderArgs) {
   )
 
   headers.set('Set-Cookie', await lastPresented.set(request, album.id))
-  headers.set(serverTiming.headerKey, serverTiming.header())
+  headers.set(serverTiming.headerKey, serverTiming.toString())
 
   return json(
     {

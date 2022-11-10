@@ -1,5 +1,6 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import ServerTiming from '@eligundry/server-timing'
 
 import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -10,7 +11,6 @@ import AlbumErrorBoundary, {
 } from '~/components/Album/ErrorBoundary'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
-import ServerTiming from '~/lib/serverTiming.server'
 
 export async function loader({ request }: LoaderArgs) {
   const headers = new Headers()
@@ -18,7 +18,7 @@ export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url)
   let artist = url.searchParams.get('artist')
   const artistID = url.searchParams.get('artistID')
-  const spotify = await serverTiming.time('spotify-init', () =>
+  const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
   let album: SpotifyApi.AlbumObjectSimplified | undefined
@@ -31,15 +31,15 @@ export async function loader({ request }: LoaderArgs) {
       searchMethod = spotify.getRandomAlbumForArtist
     }
 
-    album = await serverTiming.time('spotify-fetch', () =>
+    album = await serverTiming.track('spotify.fetch', () =>
       searchMethod(artist as string)
     )
   } else if (artistID) {
     ;[album, artist] = await Promise.all([
-      serverTiming.time('spotify-album-fetch', () =>
+      serverTiming.track('spotify.album-fetch', () =>
         spotify.getRandomAlbumForRelatedArtistByID(artistID)
       ),
-      serverTiming.time('spotify-artist-name-fetch', () =>
+      serverTiming.track('spotify.artist-name-fetch', () =>
         spotify
           .getClient()
           .then((client) => client.getArtist(artistID))
@@ -53,9 +53,15 @@ export async function loader({ request }: LoaderArgs) {
     )
   }
 
-  const wiki = await serverTiming.time('wikipedia', () => {
+  const wiki = await serverTiming.track('wikipedia', () => {
     if (!album) {
-      throw json({ error: 'could not fetch album' }, 500)
+      throw json(
+        { error: 'could not fetch album' },
+        {
+          status: 500,
+          headers: serverTiming.headers(),
+        }
+      )
     }
 
     return wikipedia.getSummaryForAlbum({
@@ -64,7 +70,7 @@ export async function loader({ request }: LoaderArgs) {
     })
   })
   headers.set('Set-Cookie', await lastPresented.set(request, album.id))
-  headers.set(serverTiming.headerKey, serverTiming.header())
+  headers.set(serverTiming.headerKey, serverTiming.toString())
 
   return json(
     {

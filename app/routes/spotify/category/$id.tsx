@@ -1,6 +1,7 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import promiseHash from 'promise-hash'
+import ServerTiming from '@eligundry/server-timing'
 
 import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -9,7 +10,6 @@ import Playlist from '~/components/Album/Playlist'
 import PlaylistErrorBoundary, {
   AlbumCatchBoundary as PlaylistCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
-import ServerTiming from '~/lib/serverTiming.server'
 
 export async function loader({ params, request }: LoaderArgs) {
   const categoryID = params.id?.trim()
@@ -20,14 +20,14 @@ export async function loader({ params, request }: LoaderArgs) {
 
   const headers = new Headers()
   const serverTiming = new ServerTiming()
-  const spotify = await serverTiming.time('spotify-init', () =>
+  const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
   const { category, playlist } = await promiseHash({
-    category: serverTiming.time('spotify-fetch-category', () =>
+    category: serverTiming.track('spotify.fetch-category', () =>
       spotify.getCategory(categoryID)
     ),
-    playlist: serverTiming.time('spotify-fetch-playlist', () =>
+    playlist: serverTiming.track('spotify.fetch-playlist', () =>
       spotify.getRandomPlaylistForCategory(categoryID)
     ),
   })
@@ -37,7 +37,7 @@ export async function loader({ params, request }: LoaderArgs) {
   }
 
   headers.set('Set-Cookie', await lastPresented.set(request, playlist.id))
-  headers.set(serverTiming.headerKey, serverTiming.header())
+  headers.set(serverTiming.headerKey, serverTiming.toString())
 
   return json({ playlist, category }, { headers })
 }
