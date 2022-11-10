@@ -1,5 +1,6 @@
 import wiki from 'wikipedia'
 import * as Sentry from '@sentry/remix'
+import util from 'util'
 
 interface AlbumSearch {
   album: string
@@ -21,9 +22,11 @@ const getSummaryForAlbum = async (search: AlbumSearch) => {
   })
 
   try {
-    const searchResp = await wiki.search(`${search.album} ${search.artist}`)
-    const pageResp = await wiki.page(searchResp.results[0].pageid)
-    const summary = await pageResp.summary()
+    const searchResp = await wiki.search(`${search.album} ${search.artist}`, {
+      limit: 1,
+      suggestion: true,
+    })
+    const summary = await wiki.summary(searchResp.results[0].title)
 
     return {
       extract_html: summary.extract_html,
