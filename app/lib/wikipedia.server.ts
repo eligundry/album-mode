@@ -1,6 +1,5 @@
 import wiki from 'wikipedia'
 import * as Sentry from '@sentry/remix'
-import util from 'util'
 
 interface AlbumSearch {
   album: string
