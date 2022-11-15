@@ -79,10 +79,10 @@ function App() {
   return (
     <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>
       <head>
-        <Tracking />
         <Meta />
-        <Links />
         <meta name="theme-color" content={pallete['base-100']} />
+        <Links />
+        <Tracking />
       </head>
       <body>
         <RootProvider user={data.user}>
