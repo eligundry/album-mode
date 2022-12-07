@@ -43,7 +43,8 @@
     "react-twitter-embed": "^4.0.4",
     "react-use": "^17.4.0",
     "spotify-web-api-node": "^5.0.2",
-    "wikipedia": "^1.1.9"
+    "wikipedia": "^1.1.9",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.7.4",
