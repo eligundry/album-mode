@@ -85,12 +85,14 @@ jobs:
       #     max_attempts: 5
       #     command: npm run seed-script -- prisma/seed-scripts/33-13.ts
 
-      - name: 'Pull Needle Drop reviews'
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 10
-          max_attempts: 5
-          command: npm run seed-script -- prisma/seed-scripts/needle-drop.ts
+      # @TODO This keeps running into issues because albumoftheyear.org is being
+      # super annoying about scraping.
+      # - name: 'Pull Needle Drop reviews'
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 10
+      #     max_attempts: 5
+      #     command: npm run seed-script -- prisma/seed-scripts/needle-drop.ts
 
       - name: 'Commit changes, if needed'
         uses: stefanzweifel/git-auto-commit-action@v4
