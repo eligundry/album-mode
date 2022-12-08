@@ -44,13 +44,16 @@ export const links: LinksFunction = () => [
   },
 ]
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request, context }: LoaderArgs) {
   const authCookie = await auth.getCookie(request)
+  const { serverTiming } = context
   let user = null
 
   if (authCookie?.spotify) {
-    const spotify = await spotifyLib.initializeFromRequest(request)
-    user = await spotify.getUser()
+    const spotify = await serverTiming.track('spotify.init', () =>
+      spotifyLib.initializeFromRequest(request)
+    )
+    user = await serverTiming.track('spotify.getUser', () => spotify.getUser())
   }
 
   return json(
@@ -66,6 +69,7 @@ export async function loader({ request }: LoaderArgs) {
     {
       headers: {
         'Cache-Control': config.cacheControl.private,
+        [serverTiming.headerKey]: serverTiming.toString(),
       },
     }
   )

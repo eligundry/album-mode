@@ -1,6 +1,8 @@
 import { chromium } from 'playwright'
 import { PrismaClient } from '@prisma/client'
 import kebabCase from 'lodash/kebabCase'
+import retry from 'async-retry'
+import logger from '~/lib/logging.server'
 
 const prisma = new PrismaClient()
 
@@ -46,10 +48,17 @@ const needleDrop = async () => {
       })
       const page = await context.newPage()
       const url = `https://www.albumoftheyear.org/ratings/57-the-needle-drop-highest-rated/all/${pageNum}`
-      console.log(`fetching ${url}`)
-      const response = await page.goto(url, {
-        timeout: 60 * 1000,
-        waitUntil: 'domcontentloaded',
+      const response = await retry((_, attempt) => {
+        logger.log({
+          level: 'info',
+          message: 'fetching albumoftheyear.org page',
+          url,
+          attempt,
+        })
+        return page.goto(url, {
+          timeout: 60 * 1000,
+          waitUntil: 'domcontentloaded',
+        })
       })
 
       if (!response) {
@@ -84,13 +93,20 @@ const needleDrop = async () => {
         )
 
         if (!artistAlbum || !reviewURL) {
-          console.warn(`could not pull data for row ${i}`)
+          logger.log({
+            level: 'warn',
+            message: 'could not pull data from row',
+            index: i,
+          })
           continue
         }
 
         if (score < 60) {
           scoresAboveSix = false
-          console.log('score is below 6, finishing fetching reviews')
+          logger.log({
+            level: 'info',
+            message: 'score is below 6, finishing fetching reviews',
+          })
           break
         }
 
@@ -131,7 +147,11 @@ const needleDrop = async () => {
     )
   )
 
-  console.log(`inserted ${inserted} albums`)
+  logger.log({
+    level: 'info',
+    message: 'finished inserting albums',
+    inserted,
+  })
 }
 
 needleDrop()

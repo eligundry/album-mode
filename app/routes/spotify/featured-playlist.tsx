@@ -1,6 +1,5 @@
 import { json, LoaderArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import ServerTiming from '@eligundry/server-timing'
 
 import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -10,9 +9,9 @@ import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request, context }: LoaderArgs) {
   const headers = new Headers()
-  const serverTiming = new ServerTiming()
+  const { serverTiming } = context
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )

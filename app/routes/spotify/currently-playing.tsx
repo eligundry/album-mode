@@ -12,8 +12,9 @@ import AlbumErrorBoundary, {
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request, context }: LoaderArgs) {
   const cookie = await auth.getCookie(request)
+  const { serverTiming } = context
 
   if (!('accessToken' in cookie.spotify)) {
     throw json(
@@ -22,16 +23,23 @@ export async function loader({ request }: LoaderArgs) {
     )
   }
 
-  const spotify = await spotifyLib.initializeFromRequest(request)
-  const { album, currentlyPlaying } =
-    await spotify.getRandomAlbumSimilarToWhatIsCurrentlyPlaying()
-  const wiki = await wikipedia.getSummaryForAlbum({
-    album: album.name,
-    artist: album.artists[0].name,
-  })
+  const spotify = await serverTiming.track('spotify.init', () =>
+    spotifyLib.initializeFromRequest(request)
+  )
+  const { album, currentlyPlaying } = await serverTiming.track(
+    'spotify.fetch',
+    () => spotify.getRandomAlbumSimilarToWhatIsCurrentlyPlaying()
+  )
+  const wiki = await serverTiming.track('wikipedia', () =>
+    wikipedia.getSummaryForAlbum({
+      album: album.name,
+      artist: album.artists[0].name,
+    })
+  )
   const headers = new Headers()
   headers.append('Set-Cookie', await auth.cookieFactory.serialize(cookie))
   headers.append('Set-Cookie', await lastPresented.set(request, album.id))
+  headers.append(serverTiming.headerKey, serverTiming.toString())
 
   return json(
     {

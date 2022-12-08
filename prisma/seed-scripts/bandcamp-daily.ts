@@ -1,21 +1,18 @@
-import axios from 'axios'
-import { JSDOM } from 'jsdom'
 import Bottleneck from 'bottleneck'
 import { PrismaClient } from '@prisma/client'
 import { chromium, BrowserContext } from 'playwright'
+import retry from 'async-retry'
 
 import { BandcampAlbum } from '~/lib/types/bandcamp'
 import bandcamp from '~/lib/bandcamp.server'
+import logger from '~/lib/logging.server'
 
 const bandcampDailyBase = 'https://daily.bandcamp.com'
+const bandcampDailyURL = new URL('https://daily.bandcamp.com/album-of-the-day')
 const prisma = new PrismaClient()
 const dailyLimiter = new Bottleneck({
   maxConcurrent: 2,
   minTime: 1000 * 3,
-})
-const dailyAxios = axios.create({
-  baseURL: bandcampDailyBase,
-  responseType: 'document',
 })
 
 type DailyBandcampAlbum = BandcampAlbum & {
@@ -29,32 +26,46 @@ const scrape = async () => {
     const context = await browser.newContext()
     const promises: Promise<DailyBandcampAlbum | false>[] = []
 
-    for (let page = 1, continueFetching = true; continueFetching; page++) {
-      console.info(`fetching bandcamp daily page ${page}`)
+    for (
+      let pageNumber = 1, continueFetching = true;
+      continueFetching;
+      pageNumber++
+    ) {
+      const page = await context.newPage()
+      bandcampDailyURL.searchParams.set('page', pageNumber.toString())
+      logger.info({
+        message: 'fetching bandcamp daily listing page',
+        url: bandcampDailyURL.toString(),
+        pageNumber,
+      })
+      const response = await page.goto(bandcampDailyURL.toString())
 
-      let paths = await dailyAxios
-        .get('/album-of-the-day', {
-          params: {
-            page,
-          },
-        })
-        .then(({ data: html }) => new JSDOM(html).window.document)
-        .then((document) => {
-          const ps: string[] = []
-          const links = document.querySelectorAll<HTMLAnchorElement>(
-            '.album-of-the-day .list-article.aotd a.title[href*="/album-of-the-day/"'
-          )
-          links.forEach((link) => ps.push(link.href))
-          return ps
-        })
-        .catch((e) => {
-          if (e?.response?.statusCode === 404) {
-            continueFetching = false
-            return
-          }
+      if (!response || !response.ok) {
+        continueFetching = false
+        continue
+      }
 
-          console.error(`could not get list links for page ${page}`, e)
-        })
+      let paths: string[] = []
+      const linkElms = page.locator(
+        ".album-of-the-day .list-article.aotd a.title[href*='/album-of-the-day/']"
+      )
+      const linkElmsCount = await linkElms.count()
+
+      for (let i = 0; i < linkElmsCount; i++) {
+        const path = await linkElms.nth(i).getAttribute('href')
+
+        if (!path) {
+          logger.warn({
+            message: 'could not pull a path from this link element',
+            url: bandcampDailyURL.toString(),
+            pageNumber,
+            elementIndex: i,
+          })
+          continue
+        }
+
+        paths.push(path)
+      }
 
       if (!paths?.length) {
         continueFetching = false
@@ -132,7 +143,11 @@ const scrape = async () => {
             }
           })
       )
-      console.log(`inserted ${inserted} albums`, albums)
+
+      logger.info({
+        message: 'finished inserting albums',
+        inserted,
+      })
     })
   } finally {
     await browser.close()
@@ -141,7 +156,10 @@ const scrape = async () => {
 
 const getAlbumInfoFromBandcampDailyPath = dailyLimiter.wrap(
   async (path: string, context: BrowserContext) => {
-    console.log(`fetching album info for ${bandcampDailyBase + path}`)
+    logger.info({
+      message: 'fetching album info',
+      url: bandcampDailyBase + path,
+    })
     const page = await context.newPage()
 
     try {

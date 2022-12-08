@@ -30,6 +30,10 @@ const FunSelect: React.FC<
           paddingLeft: 0,
           paddingRight: 0,
         }),
+        singleValue: (styles) => ({
+          ...styles,
+          color: isDarkMode ? theme.colors.white : styles.color,
+        }),
         menu: (styles) => ({
           ...styles,
           backgroundColor: pallete['base-100'],
