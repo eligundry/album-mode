@@ -4,7 +4,7 @@ const Tracking: React.FC = () => {
   return (
     <>
       <Partytown
-        debug={process.env.NODE_ENV !== 'development'}
+        debug={process.env.NODE_ENV === 'development'}
         forward={['dataLayer.push']}
       />
       <script

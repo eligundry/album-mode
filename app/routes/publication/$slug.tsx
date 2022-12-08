@@ -1,7 +1,6 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
-import ServerTiming from '@eligundry/server-timing'
 
 import db from '~/lib/db.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -16,11 +15,11 @@ import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
 
-export async function loader({ params, request }: LoaderArgs) {
+export async function loader({ params, request, context }: LoaderArgs) {
   const headers = new Headers()
   const slug = params.slug?.trim()
   const lastPresentedID = await lastPresented.getLastPresentedID(request)
-  const serverTiming = new ServerTiming()
+  const { serverTiming } = context
 
   if (!slug) {
     throw json({ error: 'slug must be provided in the URL' }, 400)

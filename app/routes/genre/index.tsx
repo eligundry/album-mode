@@ -1,6 +1,5 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import ServerTiming from '@eligundry/server-timing'
 
 import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -12,7 +11,7 @@ import { Layout } from '~/components/Base'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request, context }: LoaderArgs) {
   const url = new URL(request.url)
   const genre = url.searchParams.get('genre')
 
@@ -24,7 +23,7 @@ export async function loader({ request }: LoaderArgs) {
   }
 
   const headers = new Headers()
-  const serverTiming = new ServerTiming()
+  const { serverTiming } = context
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
