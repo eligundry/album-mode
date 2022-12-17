@@ -2,14 +2,13 @@ import clsx from 'clsx'
 import type { ControlProps } from 'react-select'
 import AsyncSelect from 'react-select/async'
 
-import useTailwindTheme, { useDaisyPallete } from '~/hooks/useTailwindTheme'
+import useTailwindTheme from '~/hooks/useTailwindTheme'
 import { useDarkMode } from '~/hooks/useMediaQuery'
 
 const FunSelect: React.FC<
   Omit<React.ComponentProps<typeof AsyncSelect>, 'styles'>
 > = (props) => {
-  const theme = useTailwindTheme()
-  const pallete = useDaisyPallete()
+  const { theme, pallete } = useTailwindTheme()
   const isDarkMode = useDarkMode()
 
   return (

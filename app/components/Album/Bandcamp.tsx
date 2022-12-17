@@ -5,7 +5,7 @@ import type { BandcampDailyAlbum } from '@prisma/client'
 import AlbumWrapper from './Wrapper'
 import { Container, A } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
-import { useDaisyPallete } from '~/hooks/useTailwindTheme'
+import useTailwindTheme from '~/hooks/useTailwindTheme'
 import type { Tweet } from '~/lib/types/twitter'
 
 interface Props {
@@ -20,7 +20,7 @@ const searchParams = new URLSearchParams({
 
 const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
   const isMobile = useIsMobile()
-  const pallete = useDaisyPallete()
+  const { pallete } = useTailwindTheme()
   const params = [
     `album=${album.albumID}`,
     'size=large',

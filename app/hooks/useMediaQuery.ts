@@ -1,14 +1,11 @@
 import useMedia from 'react-use/lib/useMedia'
-import useTailwindTheme from './useTailwindTheme'
+import twTheme from '~/tailwind.config.json'
 
-type Theme = ReturnType<typeof useTailwindTheme>
-type Query = string | ((theme: Theme) => string)
+type Query = string | ((theme: typeof twTheme) => string)
 
 export default function useMediaQuery(query: Query, defaultState = false) {
-  const theme = useTailwindTheme()
-
   if (typeof query !== 'string') {
-    query = query(theme)
+    query = query(twTheme)
   }
 
   return useMedia(query, defaultState)
