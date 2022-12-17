@@ -68,7 +68,6 @@ export async function loader({ request, context }: LoaderArgs) {
     },
     {
       headers: {
-        'Cache-Control': config.cacheControl.private,
         [serverTiming.headerKey]: serverTiming.toString(),
       },
     }
