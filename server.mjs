@@ -10,7 +10,7 @@ function getLoadContext(event, context) {
   const serverTiming = new ServerTiming()
   const requestLogger = logger.child({
     requestID: context.awsRequestId,
-    path: event.path,
+    path: event.path + (event.rawQuery ? '?' + event.rawQuery : ''),
     method: event.httpMethod,
   })
 
