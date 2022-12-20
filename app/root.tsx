@@ -14,8 +14,7 @@ import auth from '~/lib/auth.server'
 import spotifyLib from '~/lib/spotify.server'
 import RootProvider from '~/context/Root'
 import Tracking from '~/components/Tracking'
-import { useDarkMode } from '~/hooks/useMediaQuery'
-import { useDaisyPallete } from '~/hooks/useTailwindTheme'
+import useTailwindTheme from '~/hooks/useTailwindTheme'
 import styles from './styles/app.css'
 import config from '~/config'
 
@@ -68,7 +67,6 @@ export async function loader({ request, context }: LoaderArgs) {
     },
     {
       headers: {
-        'Cache-Control': config.cacheControl.private,
         [serverTiming.headerKey]: serverTiming.toString(),
       },
     }
@@ -77,8 +75,7 @@ export async function loader({ request, context }: LoaderArgs) {
 
 function App() {
   const data = useLoaderData<typeof loader>()
-  const isDarkMode = useDarkMode()
-  const pallete = useDaisyPallete()
+  const { isDarkMode, pallete } = useTailwindTheme()
 
   return (
     <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>
