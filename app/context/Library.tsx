@@ -1,9 +1,11 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import useLocalStorage from 'react-use/lib/useLocalStorage'
 import useAsync from 'react-use/lib/useAsync'
 import uniqBy from 'lodash/uniqBy'
 import dateCompareDesc from 'date-fns/compareDesc'
 import parseISO from 'date-fns/parseISO'
+import datesEqual from 'date-fns/isEqual'
 
 import useUser from '~/hooks/useUser'
 import {
@@ -31,11 +33,92 @@ export const LibraryContext = React.createContext<ILibraryContext>({
   },
 })
 
+const reactQueryKey = ['newLibrary']
+
 const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
   const user = useUser()
-  const [loadedServerLibrary, setLoadedServerLibrary] = useState(false)
+  const queryClient = useQueryClient()
+  const newLibrary = useQuery<CurrentLibrary>(
+    reactQueryKey,
+    async (context) => {
+      const resp = await fetch(`${window.location.origin}/api/library`)
+      const serverLibrary: CurrentLibrary = await resp.json()
+      // const serverLibraryItemsSavedAt = serverLibrary.items.map((item) =>
+      //   typeof item.savedAt === 'string'
+      //     ? item.savedAt
+      //     : item.savedAt.toISOString()
+      // )
+
+      // await Promise.all(
+      //   library.items.map(async (localItem) => {
+      //     const shouldBySynced =
+      //       !serverLibraryItemsSavedAt.includes(
+      //         localItem.savedAt.toISOString()
+      //       ) &&
+      //       !serverLibrary?.removedItemTimestamps?.includes(
+      //         localItem.savedAt.toISOString()
+      //       )
+      //
+      //     if (!shouldBySynced) {
+      //       return
+      //     }
+      //
+      //     fetch('/api/library', {
+      //       method: 'POST',
+      //       headers: {
+      //         'content-type': 'application/json',
+      //       },
+      //       body: JSON.stringify(localItem),
+      //     })
+      //   })
+      // )
+
+      return serverLibrary
+    }
+  )
+
+  const newSaveItem = useMutation({
+    mutationKey: ['saveItem'],
+    mutationFn: async (
+      item: LibraryItem | SavedLibraryItem
+    ): Promise<SavedLibraryItem> => {
+      const savedItem = {
+        savedAt: new Date(),
+        ...item,
+      }
+
+      if (user) {
+        return fetch('/api/library', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify(savedItem),
+        })
+          .then((resp) => {
+            if (!resp.ok) {
+              throw resp
+            }
+
+            return resp.json()
+          })
+          .then((data) => data.item)
+      }
+
+      return savedItem
+    },
+    onSuccess: (data) => {
+      // @ts-ignore
+      queryClient.setQueryData(reactQueryKey, (old: CurrentLibrary) => {
+        old.items.push(data)
+        return old
+      })
+    },
+  })
+
+  const [loadedServerLibrary, setLoadedServerLibrary] = useState(false) //{{{
   const [library, setLibrary] = useLocalStorage<CurrentLibrary>(
     'albumModeLibrary',
     defaultLibrary,
@@ -84,6 +167,36 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
     },
     [setLibrary, user?.uri]
   )
+
+  const newRemoveItem = useMutation({
+    mutationKey: ['removeItem'],
+    mutationFn: async (savedAt: Date | string) => {
+      const strSavedAt =
+        typeof savedAt === 'string' ? savedAt : savedAt.toISOString()
+
+      if (user?.uri) {
+        await fetch(`/api/library/${strSavedAt}`, {
+          method: 'DELETE',
+        })
+      }
+    },
+    // @TODO this is not removing items
+    onSuccess: (_, variables) => {
+      // @ts-ignore
+      queryClient.setQueryData(reactQueryKey, (old: CurrentLibrary) => {
+        old.items = old.items.filter(
+          (l) =>
+            !datesEqual(
+              // @ts-ignore
+              typeof l.date === 'string' ? parseISO(l.date) : l.date,
+              typeof variables === 'string' ? parseISO(variables) : variables
+            )
+        )
+        old.removedItemTimestamps.push(variables.toString())
+        return old
+      })
+    },
+  })
 
   const removeItem = useCallback(
     async (savedAt: Date | string) => {
@@ -172,10 +285,12 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
       library: library?.items
         ? library.items.sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
         : [],
-      saveItem,
-      removeItem,
+      //@ts-ignore
+      saveItem: newSaveItem.mutate,
+      //@ts-ignore
+      removeItem: newRemoveItem.mutate,
     }),
-    [library, saveItem, removeItem]
+    [library, newSaveItem.mutate, newRemoveItem.mutate]
   )
 
   return (

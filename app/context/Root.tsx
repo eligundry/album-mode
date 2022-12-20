@@ -1,3 +1,6 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import LoadingProvider from '~/context/Loading'
 import UserContext from '~/context/User'
 import LibraryProvider from '~/context/Library'
@@ -7,15 +10,32 @@ interface Props {
   user: SpotifyUser | null
 }
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      cacheTime: Infinity,
+    },
+  },
+})
+
+const persister = createSyncStoragePersister({
+  storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+})
+
 const RootProvider: React.FC<React.PropsWithChildren<Props>> = ({
   children,
   user,
 }) => {
   return (
     <UserContext.Provider value={user}>
-      <LibraryProvider>
-        <LoadingProvider>{children}</LoadingProvider>
-      </LibraryProvider>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister }}
+      >
+        <LibraryProvider>
+          <LoadingProvider>{children}</LoadingProvider>
+        </LibraryProvider>
+      </PersistQueryClientProvider>
     </UserContext.Provider>
   )
 }
