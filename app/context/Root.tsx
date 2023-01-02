@@ -20,6 +20,14 @@ const queryClient = new QueryClient({
 
 const persister = createSyncStoragePersister({
   storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+  deserialize: (data) =>
+    JSON.parse(data, (key, value) => {
+      if (key === 'savedAt') {
+        return new Date(value)
+      }
+
+      return value
+    }),
 })
 
 const RootProvider: React.FC<React.PropsWithChildren<Props>> = ({

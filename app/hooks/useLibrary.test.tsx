@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import LibraryContext from '~/context/Library'
 import useLibrary from '~/hooks/useLibrary'
 import { defaultLibrary } from '~/lib/types/library'
+import SpotifyWebApi from 'spotify-web-api-node'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,8 +22,7 @@ const wrapper: React.FC<React.PropsWithChildren<{}>> = ({ children }) => (
   </QueryClientProvider>
 )
 
-const metro = {
-  savedAt: '2022-12-17T09:06:55.125Z',
+const metro: SpotifyApi.AlbumObjectSimplified = {
   album_type: 'album',
   artists: [
     {
@@ -76,27 +76,71 @@ const metro = {
   uri: 'spotify:album:3IO8IPjwXuzPJnoaqkwYrj',
 }
 
-describe('useLibrary', () => {
-  it('should initialize along the happy path', async () => {
-    nock('http://localhost').get('/api/library').reply(200, defaultLibrary)
+describe('useLibrary > logged out', () => {
+  const getLibraryScope = nock('http://localhost').persist().get('/api/library')
 
-    const { result } = renderHook(() => useLibrary(), { wrapper })
+  it('should initialize along the happy path', async () => {
+    getLibraryScope.reply(200, defaultLibrary)
+
+    const {
+      result: {
+        current: { library },
+      },
+    } = renderHook(() => useLibrary(), { wrapper })
     await waitFor(() => {
-      expect(result.current.library).toMatchObject(defaultLibrary.items)
+      expect(library).toMatchObject(defaultLibrary.items)
     })
   })
 
   it('should be able to fetch existing libraries', async () => {
+    getLibraryScope.reply(200, {
+      ...defaultLibrary,
+      items: [{ ...metro, savedAt: new Date().toISOString() }],
+    })
+
+    const { result } = renderHook(() => useLibrary(), { wrapper })
+
+    await waitFor(() => {
+      expect(result.current.library).toMatchObject([metro])
+    })
+  })
+
+  it('should save items to the library', async () => {
+    getLibraryScope.reply(200, defaultLibrary)
+
     nock('http://localhost')
-      .get('/api/library')
-      .reply(200, {
-        ...defaultLibrary,
-        items: [metro],
+      .post('/api/library')
+      .reply(201, {
+        msg: 'saved item',
+        item: { ...metro, savedAt: new Date().toISOString() },
       })
 
     const { result } = renderHook(() => useLibrary(), { wrapper })
-    await waitFor(() => {
-      expect(result.current.library).toMatchObject([metro])
+
+    await waitFor(async () => {
+      await result.current.saveItem({ ...metro, type: 'album' })
+      expect(result.current.library.length).toBe(1)
+    })
+  })
+
+  it('should remove items from the library', async () => {
+    const savedAt = new Date()
+
+    getLibraryScope.reply(200, {
+      ...defaultLibrary,
+      items: [{ ...metro, savedAt: savedAt.toISOString() }],
+    })
+
+    nock('http://localhost')
+      .delete(`/api/library/${savedAt.toISOString()}`)
+      .reply(200, {
+        msg: 'removed item',
+      })
+
+    const { result } = renderHook(() => useLibrary(), { wrapper })
+
+    await waitFor(async () => {
+      await result.current.removeItem(savedAt)
     })
   })
 })
