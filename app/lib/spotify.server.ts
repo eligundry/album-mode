@@ -321,6 +321,12 @@ export class Spotify {
     return this.getRandomAlbumForSearchTerm(`label:"${label}"`, 500)
   }
 
+  async getGenreForArtist(artistID: string) {
+    const client = await this.getClient()
+    const resp = await client.getArtist(artistID)
+    return resp.body.genres
+  }
+
   async getAlbum(album: string, artist: string) {
     const client = await this.getClient()
     const resp = await client.search(
@@ -337,9 +343,21 @@ export class Spotify {
       case 0:
         throw new Error('could not locate album by searching Spotify')
       case 1:
-        return albums[0]
-      default:
-        return albums.filter((album) => album.album_type !== 'single')[0]
+        return {
+          ...albums[0],
+          // @TODO Maybe one day, we could defer this as an unresolved provmise
+          // using Remix? This doubles the response time of this function and is
+          // somewhat non-critical.
+          genres: await this.getGenreForArtist(albums[0].artists[0].id),
+        }
+      default: {
+        const album = albums.sort((a) => (a.album_type !== 'single' ? 1 : 0))[0]
+
+        return {
+          ...album,
+          genres: await this.getGenreForArtist(album.artists[0].id),
+        }
+      }
     }
   }
 
