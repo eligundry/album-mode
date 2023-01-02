@@ -1,6 +1,7 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
+import clsx from 'clsx'
 
 import db from '~/lib/db.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -14,6 +15,7 @@ import AlbumErrorBoundary, {
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
+import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 
 export async function loader({ params, request, context }: LoaderArgs) {
   const headers = new Headers()
@@ -219,6 +221,20 @@ export default function PublicationBySlug() {
           <>
             {footer}
             <WikipediaSummary summary={data.wiki} />
+            {data.album.genres.length > 0 && (
+              <>
+                <Heading level="h6" className={clsx('mb-2')}>
+                  Genres
+                </Heading>
+                <ButtonLinkGroup
+                  items={data.album.genres.slice(0, 3)}
+                  keyFunction={(genre) => genre}
+                  toFunction={(genre) => `/genre?genre=${genre}`}
+                  childFunction={(genre) => genre}
+                  className={clsx('btn-xs')}
+                />
+              </>
+            )}
           </>
         }
       />

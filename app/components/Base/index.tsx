@@ -26,7 +26,7 @@ export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
             'text-2xl md:text-3xl': level === 'h3',
             'text-xl md:text-2xl': level === 'h4',
             'uppercase font-bold text-xs': level === 'h5',
-            'text-xs font-bold': level === 'h6',
+            'uppercase text-xs font-bold': level === 'h6',
           },
           !noSpacing && 'my-4',
           className
