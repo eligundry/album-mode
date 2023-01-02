@@ -345,6 +345,9 @@ export class Spotify {
       case 1:
         return {
           ...albums[0],
+          // @TODO Maybe one day, we could defer this as an unresolved provmise
+          // using Remix? This doubles the response time of this function and is
+          // somewhat non-critical.
           genres: await this.getGenreForArtist(albums[0].artists[0].id),
         }
       default: {
