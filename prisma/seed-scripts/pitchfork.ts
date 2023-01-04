@@ -1,9 +1,10 @@
 import { PrismaClient } from '@prisma/client'
 import axios from 'axios'
-import yargs from 'yargs'
 import Bottleneck from 'bottleneck'
 import { stripHtml } from 'string-strip-html'
-import { PitchforkSearchResponse, ListEntity } from '~/lib/types/pitchfork'
+import yargs from 'yargs'
+
+import { ListEntity, PitchforkSearchResponse } from '~/lib/types/pitchfork'
 
 const prisma = new PrismaClient()
 const searchLimiter = new Bottleneck({

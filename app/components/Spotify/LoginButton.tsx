@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import useLocation from 'react-use/lib/useLocation'
 import useAsync from 'react-use/lib/useAsync'
+import useLocation from 'react-use/lib/useLocation'
 
 import { ButtonLink } from '~/components/Base'
 import useLoading from '~/hooks/useLoading'

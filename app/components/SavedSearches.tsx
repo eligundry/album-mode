@@ -1,8 +1,8 @@
 import clsx from 'clsx'
 
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
-import useSavedSearches from '~/hooks/useSavedSearches'
 import useLoading from '~/hooks/useLoading'
+import useSavedSearches from '~/hooks/useSavedSearches'
 
 interface Props {
   limit?: number

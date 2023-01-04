@@ -1,8 +1,8 @@
-import axios from 'axios'
 import { PrismaClient } from '@prisma/client'
+import axios from 'axios'
 import { JSDOM } from 'jsdom'
-import trim from 'lodash/trim'
 import kebabCase from 'lodash/kebabCase'
+import trim from 'lodash/trim'
 
 const prisma = new PrismaClient()
 const axiosChristgau = axios.create({

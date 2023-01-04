@@ -1,9 +1,9 @@
 import clsx from 'clsx'
 
-import { Heading, Container, A } from '~/components/Base'
+import { A, Container, Heading } from '~/components/Base'
+import SpotifyEmbed from '~/components/Spotify/Embed'
 import useGTM from '~/hooks/useGTM'
 import { useIsMobile } from '~/hooks/useMediaQuery'
-import SpotifyEmbed from '~/components/Spotify/Embed'
 
 interface Props {
   title: string

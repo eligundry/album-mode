@@ -1,4 +1,4 @@
-import { MetaFunction, LinksFunction, json, LoaderArgs } from '@remix-run/node'
+import { LinksFunction, LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -12,11 +12,13 @@ import { withSentry } from '@sentry/remix'
 
 import auth from '~/lib/auth.server'
 import spotifyLib from '~/lib/spotify.server'
-import RootProvider from '~/context/Root'
+
 import Tracking from '~/components/Tracking'
-import useTailwindTheme from '~/hooks/useTailwindTheme'
-import styles from './styles/app.css'
 import config from '~/config'
+import RootProvider from '~/context/Root'
+import useTailwindTheme from '~/hooks/useTailwindTheme'
+
+import styles from './styles/app.css'
 
 export const meta: MetaFunction = ({ data }) => ({
   charset: 'utf-8',

@@ -1,5 +1,4 @@
 // stolen from https://github.com/ctjlewis/react-spotify-embed/blob/master/src/index.tsx
-
 import { HTMLAttributes } from 'react'
 
 interface SpotifyProps extends HTMLAttributes<HTMLIFrameElement> {

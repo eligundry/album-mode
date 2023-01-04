@@ -1,5 +1,5 @@
-import { chromium } from 'playwright'
 import { PrismaClient, Publication } from '@prisma/client'
+import { chromium } from 'playwright'
 
 const prisma = new PrismaClient()
 

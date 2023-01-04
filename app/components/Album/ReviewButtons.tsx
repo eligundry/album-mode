@@ -1,15 +1,16 @@
+import clsx from 'clsx'
 import { useState } from 'react'
 import Confetti from 'react-confetti'
 import useWindowSize from 'react-use/lib/useWindowSize'
-import clsx from 'clsx'
 
-import { ButtonLink, Heading, EmojiText } from '~/components/Base'
-import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
-import useRating from '~/hooks/useRating'
-import useCurrentPath from '~/hooks/useCurrentPath'
 import type { LibraryItem } from '~/lib/types/library'
+
+import { ButtonLink, EmojiText, Heading } from '~/components/Base'
+import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
+import useCurrentPath from '~/hooks/useCurrentPath'
 import useGTM from '~/hooks/useGTM'
 import useLoading from '~/hooks/useLoading'
+import useRating from '~/hooks/useRating'
 
 export interface ReviewButtonProps {
   item: LibraryItem

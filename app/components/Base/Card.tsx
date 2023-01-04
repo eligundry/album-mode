@@ -1,6 +1,6 @@
-import React from 'react'
-import clsx from 'clsx'
 import { Link, LinkProps } from '@remix-run/react'
+import clsx from 'clsx'
+import React from 'react'
 
 interface Props
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'media' | 'title'> {

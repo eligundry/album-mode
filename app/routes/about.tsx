@@ -1,12 +1,13 @@
-import clsx from 'clsx'
 import type { MetaFunction } from '@remix-run/node'
+import clsx from 'clsx'
+
 import {
-  Layout,
-  Heading,
-  Typography,
-  Link,
   A,
   Container,
+  Heading,
+  Layout,
+  Link,
+  Typography,
 } from '~/components/Base'
 import config from '~/config'
 

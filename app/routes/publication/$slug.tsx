@@ -3,16 +3,17 @@ import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
 import db from '~/lib/db.server'
-import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
-import { Layout, A, Heading } from '~/components/Base'
+import spotifyLib from '~/lib/spotify.server'
+import wikipedia from '~/lib/wikipedia.server'
+
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
+import { A, Heading, Layout } from '~/components/Base'
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
-import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 

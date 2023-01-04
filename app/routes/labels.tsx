@@ -1,16 +1,17 @@
-import { json, MetaFunction } from '@remix-run/node'
+import { MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
 import db from '~/lib/db.server'
-import config from '~/config'
-import { Layout, Heading, Container } from '~/components/Base'
+
+import { Container, Heading, Layout } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
-import LabelSearchForm from '~/components/Forms/LabelSearch'
 import {
-  GenericErrorBoundary,
   GenericCatchBoundary,
+  GenericErrorBoundary,
 } from '~/components/ErrorBoundary'
+import LabelSearchForm from '~/components/Forms/LabelSearch'
+import config from '~/config'
 
 export async function loader() {
   return json({

@@ -1,6 +1,6 @@
-import React from 'react'
-import { Link as RemixLink, LinkProps } from '@remix-run/react'
+import { LinkProps, Link as RemixLink } from '@remix-run/react'
 import clsx from 'clsx'
+import React from 'react'
 
 export { default as Layout } from './Layout'
 export { default as EmojiText } from './EmojiText'

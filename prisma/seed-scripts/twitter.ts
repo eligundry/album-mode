@@ -1,10 +1,10 @@
-import { TwitterApi } from 'twitter-api-v2'
-import dotenv from 'dotenv'
 import type { TwitterUser } from '@prisma/client'
+import dotenv from 'dotenv'
+import { TwitterApi } from 'twitter-api-v2'
 import yargs from 'yargs'
 
-import { prisma } from '~/lib/db.server'
 import bandcamp from '~/lib/bandcamp.server'
+import { prisma } from '~/lib/db.server'
 import { getMachineClient as getSpotifyClient } from '~/lib/spotify.server'
 
 dotenv.config()

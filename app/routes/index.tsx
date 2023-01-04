@@ -4,30 +4,31 @@ import clsx from 'clsx'
 
 import db from '~/lib/db.server'
 import lastPresented from '~/lib/lastPresented.server'
+
 import {
+  ButtonLink,
+  Container,
+  EmojiText,
   Heading,
   Layout,
-  Container,
   Link,
-  ButtonLink,
-  EmojiText,
 } from '~/components/Base'
-import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
-import GenreSearchForm from '~/components/Forms/GenreSearch'
 import ButtonLinkGroup, {
   ButtonLinkGroupWrapper,
 } from '~/components/Base/ButtonLinkGroup'
-import SpotifyLoginButton from '~/components/Spotify/LoginButton'
 import HomeSection from '~/components/Base/HomeSection'
-import SavedSearches from '~/components/SavedSearches'
-import useSavedSearches from '~/hooks/useSavedSearches'
-import useLoading from '~/hooks/useLoading'
-import useUser from '~/hooks/useUser'
-import config from '~/config'
 import {
-  GenericErrorBoundary,
   GenericCatchBoundary,
+  GenericErrorBoundary,
 } from '~/components/ErrorBoundary'
+import GenreSearchForm from '~/components/Forms/GenreSearch'
+import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
+import SavedSearches from '~/components/SavedSearches'
+import SpotifyLoginButton from '~/components/Spotify/LoginButton'
+import config from '~/config'
+import useLoading from '~/hooks/useLoading'
+import useSavedSearches from '~/hooks/useSavedSearches'
+import useUser from '~/hooks/useUser'
 
 export async function loader() {
   return json(

@@ -1,7 +1,7 @@
-import clsx from 'clsx'
-import { Layout, Typography, Heading, Container } from '~/components/Base'
 import type { MetaFunction } from '@remix-run/node'
+import clsx from 'clsx'
 
+import { Container, Heading, Layout, Typography } from '~/components/Base'
 import SavedSearches from '~/components/SavedSearches'
 import config from '~/config'
 

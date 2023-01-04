@@ -1,7 +1,7 @@
-import clsx from 'clsx'
 import { Form } from '@remix-run/react'
+import clsx from 'clsx'
 
-import { Fieldset, Input, Button, Legend } from '~/components/Base'
+import { Button, Fieldset, Input, Legend } from '~/components/Base'
 
 const AddLabelForm: React.FC = () => {
   return (

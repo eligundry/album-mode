@@ -1,12 +1,14 @@
-import React from 'react'
-import clsx from 'clsx'
 import type { BandcampDailyAlbum } from '@prisma/client'
+import clsx from 'clsx'
+import React from 'react'
 
-import AlbumWrapper from './Wrapper'
-import { Container, A } from '~/components/Base'
+import type { Tweet } from '~/lib/types/twitter'
+
+import { A, Container } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 import useTailwindTheme from '~/hooks/useTailwindTheme'
-import type { Tweet } from '~/lib/types/twitter'
+
+import AlbumWrapper from './Wrapper'
 
 interface Props {
   album: Omit<BandcampDailyAlbum, 'createdAt' | 'updatedAt'> | Tweet

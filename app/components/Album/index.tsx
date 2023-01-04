@@ -1,11 +1,12 @@
-import React from 'react'
 import clsx from 'clsx'
+import React from 'react'
+
+import { A, Container } from '~/components/Base'
+import SpotifyEmbed from '~/components/Spotify/Embed'
+import useGTM from '~/hooks/useGTM'
+import { useIsMobile } from '~/hooks/useMediaQuery'
 
 import AlbumWrapper from './Wrapper'
-import SpotifyEmbed from '~/components/Spotify/Embed'
-import { Container, A } from '~/components/Base'
-import { useIsMobile } from '~/hooks/useMediaQuery'
-import useGTM from '~/hooks/useGTM'
 
 interface NewProps {
   album: SpotifyApi.AlbumObjectSimplified

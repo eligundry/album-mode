@@ -1,5 +1,6 @@
-import { useDarkMode } from './useMediaQuery'
 import theme from '~/tailwind.config.json'
+
+import { useDarkMode } from './useMediaQuery'
 
 export default function useTailwindTheme() {
   const isDarkMode = useDarkMode()

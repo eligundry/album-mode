@@ -1,10 +1,11 @@
-import { useRef } from 'react'
 import { Form, useSubmit } from '@remix-run/react'
 import clsx from 'clsx'
+import { useRef } from 'react'
 import useAsync from 'react-use/lib/useAsync'
 
-import FunSelect from './FunSelect'
 import type { SpotifyArtist } from '~/lib/types/spotify'
+
+import FunSelect from './FunSelect'
 
 interface Props {
   className?: string
