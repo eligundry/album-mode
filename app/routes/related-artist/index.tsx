@@ -42,7 +42,7 @@ export async function loader({ request, context }: LoaderArgs) {
   } else if (artistID) {
     const resp = await retry(async (_, attempt) => {
       const resp = await serverTiming.track('spotify.fetch', () =>
-        spotify.getRandomAlbumForArtistByID(artistID)
+        spotify.getRandomAlbumForRelatedArtistByID(artistID)
       )
       serverTiming.add({
         label: 'attempts',
