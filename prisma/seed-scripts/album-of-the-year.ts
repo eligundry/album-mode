@@ -7,7 +7,8 @@ interface Options {
   listID: string
   name: string
   slug: string
-  singlePage: boolean
+  url?: string
+  singlePage?: boolean
 }
 
 const prisma = new PrismaClient()
@@ -80,6 +81,7 @@ const seedAlbumOfTheYear = async (options: Options) => {
       data: {
         name: options.name,
         slug: options.slug,
+        url: options.url,
       },
     })
     .catch(() =>
@@ -126,6 +128,10 @@ const main = async () => {
     })
     .option('slug', {
       describe: 'The slug of the list on the site',
+      type: 'string',
+    })
+    .option('url', {
+      describe: 'URL of the publication',
       type: 'string',
     })
     .option('singlePage', {
