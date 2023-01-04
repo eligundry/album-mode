@@ -1,8 +1,8 @@
-import React from 'react'
 import clsx from 'clsx'
+import React from 'react'
 import LiteYouTubeEmbed from 'react-lite-youtube-embed'
 
-import { Heading, Container, A } from '~/components/Base'
+import { A, Container, Heading } from '~/components/Base'
 import useGTM from '~/hooks/useGTM'
 
 interface Props {

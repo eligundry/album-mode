@@ -1,16 +1,16 @@
-import clsx from 'clsx'
 import { useCatch } from '@remix-run/react'
+import clsx from 'clsx'
 
-import useCurrentPath from '~/hooks/useCurrentPath'
-import useLoading from '~/hooks/useLoading'
 import {
-  Layout,
-  Heading,
-  Typography,
   ButtonLink,
   Container,
   EmojiText,
+  Heading,
+  Layout,
+  Typography,
 } from '~/components/Base'
+import useCurrentPath from '~/hooks/useCurrentPath'
+import useLoading from '~/hooks/useLoading'
 
 interface AlbumErrorBoundaryProps {
   error: Error

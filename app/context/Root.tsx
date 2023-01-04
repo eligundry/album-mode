@@ -1,7 +1,8 @@
+import type { SpotifyUser } from '~/lib/types/spotify'
+
+import LibraryProvider from '~/context/Library'
 import LoadingProvider from '~/context/Loading'
 import UserContext from '~/context/User'
-import LibraryProvider from '~/context/Library'
-import type { SpotifyUser } from '~/lib/types/spotify'
 
 interface Props {
   user: SpotifyUser | null

@@ -1,8 +1,9 @@
-import path from 'path'
 import fs from 'fs'
+import pick from 'lodash/pick'
+import path from 'path'
 // @ts-ignore
 import resolveConfig from 'tailwindcss/resolveConfig'
-import pick from 'lodash/pick'
+
 import tailwindConfig from '../tailwind.config'
 
 const p = path.join('./', 'app', 'tailwind.config.json')

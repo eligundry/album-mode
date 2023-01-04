@@ -1,9 +1,10 @@
 import { LoaderFunction, json, redirect } from '@remix-run/node'
 
 import auth from '~/lib/auth.server'
+
 import {
-  GenericErrorBoundary,
   GenericCatchBoundary,
+  GenericErrorBoundary,
 } from '~/components/ErrorBoundary'
 
 export const loader: LoaderFunction = async ({ request }) => {

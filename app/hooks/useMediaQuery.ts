@@ -1,4 +1,5 @@
 import useMedia from 'react-use/lib/useMedia'
+
 import twTheme from '~/tailwind.config.json'
 
 type Query = string | ((theme: typeof twTheme) => string)

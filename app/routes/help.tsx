@@ -1,6 +1,6 @@
 import { MetaFunction } from '@remix-run/node'
 
-import { Layout, Heading, Container } from '~/components/Base'
+import { Container, Heading, Layout } from '~/components/Base'
 import FAQ from '~/components/FAQ'
 import config from '~/config'
 

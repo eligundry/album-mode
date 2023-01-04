@@ -1,13 +1,13 @@
-import clsx from 'clsx'
 import { useCatch } from '@remix-run/react'
+import clsx from 'clsx'
 
 import {
-  Layout,
-  Heading,
-  Typography,
   ButtonLink,
   Container,
   EmojiText,
+  Heading,
+  Layout,
+  Typography,
 } from '~/components/Base'
 
 interface GenericErrorBoundaryProps {

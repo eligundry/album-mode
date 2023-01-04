@@ -1,11 +1,11 @@
 import {
-  Prisma,
-  PrismaClient,
   AlbumReviewedByPublication,
   Artist,
   BandcampDailyAlbum,
-  SpotifyGenre,
+  Prisma,
+  PrismaClient,
   Publication,
+  SpotifyGenre,
 } from '@prisma/client'
 import groupBy from 'lodash/groupBy'
 

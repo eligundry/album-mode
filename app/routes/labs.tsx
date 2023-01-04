@@ -1,18 +1,19 @@
-import clsx from 'clsx'
-import promiseHash from 'promise-hash'
 import { MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import clsx from 'clsx'
+import promiseHash from 'promise-hash'
 
 import db from '~/lib/db.server'
-import LabelSearchForm from '~/components/Forms/LabelSearch'
-import { Layout, Heading, Container, Link, Typography } from '~/components/Base'
+
+import { Container, Heading, Layout, Link, Typography } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import HomeSection from '~/components/Base/HomeSection'
-import config from '~/config'
 import {
-  GenericErrorBoundary,
   GenericCatchBoundary,
+  GenericErrorBoundary,
 } from '~/components/ErrorBoundary'
+import LabelSearchForm from '~/components/Forms/LabelSearch'
+import config from '~/config'
 
 export const meta: MetaFunction = () => ({
   title: `Labs 🧪 | ${config.siteTitle}`,

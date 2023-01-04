@@ -1,10 +1,11 @@
-import React from 'react'
 import clsx from 'clsx'
+import React from 'react'
 
 import Card from '~/components/Base/Card'
+import { useIsMobile } from '~/hooks/useMediaQuery'
+
 import ReviewButtons from './ReviewButtons'
 import type { ReviewButtonProps } from './ReviewButtons'
-import { useIsMobile } from '~/hooks/useMediaQuery'
 
 interface Props {
   embed: React.ReactNode

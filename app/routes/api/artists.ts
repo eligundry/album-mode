@@ -1,7 +1,8 @@
 import { LoaderFunction, json } from '@remix-run/node'
 
-import config from '~/config'
 import spotifyLib from '~/lib/spotify.server'
+
+import config from '~/config'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)

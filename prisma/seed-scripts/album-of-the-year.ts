@@ -1,7 +1,7 @@
-import { chromium } from 'playwright'
 import { PrismaClient } from '@prisma/client'
-import yargs from 'yargs'
 import kebabCase from 'lodash/kebabCase'
+import { chromium } from 'playwright'
+import yargs from 'yargs'
 
 interface Options {
   listID: string

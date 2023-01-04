@@ -1,7 +1,7 @@
 import { ActionArgs, LoaderArgs, json } from '@remix-run/node'
 
-import spotifyLib from '~/lib/spotify.server'
 import librarySync from '~/lib/librarySync.server'
+import spotifyLib from '~/lib/spotify.server'
 
 // Save an item by POSTing it to this endpoint
 export async function action({ request }: ActionArgs) {

@@ -1,0 +1,6 @@
+.git
+.netlify
+public/build
+public/\~partytown
+.prettierignore
+.husky

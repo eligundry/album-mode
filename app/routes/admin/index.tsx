@@ -1,14 +1,16 @@
-import { LoaderFunction, ActionFunction, redirect } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { ActionFunction, LoaderFunction, redirect } from '@remix-run/node'
 import { json } from '@remix-run/node'
+import { useLoaderData } from '@remix-run/react'
+
 import admin from '~/lib/admin.server'
-import ProtectedRoute, {
-  protectedRouteHeaders,
-  isAuthorized,
-} from '~/components/ProtectedRoute'
-import { Layout, Container, Heading } from '~/components/Base'
-import AddLabelForm from '~/components/Forms/AddLabel'
+
+import { Container, Heading, Layout } from '~/components/Base'
 import AddArtistGroupingForm from '~/components/Forms/AddArtistGrouping'
+import AddLabelForm from '~/components/Forms/AddLabel'
+import ProtectedRoute, {
+  isAuthorized,
+  protectedRouteHeaders,
+} from '~/components/ProtectedRoute'
 
 export const headers = protectedRouteHeaders
 

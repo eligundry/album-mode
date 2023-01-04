@@ -5,7 +5,7 @@ on:
     - cron: '00 16 * * 0'
 
 env:
-  DATABASE_URL: "file:./dev.db"
+  DATABASE_URL: 'file:./dev.db'
   TWITTER_APP_KEY: ${{ secrets.TWITTER_APP_KEY }}
   TWITTER_APP_SECRET: ${{ secrets.TWITTER_APP_SECRET }}
   TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "UPDATE_JOB_TAG=updates/$(date +"%Y-%m-%d")" >> $GITHUB_ENV
-        name: "Fetch git branch pattern"
+        name: 'Fetch git branch pattern'
 
       - uses: actions/checkout@v3
         with:
@@ -116,7 +116,7 @@ jobs:
           - emotivesunday
     steps:
       - run: echo "UPDATE_JOB_TAG=updates/$(date +"%Y-%m-%d")" >> $GITHUB_ENV
-        name: "Fetch git branch pattern"
+        name: 'Fetch git branch pattern'
 
       - uses: actions/checkout@v3
         with:
@@ -130,7 +130,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: "Pull albums from @${{ matrix.user }}"
+      - name: 'Pull albums from @${{ matrix.user }}'
         run: npm run seed-script -- prisma/seed-scripts/twitter.ts --username "${{ matrix.user }}" --pageLimit 4
 
       - name: 'Commit changes, if needed'
@@ -150,14 +150,14 @@ jobs:
       - UpdateTwitterTables
     steps:
       - run: echo "UPDATE_JOB_TAG=updates/$(date +"%Y-%m-%d")" >> $GITHUB_ENV
-        name: "Fetch git branch pattern"
+        name: 'Fetch git branch pattern'
 
       - uses: actions/checkout@v3
         with:
           ref: ${{ env.UPDATE_JOB_TAG }}
           fetch-depth: 0
 
-      - name: "Deploy database updates"
+      - name: 'Deploy database updates'
         run: |
           git config --global user.name "DJ Octo[bot]"
           git config --global user.email "eligundry+dj.octobot@gmail.com"
