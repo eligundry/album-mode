@@ -1,5 +1,6 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import retry from 'async-retry'
 
 import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -10,41 +11,47 @@ import AlbumErrorBoundary, {
 } from '~/components/Album/ErrorBoundary'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
+import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
   const headers = new Headers()
   const { serverTiming } = context
   const url = new URL(request.url)
-  let artist = url.searchParams.get('artist')
+  let artistParam = url.searchParams.get('artist')
   const artistID = url.searchParams.get('artistID')
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
   let album: SpotifyApi.AlbumObjectSimplified | undefined
+  let artist: SpotifyApi.ArtistObjectFull | undefined
 
-  if (artist) {
+  if (artistParam) {
     let searchMethod = spotify.getRandomAlbumForRelatedArtist
 
     // If the search term is quoted, get random album for just that artist
-    if (artist.startsWith('"') && artist.endsWith('"')) {
+    if (artistParam.startsWith('"') && artistParam.endsWith('"')) {
       searchMethod = spotify.getRandomAlbumForArtist
     }
 
-    album = await serverTiming.track('spotify.fetch', () =>
-      searchMethod(artist as string)
+    const resp = await serverTiming.track('spotify.fetch', () =>
+      searchMethod(artistParam as string)
     )
+    album = resp.album
+    artist = resp.artist
   } else if (artistID) {
-    ;[album, artist] = await Promise.all([
-      serverTiming.track('spotify.album-fetch', () =>
-        spotify.getRandomAlbumForRelatedArtistByID(artistID)
-      ),
-      serverTiming.track('spotify.artist-name-fetch', () =>
-        spotify
-          .getClient()
-          .then((client) => client.getArtist(artistID))
-          .then((resp) => resp.body.name)
-      ),
-    ])
+    const resp = await retry(async (_, attempt) => {
+      const resp = await serverTiming.track('spotify.fetch', () =>
+        spotify.getRandomAlbumForArtistByID(artistID)
+      )
+      serverTiming.add({
+        label: 'attempts',
+        desc: `${attempt} Attempt(s)`,
+      })
+
+      return resp
+    }, config.asyncRetryConfig)
+    album = resp.album
+    artist = resp.artist
   } else {
     throw json(
       { error: 'artist OR artistID query param must be provided' },
@@ -88,7 +95,7 @@ export default function RelatedArtistSearch() {
   const data = useLoaderData<typeof loader>()
 
   return (
-    <Layout headerBreadcrumbs={['Artist', data.artist ?? '']}>
+    <Layout headerBreadcrumbs={['Artist', data.artist.name ?? '']}>
       <Album
         album={data.album}
         footer={<WikipediaSummary summary={data.wiki} />}

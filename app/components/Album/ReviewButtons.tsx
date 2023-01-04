@@ -4,6 +4,7 @@ import useWindowSize from 'react-use/lib/useWindowSize'
 import clsx from 'clsx'
 
 import { ButtonLink, Heading, EmojiText } from '~/components/Base'
+import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import useRating from '~/hooks/useRating'
 import useCurrentPath from '~/hooks/useCurrentPath'
 import type { LibraryItem } from '~/lib/types/library'
@@ -52,6 +53,21 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
   return (
     <>
       <div className={clsx('flex', 'flex-col', 'gap-2', 'w-full')}>
+        {item.type === 'album' && item.genres && item.genres.length > 0 && (
+          <>
+            <Heading level="h5" noSpacing>
+              Genres
+            </Heading>
+            <ButtonLinkGroup
+              items={item.genres.slice(0, 3)}
+              keyFunction={(genre) => genre}
+              toFunction={(genre) => `/genre?genre=${genre}`}
+              childFunction={(genre) => genre}
+              className={clsx('btn-xs')}
+              wrapperClassName={clsx('mb-2')}
+            />
+          </>
+        )}
         <Heading level="h5" noSpacing>
           Rate to get the next recommendation
         </Heading>

@@ -4,11 +4,14 @@ export type SavedItem<T> = T & {
   savedAt: Date
 }
 
-export type SpotifyLibraryItem =
+export type SpotifyLibraryItem = (
   | SpotifyApi.PlaylistObjectFull
   | SpotifyApi.PlaylistObjectSimplified
   | SpotifyApi.AlbumObjectFull
   | SpotifyApi.AlbumObjectSimplified
+) & {
+  genres?: string[]
+}
 
 export type BandcampLibraryItem = BandcampDailyAlbum & { type: 'bandcamp' }
 export type LibraryItem = SpotifyLibraryItem | BandcampLibraryItem

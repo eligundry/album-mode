@@ -187,10 +187,9 @@ export class Spotify {
     return this.getRandomAlbumForArtistByID(artist.id)
   }
 
-  getRandomAlbumForArtistByID = async (
-    artistID: string
-  ): Promise<SpotifyApi.AlbumObjectSimplified> => {
+  getRandomAlbumForArtistByID = async (artistID: string) => {
     const client = await this.getClient()
+    const artistPromise = client.getArtist(artistID)
     let resp = await client.getArtistAlbums(artistID, {
       include_groups: 'album',
       country: this.country,
@@ -209,16 +208,24 @@ export class Spotify {
 
     const album = resp.body.items[offset]
 
-    if (!album || album.id === this.lastPresentedID) {
-      return this.getRandomAlbumForArtistByID(artistID)
+    if (!album) {
+      throw new Error('could not fetch album from that offset, please retry')
+    } else if (album.id === this.lastPresentedID) {
+      throw new Error('album is the one we last presented, please retry')
     }
 
-    return album
+    const artist = await artistPromise
+
+    return {
+      artist: artist.body,
+      album: {
+        ...album,
+        genres: artist.body.genres,
+      },
+    }
   }
 
-  getRandomAlbumByGenre = async (
-    genre: string
-  ): Promise<SpotifyApi.AlbumObjectSimplified> => {
+  getRandomAlbumByGenre = async (genre: string) => {
     // First, we must fetch a random artist in this genre
     const searchTerm = `genre:"${genre}"`
     const client = await this.getClient()
@@ -269,10 +276,17 @@ export class Spotify {
       )
 
     if (!albums.length) {
-      return this.getRandomAlbumByGenre(genre)
+      throw new Error(
+        'could not fetch an album for this artist from this genre'
+      )
     }
 
-    return sample(albums) ?? albums[0]
+    const album = sample(albums) ?? albums[0]
+
+    return {
+      ...album,
+      genres: await this.getGenreForArtist(album.artists[0].id),
+    }
   }
 
   getRandomAlbumForRelatedArtist = async (artistName: string) => {
@@ -361,35 +375,39 @@ export class Spotify {
     }
   }
 
-  getRandomAlbumFromUserLibrary =
-    async (): Promise<SpotifyApi.AlbumObjectFull> => {
-      if (!this.userAccessToken) {
-        throw new Error('User must be logged in to use this')
-      }
+  getRandomAlbumFromUserLibrary = async () => {
+    if (!this.userAccessToken) {
+      throw new Error('User must be logged in to use this')
+    }
 
-      const client = await this.getClient()
-      let resp = await client.getMySavedAlbums({
+    const client = await this.getClient()
+    let resp = await client.getMySavedAlbums({
+      market: this.country,
+    })
+    let offset = random(0, resp.body.total - 1)
+
+    if (offset > resp.body.items.length - 1) {
+      resp = await client.getMySavedAlbums({
+        offset,
+        limit: 1,
         market: this.country,
       })
-      let offset = random(0, resp.body.total - 1)
-
-      if (offset > resp.body.items.length - 1) {
-        resp = await client.getMySavedAlbums({
-          offset,
-          limit: 1,
-          market: this.country,
-        })
-        offset = 0
-      }
-
-      const album = resp.body.items[offset]?.album
-
-      if (!album || album.id === this.lastPresentedID) {
-        return this.getRandomAlbumFromUserLibrary()
-      }
-
-      return album
+      offset = 0
     }
+
+    const album = resp.body.items[offset]?.album
+
+    if (!album) {
+      throw new Error('could not fetch album from that offset, please retry')
+    } else if (album.id === this.lastPresentedID) {
+      throw new Error('we just presented this album, please retry')
+    }
+
+    return {
+      ...album,
+      genres: await this.getGenreForArtist(album.artists[0].id),
+    }
+  }
 
   getRandomAlbumSimilarToWhatIsCurrentlyPlaying = async () => {
     if (!this.userAccessToken) {
@@ -412,7 +430,7 @@ export class Spotify {
       throw new Error('User must be listening to music to do this')
     }
 
-    const album = await this.getRandomAlbumForRelatedArtistByID(
+    const { album } = await this.getRandomAlbumForRelatedArtistByID(
       currentlyPlaying.artists[0].id
     )
 
@@ -422,7 +440,7 @@ export class Spotify {
     }
   }
 
-  getRandomNewRelease = async (): Promise<SpotifyApi.AlbumObjectSimplified> => {
+  getRandomNewRelease = async () => {
     const client = await this.getClient()
     const resp = await client.getNewReleases({
       country: this.country,
@@ -432,10 +450,13 @@ export class Spotify {
     const album = resp.body.albums.items[0]
 
     if (album.id === this.lastPresentedID) {
-      return this.getRandomNewRelease()
+      throw new Error('selected album that was last presented, please retry')
     }
 
-    return album
+    return {
+      ...album,
+      genres: await this.getGenreForArtist(album.artists[0].id),
+    }
   }
 
   getRandomFeaturedPlaylist =
