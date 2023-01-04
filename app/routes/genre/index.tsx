@@ -1,5 +1,6 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import retry from 'async-retry'
 
 import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -10,6 +11,7 @@ import AlbumErrorBoundary, {
 import { Layout } from '~/components/Base'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
+import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
   const url = new URL(request.url)
@@ -27,9 +29,17 @@ export async function loader({ request, context }: LoaderArgs) {
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
-  const album = await serverTiming.track('spotify.fetch', () =>
-    spotify.getRandomAlbumByGenre(genre)
-  )
+  const album = await retry(async (_, attempt) => {
+    const album = await serverTiming.track('spotify.fetch', () =>
+      spotify.getRandomAlbumByGenre(genre)
+    )
+    serverTiming.add({
+      label: 'attempts',
+      desc: `${attempt} Attempt(s)`,
+    })
+
+    return album
+  }, config.asyncRetryConfig)
   const wiki = await serverTiming.track('wikipedia', () =>
     wikipedia.getSummaryForAlbum({
       album: album.name,

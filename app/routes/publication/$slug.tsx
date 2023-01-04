@@ -1,7 +1,6 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
-import clsx from 'clsx'
 
 import db from '~/lib/db.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -15,7 +14,7 @@ import AlbumErrorBoundary, {
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
-import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
+import config from '~/config'
 
 export async function loader({ params, request, context }: LoaderArgs) {
   const headers = new Headers()
@@ -60,31 +59,23 @@ export async function loader({ params, request, context }: LoaderArgs) {
     spotifyLib.initializeFromRequest(request)
   )
 
-  const { album, review } = await retry(
-    async (_, attempt) => {
-      const review = await serverTiming.track(`db`, () =>
-        db.getRandomAlbumForPublication({
-          publicationSlug: slug,
-          exceptID: lastPresentedID,
-        })
-      )
-      const album = await serverTiming.track(`spotify.fetch`, () =>
-        spotify.getAlbum(review.album, review.artist)
-      )
-      serverTiming.add({
-        label: 'attempts',
-        desc: `${attempt} Attempt(s)`,
+  const { album, review } = await retry(async (_, attempt) => {
+    const review = await serverTiming.track(`db`, () =>
+      db.getRandomAlbumForPublication({
+        publicationSlug: slug,
+        exceptID: lastPresentedID,
       })
+    )
+    const album = await serverTiming.track(`spotify.fetch`, () =>
+      spotify.getAlbum(review.album, review.artist)
+    )
+    serverTiming.add({
+      label: 'attempts',
+      desc: `${attempt} Attempt(s)`,
+    })
 
-      return { album, review }
-    },
-    {
-      retries: 5,
-      factor: 0,
-      minTimeout: 0,
-      randomize: false,
-    }
-  )
+    return { album, review }
+  }, config.asyncRetryConfig)
   const wiki = await serverTiming.track('wikipedia', () =>
     wikipedia.getSummaryForAlbum({
       album: album.name,
@@ -221,20 +212,6 @@ export default function PublicationBySlug() {
           <>
             {footer}
             <WikipediaSummary summary={data.wiki} />
-            {data.album.genres.length > 0 && (
-              <>
-                <Heading level="h6" className={clsx('mb-2')}>
-                  Genres
-                </Heading>
-                <ButtonLinkGroup
-                  items={data.album.genres.slice(0, 3)}
-                  keyFunction={(genre) => genre}
-                  toFunction={(genre) => `/genre?genre=${genre}`}
-                  childFunction={(genre) => genre}
-                  className={clsx('btn-xs')}
-                />
-              </>
-            )}
           </>
         }
       />
