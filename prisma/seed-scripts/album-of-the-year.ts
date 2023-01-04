@@ -7,6 +7,8 @@ interface Options {
   listID: string
   name: string
   slug: string
+  url?: string
+  singlePage?: boolean
 }
 
 const prisma = new PrismaClient()
@@ -35,7 +37,7 @@ const seedAlbumOfTheYear = async (options: Options) => {
 
       if (
         response.status() !== 200 ||
-        !response.url().endsWith(pageNum.toString())
+        (!options.singlePage && !response.url().endsWith(pageNum.toString()))
       ) {
         console.error(`could not fetch ${url}`, await page.innerHTML('body'))
         shouldContinue = false
@@ -43,7 +45,7 @@ const seedAlbumOfTheYear = async (options: Options) => {
       }
 
       // we were redirected, bail
-      if (response.url() !== url) {
+      if (!options.singlePage && response.url() !== url) {
         shouldContinue = false
         continue
       }
@@ -65,6 +67,10 @@ const seedAlbumOfTheYear = async (options: Options) => {
 
       await page.close()
       await context.close()
+
+      if (options.singlePage) {
+        shouldContinue = false
+      }
     }
   } finally {
     await browser.close()
@@ -75,6 +81,7 @@ const seedAlbumOfTheYear = async (options: Options) => {
       data: {
         name: options.name,
         slug: options.slug,
+        url: options.url,
       },
     })
     .catch(() =>
@@ -123,14 +130,18 @@ const main = async () => {
       describe: 'The slug of the list on the site',
       type: 'string',
     })
+    .option('url', {
+      describe: 'URL of the publication',
+      type: 'string',
+    })
+    .option('singlePage', {
+      describe: 'Is the list a single page?',
+      type: 'boolean',
+    })
     .demandOption(['listID', 'slug', 'name'])
     .help().argv
 
-  await seedAlbumOfTheYear({
-    listID: args.listID,
-    name: args.name,
-    slug: args.slug,
-  })
+  await seedAlbumOfTheYear(args)
 }
 
 main()
