@@ -10,8 +10,7 @@ import {
 } from '@remix-run/react'
 import { withSentry } from '@sentry/remix'
 
-import auth from '~/lib/auth.server'
-import spotifyLib from '~/lib/spotify.server'
+import { spotifyStrategy } from '~/lib/auth.server'
 
 import Tracking from '~/components/Tracking'
 import config from '~/config'
@@ -46,20 +45,14 @@ export const links: LinksFunction = () => [
 ]
 
 export async function loader({ request, context }: LoaderArgs) {
-  const authCookie = await auth.getCookie(request)
   const { serverTiming } = context
-  let user = null
-
-  if (authCookie?.spotify) {
-    const spotify = await serverTiming.track('spotify.init', () =>
-      spotifyLib.initializeFromRequest(request)
-    )
-    user = await serverTiming.track('spotify.getUser', () => spotify.getUser())
-  }
+  const session = await serverTiming.track('spotify.session', () =>
+    spotifyStrategy.getSession(request)
+  )
 
   return json(
     {
-      user,
+      user: session?.user,
       ENV: {
         SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
         SENTRY_DSN: process.env.SENTRY_DSN,

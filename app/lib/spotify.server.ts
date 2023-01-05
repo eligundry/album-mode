@@ -6,7 +6,7 @@ import sample from 'lodash/sample'
 import SpotifyWebApi from 'spotify-web-api-node'
 import util from 'util'
 
-import auth from '~/lib/auth.server'
+import { spotifyStrategy } from '~/lib/auth.server'
 import cache from '~/lib/cache.server'
 import db from '~/lib/db.server'
 import lastPresented from '~/lib/lastPresented.server'
@@ -669,14 +669,14 @@ const cookieFactory = createCookie('spotify', {
 })
 
 const initializeFromRequest = async (req: Request) => {
-  const authCookie = await auth.getCookie(req)
+  const session = await spotifyStrategy.getSession(req)
   const options: SpotifyOptions = {
     lastPresentedID: await lastPresented.getLastPresentedID(req),
   }
 
-  if ('accessToken' in authCookie.spotify) {
-    options.userAccessToken = authCookie.spotify.accessToken
-    options.refreshToken = authCookie.spotify.refreshToken
+  if (session?.accessToken) {
+    options.userAccessToken = session.accessToken
+    options.refreshToken = session.refreshToken
   }
 
   // Netlify forwards the country based upon geoip in the x-country header

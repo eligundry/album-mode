@@ -1,142 +1,60 @@
-import { createCookie } from '@remix-run/node'
-import dateAddSeconds from 'date-fns/addSeconds'
+import { createCookieSessionStorage } from '@remix-run/node'
+import { Authenticator } from 'remix-auth'
+import { SpotifyStrategy } from 'remix-auth-spotify'
 
-import spotify, { spotifyAPI } from '~/lib/spotify.server'
-
-export type AuthCookie = {
-  spotify:
-    | { state: string }
-    | {
-        accessToken: string
-        refreshToken: string | null
-        expires: string
-      }
-}
-
-const cookieFactory = createCookie('auth', {
-  httpOnly: true,
-  // This doesn't play well with iOS Safari for reasons I do not care about
-  // sameSite: 'strict',
-  secure: true,
+export const sessionStorage = createCookieSessionStorage({
+  cookie: {
+    name: '_session', // use any name you want here
+    sameSite: 'lax',
+    path: '/',
+    httpOnly: true,
+    secrets: ['s3cr3t'], // replace this with an actual secret from env variable
+    secure: process.env.NODE_ENV === 'production', // enable this in prod only
+  },
 })
 
-const generateSpotifyState = () => Math.random().toString(36).slice(2, 18)
+export const { getSession, commitSession, destroySession } = sessionStorage
 
-const getCookie = async (request: Request): Promise<AuthCookie> => {
-  const cookieHeader = request.headers.get('Cookie') ?? ''
-  const cookie = ((await cookieFactory.parse(
-    cookieHeader
-  )) as AuthCookie | null) ?? {
-    spotify: {
-      state: generateSpotifyState(),
+if (!process.env.SPOTIFY_CLIENT_ID) {
+  throw new Error('Missing SPOTIFY_CLIENT_ID env')
+}
+
+if (!process.env.SPOTIFY_CLIENT_SECRET) {
+  throw new Error('Missing SPOTIFY_CLIENT_SECRET env')
+}
+
+// See https://developer.spotify.com/documentation/general/guides/authorization/scopes
+const scopes = [
+  'user-read-email',
+  'user-library-read',
+  'user-read-playback-state',
+].join(' ')
+
+export const spotifyStrategy = new SpotifyStrategy(
+  {
+    clientID: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+    callbackURL: '/spotify/callback',
+    sessionStorage,
+    scope: scopes,
+  },
+  async ({ accessToken, refreshToken, extraParams, profile }) => ({
+    accessToken,
+    refreshToken,
+    expiresAt: Date.now() + extraParams.expiresIn * 1000,
+    tokenType: extraParams.tokenType,
+    user: {
+      id: profile.id,
+      email: profile.emails[0].value,
+      name: profile.displayName,
+      image: profile.__json.images?.[0]?.url,
     },
-  }
+  })
+)
 
-  cookie.spotify = await updateSpotifyAuth(cookie?.spotify)
+export const authenticator = new Authenticator(sessionStorage, {
+  sessionKey: spotifyStrategy.sessionKey,
+  sessionErrorKey: spotifyStrategy.sessionErrorKey,
+})
 
-  return cookie
-}
-
-const updateSpotifyAuth = async (
-  cookie: AuthCookie['spotify'] | null
-): Promise<AuthCookie['spotify']> => {
-  // User hasn't visited the site before
-  if (!cookie) {
-    return {
-      state: generateSpotifyState(),
-    }
-  }
-
-  // User hasn't logged in with Spotify but has visited the home page before
-  if ('state' in cookie) {
-    return cookie
-  }
-
-  // Token has expired, attempt to refresh
-  if (new Date() >= new Date(cookie.expires)) {
-    // We don't have a refresh token, bail
-    if (!cookie.refreshToken) {
-      return {
-        state: generateSpotifyState(),
-      }
-    }
-
-    // Attempt to refresh the access token
-    const spotifyClient = spotify.getUserClient(
-      cookie.accessToken,
-      cookie.refreshToken
-    )
-
-    try {
-      const resp = await spotifyClient.refreshAccessToken()
-
-      return {
-        accessToken: resp.body.access_token,
-        refreshToken: resp.body.refresh_token ?? null,
-        expires: dateAddSeconds(new Date(), resp.body.expires_in).toISOString(),
-      }
-    } catch (e) {
-      // Couldn't refresh the token, return not logged in state
-      return {
-        state: generateSpotifyState(),
-      }
-    }
-  }
-
-  return cookie
-}
-
-const handleSpotifyLoginCallback = async (
-  request: Request
-): Promise<AuthCookie> => {
-  const url = new URL(request.url)
-  const code = url.searchParams.get('code')
-  const state = url.searchParams.get('state')
-
-  if (!code) {
-    throw new Error('bad request: the `code` query param must be provided')
-  }
-
-  if (!state) {
-    throw new Error('bad request: the `state` query param must be provided')
-  }
-
-  const cookie = (await cookieFactory.parse(
-    request.headers.get('Cookie') ?? ''
-  )) as AuthCookie | null
-
-  if (!cookie) {
-    throw new Error('bad request: the `auth` cookie must be sent')
-  }
-
-  if (!('state' in cookie.spotify)) {
-    throw new Error('bad request: the `auth` cookie must have a `state` string')
-  }
-
-  if (cookie.spotify.state !== state) {
-    throw new Error(
-      'unauthorized: the `state` in the `auth` cookie does not match the `state` passed to Spotify for login'
-    )
-  }
-
-  try {
-    const resp = await spotifyAPI.authorizationCodeGrant(code)
-
-    return {
-      ...cookie,
-      spotify: {
-        accessToken: resp.body.access_token,
-        refreshToken: resp.body.refresh_token,
-        expires: dateAddSeconds(new Date(), resp.body.expires_in).toISOString(),
-      },
-    }
-  } catch (e: any) {
-    throw new Error(
-      `could not exchange authorization code for access token: ${e.message}`
-    )
-  }
-}
-
-const api = { getCookie, cookieFactory, handleSpotifyLoginCallback }
-
-export default api
+authenticator.use(spotifyStrategy)
