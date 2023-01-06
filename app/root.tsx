@@ -72,7 +72,6 @@ export async function loader({ request, context }: LoaderArgs) {
 function App() {
   const data = useLoaderData<typeof loader>()
   const { isDarkMode, pallete } = useTailwindTheme()
-  console.log(data.user)
 
   return (
     <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>

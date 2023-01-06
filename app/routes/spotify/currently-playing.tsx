@@ -16,15 +16,12 @@ import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
-  const session = await spotifyStrategy.getSession(request)
   const { serverTiming } = context
-
-  if (!session?.user) {
-    throw json(
-      { error: 'You must be logged in via Spotify to access this' },
-      401
-    )
-  }
+  await serverTiming.track('spotify.session', () =>
+    spotifyStrategy.getSession(request, {
+      failureRedirect: '/',
+    })
+  )
 
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
