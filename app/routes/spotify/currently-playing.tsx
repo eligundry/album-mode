@@ -2,7 +2,7 @@ import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
-import auth from '~/lib/auth.server'
+import { spotifyStrategy } from '~/lib/auth.server'
 import lastPresented from '~/lib/lastPresented.server'
 import spotifyLib from '~/lib/spotify.server'
 import wikipedia from '~/lib/wikipedia.server'
@@ -16,15 +16,12 @@ import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
-  const cookie = await auth.getCookie(request)
   const { serverTiming } = context
-
-  if (!('accessToken' in cookie.spotify)) {
-    throw json(
-      { error: 'You must be logged in via Spotify to access this' },
-      401
-    )
-  }
+  await serverTiming.track('spotify.session', () =>
+    spotifyStrategy.getSession(request, {
+      failureRedirect: '/',
+    })
+  )
 
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
@@ -47,7 +44,6 @@ export async function loader({ request, context }: LoaderArgs) {
     })
   )
   const headers = new Headers()
-  headers.append('Set-Cookie', await auth.cookieFactory.serialize(cookie))
   headers.append('Set-Cookie', await lastPresented.set(request, album.id))
   headers.append(serverTiming.headerKey, serverTiming.toString())
 

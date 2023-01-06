@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { SpotifyUser } from '~/lib/types/spotify'
+import type { User } from '~/lib/types/auth'
 
-const UserContext = React.createContext<SpotifyUser | null>(null)
+const UserContext = React.createContext<User | null>(null)
 
 export default UserContext

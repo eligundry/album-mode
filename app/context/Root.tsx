@@ -1,11 +1,11 @@
-import type { SpotifyUser } from '~/lib/types/spotify'
+import type { User } from '~/lib/types/auth'
 
 import LibraryProvider from '~/context/Library'
 import LoadingProvider from '~/context/Loading'
 import UserContext from '~/context/User'
 
 interface Props {
-  user: SpotifyUser | null
+  user: User | null
 }
 
 const RootProvider: React.FC<React.PropsWithChildren<Props>> = ({
