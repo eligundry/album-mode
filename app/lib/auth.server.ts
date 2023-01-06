@@ -2,19 +2,6 @@ import { createCookieSessionStorage } from '@remix-run/node'
 import { Authenticator } from 'remix-auth'
 import { SpotifyStrategy } from 'remix-auth-spotify'
 
-export const sessionStorage = createCookieSessionStorage({
-  cookie: {
-    name: '_session', // use any name you want here
-    sameSite: 'lax',
-    path: '/',
-    httpOnly: true,
-    secrets: ['s3cr3t'], // replace this with an actual secret from env variable
-    secure: process.env.NODE_ENV === 'production', // enable this in prod only
-  },
-})
-
-export const { getSession, commitSession, destroySession } = sessionStorage
-
 if (!process.env.SPOTIFY_CLIENT_ID) {
   throw new Error('Missing SPOTIFY_CLIENT_ID env')
 }
@@ -22,6 +9,23 @@ if (!process.env.SPOTIFY_CLIENT_ID) {
 if (!process.env.SPOTIFY_CLIENT_SECRET) {
   throw new Error('Missing SPOTIFY_CLIENT_SECRET env')
 }
+
+if (!process.env.AUTH_SECRETS) {
+  throw new Error('Missing AUTH_SECRETS env')
+}
+
+export const sessionStorage = createCookieSessionStorage({
+  cookie: {
+    name: '_session', // use any name you want here
+    sameSite: 'lax',
+    path: '/',
+    httpOnly: true,
+    secrets: JSON.parse(process.env.AUTH_SECRETS),
+    secure: process.env.NODE_ENV === 'production',
+  },
+})
+
+export const { getSession, commitSession, destroySession } = sessionStorage
 
 // See https://developer.spotify.com/documentation/general/guides/authorization/scopes
 const scopes = [
