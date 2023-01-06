@@ -16,7 +16,7 @@ if (!process.env.AUTH_SECRETS) {
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
-    name: '_session', // use any name you want here
+    name: 'authorization',
     sameSite: 'lax',
     path: '/',
     httpOnly: true,
@@ -48,7 +48,7 @@ export const spotifyStrategy = new SpotifyStrategy(
     expiresAt: Date.now() + extraParams.expiresIn * 1000,
     tokenType: extraParams.tokenType,
     user: {
-      id: profile.id,
+      id: profile.__json.uri,
       email: profile.emails[0].value,
       name: profile.displayName,
       image: profile.__json.images?.[0]?.url,
