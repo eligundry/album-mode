@@ -19,6 +19,7 @@ const FunSelect: React.FC<
         input: (styles) => ({
           ...styles,
           color: 'inherit',
+          cursor: 'pointer',
         }),
         placeholder: (styles) => ({
           ...styles,
@@ -57,6 +58,7 @@ const FunSelect: React.FC<
             borderColor: isDarkMode ? pallete.neutral : styles.borderColor,
             textTransform: 'capitalize',
             color,
+            cursor: 'pointer',
           }
         },
       }}

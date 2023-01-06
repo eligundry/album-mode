@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.btn {
+  cursor: pointer;
+}
+
 details > summary {
   cursor: pointer;
 }
