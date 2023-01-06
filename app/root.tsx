@@ -11,6 +11,7 @@ import {
 import { withSentry } from '@sentry/remix'
 
 import { spotifyStrategy } from '~/lib/auth.server'
+import type { User } from '~/lib/types/auth'
 
 import Tracking from '~/components/Tracking'
 import config from '~/config'
@@ -52,7 +53,7 @@ export async function loader({ request, context }: LoaderArgs) {
 
   return json(
     {
-      user: session?.user,
+      user: session?.user || (null as User | null),
       ENV: {
         SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
         SENTRY_DSN: process.env.SENTRY_DSN,
@@ -71,6 +72,7 @@ export async function loader({ request, context }: LoaderArgs) {
 function App() {
   const data = useLoaderData<typeof loader>()
   const { isDarkMode, pallete } = useTailwindTheme()
+  console.log(data.user)
 
   return (
     <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>

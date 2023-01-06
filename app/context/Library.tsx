@@ -73,7 +73,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
         return updatedLibrary
       })
 
-      if (user?.uri) {
+      if (user?.id) {
         await fetch('/api/library', {
           method: 'POST',
           headers: {
@@ -83,7 +83,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
         })
       }
     },
-    [setLibrary, user?.uri]
+    [setLibrary, user?.id]
   )
 
   const removeItem = useCallback(
@@ -107,13 +107,13 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
         }
       })
 
-      if (user?.uri) {
+      if (user?.id) {
         await fetch(`/api/library/${strSavedAt}`, {
           method: 'DELETE',
         })
       }
     },
-    [setLibrary, user?.uri]
+    [setLibrary, user?.id]
   )
 
   /**
@@ -122,7 +122,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
    * devices, if the user is logged in via Spotify.
    */
   const librarySyncState = useAsync(async () => {
-    if (loadedServerLibrary || !library || !user?.uri) {
+    if (loadedServerLibrary || !library || !user?.id) {
       return
     }
 
@@ -160,7 +160,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
     setLibrary(mergeLibraryItems(library, serverLibrary))
     setLoadedServerLibrary(true)
-  }, [loadedServerLibrary, user?.uri])
+  }, [loadedServerLibrary, user?.id])
 
   useEffect(() => {
     if (librarySyncState.error) {
