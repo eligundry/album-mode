@@ -8,7 +8,9 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from '@remix-run/react'
+import * as Sentry from '@sentry/browser'
 import { withSentry } from '@sentry/remix'
+import { useEffect } from 'react'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import type { User } from '~/lib/types/auth'
@@ -72,6 +74,14 @@ export async function loader({ request, context }: LoaderArgs) {
 function App() {
   const data = useLoaderData<typeof loader>()
   const { isDarkMode, pallete } = useTailwindTheme()
+
+  useEffect(() => {
+    if (data.user) {
+      Sentry.setUser({
+        id: data.user.id,
+      })
+    }
+  }, [data.user])
 
   return (
     <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>
