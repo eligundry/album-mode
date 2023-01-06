@@ -23,6 +23,7 @@
     "@aws-sdk/client-dynamodb": "^3.245.0",
     "@builder.io/partytown": "^0.7.4",
     "@eligundry/server-timing": "^1.0.1",
+    "@emailjs/nodejs": "^2.1.1",
     "@netlify/functions": "^1.4.0",
     "@prisma/client": "^4.8.1",
     "@remix-run/netlify": "^1.9.0",
@@ -49,7 +50,8 @@
     "remix-auth-spotify": "^1.2.8",
     "spotify-web-api-node": "^5.0.2",
     "wikipedia": "^2.0.0",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "winston-transport": "^4.5.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.9.0",
