@@ -4,12 +4,14 @@ import pick from 'lodash/pick'
 import random from 'lodash/random'
 import sample from 'lodash/sample'
 import SpotifyWebApi from 'spotify-web-api-node'
+import { WebapiError as SpotifyWebApiError } from 'spotify-web-api-node/src/response-error'
 import util from 'util'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import cache from '~/lib/cache.server'
 import db from '~/lib/db.server'
 import lastPresented from '~/lib/lastPresented.server'
+import logger from '~/lib/logging.server'
 
 import type { SpotifyArtist, SpotifyUser } from './types/spotify'
 
@@ -18,6 +20,7 @@ interface SpotifyOptions {
   refreshToken?: string | undefined | null
   country?: string
   lastPresentedID?: string | null
+  logger?: typeof logger
 }
 
 export class Spotify {
@@ -27,12 +30,14 @@ export class Spotify {
   private lastPresentedID: SpotifyOptions['lastPresentedID']
   private api: SpotifyWebApi
   private clientCredentialsTokenCacheKey = 'spotify-clientCredentialsToken'
+  private logger = logger
 
   constructor(options: SpotifyOptions = {}) {
     this.userAccessToken = options.userAccessToken
     this.refreshToken = options.refreshToken
     this.country = options.country ?? 'US'
     this.lastPresentedID = options.lastPresentedID
+    this.logger = options.logger ?? logger
     this.api = new SpotifyWebApi({
       clientId: process.env.SPOTIFY_CLIENT_ID,
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
@@ -69,13 +74,13 @@ export class Spotify {
     // Wrap the SpotifyApi in a proxy that will automatically trace and leave
     // breadcrumbs for all Spotify requests to Sentry.
     return new Proxy(this.api, {
-      get(target, propKey, receiver) {
+      get: (target, propKey, receiver) => {
         // @ts-ignore
         const originalMethod = target?.[propKey]
 
         if (typeof originalMethod === 'function') {
           // @ts-ignore
-          return function (...args) {
+          return (...args) => {
             const methodName = propKey.toString()
             const shouldTrack =
               methodName !== 'getAccessToken' && !methodName.startsWith('_')
@@ -103,7 +108,7 @@ export class Spotify {
 
             try {
               // @ts-ignore
-              const res = originalMethod.apply(this, args)
+              const res = originalMethod.apply(this.api, args)
 
               if (
                 typeof res === 'object' &&
@@ -113,6 +118,31 @@ export class Spotify {
               }
 
               return res
+            } catch (e: any) {
+              if (e instanceof SpotifyWebApiError) {
+                if (e.statusCode === 429) {
+                  this.logger.error({
+                    message: 'Spotify is rate limiting the application!',
+                    exceptionMessage: e.message,
+                    body: e.body,
+                    headers: e.headers,
+                    statusCode: e.statusCode,
+                    email: true,
+                    method: propKey,
+                  })
+                } else {
+                  this.logger.warn({
+                    message: 'Spotify threw an exception',
+                    exceptionMessage: e.message,
+                    body: e.body,
+                    headers: e.headers,
+                    statusCode: e.statusCode,
+                    method: propKey,
+                  })
+                }
+              }
+
+              throw e
             } finally {
               // If it dies, it dies
               try {
