@@ -13,6 +13,7 @@ function getLoadContext(event, context) {
     requestID: context.awsRequestId,
     path: event.path + (event.rawQuery ? '?' + event.rawQuery : ''),
     method: event.httpMethod,
+    userAgent: event.headers['user-agent'],
   })
 
   requestLogger.info(undefined)

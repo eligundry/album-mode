@@ -248,11 +248,9 @@ export class Spotify {
     const artist = await artistPromise
 
     return {
-      artist: artist.body,
-      album: {
-        ...album,
-        genres: artist.body.genres,
-      },
+      ...album,
+      artists: [artist.body],
+      genres: artist.body.genres,
     }
   }
 
@@ -366,10 +364,15 @@ export class Spotify {
     return this.getRandomAlbumForSearchTerm(`label:"${label}"`, 500)
   }
 
-  async getGenreForArtist(artistID: string) {
+  async getArtistByID(artistID: string) {
     const client = await this.getClient()
     const resp = await client.getArtist(artistID)
-    return resp.body.genres
+    return resp.body
+  }
+
+  async getGenreForArtist(artistID: string) {
+    const artist = await this.getArtistByID(artistID)
+    return artist.genres
   }
 
   async getAlbum(album: string, artist: string) {

@@ -1,6 +1,7 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
+import promiseHash from 'promise-hash'
 
 import lastPresented from '~/lib/lastPresented.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -23,7 +24,9 @@ export async function loader({ request, context }: LoaderArgs) {
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
-  let album: SpotifyApi.AlbumObjectSimplified | undefined
+  let album:
+    | Awaited<ReturnType<typeof spotify['getRandomAlbumForArtistByID']>>
+    | undefined
   let artist: SpotifyApi.ArtistObjectFull | undefined
 
   if (artistParam) {
@@ -34,16 +37,20 @@ export async function loader({ request, context }: LoaderArgs) {
       searchMethod = spotify.getRandomAlbumForArtist
     }
 
-    const resp = await serverTiming.track('spotify.fetch', () =>
+    album = await serverTiming.track('spotify.fetch', () =>
       searchMethod(artistParam as string)
     )
-    album = resp.album
-    artist = resp.artist
+    artist = album.artists[0]
   } else if (artistID) {
     const resp = await retry(async (_, attempt) => {
-      const resp = await serverTiming.track('spotify.fetch', () =>
-        spotify.getRandomAlbumForRelatedArtistByID(artistID)
-      )
+      const resp = await promiseHash({
+        album: serverTiming.track('spotify.albumFetch', () =>
+          spotify.getRandomAlbumForRelatedArtistByID(artistID)
+        ),
+        artist: serverTiming.track('spotify.artistFetch', () =>
+          spotify.getArtistByID(artistID)
+        ),
+      })
       serverTiming.add({
         label: 'attempts',
         desc: `${attempt} Attempt(s)`,
