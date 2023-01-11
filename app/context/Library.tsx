@@ -1,16 +1,15 @@
-import React, { useCallback, useMemo } from 'react'
 import {
+  MutateFunction,
+  useMutation,
   useQuery,
   useQueryClient,
-  useMutation,
-  MutateFunction,
 } from '@tanstack/react-query'
-import uniqBy from 'lodash/uniqBy'
 import dateCompareDesc from 'date-fns/compareDesc'
-import parseISO from 'date-fns/parseISO'
 import datesEqual from 'date-fns/isEqual'
+import parseISO from 'date-fns/parseISO'
+import uniqBy from 'lodash/uniqBy'
+import React, { useCallback, useMemo } from 'react'
 
-import useUser from '~/hooks/useUser'
 import {
   CurrentLibrary,
   CurrentLibraryVersion,
@@ -19,6 +18,8 @@ import {
   SavedLibraryItem,
   defaultLibrary,
 } from '~/lib/types/library'
+
+import useUser from '~/hooks/useUser'
 
 export interface ILibraryContext {
   library: Library['items']
@@ -152,8 +153,8 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
       const strSavedAt =
         typeof savedAt === 'string' ? savedAt : savedAt.toISOString()
 
-      if (user?.uri) {
-        await fetch(`${window.location.origin}/api/library/${strSavedAt}`, {
+      if (user?.id) {
+        await fetch(`/api/library/${strSavedAt}`, {
           method: 'DELETE',
         })
       }

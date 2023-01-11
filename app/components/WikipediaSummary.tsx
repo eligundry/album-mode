@@ -1,7 +1,8 @@
-import React from 'react'
 import clsx from 'clsx'
+import React from 'react'
 
 import type { WikipediaSummary as Summary } from '~/lib/wikipedia.server'
+
 import { A } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 

@@ -1,15 +1,18 @@
-import util from 'util'
-import SpotifyWebApi from 'spotify-web-api-node'
-import * as Sentry from '@sentry/remix'
 import { createCookie } from '@remix-run/node'
-import sample from 'lodash/sample'
-import random from 'lodash/random'
+import * as Sentry from '@sentry/remix'
 import pick from 'lodash/pick'
+import random from 'lodash/random'
+import sample from 'lodash/sample'
+import SpotifyWebApi from 'spotify-web-api-node'
+import { WebapiError as SpotifyWebApiError } from 'spotify-web-api-node/src/response-error'
+import util from 'util'
 
-import db from '~/lib/db.server'
+import { spotifyStrategy } from '~/lib/auth.server'
 import cache from '~/lib/cache.server'
-import auth from '~/lib/auth.server'
+import db from '~/lib/db.server'
 import lastPresented from '~/lib/lastPresented.server'
+import logger from '~/lib/logging.server'
+
 import type { SpotifyArtist, SpotifyUser } from './types/spotify'
 
 interface SpotifyOptions {
@@ -17,6 +20,7 @@ interface SpotifyOptions {
   refreshToken?: string | undefined | null
   country?: string
   lastPresentedID?: string | null
+  logger?: typeof logger
 }
 
 export class Spotify {
@@ -26,12 +30,14 @@ export class Spotify {
   private lastPresentedID: SpotifyOptions['lastPresentedID']
   private api: SpotifyWebApi
   private clientCredentialsTokenCacheKey = 'spotify-clientCredentialsToken'
+  private logger = logger
 
   constructor(options: SpotifyOptions = {}) {
     this.userAccessToken = options.userAccessToken
     this.refreshToken = options.refreshToken
     this.country = options.country ?? 'US'
     this.lastPresentedID = options.lastPresentedID
+    this.logger = options.logger ?? logger
     this.api = new SpotifyWebApi({
       clientId: process.env.SPOTIFY_CLIENT_ID,
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
@@ -68,13 +74,13 @@ export class Spotify {
     // Wrap the SpotifyApi in a proxy that will automatically trace and leave
     // breadcrumbs for all Spotify requests to Sentry.
     return new Proxy(this.api, {
-      get(target, propKey, receiver) {
+      get: (target, propKey, receiver) => {
         // @ts-ignore
         const originalMethod = target?.[propKey]
 
         if (typeof originalMethod === 'function') {
           // @ts-ignore
-          return function (...args) {
+          return (...args) => {
             const methodName = propKey.toString()
             const shouldTrack =
               methodName !== 'getAccessToken' && !methodName.startsWith('_')
@@ -102,7 +108,7 @@ export class Spotify {
 
             try {
               // @ts-ignore
-              const res = originalMethod.apply(this, args)
+              const res = originalMethod.apply(this.api, args)
 
               if (
                 typeof res === 'object' &&
@@ -112,6 +118,31 @@ export class Spotify {
               }
 
               return res
+            } catch (e: any) {
+              if (e instanceof SpotifyWebApiError) {
+                if (e.statusCode === 429) {
+                  this.logger.error({
+                    message: 'Spotify is rate limiting the application!',
+                    exceptionMessage: e.message,
+                    body: e.body,
+                    headers: e.headers,
+                    statusCode: e.statusCode,
+                    email: true,
+                    method: propKey,
+                  })
+                } else {
+                  this.logger.warn({
+                    message: 'Spotify threw an exception',
+                    exceptionMessage: e.message,
+                    body: e.body,
+                    headers: e.headers,
+                    statusCode: e.statusCode,
+                    method: propKey,
+                  })
+                }
+              }
+
+              throw e
             } finally {
               // If it dies, it dies
               try {
@@ -187,10 +218,9 @@ export class Spotify {
     return this.getRandomAlbumForArtistByID(artist.id)
   }
 
-  getRandomAlbumForArtistByID = async (
-    artistID: string
-  ): Promise<SpotifyApi.AlbumObjectSimplified> => {
+  getRandomAlbumForArtistByID = async (artistID: string) => {
     const client = await this.getClient()
+    const artistPromise = client.getArtist(artistID)
     let resp = await client.getArtistAlbums(artistID, {
       include_groups: 'album',
       country: this.country,
@@ -209,16 +239,22 @@ export class Spotify {
 
     const album = resp.body.items[offset]
 
-    if (!album || album.id === this.lastPresentedID) {
-      return this.getRandomAlbumForArtistByID(artistID)
+    if (!album) {
+      throw new Error('could not fetch album from that offset, please retry')
+    } else if (album.id === this.lastPresentedID) {
+      throw new Error('album is the one we last presented, please retry')
     }
 
-    return album
+    const artist = await artistPromise
+
+    return {
+      ...album,
+      artists: [artist.body],
+      genres: artist.body.genres,
+    }
   }
 
-  getRandomAlbumByGenre = async (
-    genre: string
-  ): Promise<SpotifyApi.AlbumObjectSimplified> => {
+  getRandomAlbumByGenre = async (genre: string) => {
     // First, we must fetch a random artist in this genre
     const searchTerm = `genre:"${genre}"`
     const client = await this.getClient()
@@ -269,10 +305,17 @@ export class Spotify {
       )
 
     if (!albums.length) {
-      return this.getRandomAlbumByGenre(genre)
+      throw new Error(
+        'could not fetch an album for this artist from this genre'
+      )
     }
 
-    return sample(albums) ?? albums[0]
+    const album = sample(albums) ?? albums[0]
+
+    return {
+      ...album,
+      genres: await this.getGenreForArtist(album.artists[0].id),
+    }
   }
 
   getRandomAlbumForRelatedArtist = async (artistName: string) => {
@@ -321,6 +364,17 @@ export class Spotify {
     return this.getRandomAlbumForSearchTerm(`label:"${label}"`, 500)
   }
 
+  async getArtistByID(artistID: string) {
+    const client = await this.getClient()
+    const resp = await client.getArtist(artistID)
+    return resp.body
+  }
+
+  async getGenreForArtist(artistID: string) {
+    const artist = await this.getArtistByID(artistID)
+    return artist.genres
+  }
+
   async getAlbum(album: string, artist: string) {
     const client = await this.getClient()
     const resp = await client.search(
@@ -337,41 +391,57 @@ export class Spotify {
       case 0:
         throw new Error('could not locate album by searching Spotify')
       case 1:
-        return albums[0]
-      default:
-        return albums.filter((album) => album.album_type !== 'single')[0]
+        return {
+          ...albums[0],
+          // @TODO Maybe one day, we could defer this as an unresolved provmise
+          // using Remix? This doubles the response time of this function and is
+          // somewhat non-critical.
+          genres: await this.getGenreForArtist(albums[0].artists[0].id),
+        }
+      default: {
+        const album = albums.sort((a) => (a.album_type !== 'single' ? 1 : 0))[0]
+
+        return {
+          ...album,
+          genres: await this.getGenreForArtist(album.artists[0].id),
+        }
+      }
     }
   }
 
-  getRandomAlbumFromUserLibrary =
-    async (): Promise<SpotifyApi.AlbumObjectFull> => {
-      if (!this.userAccessToken) {
-        throw new Error('User must be logged in to use this')
-      }
+  getRandomAlbumFromUserLibrary = async () => {
+    if (!this.userAccessToken) {
+      throw new Error('User must be logged in to use this')
+    }
 
-      const client = await this.getClient()
-      let resp = await client.getMySavedAlbums({
+    const client = await this.getClient()
+    let resp = await client.getMySavedAlbums({
+      market: this.country,
+    })
+    let offset = random(0, resp.body.total - 1)
+
+    if (offset > resp.body.items.length - 1) {
+      resp = await client.getMySavedAlbums({
+        offset,
+        limit: 1,
         market: this.country,
       })
-      let offset = random(0, resp.body.total - 1)
-
-      if (offset > resp.body.items.length - 1) {
-        resp = await client.getMySavedAlbums({
-          offset,
-          limit: 1,
-          market: this.country,
-        })
-        offset = 0
-      }
-
-      const album = resp.body.items[offset]?.album
-
-      if (!album || album.id === this.lastPresentedID) {
-        return this.getRandomAlbumFromUserLibrary()
-      }
-
-      return album
+      offset = 0
     }
+
+    const album = resp.body.items[offset]?.album
+
+    if (!album) {
+      throw new Error('could not fetch album from that offset, please retry')
+    } else if (album.id === this.lastPresentedID) {
+      throw new Error('we just presented this album, please retry')
+    }
+
+    return {
+      ...album,
+      genres: await this.getGenreForArtist(album.artists[0].id),
+    }
+  }
 
   getRandomAlbumSimilarToWhatIsCurrentlyPlaying = async () => {
     if (!this.userAccessToken) {
@@ -394,7 +464,7 @@ export class Spotify {
       throw new Error('User must be listening to music to do this')
     }
 
-    const album = await this.getRandomAlbumForRelatedArtistByID(
+    const { album } = await this.getRandomAlbumForRelatedArtistByID(
       currentlyPlaying.artists[0].id
     )
 
@@ -404,7 +474,7 @@ export class Spotify {
     }
   }
 
-  getRandomNewRelease = async (): Promise<SpotifyApi.AlbumObjectSimplified> => {
+  getRandomNewRelease = async () => {
     const client = await this.getClient()
     const resp = await client.getNewReleases({
       country: this.country,
@@ -414,10 +484,13 @@ export class Spotify {
     const album = resp.body.albums.items[0]
 
     if (album.id === this.lastPresentedID) {
-      return this.getRandomNewRelease()
+      throw new Error('selected album that was last presented, please retry')
     }
 
-    return album
+    return {
+      ...album,
+      genres: await this.getGenreForArtist(album.artists[0].id),
+    }
   }
 
   getRandomFeaturedPlaylist =
@@ -629,14 +702,14 @@ const cookieFactory = createCookie('spotify', {
 })
 
 const initializeFromRequest = async (req: Request) => {
-  const authCookie = await auth.getCookie(req)
+  const session = await spotifyStrategy.getSession(req)
   const options: SpotifyOptions = {
     lastPresentedID: await lastPresented.getLastPresentedID(req),
   }
 
-  if ('accessToken' in authCookie.spotify) {
-    options.userAccessToken = authCookie.spotify.accessToken
-    options.refreshToken = authCookie.spotify.refreshToken
+  if (session?.accessToken) {
+    options.userAccessToken = session.accessToken
+    options.refreshToken = session.refreshToken
   }
 
   // Netlify forwards the country based upon geoip in the x-country header

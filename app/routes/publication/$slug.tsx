@@ -3,17 +3,19 @@ import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
 import db from '~/lib/db.server'
-import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
-import { Layout, A, Heading } from '~/components/Base'
+import spotifyLib from '~/lib/spotify.server'
+import wikipedia from '~/lib/wikipedia.server'
+
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
+import { A, Heading, Layout } from '~/components/Base'
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
-import wikipedia from '~/lib/wikipedia.server'
 import WikipediaSummary from '~/components/WikipediaSummary'
+import config from '~/config'
 
 export async function loader({ params, request, context }: LoaderArgs) {
   const headers = new Headers()
@@ -58,31 +60,23 @@ export async function loader({ params, request, context }: LoaderArgs) {
     spotifyLib.initializeFromRequest(request)
   )
 
-  const { album, review } = await retry(
-    async (_, attempt) => {
-      const review = await serverTiming.track(`db`, () =>
-        db.getRandomAlbumForPublication({
-          publicationSlug: slug,
-          exceptID: lastPresentedID,
-        })
-      )
-      const album = await serverTiming.track(`spotify.fetch`, () =>
-        spotify.getAlbum(review.album, review.artist)
-      )
-      serverTiming.add({
-        label: 'attempts',
-        desc: `${attempt} Attempt(s)`,
+  const { album, review } = await retry(async (_, attempt) => {
+    const review = await serverTiming.track(`db`, () =>
+      db.getRandomAlbumForPublication({
+        publicationSlug: slug,
+        exceptID: lastPresentedID,
       })
+    )
+    const album = await serverTiming.track(`spotify.fetch`, () =>
+      spotify.getAlbum(review.album, review.artist)
+    )
+    serverTiming.add({
+      label: 'attempts',
+      desc: `${attempt} Attempt(s)`,
+    })
 
-      return { album, review }
-    },
-    {
-      retries: 5,
-      factor: 0,
-      minTimeout: 0,
-      randomize: false,
-    }
-  )
+    return { album, review }
+  }, config.asyncRetryConfig)
   const wiki = await serverTiming.track('wikipedia', () =>
     wikipedia.getSummaryForAlbum({
       album: album.name,

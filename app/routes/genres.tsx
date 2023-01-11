@@ -3,13 +3,14 @@ import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
 import db from '~/lib/db.server'
-import { Layout, Heading, Container } from '~/components/Base'
-import GenreSearchForm from '~/components/Forms/GenreSearch'
+
+import { Container, Heading, Layout } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import {
-  GenericErrorBoundary,
   GenericCatchBoundary,
+  GenericErrorBoundary,
 } from '~/components/ErrorBoundary'
+import GenreSearchForm from '~/components/Forms/GenreSearch'
 
 export async function loader() {
   return json({

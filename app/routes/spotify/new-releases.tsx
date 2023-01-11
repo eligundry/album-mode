@@ -1,15 +1,18 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import retry from 'async-retry'
 
-import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
-import { Layout } from '~/components/Base'
+import spotifyLib from '~/lib/spotify.server'
+import wikipedia from '~/lib/wikipedia.server'
+
 import Album from '~/components/Album'
 import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
-import wikipedia from '~/lib/wikipedia.server'
+import { Layout } from '~/components/Base'
 import WikipediaSummary from '~/components/WikipediaSummary'
+import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
   const headers = new Headers()
@@ -17,9 +20,17 @@ export async function loader({ request, context }: LoaderArgs) {
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
-  const album = await serverTiming.track('spotify.fetch', () =>
-    spotify.getRandomNewRelease()
-  )
+  const album = await retry(async (_, attempt) => {
+    const album = await serverTiming.track('spotify.fetch', () =>
+      spotify.getRandomNewRelease()
+    )
+    serverTiming.add({
+      label: 'attempts',
+      desc: `${attempt} Attempt(s)`,
+    })
+
+    return album
+  }, config.asyncRetryConfig)
   const wiki = await serverTiming.track('wikipedia', () =>
     wikipedia.getSummaryForAlbum({
       album: album.name,

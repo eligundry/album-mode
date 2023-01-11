@@ -1,13 +1,14 @@
-import { json, LoaderArgs } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
-import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
-import { Layout } from '~/components/Base'
-import Playlist from '~/components/Album/Playlist'
+import spotifyLib from '~/lib/spotify.server'
+
 import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
+import Playlist from '~/components/Album/Playlist'
+import { Layout } from '~/components/Base'
 
 export async function loader({ request, context }: LoaderArgs) {
   const headers = new Headers()

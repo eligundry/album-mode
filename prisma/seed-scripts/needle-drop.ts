@@ -1,7 +1,8 @@
-import { chromium } from 'playwright'
 import { PrismaClient } from '@prisma/client'
-import kebabCase from 'lodash/kebabCase'
 import retry from 'async-retry'
+import kebabCase from 'lodash/kebabCase'
+import { chromium } from 'playwright'
+
 import logger from '~/lib/logging.server'
 
 const prisma = new PrismaClient()

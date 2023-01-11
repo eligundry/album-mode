@@ -1,8 +1,8 @@
 import clsx from 'clsx'
 
-import useSavedSearches from '~/hooks/useSavedSearches'
-import { useIsMobile } from '~/hooks/useMediaQuery'
 import { Button, EmojiText } from '~/components/Base'
+import { useIsMobile } from '~/hooks/useMediaQuery'
+import useSavedSearches from '~/hooks/useSavedSearches'
 
 export interface SearchBreadcrumbsProps {
   crumbs: (string | [string, React.ReactNode])[]

@@ -1,15 +1,16 @@
+import ServerTiming from '@eligundry/server-timing'
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import promiseHash from 'promise-hash'
-import ServerTiming from '@eligundry/server-timing'
 
-import spotifyLib from '~/lib/spotify.server'
 import lastPresented from '~/lib/lastPresented.server'
-import { Layout, Link } from '~/components/Base'
-import Playlist from '~/components/Album/Playlist'
+import spotifyLib from '~/lib/spotify.server'
+
 import PlaylistErrorBoundary, {
   AlbumCatchBoundary as PlaylistCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
+import Playlist from '~/components/Album/Playlist'
+import { Layout, Link } from '~/components/Base'
 
 export async function loader({ params, request }: LoaderArgs) {
   const categoryID = params.id?.trim()

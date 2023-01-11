@@ -1,13 +1,15 @@
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+
+import type { User } from '~/lib/types/auth'
+
+import LibraryProvider from '~/context/Library'
 import LoadingProvider from '~/context/Loading'
 import UserContext from '~/context/User'
-import LibraryProvider from '~/context/Library'
-import type { SpotifyUser } from '~/lib/types/spotify'
 
 interface Props {
-  user: SpotifyUser | null
+  user: User | null
 }
 
 const queryClient = new QueryClient({

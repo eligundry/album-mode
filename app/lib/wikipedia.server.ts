@@ -1,5 +1,5 @@
-import wiki from 'wikipedia'
 import * as Sentry from '@sentry/remix'
+import wiki from 'wikipedia'
 
 interface AlbumSearch {
   album: string

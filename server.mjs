@@ -1,6 +1,7 @@
-import { createRequestHandler } from '@remix-run/netlify'
-import * as build from '@remix-run/dev/server-build'
 import ServerTiming from '@eligundry/server-timing'
+import * as build from '@remix-run/dev/server-build'
+import { createRequestHandler } from '@remix-run/netlify'
+
 import logger from './app/lib/logging.server'
 
 /**
@@ -12,6 +13,7 @@ function getLoadContext(event, context) {
     requestID: context.awsRequestId,
     path: event.path + (event.rawQuery ? '?' + event.rawQuery : ''),
     method: event.httpMethod,
+    userAgent: event.headers['user-agent'],
   })
 
   requestLogger.info(undefined)

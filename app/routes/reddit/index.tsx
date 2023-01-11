@@ -1,11 +1,11 @@
-import { json, LoaderFunction } from '@remix-run/node'
+import { LoaderFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
-import { Layout, Container, Heading, Typography, A } from '~/components/Base'
-import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
-
 import db from '~/lib/db.server'
+
+import { A, Container, Heading, Layout, Typography } from '~/components/Base'
+import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 
 type LoaderData = {
   subreddits: Awaited<ReturnType<typeof db.getSubreddits>>

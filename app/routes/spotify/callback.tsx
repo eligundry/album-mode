@@ -1,31 +1,17 @@
-import { LoaderFunction, json, redirect } from '@remix-run/node'
+import { LoaderArgs } from '@remix-run/node'
 
-import auth from '~/lib/auth.server'
+import { authenticator } from '~/lib/auth.server'
+
 import {
-  GenericErrorBoundary,
   GenericCatchBoundary,
+  GenericErrorBoundary,
 } from '~/components/ErrorBoundary'
 
-export const loader: LoaderFunction = async ({ request }) => {
-  try {
-    const cookie = await auth.handleSpotifyLoginCallback(request)
-
-    return redirect('/', {
-      headers: {
-        'Set-Cookie': await auth.cookieFactory.serialize(cookie),
-      },
-    })
-  } catch (e: any) {
-    let statusCode = 500
-
-    if (e?.message?.startsWith('bad request:')) {
-      statusCode = 400
-    } else if (e?.message?.startsWith('unauthorized:')) {
-      statusCode = 401
-    }
-
-    throw json({ error: e.message }, statusCode)
-  }
+export async function loader({ request }: LoaderArgs) {
+  return authenticator.authenticate('spotify', request, {
+    successRedirect: '/',
+    failureRedirect: '/',
+  })
 }
 
 export const ErrorBoundary = GenericErrorBoundary

@@ -1,11 +1,11 @@
-import Bottleneck from 'bottleneck'
 import { PrismaClient } from '@prisma/client'
-import { chromium, BrowserContext } from 'playwright'
 import retry from 'async-retry'
+import Bottleneck from 'bottleneck'
+import { BrowserContext, chromium } from 'playwright'
 
-import { BandcampAlbum } from '~/lib/types/bandcamp'
 import bandcamp from '~/lib/bandcamp.server'
 import logger from '~/lib/logging.server'
+import { BandcampAlbum } from '~/lib/types/bandcamp'
 
 const bandcampDailyBase = 'https://daily.bandcamp.com'
 const bandcampDailyURL = new URL('https://daily.bandcamp.com/album-of-the-day')

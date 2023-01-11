@@ -1,15 +1,16 @@
-import { json, MetaFunction, LoaderArgs } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
 import spotifyLib from '~/lib/spotify.server'
-import { Layout, Container, Heading } from '~/components/Base'
+
+import { Container, Heading, Layout } from '~/components/Base'
 import { CardLink } from '~/components/Base/Card'
-import config from '~/config'
 import {
-  GenericErrorBoundary,
   GenericCatchBoundary,
+  GenericErrorBoundary,
 } from '~/components/ErrorBoundary'
+import config from '~/config'
 
 export const meta: MetaFunction = () => ({
   title: 'Spotify Playlist Categories | Album Mode.party 🎉',

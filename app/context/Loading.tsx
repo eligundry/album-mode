@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
 import { useTransition } from '@remix-run/react'
+import React, { useEffect, useState } from 'react'
 
 interface LoadingContextData {
   loading: boolean

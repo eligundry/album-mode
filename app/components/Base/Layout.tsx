@@ -1,13 +1,14 @@
-import React from 'react'
 import clsx from 'clsx'
+import React from 'react'
 
-import { Container, A, Link, ButtonLink, EmojiText } from './index'
+import { DesktopLoader, MobileLoader } from '~/components/Loading'
 import SearchBreadcrumbs, {
   SearchBreadcrumbsProps,
 } from '~/components/SearchBreadcrumbs'
-import { DesktopLoader, MobileLoader } from '~/components/Loading'
 import useLoading from '~/hooks/useLoading'
 import { useIsMobile } from '~/hooks/useMediaQuery'
+
+import { A, ButtonLink, Container, EmojiText, Link } from './index'
 
 interface LayoutProps {
   className?: string

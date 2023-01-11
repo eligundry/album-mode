@@ -1,5 +1,6 @@
 import clsx from 'clsx'
-import { Typography, Heading } from '~/components/Base'
+
+import { Heading, Typography } from '~/components/Base'
 
 interface Props {
   title: string | React.ReactNode

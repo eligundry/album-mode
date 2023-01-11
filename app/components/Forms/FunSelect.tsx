@@ -3,13 +3,11 @@ import type { ControlProps } from 'react-select'
 import AsyncSelect from 'react-select/async'
 
 import useTailwindTheme from '~/hooks/useTailwindTheme'
-import { useDarkMode } from '~/hooks/useMediaQuery'
 
 const FunSelect: React.FC<
   Omit<React.ComponentProps<typeof AsyncSelect>, 'styles'>
 > = (props) => {
-  const { theme, pallete } = useTailwindTheme()
-  const isDarkMode = useDarkMode()
+  const { theme, pallete, isDarkMode } = useTailwindTheme()
 
   return (
     <AsyncSelect
@@ -19,6 +17,7 @@ const FunSelect: React.FC<
         input: (styles) => ({
           ...styles,
           color: 'inherit',
+          cursor: 'pointer',
         }),
         placeholder: (styles) => ({
           ...styles,
@@ -57,6 +56,7 @@ const FunSelect: React.FC<
             borderColor: isDarkMode ? pallete.neutral : styles.borderColor,
             textTransform: 'capitalize',
             color,
+            cursor: 'pointer',
           }
         },
       }}

@@ -1,5 +1,6 @@
-import { useDarkMode } from './useMediaQuery'
 import theme from '~/tailwind.config.json'
+
+import { useDarkMode } from './useMediaQuery'
 
 export default function useTailwindTheme() {
   const isDarkMode = useDarkMode()
@@ -14,7 +15,7 @@ export default function useTailwindTheme() {
   }
 }
 
-type Pallete = NonNullable<typeof theme.daisyui.themes[0]['dark']>
+type Pallete = NonNullable<(typeof theme.daisyui.themes)[0]['dark']>
 
 export function useDaisyPallete() {
   const isDarkMode = useDarkMode()

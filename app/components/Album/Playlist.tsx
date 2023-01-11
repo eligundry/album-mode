@@ -1,10 +1,11 @@
 import clsx from 'clsx'
 import useMeasure from 'react-use/lib/useMeasure'
 
+import { A, Container } from '~/components/Base'
 import SpotifyEmbed from '~/components/Spotify/Embed'
-import PlaylistWrapper from './Wrapper'
-import { Container, A } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
+
+import PlaylistWrapper from './Wrapper'
 
 interface Props {
   playlist: SpotifyApi.PlaylistObjectSimplified | SpotifyApi.PlaylistObjectFull

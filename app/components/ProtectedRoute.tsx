@@ -1,5 +1,5 @@
-import React from 'react'
 import type { HeadersFunction } from '@remix-run/node'
+import React from 'react'
 
 export const protectedRouteHeaders: HeadersFunction = () => ({
   'WWW-Authenticate': 'Basic',

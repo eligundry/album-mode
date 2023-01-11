@@ -1,4 +1,4 @@
-import { MetaFunction, LinksFunction, json, LoaderArgs } from '@remix-run/node'
+import { LinksFunction, LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -8,15 +8,19 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from '@remix-run/react'
+import * as Sentry from '@sentry/browser'
 import { withSentry } from '@sentry/remix'
+import { useEffect } from 'react'
 
-import auth from '~/lib/auth.server'
-import spotifyLib from '~/lib/spotify.server'
-import RootProvider from '~/context/Root'
+import { spotifyStrategy } from '~/lib/auth.server'
+import type { User } from '~/lib/types/auth'
+
 import Tracking from '~/components/Tracking'
-import useTailwindTheme from '~/hooks/useTailwindTheme'
-import styles from './styles/app.css'
 import config from '~/config'
+import RootProvider from '~/context/Root'
+import useTailwindTheme from '~/hooks/useTailwindTheme'
+
+import styles from './styles/app.css'
 
 export const meta: MetaFunction = ({ data }) => ({
   charset: 'utf-8',
@@ -44,20 +48,14 @@ export const links: LinksFunction = () => [
 ]
 
 export async function loader({ request, context }: LoaderArgs) {
-  const authCookie = await auth.getCookie(request)
   const { serverTiming } = context
-  let user = null
-
-  if (authCookie?.spotify) {
-    const spotify = await serverTiming.track('spotify.init', () =>
-      spotifyLib.initializeFromRequest(request)
-    )
-    user = await serverTiming.track('spotify.getUser', () => spotify.getUser())
-  }
+  const session = await serverTiming.track('spotify.session', () =>
+    spotifyStrategy.getSession(request)
+  )
 
   return json(
     {
-      user,
+      user: session?.user || (null as User | null),
       ENV: {
         SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
         SENTRY_DSN: process.env.SENTRY_DSN,
@@ -76,6 +74,14 @@ export async function loader({ request, context }: LoaderArgs) {
 function App() {
   const data = useLoaderData<typeof loader>()
   const { isDarkMode, pallete } = useTailwindTheme()
+
+  useEffect(() => {
+    if (data.user) {
+      Sentry.setUser({
+        id: data.user.id,
+      })
+    }
+  }, [data.user])
 
   return (
     <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>

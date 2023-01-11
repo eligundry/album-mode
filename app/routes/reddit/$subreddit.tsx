@@ -1,16 +1,16 @@
-import { LoaderFunction, LinksFunction, json } from '@remix-run/node'
+import { LinksFunction, LoaderFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
+import youtubeStyles from 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css'
 
-import { Layout, Typography, A } from '~/components/Base'
-import Debug from '~/components/Debug'
-import YouTube from '~/components/Album/YouTube'
-import Spotify from '~/components/Spotify/SimpleEmbed'
-import Bandcamp from '~/components/Album/Bandcamp'
-import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import reddit from '~/lib/reddit.server'
 
-import youtubeStyles from 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css'
+import Bandcamp from '~/components/Album/Bandcamp'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
+import YouTube from '~/components/Album/YouTube'
+import { A, Layout, Typography } from '~/components/Base'
+import Debug from '~/components/Debug'
+import Spotify from '~/components/Spotify/SimpleEmbed'
 
 type LoaderData = {
   post: Awaited<ReturnType<typeof reddit.getRandomPost>>

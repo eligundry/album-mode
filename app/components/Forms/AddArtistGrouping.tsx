@@ -1,8 +1,10 @@
-import { useState } from 'react'
 import { Form } from '@remix-run/react'
 import clsx from 'clsx'
-import { Fieldset, Legend, Input, Button } from '~/components/Base'
+import { useState } from 'react'
+
 import { AdminFormActions } from '~/lib/admin.server'
+
+import { Button, Fieldset, Input, Legend } from '~/components/Base'
 
 const AddArtistGroupingForm: React.FC = () => {
   const [artistCount, setArtistCount] = useState(1)
