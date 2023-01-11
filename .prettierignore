@@ -4,3 +4,4 @@ public/build
 public/\~partytown
 .prettierignore
 .husky
+prisma/*.db
