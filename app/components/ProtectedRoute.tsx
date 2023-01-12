@@ -1,13 +1,19 @@
-import type { HeadersFunction } from '@remix-run/node'
+import { HeadersFunction, json } from '@remix-run/node'
 import React from 'react'
+
+import env from '~/env.server'
 
 export const protectedRouteHeaders: HeadersFunction = () => ({
   'WWW-Authenticate': 'Basic',
 })
 
 export const isAuthorized = (request: Request) => {
-  if (process.env.NODE_ENV !== 'development') {
+  if (env.NODE_ENV !== 'development') {
     return false
+  }
+
+  if (!env.BASIC_AUTH_USERNAME || !env.BASIC_AUTH_PASSWORD) {
+    throw json({ error: 'Basic auth environment variables are not setup' }, 500)
   }
 
   const header = request.headers.get('Authorization')
@@ -21,7 +27,9 @@ export const isAuthorized = (request: Request) => {
     .toString()
     .split(':')
 
-  return username === process.env.USERNAME && password === process.env.PASSWORD
+  return (
+    username === env.BASIC_AUTH_USERNAME && password === env.BASIC_AUTH_PASSWORD
+  )
 }
 
 const ProtectedRoute: React.FC<

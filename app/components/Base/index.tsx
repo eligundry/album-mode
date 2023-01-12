@@ -266,3 +266,28 @@ export const Legend = React.forwardRef<
     {...props}
   />
 ))
+
+export type CheckboxProps = React.HTMLAttributes<HTMLInputElement> & {
+  name: string
+  value: string
+  checked?: boolean
+}
+
+export const Checkbox: React.FC<React.PropsWithChildren<CheckboxProps>> = ({
+  name,
+  className,
+  children,
+  ...props
+}) => (
+  <div className="form-control">
+    <label className={clsx('label', 'justify-start', 'gap-2')}>
+      <input
+        className={clsx('checkbox', 'checkbox-primary', className)}
+        type="checkbox"
+        name={name}
+        {...props}
+      />
+      <span className="label-text">{children}</span>
+    </label>
+  </div>
+)

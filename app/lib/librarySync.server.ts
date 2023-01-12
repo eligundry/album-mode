@@ -11,22 +11,16 @@ import {
   defaultLibrary,
 } from '~/lib/types/library'
 
+import env from '~/env.server'
+
 const TableName = 'AlbumModeLibrary'
 
 const getClient = () => {
-  if (!process.env.APP_AWS_ACCESS_KEY_ID) {
-    throw new Error('APP_AWS_ACCESS_KEY_ID env var must be set')
-  }
-
-  if (!process.env.APP_AWS_SECRET_ACCESS_KEY) {
-    throw new Error('APP_AWS_SECRET_ACCESS_KEY env var must be set')
-  }
-
   return new DynamoDBClient({
     region: 'us-east-2',
     credentials: {
-      accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.APP_AWS_SECRET_ACCESS_KEY,
+      accessKeyId: env.APP_AWS_ACCESS_KEY_ID,
+      secretAccessKey: env.APP_AWS_SECRET_ACCESS_KEY,
     },
   })
 }

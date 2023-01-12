@@ -2,6 +2,7 @@ import type { MetaFunction } from '@remix-run/node'
 import clsx from 'clsx'
 
 import { Container, Heading, Layout, Typography } from '~/components/Base'
+import SettingsForm from '~/components/Forms/Settings'
 import Library from '~/components/Library'
 import config from '~/config'
 import useUser from '~/hooks/useUser'
@@ -30,6 +31,18 @@ export default function LibraryPage() {
             Spotify. Logging in on another device to this site will sync your
             library to it.
           </Typography>
+        )}
+        {user && (
+          <>
+            <Heading level="h3" className={clsx('mb-0')}>
+              Settings
+            </Heading>
+            <Typography variant="hint">
+              These settings allow Album Mode.party to improve the quality of
+              your Spotify recommendations as you use the application.
+            </Typography>
+            <SettingsForm className={clsx('mb-4')} />
+          </>
         )}
         <Library />
       </Container>
