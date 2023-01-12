@@ -2,6 +2,8 @@ import emailjs from '@emailjs/nodejs'
 import winston from 'winston'
 import Transport, { TransportStreamOptions } from 'winston-transport'
 
+import env from '~/env.server'
+
 interface EmailJsTransportOptions extends TransportStreamOptions {
   publicKey: string
   privateKey: string
@@ -77,15 +79,10 @@ const logger = winston.createLogger({
   ),
 })
 
-if (process.env.LOGGER_EMAIL_SETTINGS) {
-  const settings = JSON.parse(process.env.LOGGER_EMAIL_SETTINGS) as Pick<
-    EmailJsTransportOptions,
-    'publicKey' | 'privateKey' | 'templateID' | 'serviceID'
-  >
-
+if (env.LOGGER_EMAIL_SETTINGS) {
   logger.add(
     new EmailJsTransport({
-      ...settings,
+      ...env.LOGGER_EMAIL_SETTINGS,
       level: 'error',
       filter: (info) => !!info.email,
     })

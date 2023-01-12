@@ -181,9 +181,11 @@ export default function PublicationBySlug() {
     } else if (data.slug === '33-13-sound') {
       footer = (
         <Heading level="h5">
+          Buy the{' '}
           <A href={url.toString()} target="_blank">
-            Buy the {data.review.publicationName} book on this album
-          </A>
+            {data.review.publicationName} book
+          </A>{' '}
+          about this album
         </Heading>
       )
     }

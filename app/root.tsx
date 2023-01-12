@@ -14,10 +14,12 @@ import { useEffect } from 'react'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import type { User } from '~/lib/types/auth'
+import userSettings from '~/lib/userSettings.server'
 
 import Tracking from '~/components/Tracking'
 import config from '~/config'
 import RootProvider from '~/context/Root'
+import env from '~/env.server'
 import useTailwindTheme from '~/hooks/useTailwindTheme'
 
 import styles from './styles/app.css'
@@ -52,15 +54,19 @@ export async function loader({ request, context }: LoaderArgs) {
   const session = await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request)
   )
+  const settings = await serverTiming.track('userSettings.get', () =>
+    userSettings.get(request)
+  )
 
   return json(
     {
       user: session?.user || (null as User | null),
+      settings,
       ENV: {
-        SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
-        SENTRY_DSN: process.env.SENTRY_DSN,
-        SENTRY_RELEASE: process.env.COMMIT_REF,
-        NODE_ENV: process.env.NODE_ENV,
+        SPOTIFY_CLIENT_ID: env.SPOTIFY_CLIENT_ID,
+        SENTRY_DSN: env.SENTRY_DSN,
+        SENTRY_RELEASE: env.COMMIT_REF,
+        NODE_ENV: env.NODE_ENV,
       },
     },
     {
@@ -92,7 +98,7 @@ function App() {
         <Tracking />
       </head>
       <body>
-        <RootProvider user={data.user}>
+        <RootProvider user={data.user} settings={data.settings}>
           <Outlet />
         </RootProvider>
         <ScrollRestoration />

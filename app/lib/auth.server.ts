@@ -2,17 +2,7 @@ import { createCookieSessionStorage } from '@remix-run/node'
 import { Authenticator } from 'remix-auth'
 import { SpotifyStrategy } from 'remix-auth-spotify'
 
-if (!process.env.SPOTIFY_CLIENT_ID) {
-  throw new Error('Missing SPOTIFY_CLIENT_ID env')
-}
-
-if (!process.env.SPOTIFY_CLIENT_SECRET) {
-  throw new Error('Missing SPOTIFY_CLIENT_SECRET env')
-}
-
-if (!process.env.AUTH_SECRETS) {
-  throw new Error('Missing AUTH_SECRETS env')
-}
+import env from '~/env.server'
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -20,8 +10,8 @@ export const sessionStorage = createCookieSessionStorage({
     sameSite: 'lax',
     path: '/',
     httpOnly: true,
-    secrets: JSON.parse(process.env.AUTH_SECRETS),
-    secure: process.env.NODE_ENV === 'production',
+    secrets: env.AUTH_SECRETS,
+    secure: true,
   },
 })
 
@@ -31,13 +21,15 @@ export const { getSession, commitSession, destroySession } = sessionStorage
 const scopes = [
   'user-read-email',
   'user-library-read',
+  'user-library-modify',
   'user-read-playback-state',
+  'user-follow-modify',
 ].join(' ')
 
 export const spotifyStrategy = new SpotifyStrategy(
   {
-    clientID: process.env.SPOTIFY_CLIENT_ID,
-    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+    clientID: env.SPOTIFY_CLIENT_ID,
+    clientSecret: env.SPOTIFY_CLIENT_SECRET,
     callbackURL: '/spotify/callback',
     sessionStorage,
     scope: scopes,

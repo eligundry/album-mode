@@ -37,6 +37,7 @@ export async function loader({ request, context }: LoaderArgs) {
 
     return album
   }, config.asyncRetryConfig)
+
   const wiki = await serverTiming.track('wikipedia', () =>
     wikipedia.getSummaryForAlbum({
       album: album.name,

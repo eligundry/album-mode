@@ -13,6 +13,8 @@ import db from '~/lib/db.server'
 import lastPresented from '~/lib/lastPresented.server'
 import logger from '~/lib/logging.server'
 
+import env from '~/env.server'
+
 import type { SpotifyArtist, SpotifyUser } from './types/spotify'
 
 interface SpotifyOptions {
@@ -39,10 +41,10 @@ export class Spotify {
     this.lastPresentedID = options.lastPresentedID
     this.logger = options.logger ?? logger
     this.api = new SpotifyWebApi({
-      clientId: process.env.SPOTIFY_CLIENT_ID,
-      clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+      clientId: env.SPOTIFY_CLIENT_ID,
+      clientSecret: env.SPOTIFY_CLIENT_SECRET,
       redirectUri:
-        process.env.NODE_ENV === 'production'
+        env.NODE_ENV === 'production'
           ? 'https://album-mode.party/spotify/callback'
           : 'http://localhost:3000/spotify/callback',
     })
@@ -464,7 +466,7 @@ export class Spotify {
       throw new Error('User must be listening to music to do this')
     }
 
-    const { album } = await this.getRandomAlbumForRelatedArtistByID(
+    const album = await this.getRandomAlbumForRelatedArtistByID(
       currentlyPlaying.artists[0].id
     )
 
@@ -660,14 +662,24 @@ export class Spotify {
       return null
     }
   }
+
+  followArtist = async (artistID: string) => {
+    const client = await this.getClient()
+    return client.followArtists([artistID])
+  }
+
+  saveAlbum = async (albumID: string) => {
+    const client = await this.getClient()
+    return client.addToMySavedAlbums([albumID])
+  }
 }
 
 const spotifyAPIFactory = () =>
   new SpotifyWebApi({
-    clientId: process.env.SPOTIFY_CLIENT_ID,
-    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+    clientId: env.SPOTIFY_CLIENT_ID,
+    clientSecret: env.SPOTIFY_CLIENT_SECRET,
     redirectUri:
-      process.env.NODE_ENV === 'production'
+      env.NODE_ENV === 'production'
         ? 'https://album-mode.party/spotify/callback'
         : 'http://localhost:3000/spotify/callback',
   })

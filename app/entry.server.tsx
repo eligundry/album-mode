@@ -5,9 +5,11 @@ import { renderToString } from 'react-dom/server'
 
 import { prisma } from '~/lib/db.server'
 
+import env from '~/env.server'
+
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  release: process.env.COMMIT_REF,
+  dsn: env.SENTRY_DSN,
+  release: env.COMMIT_REF,
   tracesSampleRate: 1,
   integrations: [new Sentry.Integrations.Prisma({ client: prisma })],
 })

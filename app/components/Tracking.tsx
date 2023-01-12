@@ -1,10 +1,12 @@
 import { Partytown } from '@builder.io/partytown/react'
 
+import env from '~/env.server'
+
 const Tracking: React.FC = () => {
   return (
     <>
       <Partytown
-        debug={process.env.NODE_ENV === 'development'}
+        debug={env.NODE_ENV === 'development'}
         forward={['dataLayer.push']}
       />
       <script

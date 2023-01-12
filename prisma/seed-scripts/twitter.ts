@@ -7,11 +7,22 @@ import bandcamp from '~/lib/bandcamp.server'
 import { prisma } from '~/lib/db.server'
 import { getMachineClient as getSpotifyClient } from '~/lib/spotify.server'
 
+import { envSchema } from '~/env.server'
+
 dotenv.config()
 
 type Options = {
   pageLimit?: number
 }
+
+const env = envSchema
+  .required({
+    TWITTER_APP_KEY: true,
+    TWITTER_APP_SECRET: true,
+    TWITTER_ACCESS_TOKEN: true,
+    TWITTER_ACCESS_SECRET: true,
+  })
+  .parse(process.env)
 
 const pullAlbumsFromTwitterTimeline = async (
   username: string,
@@ -19,11 +30,10 @@ const pullAlbumsFromTwitterTimeline = async (
 ) => {
   const spotify = await getSpotifyClient()
   const twitter = await new TwitterApi({
-    // @ts-ignore
-    appKey: process.env.TWITTER_APP_KEY,
-    appSecret: process.env.TWITTER_APP_SECRET,
-    accessToken: process.env.TWITTER_ACCESS_TOKEN,
-    accessSecret: process.env.TWITTER_ACCESS_SECRET,
+    appKey: env.TWITTER_APP_KEY,
+    appSecret: env.TWITTER_APP_SECRET,
+    accessToken: env.TWITTER_ACCESS_TOKEN,
+    accessSecret: env.TWITTER_ACCESS_SECRET,
   }).appLogin()
 
   try {
