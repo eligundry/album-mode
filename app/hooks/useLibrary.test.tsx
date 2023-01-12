@@ -1,12 +1,16 @@
-import React from 'react'
-import { renderHook, waitFor } from '@testing-library/react'
-import nock from 'nock'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { renderHook, waitFor } from '@testing-library/react'
+import { rest } from 'msw'
+import React from 'react'
+import SpotifyWebApi from 'spotify-web-api-node'
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+
+import { defaultLibrary } from '~/lib/types/library'
 
 import LibraryContext from '~/context/Library'
 import useLibrary from '~/hooks/useLibrary'
-import { defaultLibrary } from '~/lib/types/library'
-import SpotifyWebApi from 'spotify-web-api-node'
+
+import { server } from '../../tests/mocks/server'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,70 +81,105 @@ const metro: SpotifyApi.AlbumObjectSimplified = {
 }
 
 describe('useLibrary > logged out', () => {
-  const getLibraryScope = nock('http://localhost').persist().get('/api/library')
-
   it('should initialize along the happy path', async () => {
-    getLibraryScope.reply(200, defaultLibrary)
+    server.use(
+      rest.get(/\/api\/library/, (req, res, ctx) => {
+        return res(ctx.status(200), ctx.json(defaultLibrary))
+      })
+    )
 
-    const {
-      result: {
-        current: { library },
-      },
-    } = renderHook(() => useLibrary(), { wrapper })
+    const hook = renderHook(() => useLibrary(), { wrapper })
+    hook.rerender()
+
     await waitFor(() => {
-      expect(library).toMatchObject(defaultLibrary.items)
+      expect(hook.result.current.library).toMatchObject(defaultLibrary.items)
     })
   })
 
   it('should be able to fetch existing libraries', async () => {
-    getLibraryScope.reply(200, {
-      ...defaultLibrary,
-      items: [{ ...metro, savedAt: new Date().toISOString() }],
-    })
+    server.use(
+      rest.get(/\/api\/library/, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json({
+            ...defaultLibrary,
+            items: [{ ...metro, savedAt: new Date().toISOString() }],
+          })
+        )
+      })
+    )
 
-    const { result } = renderHook(() => useLibrary(), { wrapper })
+    const hook = renderHook(() => useLibrary(), { wrapper })
+    hook.rerender()
 
     await waitFor(() => {
-      expect(result.current.library).toMatchObject([metro])
+      expect(hook.result.current.library).toMatchObject([metro])
     })
   })
 
   it('should save items to the library', async () => {
-    getLibraryScope.reply(200, defaultLibrary)
-
-    nock('http://localhost')
-      .post('/api/library')
-      .reply(201, {
-        msg: 'saved item',
-        item: { ...metro, savedAt: new Date().toISOString() },
+    server.use(
+      rest.get(/\/api\/library/, (req, res, ctx) => {
+        return res(ctx.status(200), ctx.json(defaultLibrary))
+      }),
+      rest.post(/\/api\/library/, (req, res, ctx) => {
+        return res(
+          ctx.status(201),
+          ctx.json({
+            msg: 'saved item',
+            item: { ...metro, savedAt: new Date().toISOString() },
+          })
+        )
       })
+    )
 
-    const { result } = renderHook(() => useLibrary(), { wrapper })
+    const hook = renderHook(() => useLibrary(), { wrapper })
+    await hook.result.current.saveItem({ ...metro, type: 'album' })
 
     await waitFor(async () => {
-      await result.current.saveItem({ ...metro, type: 'album' })
-      expect(result.current.library.length).toBe(1)
+      hook.rerender()
+      expect(hook.result.current.library).toHaveLength(1)
     })
   })
 
   it('should remove items from the library', async () => {
     const savedAt = new Date()
 
-    getLibraryScope.reply(200, {
-      ...defaultLibrary,
-      items: [{ ...metro, savedAt: savedAt.toISOString() }],
+    server.use(
+      rest.get(/\/api\/library/, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json({
+            ...defaultLibrary,
+            items: [{ ...metro, savedAt: new Date().toISOString() }],
+          })
+        )
+      }),
+      rest.delete(
+        `http://localhost/api/library/${savedAt.toISOString()}`,
+        (req, res, ctx) => {
+          return res(
+            ctx.status(200),
+            ctx.json({
+              msg: 'removed item',
+            })
+          )
+        }
+      )
+    )
+
+    const hook = renderHook(() => useLibrary(), { wrapper })
+
+    await waitFor(() => {
+      hook.rerender()
+      expect(hook.result.current.library).toHaveLength(1)
     })
 
-    nock('http://localhost')
-      .delete(`/api/library/${savedAt.toISOString()}`)
-      .reply(200, {
-        msg: 'removed item',
-      })
-
-    const { result } = renderHook(() => useLibrary(), { wrapper })
+    await hook.result.current.removeItem(savedAt)
 
     await waitFor(async () => {
-      await result.current.removeItem(savedAt)
+      hook.rerender()
+      expect(hook.result.current.library).toHaveLength(0)
     })
   })
 })

@@ -8,7 +8,7 @@ import dateCompareDesc from 'date-fns/compareDesc'
 import datesEqual from 'date-fns/isEqual'
 import parseISO from 'date-fns/parseISO'
 import uniqBy from 'lodash/uniqBy'
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import {
   CurrentLibrary,
@@ -44,6 +44,10 @@ export const LibraryContext = React.createContext<ILibraryContext>({
 })
 
 const reactQueryKey = ['newLibrary']
+const origin =
+  typeof window === 'undefined' || window.location.origin === 'null'
+    ? 'http://localhost'
+    : window.location.origin
 
 const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
@@ -53,7 +57,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
   const { data: library, ...libs } = useQuery<CurrentLibrary>(
     reactQueryKey,
     async (context) => {
-      const resp = await fetch(`${window.location.origin}/api/library`)
+      const resp = await fetch(`${origin}/api/library`)
       const serverLibrary: CurrentLibrary = await resp.json()
       // const serverLibraryItemsSavedAt = serverLibrary.items.map((item) =>
       //   typeof item.savedAt === 'string'
@@ -90,11 +94,13 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
     {
       onSuccess: (data) => {
         queryClient.setQueryData<CurrentLibrary>(reactQueryKey, (old) => {
-          if (old) {
+          if (old && old.items) {
             old.items = old.items.map((item) => ({
               ...item,
               savedAt: new Date(item.savedAt),
             }))
+          } else {
+            old = { ...defaultLibrary }
           }
 
           return old
@@ -115,11 +121,11 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
         ...item,
       }
 
-      if (!user) {
+      if (!user?.id) {
         return savedItem
       }
 
-      return fetch(`${window.location.origin}/api/library`, {
+      return fetch(`${origin}/api/library`, {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
@@ -141,7 +147,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
           old = { ...defaultLibrary }
         }
 
-        old.items.push(data)
+        old.items = [...old.items, data]
         return old
       })
     },
@@ -154,7 +160,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
         typeof savedAt === 'string' ? savedAt : savedAt.toISOString()
 
       if (user?.id) {
-        await fetch(`/api/library/${strSavedAt}`, {
+        await fetch(`${origin}/api/library/${strSavedAt}`, {
           method: 'DELETE',
         })
       }
@@ -226,19 +232,18 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
   //   setLoadedServerLibrary(true)
   // }, [loadedServerLibrary, user?.uri])
 
-  const value = useMemo<ILibraryContext>(
-    () => ({
-      library: library?.items
-        ? library?.items.sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
-        : [],
-      saveItem: saveItem.mutateAsync,
-      removeItem: removeItem.mutateAsync,
-    }),
-    [library, saveItem.mutateAsync, removeItem.mutateAsync]
-  )
-
   return (
-    <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>
+    <LibraryContext.Provider
+      value={{
+        library: library?.items
+          ? library?.items.sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
+          : [],
+        saveItem: saveItem.mutateAsync,
+        removeItem: removeItem.mutateAsync,
+      }}
+    >
+      {children}
+    </LibraryContext.Provider>
   )
 }
 
