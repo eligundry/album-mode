@@ -183,6 +183,7 @@ export default function PublicationBySlug() {
     const url = new URL(data.review.slug)
     url.searchParams.set('utm_campaign', 'publication')
     url.searchParams.set('utm_source', 'album-mode.party')
+    url.searchParams.set('utm_source', data.review.publicationSlug)
 
     if (data.slug.includes('p4k')) {
       footer = (
