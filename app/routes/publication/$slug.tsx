@@ -182,6 +182,7 @@ export default function PublicationBySlug() {
   if ('review' in data && data.review.slug.startsWith('http')) {
     const url = new URL(data.review.slug)
     url.searchParams.set('utm_campaign', 'publication')
+    url.searchParams.set('utm_source', 'album-mode.party')
 
     if (data.slug.includes('p4k')) {
       footer = (
@@ -209,6 +210,16 @@ export default function PublicationBySlug() {
             {data.review.publicationName} book
           </A>{' '}
           about this album
+        </Heading>
+      )
+    } else if (data.slug === 'robert-christgau') {
+      footer = (
+        <Heading level="h5">
+          Read what{' '}
+          <A href={url.toString()} target="_blank">
+            {data.review.publicationName} has to say about this album
+          </A>
+          .
         </Heading>
       )
     }
