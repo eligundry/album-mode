@@ -28,7 +28,7 @@ export const envSchema = z.object({
       })
     )
     .optional(),
-  NODE_ENV: z.enum(['development', 'production', 'test']),
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('production'),
   SENTRY_DSN: z.string().optional(),
   SPOTIFY_CLIENT_ID: z.string(),
   SPOTIFY_CLIENT_SECRET: z.string(),
