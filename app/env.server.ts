@@ -4,20 +4,12 @@ const isNotWebApp =
   process.env.GITHUB_ACTIONS === 'true' || process.env.SEED_SCRIPT === 'true'
 
 export const envSchema = z.object({
-  APP_AWS_ACCESS_KEY_ID: z
-    .string()
-    .default('')
-    .refine((input) => (isNotWebApp ? true : !!input)),
-  APP_AWS_SECRET_ACCESS_KEY: z
-    .string()
-    .default('')
-    .refine((input) => (isNotWebApp ? true : !!input)),
-  AUTH_SECRETS: z
-    .preprocess(
-      (val) => (typeof val === 'string' ? JSON.parse(val) : null),
-      z.array(z.string()).min(1).default([''])
-    )
-    .refine((input) => (isNotWebApp ? true : !!input && !!input[0])),
+  APP_AWS_ACCESS_KEY_ID: z.string().default(''),
+  APP_AWS_SECRET_ACCESS_KEY: z.string().default(''),
+  AUTH_SECRETS: z.preprocess(
+    (val) => (typeof val === 'string' ? JSON.parse(val) : ['']),
+    z.array(z.string())
+  ),
   BASIC_AUTH_USERNAME: z.string().optional(),
   BASIC_AUTH_PASSWORD: z.string().optional(),
   CI: z.coerce.boolean().default(false),
@@ -45,6 +37,17 @@ export const envSchema = z.object({
   TWITTER_ACCESS_SECRET: z.string().optional(),
 })
 
-const env = envSchema.parse(process.env)
+const env = isNotWebApp
+  ? envSchema.parse(process.env)
+  : envSchema
+      .extend({
+        APP_AWS_ACCESS_KEY_ID: z.string(),
+        APP_AWS_SECRET_ACCESS_KEY: z.string(),
+        AUTH_SECRETS: z.preprocess(
+          (val) => (typeof val === 'string' && val ? JSON.parse(val) : null),
+          z.array(z.string().min(2))
+        ),
+      })
+      .parse(process.env)
 
 export default env

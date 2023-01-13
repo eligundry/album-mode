@@ -2,6 +2,7 @@ import ServerTiming from '@eligundry/server-timing'
 import * as build from '@remix-run/dev/server-build'
 import { createRequestHandler } from '@remix-run/netlify'
 
+import env from './app/env.server'
 import logger from './app/lib/logging.server'
 
 /**
@@ -27,5 +28,5 @@ function getLoadContext(event, context) {
 export const handler = createRequestHandler({
   build,
   getLoadContext,
-  mode: process.env.NODE_ENV,
+  mode: env.NODE_ENV,
 })
