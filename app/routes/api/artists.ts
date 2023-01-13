@@ -14,7 +14,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   return json(artists, {
     headers: {
-      'Cache-Control': config.cacheControl.public,
+      'Cache-Control': config.cacheControl.publicLonger,
     },
   })
 }

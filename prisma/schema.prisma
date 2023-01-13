@@ -18,14 +18,14 @@ model Label {
 }
 
 model Publication {
-  id        Int                          @id @default(autoincrement())
-  createdAt DateTime                     @default(now())
-  updatedAt DateTime                     @updatedAt
-  name      String
-  slug      String                       @unique
-  blurb     String?
-  url       String?
-  albums    AlbumReviewedByPublication[]
+  id              Int                          @id @default(autoincrement())
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+  name            String
+  slug            String                       @unique
+  url             String?
+  metaDescription String?
+  albums          AlbumReviewedByPublication[]
 }
 
 model AlbumReviewedByPublication {
@@ -41,7 +41,7 @@ model AlbumReviewedByPublication {
 }
 
 model BandcampDailyAlbum {
-  albumID          String      @id
+  albumID          String   @id
   album            String
   artistID         String
   artist           String

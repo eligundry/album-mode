@@ -1,4 +1,4 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
@@ -103,6 +103,29 @@ export async function loader({ params, request, context }: LoaderArgs) {
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const CatchBoundary = AlbumCatchBoundary
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  let description = config.siteDescription
+  let title = config.siteTitle
+
+  if (data.type === 'bandcamp') {
+    title = `Bandcamp | ${config.siteTitle}`
+    description = "Listen to something good according to Bandcamp's staff"
+  }
+
+  if (data.type === 'spotify') {
+    title = `${data.review.publicationName} | ${config.siteTitle}`
+    description = `You simply must listen to this album that was highly rated by ${data.review.publicationName}!`
+
+    if (data.review.publicationMetaDescription) {
+      description = data.review.publicationMetaDescription
+    }
+  }
+
+  return {
+    title,
+    description,
+  }
+}
 
 export default function PublicationBySlug() {
   const data = useLoaderData<typeof loader>()
@@ -159,6 +182,7 @@ export default function PublicationBySlug() {
   if ('review' in data && data.review.slug.startsWith('http')) {
     const url = new URL(data.review.slug)
     url.searchParams.set('utm_campaign', 'publication')
+    url.searchParams.set('utm_source', 'album-mode.party')
 
     if (data.slug.includes('p4k')) {
       footer = (
@@ -186,6 +210,16 @@ export default function PublicationBySlug() {
             {data.review.publicationName} book
           </A>{' '}
           about this album
+        </Heading>
+      )
+    } else if (data.slug === 'robert-christgau') {
+      footer = (
+        <Heading level="h5">
+          Read what{' '}
+          <A href={url.toString()} target="_blank">
+            {data.review.publicationName} has to say about this album
+          </A>
+          .
         </Heading>
       )
     }

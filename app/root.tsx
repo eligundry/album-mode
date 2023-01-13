@@ -29,7 +29,7 @@ export const meta: MetaFunction = ({ data }) => ({
   title: config.siteTitle,
   viewport:
     'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
-  description: "Don't know what to listen to? Let us recommend an album!",
+  description: config.siteDescription,
   version: data.ENV.SENTRY_RELEASE,
   generator: 'Remix <https://remix.run>',
 })
