@@ -215,11 +215,23 @@ export default function PublicationBySlug() {
     } else if (data.slug === 'robert-christgau') {
       footer = (
         <Heading level="h5">
-          Read what{' '}
-          <A href={url.toString()} target="_blank">
-            {data.review.publicationName} has to say about this album
-          </A>
-          .
+          {url.pathname.includes('get_album.php') ? (
+            <>
+              Read{' '}
+              <A href={url.toString()} target="_blank">
+                {data.review.publicationName}'s Consumer Guide™️{' '}
+              </A>{' '}
+              for this album
+            </>
+          ) : (
+            <>
+              Read{' '}
+              <A href={url.toString()} target="_blank">
+                {data.review.publicationName}'s writings
+              </A>{' '}
+              about this artist
+            </>
+          )}
         </Heading>
       )
     }
