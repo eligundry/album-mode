@@ -11,6 +11,12 @@ import logger from '~/lib/logging.server'
 const prisma = new PrismaClient()
 const axiosChristgau = axios.create({
   baseURL: 'https://www.robertchristgau.com/xg/pnj/',
+  responseType: 'arraybuffer',
+  responseEncoding: 'binary',
+  transformResponse: (data) => {
+    const decoder = new TextDecoder('ISO-8859-1')
+    return decoder.decode(data)
+  },
 })
 
 interface Album {
@@ -24,7 +30,7 @@ const cleanAlbumTitle = (title: string) => title.replaceAll('. . .', '...')
 const seedPazzAndJop = async () => {
   // First, we must fetch the listing page to get all the links
   const criticsPollURLs = await axiosChristgau
-    .get<string>('')
+    .get('')
     .then(({ data: html }) => new JSDOM(html).window.document)
     .then((document) => {
       const paths: string[] = []
@@ -48,16 +54,7 @@ const seedPazzAndJop = async () => {
   // them into the DB.
   const albums = await Promise.all(
     criticsPollURLs.flatMap(async (path) => {
-      const html = await axiosChristgau
-        .get(path, {
-          responseType: 'arraybuffer',
-          responseEncoding: 'binary',
-        })
-        .then((resp) => {
-          const decoder = new TextDecoder('ISO-8859-1')
-          return decoder.decode(resp.data)
-        })
-
+      const { data: html } = await axiosChristgau.get(path)
       const document = new JSDOM(html).window.document
       const albums: Album[] = []
 
@@ -118,9 +115,7 @@ const seedPazzAndJop = async () => {
 
 const seedPazzAndJopDeansLists = async () => {
   const deansListURLs = await axiosChristgau
-    .get('', {
-      responseType: 'document',
-    })
+    .get('')
     .then(({ data: html }) => new JSDOM(html).window.document)
     .then((document) => {
       const paths: string[] = []
@@ -144,16 +139,7 @@ const seedPazzAndJopDeansLists = async () => {
   // them into the DB.
   const albums = await Promise.all(
     deansListURLs.flatMap(async (path) => {
-      const html = await axiosChristgau
-        .get(path, {
-          responseType: 'arraybuffer',
-          responseEncoding: 'binary',
-        })
-        .then((resp) => {
-          const decoder = new TextDecoder('ISO-8859-1')
-          return decoder.decode(resp.data)
-        })
-
+      const { data: html } = await axiosChristgau.get(path)
       const document = new JSDOM(html).window.document
       const albums: Album[] = []
       const htmlAlbumList = document.querySelector(
