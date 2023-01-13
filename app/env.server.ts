@@ -1,20 +1,26 @@
 import { z } from 'zod'
 
-const optionalForGithubActions = (input: unknown) =>
-  process.env.GITHUB_ACTIONS === 'true' ? true : !!input
+const isNotWebApp =
+  process.env.GITHUB_ACTIONS === 'true' || process.env.SEED_SCRIPT === 'true'
 
 export const envSchema = z.object({
-  APP_AWS_ACCESS_KEY_ID: z.string().refine(optionalForGithubActions),
-  APP_AWS_SECRET_ACCESS_KEY: z.string().refine(optionalForGithubActions),
+  APP_AWS_ACCESS_KEY_ID: z
+    .string()
+    .default('')
+    .refine((input) => (isNotWebApp ? true : !!input)),
+  APP_AWS_SECRET_ACCESS_KEY: z
+    .string()
+    .default('')
+    .refine((input) => (isNotWebApp ? true : !!input)),
   AUTH_SECRETS: z
     .preprocess(
       (val) => (typeof val === 'string' ? JSON.parse(val) : null),
-      z.array(z.string())
+      z.array(z.string()).min(1).default([''])
     )
-    .refine(optionalForGithubActions),
+    .refine((input) => (isNotWebApp ? true : !!input && !!input[0])),
   BASIC_AUTH_USERNAME: z.string().optional(),
   BASIC_AUTH_PASSWORD: z.string().optional(),
-  CI: z.coerce.boolean().optional(),
+  CI: z.coerce.boolean().default(false),
   COMMIT_REF: z.string().optional(),
   DATABASE_URL: z.string(),
   LOGGER_EMAIL_SETTINGS: z
@@ -29,6 +35,7 @@ export const envSchema = z.object({
     )
     .optional(),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('production'),
+  SEED_SCRIPT: z.coerce.boolean().default(false),
   SENTRY_DSN: z.string().optional(),
   SPOTIFY_CLIENT_ID: z.string(),
   SPOTIFY_CLIENT_SECRET: z.string(),
