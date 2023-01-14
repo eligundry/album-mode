@@ -5,6 +5,8 @@ import useAsync from 'react-use/lib/useAsync'
 
 import type { SpotifyArtist } from '~/lib/types/spotify'
 
+import { ButtonLink } from '~/components/Base'
+
 import FunSelect from './FunSelect'
 
 interface Props {
@@ -40,22 +42,45 @@ const RelatedArtistSearchForm: React.FC<Props> = ({ className }) => {
         name="artistID"
         defaultOptions={defaultArtists}
         loadOptions={searchAritsts}
+        menuIsOpen={true}
         // @ts-ignore
         getOptionValue={(option: SpotifyArtist) => option.id}
         // @ts-ignore
         formatOptionLabel={(option: SpotifyArtist, meta) => {
+          console.log({ option, meta })
           return (
-            <div className={clsx('flex', 'flex-row', 'items-center')}>
-              {meta.selectValue.length === 0 && option.image && (
-                <img
-                  className={clsx('w-16', 'mr-2')}
-                  src={option.image.url}
-                  alt={option.name}
-                  width={option.image.width}
-                  height={option.image.height}
-                />
+            <div
+              className={clsx(
+                'flex',
+                'flex-row',
+                'items-center',
+                'justify-between',
+                '[&>.btn-sm]:hidden',
+                'hover:[&>.btn-sm]:flex'
               )}
-              <span>{option.name}</span>
+            >
+              <div
+                className={clsx('flex', 'flex-row', 'items-center', 'gap-2')}
+              >
+                {meta.selectValue.length === 0 && option.image && (
+                  <img
+                    className={clsx('w-16', 'rounded-lg')}
+                    src={option.image.url}
+                    alt={option.name}
+                    width={option.image.width}
+                    height={option.image.height}
+                    loading="lazy"
+                  />
+                )}
+                <span>{option.name}</span>
+              </div>
+              <ButtonLink
+                to={`/related-artist?artistID="${option.id}"`}
+                onClick={(e) => e.stopPropagation()}
+                className={clsx('btn-sm', 'btn-secondary')}
+              >
+                Exact Search
+              </ButtonLink>
             </div>
           )
         }}
