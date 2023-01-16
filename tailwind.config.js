@@ -12,9 +12,6 @@ module.exports = {
         '2xl': '1024px',
       },
     },
-    borderRadius: {
-      DEFAULT: '0',
-    },
   },
   plugins: [require('@tailwindcss/typography'), require('daisyui')],
   daisyui: {

@@ -1,7 +1,6 @@
 import { Form, useSubmit } from '@remix-run/react'
 import clsx from 'clsx'
 import { useRef } from 'react'
-import useAsync from 'react-use/lib/useAsync'
 
 import FunSelect from './FunSelect'
 
@@ -28,7 +27,6 @@ const searchGenres = async (genre?: string) => {
 const GenreSearchForm: React.FC<Props> = ({ className }) => {
   const submit = useSubmit()
   const formRef = useRef<HTMLFormElement>(null)
-  const { value: defaultGenres } = useAsync(searchGenres)
 
   return (
     <Form
@@ -39,7 +37,7 @@ const GenreSearchForm: React.FC<Props> = ({ className }) => {
     >
       <FunSelect
         name="genre"
-        defaultOptions={defaultGenres}
+        defaultOptions
         loadOptions={searchGenres}
         className={className}
         onChange={() => setTimeout(() => submit(formRef.current), 5)}

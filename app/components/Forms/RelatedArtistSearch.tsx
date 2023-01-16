@@ -1,7 +1,6 @@
 import { Form, useSubmit } from '@remix-run/react'
 import clsx from 'clsx'
 import { useRef } from 'react'
-import useAsync from 'react-use/lib/useAsync'
 
 import type { SpotifyArtist } from '~/lib/types/spotify'
 
@@ -27,7 +26,6 @@ const searchAritsts = async (artist?: string): Promise<SpotifyArtist[]> => {
 const RelatedArtistSearchForm: React.FC<Props> = ({ className }) => {
   const submit = useSubmit()
   const formRef = useRef<HTMLFormElement>(null)
-  const { value: defaultArtists } = useAsync(searchAritsts)
 
   return (
     <Form
@@ -38,7 +36,7 @@ const RelatedArtistSearchForm: React.FC<Props> = ({ className }) => {
     >
       <FunSelect
         name="artistID"
-        defaultOptions={defaultArtists}
+        defaultOptions
         loadOptions={searchAritsts}
         // @ts-ignore
         getOptionValue={(option: SpotifyArtist) => option.id}
@@ -48,7 +46,7 @@ const RelatedArtistSearchForm: React.FC<Props> = ({ className }) => {
             <div className={clsx('flex', 'flex-row', 'items-center')}>
               {meta.selectValue.length === 0 && option.image && (
                 <img
-                  className={clsx('w-16', 'mr-2')}
+                  className={clsx('w-16', 'mr-2', 'rounded-lg')}
                   src={option.image.url}
                   alt={option.name}
                   width={option.image.width}
