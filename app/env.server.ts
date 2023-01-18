@@ -27,6 +27,7 @@ export const envSchema = z.object({
     )
     .optional(),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('production'),
+  OG_API_URL: z.string().url(),
   SEED_SCRIPT: z.coerce.boolean().default(false),
   SENTRY_DSN: z.string().optional(),
   SPOTIFY_CLIENT_ID: z.string(),

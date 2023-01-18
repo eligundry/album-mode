@@ -672,6 +672,12 @@ export class Spotify {
     const client = await this.getClient()
     return client.addToMySavedAlbums([albumID])
   }
+
+  getRelatedArtists = async (artistID: string) => {
+    const client = await this.getClient()
+    const resp = await client.getArtistRelatedArtists(artistID)
+    return resp.body.artists
+  }
 }
 
 const spotifyAPIFactory = () =>

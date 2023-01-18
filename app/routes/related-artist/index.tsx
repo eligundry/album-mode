@@ -1,4 +1,4 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 import promiseHash from 'promise-hash'
@@ -14,6 +14,7 @@ import AlbumErrorBoundary, {
 import { Layout } from '~/components/Base'
 import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
+import env from '~/env.server'
 
 export async function loader({ request, context }: LoaderArgs) {
   const headers = new Headers()
@@ -98,6 +99,27 @@ export async function loader({ request, context }: LoaderArgs) {
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const CatchBoundary = AlbumCatchBoundary
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  if (!data) {
+    return {}
+  }
+
+  const title = `Discover music similar to ${data.artist.name}`
+  const description = `We think that you might like ${data.album.artists[0].name}`
+  const ogImage = `${env.OG_API_URL}/api/artist/${data.artist.id}`
+
+  return {
+    title: `${title} | ${config.siteTitle}`,
+    description,
+    'og:title': title,
+    'og:description': description,
+    'og:image': ogImage,
+    'twitter:card': 'summary_large_image',
+    'twitter:title': title,
+    'twitter:description': description,
+    'twitter:image': ogImage,
+  }
+}
 
 export default function RelatedArtistSearch() {
   const data = useLoaderData<typeof loader>()
