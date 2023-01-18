@@ -5,3 +5,4 @@ public/\~partytown
 .prettierignore
 .husky
 prisma/*.db
+public/robots.txt
