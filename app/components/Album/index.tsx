@@ -1,6 +1,8 @@
 import clsx from 'clsx'
 import React from 'react'
 
+import { utmParams } from '~/lib/queryParams'
+
 import { A, Container } from '~/components/Base'
 import SpotifyEmbed from '~/components/Spotify/Embed'
 import useGTM from '~/hooks/useGTM'
@@ -13,8 +15,7 @@ interface NewProps {
   footer?: React.ReactNode
 }
 
-const linkParams = new URLSearchParams({
-  utm_campaign: 'album-mode.party',
+const linkParams = utmParams({
   go: '1',
 })
 

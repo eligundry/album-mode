@@ -1,6 +1,8 @@
 import { PrismaClient, Publication } from '@prisma/client'
 import { chromium } from 'playwright'
 
+import { urlWithUTMParams } from '~/lib/queryParams'
+
 const prisma = new PrismaClient()
 
 // Pulls albums from the US version of 33 1/3.
@@ -69,9 +71,9 @@ const bloomsburyScraper = async (storeSlug: string) => {
           console.log({ album, artist, urlPath })
         }
 
-        const slug = new URL('https://www.bloomsbury.com' + urlPath)
-        slug.searchParams.set('utm_source', 'album-mode.party')
-        slug.searchParams.set('utm_term', '33-13')
+        const slug = urlWithUTMParams('https://www.bloomsbury.com' + urlPath, {
+          term: '33-13',
+        })
 
         await prisma.albumReviewedByPublication
           .create({

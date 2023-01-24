@@ -2,6 +2,7 @@ import type { BandcampDailyAlbum } from '@prisma/client'
 import clsx from 'clsx'
 import React from 'react'
 
+import { utmParams } from '~/lib/queryParams'
 import type { Tweet } from '~/lib/types/twitter'
 
 import { A, Container } from '~/components/Base'
@@ -15,9 +16,9 @@ interface Props {
   footer?: string | React.ReactNode
 }
 
-const searchParams = new URLSearchParams({
-  utm_campaign: 'album-mode.party',
-  utm_term: 'bandcamp-daily',
+const searchParams = utmParams({
+  campaign: 'publication',
+  term: 'bandcamp-daily',
 })
 
 const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {

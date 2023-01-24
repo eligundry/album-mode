@@ -4,6 +4,7 @@ import retry from 'async-retry'
 
 import db from '~/lib/db.server'
 import lastPresented from '~/lib/lastPresented.server'
+import { urlWithUTMParams, utmParams } from '~/lib/queryParams'
 import spotifyLib from '~/lib/spotify.server'
 import wikipedia from '~/lib/wikipedia.server'
 
@@ -131,10 +132,9 @@ export default function PublicationBySlug() {
   const data = useLoaderData<typeof loader>()
 
   if (data.type === 'bandcamp') {
-    const searchParams = new URLSearchParams({
-      utm_source: 'album-mode.party',
-      utm_campaign: 'publication',
-      utm_term: 'bandcamp-daily',
+    const searchParams = utmParams({
+      campaign: 'publication',
+      term: 'bandcamp-daily',
     })
 
     return (
@@ -180,10 +180,10 @@ export default function PublicationBySlug() {
   let breadcrumbs: SearchBreadcrumbsProps['crumbs'] = ['Publication']
 
   if ('review' in data && data.review.slug.startsWith('http')) {
-    const url = new URL(data.review.slug)
-    url.searchParams.set('utm_campaign', 'publication')
-    url.searchParams.set('utm_source', 'album-mode.party')
-    url.searchParams.set('utm_source', data.review.publicationSlug)
+    const url = urlWithUTMParams(data.review.slug, {
+      source: 'publication',
+      term: data.review.publicationSlug,
+    })
 
     if (data.slug.includes('p4k')) {
       footer = (
@@ -228,7 +228,7 @@ export default function PublicationBySlug() {
             <>
               Read{' '}
               <A href={url.toString()} target="_blank">
-                {data.review.publicationName}'s writings
+                {data.review.publicationName}'s musings
               </A>{' '}
               about this artist
             </>
@@ -239,10 +239,10 @@ export default function PublicationBySlug() {
   }
 
   if (data.review.publicationURL) {
-    const publicationURL = new URL(data.review.publicationURL)
-    publicationURL.searchParams.set('utm_source', 'album-mode.party')
-    publicationURL.searchParams.set('utm_campaign', 'publication')
-    publicationURL.searchParams.set('utm_term', data.review.publicationSlug)
+    const publicationURL = urlWithUTMParams(data.review.publicationURL, {
+      campagin: 'publication',
+      term: data.review.publicationSlug,
+    })
 
     breadcrumbs.push([
       data.review.publicationName,

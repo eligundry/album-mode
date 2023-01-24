@@ -1,14 +1,14 @@
 import clsx from 'clsx'
 
+import { utmParams } from '~/lib/queryParams'
 import type { SavedBandcampItem } from '~/lib/types/library'
 
 import { A, Button, ButtonLink } from '~/components/Base'
 import Card from '~/components/Base/Card'
 import useLibrary from '~/hooks/useLibrary'
 
-const searchParams = new URLSearchParams({
-  utm_campaign: 'album-mode.party',
-  utm_term: 'library-page',
+const searchParams = utmParams({
+  term: 'library-page',
   go: '1',
 })
 

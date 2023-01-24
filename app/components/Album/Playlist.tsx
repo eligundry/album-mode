@@ -1,6 +1,8 @@
 import { useMeasure } from '@react-hookz/web'
 import clsx from 'clsx'
 
+import { utmParams } from '~/lib/queryParams'
+
 import { A, Container } from '~/components/Base'
 import SpotifyEmbed from '~/components/Spotify/Embed'
 import { useIsMobile } from '~/hooks/useMediaQuery'
@@ -12,8 +14,9 @@ interface Props {
   footer?: string | React.ReactNode
 }
 
-const linkParams = new URLSearchParams({
-  utm_campaign: 'album-mode.party',
+const linkParams = utmParams({
+  campaign: 'playlist',
+  term: 'spotify-playlist',
   go: '1',
 })
 

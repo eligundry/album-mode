@@ -1,5 +1,7 @@
 import clsx from 'clsx'
 
+import { urlWithUTMParams } from '~/lib/queryParams'
+
 import { A, Container, Heading } from '~/components/Base'
 import SpotifyEmbed from '~/components/Spotify/Embed'
 import useGTM from '~/hooks/useGTM'
@@ -22,12 +24,10 @@ const SimpleSpotifyEmbed: React.FC<Props> = ({
   const isMobile = useIsMobile()
 
   // Clean up the URL so it can launch in the native player
-  const titleURL = new URL(url)
-  titleURL.search = new URLSearchParams({
+  const titleURL = urlWithUTMParams(url, {
+    term: 'reddit',
     go: '1',
-    utm_campaign: 'album-mode.party',
-    utm_term: 'reddit',
-  }).toString()
+  })
 
   return (
     <Container center>
