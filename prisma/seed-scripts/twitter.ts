@@ -5,9 +5,8 @@ import yargs from 'yargs'
 
 import bandcamp from '~/lib/bandcamp.server'
 import { prisma } from '~/lib/db.server'
+import { envSchema } from '~/lib/envSchema.server'
 import { getMachineClient as getSpotifyClient } from '~/lib/spotify.server'
-
-import { envSchema } from '~/env.server'
 
 dotenv.config()
 
