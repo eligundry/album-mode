@@ -70,7 +70,7 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
                 'flex',
                 'flex-row',
                 'gap-1',
-                "[&_li:not(:last-child)]:after:content-[',']",
+                "[&_li:not(:last-child)]:after:content-['_•_']",
                 '[&_li:not(:last-child)]:after:text-sm'
               )}
             >
