@@ -1,5 +1,5 @@
+import { useLocalStorageValue as useLocalStorage } from '@react-hookz/web'
 import { useCallback } from 'react'
-import useLocalStorage from 'react-use/lib/useLocalStorage'
 
 import useCurrentPath from '~/hooks/useCurrentPath'
 
@@ -26,20 +26,25 @@ const defaultState: SavedSearchData = {
 
 export default function useSavedSearches() {
   const path = useCurrentPath()
-  const [state, setState] = useLocalStorage<SavedSearchData>(
+  const { value: state, set: setState } = useLocalStorage<SavedSearchData>(
     'albumModeSavedSearches',
-    defaultState,
     {
-      raw: false,
-      serializer: (value) => JSON.stringify(value),
-      deserializer: (value) =>
-        JSON.parse(value, (key, value) => {
+      defaultValue: defaultState,
+      initializeWithValue: true,
+      parse: (value, fallback) => {
+        if (!value) {
+          return fallback
+        }
+
+        return JSON.parse(value, (key, value) => {
           if (key === 'savedAt') {
             return new Date(value)
           }
 
           return value
-        }),
+        })
+      },
+      stringify: (value) => JSON.stringify(value),
     }
   )
   const saveable = state?.searches

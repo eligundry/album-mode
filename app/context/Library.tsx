@@ -1,9 +1,12 @@
+import {
+  useAsync,
+  useLocalStorageValue as useLocalStorage,
+  useMountEffect,
+} from '@react-hookz/web'
 import dateCompareDesc from 'date-fns/compareDesc'
 import parseISO from 'date-fns/parseISO'
 import uniqBy from 'lodash/uniqBy'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import useAsync from 'react-use/lib/useAsync'
-import useLocalStorage from 'react-use/lib/useLocalStorage'
 
 import {
   CurrentLibrary,
@@ -37,20 +40,25 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
 }) => {
   const user = useUser()
   const [loadedServerLibrary, setLoadedServerLibrary] = useState(false)
-  const [library, setLibrary] = useLocalStorage<CurrentLibrary>(
+  const { value: library, set: setLibrary } = useLocalStorage<CurrentLibrary>(
     'albumModeLibrary',
-    defaultLibrary,
     {
-      raw: false,
-      serializer: (value) => JSON.stringify(value),
-      deserializer: (value) =>
-        JSON.parse(value, (key, value) => {
+      defaultValue: defaultLibrary,
+      initializeWithValue: true,
+      stringify: (value) => JSON.stringify(value),
+      parse: (value, fallback) => {
+        if (!value) {
+          return fallback
+        }
+
+        return JSON.parse(value, (key, value) => {
           if (key === 'savedAt') {
             return new Date(value)
           }
 
           return value
-        }),
+        })
+      },
     }
   )
 
@@ -121,7 +129,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
    * and then merges them together. This allows the library to by synced across
    * devices, if the user is logged in via Spotify.
    */
-  const librarySyncState = useAsync(async () => {
+  const [librarySyncState, remoteLibrarySync] = useAsync(async () => {
     if (loadedServerLibrary || !library || !user?.id) {
       return
     }
@@ -160,7 +168,11 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
     setLibrary(mergeLibraryItems(library, serverLibrary))
     setLoadedServerLibrary(true)
-  }, [loadedServerLibrary, user?.id])
+  })
+
+  useMountEffect(() => {
+    remoteLibrarySync.execute()
+  })
 
   useEffect(() => {
     if (librarySyncState.error) {

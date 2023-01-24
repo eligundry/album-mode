@@ -1,5 +1,4 @@
 import clsx from 'clsx'
-import useUpdate from 'react-use/lib/useUpdate'
 
 import type { SavedSpotifyItem } from '~/lib/types/library'
 
@@ -16,7 +15,6 @@ const searchParams = new URLSearchParams({
 const SpotifyLibraryCard: React.FC<{ item: SavedSpotifyItem }> = ({ item }) => {
   const url = `${item.external_urls.spotify}?${searchParams.toString()}`
   const { removeItem } = useLibrary()
-  const update = useUpdate()
 
   return (
     <Card
@@ -76,7 +74,6 @@ const SpotifyLibraryCard: React.FC<{ item: SavedSpotifyItem }> = ({ item }) => {
           <Button
             onClick={() => {
               removeItem(item.savedAt)
-              update()
             }}
             color="danger"
             size="sm"

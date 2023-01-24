@@ -1,7 +1,7 @@
+import { useWindowSize } from '@react-hookz/web'
 import clsx from 'clsx'
 import { useState } from 'react'
 import Confetti from 'react-confetti'
-import useWindowSize from 'react-use/lib/useWindowSize'
 
 import type { LibraryItem } from '~/lib/types/library'
 
