@@ -6,3 +6,5 @@ public/\~partytown
 .husky
 prisma/*.db
 public/robots.txt
+.nvmrc
+*.toml
