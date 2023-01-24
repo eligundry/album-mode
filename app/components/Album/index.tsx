@@ -70,12 +70,14 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
               className={clsx(
                 'flex',
                 'flex-row',
-                'gap-1',
+                'flex-wrap',
+                'leading-none',
+                'gap-x-1',
                 "[&_li:not(:last-child)]:after:content-['_•_']",
                 '[&_li:not(:last-child)]:after:text-sm'
               )}
             >
-              {album.artists.map((artist) => (
+              {album.artists.slice(0, 3).map((artist) => (
                 <li key={artist.id}>
                   <A
                     href={`${artist.href}?${linkParams.toString()}`}
