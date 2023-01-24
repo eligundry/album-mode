@@ -1,41 +1,23 @@
 import { ActionFunction, LoaderFunction, redirect } from '@remix-run/node'
 import { json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
 
 import admin from '~/lib/admin.server'
 
 import { Container, Heading, Layout } from '~/components/Base'
+import {
+  GenericCatchBoundary,
+  GenericErrorBoundary,
+} from '~/components/ErrorBoundary'
 import AddArtistGroupingForm from '~/components/Forms/AddArtistGrouping'
 import AddLabelForm from '~/components/Forms/AddLabel'
-import ProtectedRoute, {
-  isAuthorized,
-  protectedRouteHeaders,
-} from '~/components/ProtectedRoute'
-
-export const headers = protectedRouteHeaders
-
-type LoaderData =
-  | {
-      authorized: false
-    }
-  | {
-      authorized: true
-    }
+import { isAuthorized } from '~/components/ProtectedRoute'
 
 export const loader: LoaderFunction = async ({ request }) => {
-  if (!isAuthorized(request)) {
-    const data: LoaderData = {
-      authorized: false,
-    }
+  await isAuthorized(request)
 
-    return json(data, { status: 401 })
-  }
-
-  const data = {
+  return json({
     authorized: true,
-  }
-
-  return json(data)
+  })
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -44,18 +26,17 @@ export const action: ActionFunction = async ({ request }) => {
   return redirect('/admin')
 }
 
-export default function AdminIndex() {
-  const { authorized } = useLoaderData<LoaderData>()
+export const ErrorBoundary = GenericErrorBoundary
+export const CatchBoundary = GenericCatchBoundary
 
+export default function AdminIndex() {
   return (
-    <ProtectedRoute authorized={authorized}>
-      <Layout>
-        <Container>
-          <Heading level="h2">Admin</Heading>
-          <AddLabelForm />
-          <AddArtistGroupingForm />
-        </Container>
-      </Layout>
-    </ProtectedRoute>
+    <Layout>
+      <Container>
+        <Heading level="h2">Admin</Heading>
+        <AddLabelForm />
+        <AddArtistGroupingForm />
+      </Container>
+    </Layout>
   )
 }

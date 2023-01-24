@@ -1,4 +1,4 @@
-import useMedia from 'react-use/lib/useMedia'
+import { useMediaQuery as useMedia } from '@react-hookz/web'
 
 import twTheme from '~/tailwind.config.json'
 
@@ -9,7 +9,7 @@ export default function useMediaQuery(query: Query, defaultState = false) {
     query = query(twTheme)
   }
 
-  return useMedia(query, defaultState)
+  return useMedia(query, { initializeWithValue: defaultState })
 }
 
 export function useIsMobile() {

@@ -1,22 +1,20 @@
 import clsx from 'clsx'
-import useUpdate from 'react-use/lib/useUpdate'
 
+import { utmParams } from '~/lib/queryParams'
 import type { SavedSpotifyItem } from '~/lib/types/library'
 
 import { A, Button, ButtonLink } from '~/components/Base'
 import Card from '~/components/Base/Card'
 import useLibrary from '~/hooks/useLibrary'
 
-const searchParams = new URLSearchParams({
-  utm_campaign: 'album-mode.party',
-  utm_term: 'library-page',
+const searchParams = utmParams({
+  term: 'library-page',
   go: '1',
 })
 
 const SpotifyLibraryCard: React.FC<{ item: SavedSpotifyItem }> = ({ item }) => {
   const url = `${item.external_urls.spotify}?${searchParams.toString()}`
   const { removeItem } = useLibrary()
-  const update = useUpdate()
 
   return (
     <Card
@@ -76,7 +74,6 @@ const SpotifyLibraryCard: React.FC<{ item: SavedSpotifyItem }> = ({ item }) => {
           <Button
             onClick={() => {
               removeItem(item.savedAt)
-              update()
             }}
             color="danger"
             size="sm"

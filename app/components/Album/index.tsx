@@ -1,6 +1,8 @@
 import clsx from 'clsx'
 import React from 'react'
 
+import { utmParams } from '~/lib/queryParams'
+
 import { A, Container } from '~/components/Base'
 import SpotifyEmbed from '~/components/Spotify/Embed'
 import useGTM from '~/hooks/useGTM'
@@ -13,8 +15,7 @@ interface NewProps {
   footer?: React.ReactNode
 }
 
-const linkParams = new URLSearchParams({
-  utm_campaign: 'album-mode.party',
+const linkParams = utmParams({
   go: '1',
 })
 
@@ -69,12 +70,14 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
               className={clsx(
                 'flex',
                 'flex-row',
-                'gap-1',
-                "[&_li:not(:last-child)]:after:content-[',']",
+                'flex-wrap',
+                'leading-none',
+                'gap-x-1',
+                "[&_li:not(:last-child)]:after:content-['_•_']",
                 '[&_li:not(:last-child)]:after:text-sm'
               )}
             >
-              {album.artists.map((artist) => (
+              {album.artists.slice(0, 3).map((artist) => (
                 <li key={artist.id}>
                   <A
                     href={`${artist.href}?${linkParams.toString()}`}

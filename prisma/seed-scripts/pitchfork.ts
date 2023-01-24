@@ -4,6 +4,7 @@ import Bottleneck from 'bottleneck'
 import { stripHtml } from 'string-strip-html'
 import yargs from 'yargs'
 
+import { urlWithUTMParams } from '~/lib/queryParams'
 import { ListEntity, PitchforkSearchResponse } from '~/lib/types/pitchfork'
 
 const prisma = new PrismaClient()
@@ -24,10 +25,6 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   if (!publication) {
     throw new Error(`Could not find Pitchfork publication for 'p4k-${slug}'`)
   }
-
-  const searchParams = new URLSearchParams()
-  searchParams.set('utm_source', 'album-mode.party')
-  searchParams.set('utm_term', `p4k-${slug}`)
 
   // Since we have bootstrapped all the older albums, limit the update jobs to
   // the first 3 pages
@@ -55,9 +52,9 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
           data: {
             publicationID: publication.id,
             album: stripHtml(album.seoTitle || album.title).result,
-            slug: `https://pitchfork.com${
-              album.url
-            }?${searchParams.toString()}`,
+            slug: urlWithUTMParams(`https://pitchfork.com${album.url}`, {
+              term: `p4k-${slug}`,
+            }).toString(),
             artist: album.artists?.[0]?.display_name || '',
           },
         })

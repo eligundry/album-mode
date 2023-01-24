@@ -4,6 +4,7 @@ import kebabCase from 'lodash/kebabCase'
 import { chromium } from 'playwright'
 
 import logger from '~/lib/logging.server'
+import { urlWithUTMParams } from '~/lib/queryParams'
 
 const prisma = new PrismaClient()
 
@@ -112,9 +113,9 @@ const needleDrop = async () => {
         }
 
         const [artist, album] = artistAlbum.split(' - ')
-        const uniqueURL = new URL(reviewURL)
-        uniqueURL.searchParams.set('utm_source', 'album-mode.party')
-        uniqueURL.searchParams.set('utm_term', kebabCase(artistAlbum))
+        const uniqueURL = urlWithUTMParams(reviewURL, {
+          term: kebabCase(artistAlbum),
+        })
 
         albumArtistMap[album] = {
           artist,

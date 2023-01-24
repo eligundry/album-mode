@@ -1,14 +1,18 @@
 import { z } from 'zod'
 
 export const envSchema = z.object({
+  ADMIN_SPOTIFY_USERNAMES: z
+    .preprocess(
+      (val) => (typeof val === 'string' ? JSON.parse(val) : []),
+      z.array(z.string())
+    )
+    .default([]),
   APP_AWS_ACCESS_KEY_ID: z.string().default(''),
   APP_AWS_SECRET_ACCESS_KEY: z.string().default(''),
   AUTH_SECRETS: z.preprocess(
     (val) => (typeof val === 'string' ? JSON.parse(val) : ['']),
     z.array(z.string())
   ),
-  BASIC_AUTH_USERNAME: z.string().optional(),
-  BASIC_AUTH_PASSWORD: z.string().optional(),
   CI: z.coerce.boolean().default(false),
   COMMIT_REF: z.string().optional(),
   DATABASE_URL: z.string(),

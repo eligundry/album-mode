@@ -1,4 +1,4 @@
-import { useTransition } from '@remix-run/react'
+import { useNavigation } from '@remix-run/react'
 import React, { useEffect, useState } from 'react'
 
 interface LoadingContextData {
@@ -18,7 +18,7 @@ LoadingContext.displayName = 'LoadingContext'
 const LoadingProvider: React.FC<React.PropsWithChildren<{}>> = ({
   children,
 }) => {
-  const { state } = useTransition()
+  const { state } = useNavigation()
   const [showLoader, setShowLoader] = useState(false)
 
   // Only show the loader if a request takes more than 200ms

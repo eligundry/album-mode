@@ -1,8 +1,9 @@
+import { useWindowSize } from '@react-hookz/web'
 import clsx from 'clsx'
 import { useState } from 'react'
 import Confetti from 'react-confetti'
-import useWindowSize from 'react-use/lib/useWindowSize'
 
+import { urlWithUTMParams } from '~/lib/queryParams'
 import type { LibraryItem } from '~/lib/types/library'
 
 import { ButtonLink, EmojiText, Heading } from '~/components/Base'
@@ -19,25 +20,27 @@ export interface ReviewButtonProps {
 
 const getPlayURL = (item: LibraryItem) => {
   let rawURL: string | undefined
+  let extraParams: Record<string, string> = {}
 
   switch (item.type) {
     case 'bandcamp':
       rawURL = item.url
       break
     case 'playlist':
+      rawURL = item.external_urls.spotify
+      extraParams.campaign = 'playlist'
+      extraParams.term = 'spotify-playlist'
+      extraParams.go = '1'
+      break
     case 'album':
       rawURL = item.external_urls.spotify
+      extraParams.go = '1'
       break
     default:
       throw new Error('unsupported url for review buttons')
   }
 
-  const url = new URL(rawURL)
-  url.searchParams.set('utm_campaign', 'album-mode.party')
-
-  if (rawURL.includes('spotify.com')) {
-    url.searchParams.set('go', '1')
-  }
+  const url = urlWithUTMParams(rawURL, extraParams)
 
   return url.toString()
 }
