@@ -2,7 +2,7 @@ import { Form } from '@remix-run/react'
 import clsx from 'clsx'
 import { useState } from 'react'
 
-import { AdminFormActions } from '~/lib/admin.server'
+import { AdminFormActions } from '~/lib/types/admin'
 
 import { Button, Fieldset, Input, Legend } from '~/components/Base'
 

@@ -1,11 +1,7 @@
 import kebabCase from 'lodash/kebabCase'
 
 import db from '~/lib/db.server'
-
-export enum AdminFormActions {
-  AddLabel = 'add-label',
-  AddArtistGrouping = 'add-artist-grouping',
-}
+import { AdminFormActions } from '~/lib/types/admin'
 
 const handleAdminFormSubmission = async (formData: FormData) => {
   const action = formData.get('action')

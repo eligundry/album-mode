@@ -49,6 +49,7 @@
     "react-twitter-embed": "^4.0.4",
     "remix-auth": "^3.4.0",
     "remix-auth-spotify": "^1.2.8",
+    "remix-utils": "^6.0.0",
     "spotify-web-api-node": "^5.0.2",
     "wikipedia": "^2.0.0",
     "winston": "^3.8.2",

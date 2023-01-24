@@ -3,6 +3,7 @@ import type { UserSettings } from '~/lib/types/userSettings'
 
 import LibraryProvider from '~/context/Library'
 import LoadingProvider from '~/context/Loading'
+import ModalProvider from '~/context/Modal'
 import SettingsContext from '~/context/Settings'
 import UserContext from '~/context/User'
 
@@ -20,7 +21,9 @@ const RootProvider: React.FC<React.PropsWithChildren<Props>> = ({
     <UserContext.Provider value={user}>
       <SettingsContext.Provider value={settings}>
         <LibraryProvider>
-          <LoadingProvider>{children}</LoadingProvider>
+          <ModalProvider>
+            <LoadingProvider>{children}</LoadingProvider>
+          </ModalProvider>
         </LibraryProvider>
       </SettingsContext.Provider>
     </UserContext.Provider>

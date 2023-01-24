@@ -1,45 +1,20 @@
-import { HeadersFunction, json } from '@remix-run/node'
 import React from 'react'
+import { unauthorized } from 'remix-utils'
+
+import { spotifyStrategy } from '~/lib/auth.server'
 
 import env from '~/env.server'
 
-export const protectedRouteHeaders: HeadersFunction = () => ({
-  'WWW-Authenticate': 'Basic',
-})
+export const isAuthorized = async (request: Request) => {
+  const session = await spotifyStrategy.getSession(request)
 
-export const isAuthorized = (request: Request) => {
-  if (env.NODE_ENV !== 'development') {
-    return false
+  if (!session?.user || !session.user.name) {
+    throw unauthorized({ error: 'you are not logged in!' })
   }
 
-  if (!env.BASIC_AUTH_USERNAME || !env.BASIC_AUTH_PASSWORD) {
-    throw json({ error: 'Basic auth environment variables are not setup' }, 500)
+  if (!env.ADMIN_SPOTIFY_USERNAMES.includes(session.user.name)) {
+    throw unauthorized({ error: 'you are not an admin!' })
   }
 
-  const header = request.headers.get('Authorization')
-
-  if (!header) {
-    return false
-  }
-
-  const base64 = header.replace('Basic ', '')
-  const [username, password] = Buffer.from(base64, 'base64')
-    .toString()
-    .split(':')
-
-  return (
-    username === env.BASIC_AUTH_USERNAME && password === env.BASIC_AUTH_PASSWORD
-  )
+  return true
 }
-
-const ProtectedRoute: React.FC<
-  React.PropsWithChildren<{ authorized: boolean }>
-> = ({ children, authorized }) => {
-  if (!authorized) {
-    return null
-  }
-
-  return <>{children}</>
-}
-
-export default ProtectedRoute
