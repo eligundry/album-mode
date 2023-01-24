@@ -22,8 +22,6 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
   const isMobile = useIsMobile()
   const sendEvent = useGTM()
   const albumURL = album.external_urls.spotify
-  const artistURL = album.artists[0].external_urls.spotify
-  const artist = album.artists[0].name
 
   return (
     <Container center>
@@ -67,20 +65,33 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
             >
               {album.name}
             </A>
-            <A
-              className={clsx('text-base', 'tooltip', 'tooltip-bottom')}
-              href={`${artistURL}?${linkParams.toString()}`}
-              target="_blank"
-              data-tip="View artist on Spotify"
-              onClick={() =>
-                sendEvent({
-                  event: 'Artist Opened',
-                  artistURL,
-                })
-              }
+            <ul
+              className={clsx(
+                'flex',
+                'flex-row',
+                'gap-1',
+                "[&_li:not(:last-child)]:after:content-[',']",
+                '[&_li:not(:last-child)]:after:text-sm'
+              )}
             >
-              {artist}
-            </A>
+              {album.artists.map((artist) => (
+                <li key={artist.id}>
+                  <A
+                    href={`${artist.href}?${linkParams.toString()}`}
+                    target="_blank"
+                    className={clsx('text-base')}
+                    onClick={() =>
+                      sendEvent({
+                        event: 'Artist Opened',
+                        artistURL: artist.href,
+                      })
+                    }
+                  >
+                    {artist.name}
+                  </A>
+                </li>
+              ))}
+            </ul>
           </>
         }
         footer={footer}
