@@ -1,4 +1,4 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
@@ -58,6 +58,9 @@ export async function loader({ request, context }: LoaderArgs) {
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const CatchBoundary = AlbumCatchBoundary
+export const meta: MetaFunction<typeof loader> = () => ({
+  title: `Spotify Library | ${config.siteTitle}`,
+})
 
 export default function RandomAlbumFromSpotifyLibrary() {
   const data = useLoaderData<typeof loader>()

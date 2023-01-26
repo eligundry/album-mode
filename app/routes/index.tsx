@@ -116,7 +116,7 @@ export default function Index() {
               <SpotifyLoginButton />
             ) : (
               <>
-                <ButtonLink to="/spotify/album" disabled={loading}>
+                <ButtonLink to="/spotify/library" disabled={loading}>
                   Spotify Library
                 </ButtonLink>
                 <ButtonLink to="/spotify/currently-playing" disabled={loading}>

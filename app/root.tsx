@@ -30,7 +30,7 @@ export const meta: MetaFunction = ({ data }) => ({
   title: config.siteTitle,
   viewport:
     'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
-  description: config.siteDescription,
+  description: `${config.siteDescription} Let us recommend an album!`,
   version: data.ENV.SENTRY_RELEASE,
   generator: 'Remix <https://remix.run>',
 })
@@ -87,9 +87,11 @@ function App() {
   const canonicalURL = useMemo(() => {
     const url = new URL(pathname + search, config.siteURL)
 
-    if (url.searchParams.has('from')) {
-      url.searchParams.delete('from')
-    }
+    Object.entries(Object.fromEntries(url.searchParams)).forEach(([key]) => {
+      if (!config.allowedQueryParametersInCanoncialURL.includes(key)) {
+        url.searchParams.delete(key)
+      }
+    })
 
     return url.toString()
   }, [pathname, search])

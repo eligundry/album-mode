@@ -1,6 +1,7 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
+import startCase from 'lodash/startCase'
 
 import lastPresented from '~/lib/lastPresented.server'
 import { badRequest } from '~/lib/responses.server'
@@ -66,6 +67,14 @@ export async function loader({
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const CatchBoundary = AlbumCatchBoundary
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  const genre = startCase(data.genre)
+
+  return {
+    title: `${genre} | ${config.siteTitle}`,
+    description: `Discover new music from the ${genre} genre on Spotify!`,
+  }
+}
 
 export default function GenreSearch() {
   const data = useLoaderData<typeof loader>()

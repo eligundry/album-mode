@@ -1,6 +1,6 @@
 const config = {
   siteTitle: 'Album Mode.party 🎉',
-  siteDescription: "Don't know what to listen to? Let us recommend an album!",
+  siteDescription: "Don't know what to listen to?",
   siteURL: 'https://album-mode.party',
   cacheControl: {
     public: `public, max-age=${60 * 60}, s-maxage=${60 * 60}`,
@@ -13,6 +13,7 @@ const config = {
     minTimeout: 0,
     randomize: false,
   },
+  allowedQueryParametersInCanoncialURL: ['artist', 'artistID', 'genre'],
 }
 
 export default config

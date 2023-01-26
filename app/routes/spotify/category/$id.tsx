@@ -1,5 +1,4 @@
-import ServerTiming from '@eligundry/server-timing'
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import promiseHash from 'promise-hash'
 
@@ -12,6 +11,7 @@ import PlaylistErrorBoundary, {
 } from '~/components/Album/ErrorBoundary'
 import Playlist from '~/components/Album/Playlist'
 import { Layout, Link } from '~/components/Base'
+import config from '~/config'
 
 export async function loader({
   params,
@@ -52,6 +52,10 @@ export async function loader({
 
 export const ErrorBoundary = PlaylistErrorBoundary
 export const CatchBoundary = PlaylistCatchBoundary
+export const meta: MetaFunction<typeof loader> = ({ data }) => ({
+  title: `${data.category.name} | ${config.siteTitle}`,
+  description: `${config.siteDescription} Listen to a ${data.category.name} playlist on Spotify!`,
+})
 
 export default function RandomSpotifyFeaturedPlaylist() {
   const { playlist, category } = useLoaderData<typeof loader>()

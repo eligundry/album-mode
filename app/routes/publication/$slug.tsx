@@ -114,15 +114,15 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
   if (data.type === 'bandcamp') {
     title = `Bandcamp | ${config.siteTitle}`
-    description = "Listen to something good according to Bandcamp's staff"
+    description = `${config.siteTitle} Listen to something good according to Bandcamp's staff`
   }
 
   if (data.type === 'spotify') {
     title = `${data.review.publicationName} | ${config.siteTitle}`
-    description = `You simply must listen to this album that was highly rated by ${data.review.publicationName}!`
+    description = `${config.siteDescription} You simply must listen to this album that was highly rated by ${data.review.publicationName}!`
 
     if (data.review.publicationMetaDescription) {
-      description = data.review.publicationMetaDescription
+      description = `${config.siteDescription} ${data.review.publicationMetaDescription}`
     }
   }
 

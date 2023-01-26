@@ -1,4 +1,4 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
 import lastPresented from '~/lib/lastPresented.server'
@@ -9,6 +9,7 @@ import AlbumErrorBoundary, {
 } from '~/components/Album/ErrorBoundary'
 import Playlist from '~/components/Album/Playlist'
 import { Layout } from '~/components/Base'
+import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
   const headers = new Headers()
@@ -27,6 +28,11 @@ export async function loader({ request, context }: LoaderArgs) {
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const CatchBoundary = AlbumCatchBoundary
+export const meta: MetaFunction<typeof loader> = () => ({
+  title: `Featured Playlist | ${config.siteTitle}`,
+  description:
+    'Listen to a random playlist that Spotify recommends based upon the time of day.',
+})
 
 export default function RandomSpotifyFeaturedPlaylist() {
   const { playlist } = useLoaderData<typeof loader>()
