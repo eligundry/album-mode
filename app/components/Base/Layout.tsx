@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import React from 'react'
+import { ClientOnly } from 'remix-utils'
 
 import { DesktopLoader, MobileLoader } from '~/components/Loading'
 import SearchBreadcrumbs, {
@@ -34,7 +35,11 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           'flex-col'
         )}
       >
-        {!isMobile && <DesktopLoader />}
+        {!isMobile && (
+          <ClientOnly fallback={<div className={clsx('w-full', 'h-[8px]')} />}>
+            {() => <DesktopLoader />}
+          </ClientOnly>
+        )}
         <Container
           className={clsx(
             'flex',
