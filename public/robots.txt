@@ -10,6 +10,7 @@ Disallow: /publication/*
 Disallow: /label/*
 Disallow: /related-artist*
 Disallow: /spotify/*
+Allow: /spotify/categories
 Disallow: /reddit/*
 Disallow: /genre*
 Disallow: /library*
