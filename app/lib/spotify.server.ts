@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/remix'
 import pick from 'lodash/pick'
 import random from 'lodash/random'
 import sample from 'lodash/sample'
+import sampleSize from 'lodash/sampleSize'
 import SpotifyWebApi from 'spotify-web-api-node'
 import { WebapiError as SpotifyWebApiError } from 'spotify-web-api-node/src/response-error'
 import util from 'util'
@@ -249,10 +250,17 @@ export class Spotify {
 
     const artist = await artistPromise
 
+    // Shuffle the genres, keeping the first one in it's place
+    let genres = artist.body.genres
+
+    if (genres.length > 2) {
+      genres = [genres[0], ...sampleSize(genres, genres.length - 1)]
+    }
+
     return {
       ...album,
       artists: [artist.body],
-      genres: artist.body.genres,
+      genres,
     }
   }
 
