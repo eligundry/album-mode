@@ -28,6 +28,7 @@ const seedAlbumOfTheYear = async (options: Options) => {
       console.log(`fetching ${url}`)
       const response = await page.goto(url, {
         timeout: 60 * 1000,
+        waitUntil: 'domcontentloaded',
       })
 
       if (!response) {
