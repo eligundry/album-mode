@@ -1,21 +1,17 @@
 import clsx from 'clsx'
 
-import { utmParams } from '~/lib/queryParams'
 import type { SavedBandcampItem } from '~/lib/types/library'
 
 import { A, Button, ButtonLink } from '~/components/Base'
 import Card from '~/components/Base/Card'
 import useLibrary from '~/hooks/useLibrary'
-
-const searchParams = utmParams({
-  term: 'library-page',
-  go: '1',
-})
+import useUTM from '~/hooks/useUTM'
 
 const BandcampLibraryCard: React.FC<{ item: SavedBandcampItem }> = ({
   item,
 }) => {
-  const url = `${item.url}?${searchParams.toString()}`
+  const { createExternalURL } = useUTM()
+  const url = createExternalURL(item.url).toString()
   const { removeItem } = useLibrary()
 
   return (
@@ -42,7 +38,7 @@ const BandcampLibraryCard: React.FC<{ item: SavedBandcampItem }> = ({
               'nowrap',
               'overflow-hidden'
             )}
-            href={`${item.url}?${searchParams.toString()}`}
+            href={url}
             target="_blank"
           >
             {item.album}

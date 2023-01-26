@@ -27,7 +27,7 @@ const Spotify = ({
   return (
     <iframe
       title="Spotify Web Player"
-      src={`https://open.spotify.com/embed${url.pathname}`}
+      src={`https://open.spotify.com/embed${url.pathname}${url.search}`}
       width={width}
       height={height}
       frameBorder={frameBorder}

@@ -1,11 +1,10 @@
 import { useMeasure } from '@react-hookz/web'
 import clsx from 'clsx'
 
-import { utmParams } from '~/lib/queryParams'
-
 import { A, Container } from '~/components/Base'
 import SpotifyEmbed from '~/components/Spotify/Embed'
 import { useIsMobile } from '~/hooks/useMediaQuery'
+import useUTM from '~/hooks/useUTM'
 
 import PlaylistWrapper from './Wrapper'
 
@@ -14,15 +13,12 @@ interface Props {
   footer?: string | React.ReactNode
 }
 
-const linkParams = utmParams({
-  campaign: 'playlist',
-  term: 'spotify-playlist',
-  go: '1',
-})
-
 const Playlist: React.FC<Props> = ({ playlist, footer }) => {
   const isMobile = useIsMobile()
-  const playlistURL = playlist.external_urls.spotify
+  const { createExternalURL } = useUTM()
+  const playlistURL = createExternalURL(
+    playlist.external_urls.spotify
+  ).toString()
   const [measures, wrapperRef] = useMeasure()
 
   return (
@@ -42,7 +38,7 @@ const Playlist: React.FC<Props> = ({ playlist, footer }) => {
           />
         }
         title={
-          <A href={`${playlistURL}?${linkParams.toString()}`} target="_blank">
+          <A href={playlistURL} target="_blank">
             {playlist.name}
           </A>
         }

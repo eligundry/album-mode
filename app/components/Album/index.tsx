@@ -1,12 +1,11 @@
 import clsx from 'clsx'
 import React from 'react'
 
-import { utmParams } from '~/lib/queryParams'
-
 import { A, Container } from '~/components/Base'
 import SpotifyEmbed from '~/components/Spotify/Embed'
 import useGTM from '~/hooks/useGTM'
 import { useIsMobile } from '~/hooks/useMediaQuery'
+import useUTM from '~/hooks/useUTM'
 
 import AlbumWrapper from './Wrapper'
 
@@ -15,14 +14,11 @@ interface NewProps {
   footer?: React.ReactNode
 }
 
-const linkParams = utmParams({
-  go: '1',
-})
-
 const Album: React.FC<NewProps> = ({ album, footer }) => {
   const isMobile = useIsMobile()
   const sendEvent = useGTM()
-  const albumURL = album.external_urls.spotify
+  const { createExternalURL } = useUTM()
+  const albumURL = createExternalURL(album.external_urls.spotify).toString()
 
   return (
     <Container center>
@@ -48,15 +44,9 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
         title={
           <>
             <A
-              href={`${albumURL}?${linkParams.toString()}`}
+              href={albumURL}
               target="_blank"
-              className={clsx(
-                'italic',
-                'tooltip',
-                'tooltip-bottom',
-                'text-left'
-              )}
-              data-tip="▶️ Play on Spotify"
+              className={clsx('italic', 'text-left')}
               onClick={() => {
                 sendEvent({
                   event: 'Album Opened',
@@ -80,7 +70,9 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
               {album.artists.slice(0, 3).map((artist) => (
                 <li key={artist.id}>
                   <A
-                    href={`${artist.href}?${linkParams.toString()}`}
+                    href={createExternalURL(
+                      artist.external_urls.spotify
+                    ).toString()}
                     target="_blank"
                     className={clsx('text-base')}
                     onClick={() =>
