@@ -663,9 +663,11 @@ export class Spotify {
     }
   }
 
-  followArtist = async (artistID: string) => {
+  followArtist = async (artistIDs: string | string[]) => {
     const client = await this.getClient()
-    return client.followArtists([artistID])
+    return client.followArtists(
+      Array.isArray(artistIDs) ? artistIDs : [artistIDs]
+    )
   }
 
   saveAlbum = async (albumID: string) => {

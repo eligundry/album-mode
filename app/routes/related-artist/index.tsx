@@ -2,6 +2,7 @@ import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 import promiseHash from 'promise-hash'
+import { badRequest, serverError } from 'remix-utils'
 
 import lastPresented from '~/lib/lastPresented.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -16,9 +17,11 @@ import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 import env from '~/env.server'
 
-export async function loader({ request, context }: LoaderArgs) {
+export async function loader({
+  request,
+  context: { serverTiming, logger },
+}: LoaderArgs) {
   const headers = new Headers()
-  const { serverTiming } = context
   const url = new URL(request.url)
   let artistParam = url.searchParams.get('artist')
   const artistID = url.searchParams.get('artistID')
@@ -26,7 +29,7 @@ export async function loader({ request, context }: LoaderArgs) {
     spotifyLib.initializeFromRequest(request)
   )
   let album:
-    | Awaited<ReturnType<typeof spotify['getRandomAlbumForArtistByID']>>
+    | Awaited<ReturnType<(typeof spotify)['getRandomAlbumForArtistByID']>>
     | undefined
   let artist: SpotifyApi.ArtistObjectFull | undefined
 
@@ -62,20 +65,20 @@ export async function loader({ request, context }: LoaderArgs) {
     album = resp.album
     artist = resp.artist
   } else {
-    throw json(
-      { error: 'artist OR artistID query param must be provided' },
-      400
-    )
+    throw badRequest({
+      error: 'artist OR artistID query param must be provided',
+      logger,
+    })
   }
 
   const wiki = await serverTiming.track('wikipedia', () => {
     if (!album) {
-      throw json(
-        { error: 'could not fetch album' },
+      throw serverError(
         {
-          status: 500,
-          headers: serverTiming.headers(),
-        }
+          error: 'could not fetch album',
+          logger,
+        },
+        { headers: serverTiming.headers() }
       )
     }
 

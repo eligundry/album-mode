@@ -1,6 +1,7 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
+import { badRequest } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import wikipedia from '~/lib/wikipedia.server'
 
@@ -11,11 +12,15 @@ import AlbumErrorBoundary, {
 import { Layout } from '~/components/Base'
 import WikipediaSummary from '~/components/WikipediaSummary'
 
-export async function loader({ params, request }: LoaderArgs) {
+export async function loader({
+  params,
+  request,
+  context: { logger },
+}: LoaderArgs) {
   const label = params.slug
 
   if (!label) {
-    throw json({ error: 'slug must be provided in URL' }, 400)
+    throw badRequest({ error: 'slug must be provided in URL', logger })
   }
 
   const spotify = await spotifyLib.initializeFromRequest(request)

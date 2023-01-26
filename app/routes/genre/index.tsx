@@ -3,6 +3,7 @@ import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
 import lastPresented from '~/lib/lastPresented.server'
+import { badRequest } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import wikipedia from '~/lib/wikipedia.server'
 
@@ -14,19 +15,21 @@ import { Layout } from '~/components/Base'
 import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 
-export async function loader({ request, context }: LoaderArgs) {
+export async function loader({
+  request,
+  context: { serverTiming, logger },
+}: LoaderArgs) {
   const url = new URL(request.url)
   const genre = url.searchParams.get('genre')
 
   if (!genre) {
-    throw json(
-      { error: 'genre query param must be provided to search via genre' },
-      400
-    )
+    throw badRequest({
+      error: 'genre query param must be provided to search via genre',
+      logger,
+    })
   }
 
   const headers = new Headers()
-  const { serverTiming } = context
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
