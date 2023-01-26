@@ -7,10 +7,11 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
 } from '@remix-run/react'
 import * as Sentry from '@sentry/browser'
 import { withSentry } from '@sentry/remix'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import type { User } from '~/lib/types/auth'
@@ -49,8 +50,10 @@ export const links: LinksFunction = () => [
   },
 ]
 
-export async function loader({ request, context }: LoaderArgs) {
-  const { serverTiming } = context
+export async function loader({
+  request,
+  context: { serverTiming },
+}: LoaderArgs) {
   const session = await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request)
   )
@@ -78,8 +81,18 @@ export async function loader({ request, context }: LoaderArgs) {
 }
 
 function App() {
+  const { pathname, search } = useLocation()
   const data = useLoaderData<typeof loader>()
   const { isDarkMode, pallete } = useTailwindTheme()
+  const canonicalURL = useMemo(() => {
+    const url = new URL(pathname + search, config.siteURL)
+
+    if (url.searchParams.has('from')) {
+      url.searchParams.delete('from')
+    }
+
+    return url.toString()
+  }, [pathname, search])
 
   useEffect(() => {
     if (data.user) {
@@ -94,6 +107,7 @@ function App() {
       <head>
         <Meta />
         <meta name="theme-color" content={pallete['base-100']} />
+        <link rel="canonical" href={canonicalURL} />
         <Links />
         <Tracking />
       </head>
