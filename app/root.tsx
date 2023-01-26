@@ -27,10 +27,10 @@ import styles from './styles/app.css'
 
 export const meta: MetaFunction = ({ data }) => ({
   charset: 'utf-8',
-  title: config.siteTitle,
+  title: `${config.siteTitle} | The music nerd robot that wants you to listen to something new on Spotify!`,
   viewport:
     'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
-  description: `${config.siteDescription} Let us recommend an album!`,
+  description: `${config.siteDescription} Let us recommend an album on Spotify!`,
   version: data.ENV.SENTRY_RELEASE,
   generator: 'Remix <https://remix.run>',
 })
