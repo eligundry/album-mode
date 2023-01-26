@@ -1,19 +1,15 @@
 import clsx from 'clsx'
 
-import { utmParams } from '~/lib/queryParams'
 import type { SavedSpotifyItem } from '~/lib/types/library'
 
 import { A, Button, ButtonLink } from '~/components/Base'
 import Card from '~/components/Base/Card'
 import useLibrary from '~/hooks/useLibrary'
-
-const searchParams = utmParams({
-  term: 'library-page',
-  go: '1',
-})
+import useUTM from '~/hooks/useUTM'
 
 const SpotifyLibraryCard: React.FC<{ item: SavedSpotifyItem }> = ({ item }) => {
-  const url = `${item.external_urls.spotify}?${searchParams.toString()}`
+  const { createExternalURL } = useUTM()
+  const url = createExternalURL(item.external_urls.spotify).toString()
   const { removeItem } = useLibrary()
 
   return (
@@ -40,7 +36,7 @@ const SpotifyLibraryCard: React.FC<{ item: SavedSpotifyItem }> = ({ item }) => {
               'nowrap',
               'overflow-hidden'
             )}
-            href={`${item.external_urls.spotify}?${searchParams.toString()}`}
+            href={url}
             target="_blank"
           >
             {item.name}
@@ -55,9 +51,9 @@ const SpotifyLibraryCard: React.FC<{ item: SavedSpotifyItem }> = ({ item }) => {
                 'nowrap',
                 'overflow-hidden'
               )}
-              href={`${
+              href={createExternalURL(
                 item.artists[0].external_urls.spotify
-              }?${searchParams.toString()}`}
+              ).toString()}
               target="_blank"
             >
               {item.artists[0].name}

@@ -12,6 +12,7 @@ import Playlist from '~/components/Album/Playlist'
 import { A, Layout } from '~/components/Base'
 import Debug from '~/components/Debug'
 import TweetEmbed from '~/components/TweetEmbed'
+import useUTM from '~/hooks/useUTM'
 
 export async function loader({ params, request }: LoaderArgs) {
   const username = params.username?.trim()
@@ -75,6 +76,7 @@ export const ErrorBoundary = AlbumErrorBoundary
 
 export default function AlbumFromTwitter() {
   const data = useLoaderData<typeof loader>()
+  const { createExternalURL } = useUTM()
   const tweet = <TweetEmbed tweet={data.tweet} />
   let album = null
 
@@ -107,12 +109,14 @@ export default function AlbumFromTwitter() {
         [
           `@${data.tweet.username}`,
           <A
-            href={`https://twitter.com/${data.tweet.username}`}
+            href={createExternalURL(
+              `https://twitter.com/${data.tweet.username}`
+            ).toString()}
             target="_blank"
             className={clsx('normal-case')}
             key="twitter-link"
           >
-            <>{`@${data.tweet.username}`}</>
+            @{data.tweet.username}
           </A>,
         ],
       ]}

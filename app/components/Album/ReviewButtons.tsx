@@ -3,7 +3,6 @@ import clsx from 'clsx'
 import { useState } from 'react'
 import Confetti from 'react-confetti'
 
-import { urlWithUTMParams } from '~/lib/queryParams'
 import type { LibraryItem } from '~/lib/types/library'
 
 import { ButtonLink, EmojiText, Heading } from '~/components/Base'
@@ -12,37 +11,11 @@ import useCurrentPath from '~/hooks/useCurrentPath'
 import useGTM from '~/hooks/useGTM'
 import useLoading from '~/hooks/useLoading'
 import useRating from '~/hooks/useRating'
+import useUTM from '~/hooks/useUTM'
 
 export interface ReviewButtonProps {
   item: LibraryItem
   className?: string
-}
-
-const getPlayURL = (item: LibraryItem) => {
-  let rawURL: string | undefined
-  let extraParams: Record<string, string> = {}
-
-  switch (item.type) {
-    case 'bandcamp':
-      rawURL = item.url
-      break
-    case 'playlist':
-      rawURL = item.external_urls.spotify
-      extraParams.campaign = 'playlist'
-      extraParams.term = 'spotify-playlist'
-      extraParams.go = '1'
-      break
-    case 'album':
-      rawURL = item.external_urls.spotify
-      extraParams.go = '1'
-      break
-    default:
-      throw new Error('unsupported url for review buttons')
-  }
-
-  const url = urlWithUTMParams(rawURL, extraParams)
-
-  return url.toString()
 }
 
 const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
@@ -52,7 +25,10 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
   const { loading } = useLoading()
   const refreshURL = useCurrentPath()
   const sendEvent = useGTM()
-  const playURL = getPlayURL(item)
+  const { createExternalURL } = useUTM()
+  const playURL = createExternalURL(
+    item.type === 'bandcamp' ? item.url : item.external_urls.spotify
+  )
 
   return (
     <>
@@ -116,7 +92,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
           </ButtonLink>
         </div>
         <ButtonLink
-          href={playURL}
+          href={playURL.toString()}
           color="info"
           className={clsx('w-full')}
           target="_blank"

@@ -2,12 +2,12 @@ import type { BandcampDailyAlbum } from '@prisma/client'
 import clsx from 'clsx'
 import React from 'react'
 
-import { utmParams } from '~/lib/queryParams'
 import type { Tweet } from '~/lib/types/twitter'
 
 import { A, Container } from '~/components/Base'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 import useTailwindTheme from '~/hooks/useTailwindTheme'
+import useUTM from '~/hooks/useUTM'
 
 import AlbumWrapper from './Wrapper'
 
@@ -16,14 +16,10 @@ interface Props {
   footer?: string | React.ReactNode
 }
 
-const searchParams = utmParams({
-  campaign: 'publication',
-  term: 'bandcamp-daily',
-})
-
 const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
   const isMobile = useIsMobile()
   const { pallete } = useTailwindTheme()
+  const { createExternalURL } = useUTM()
   const params = [
     `album=${album.albumID}`,
     'size=large',
@@ -52,7 +48,7 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
             seamless
             className={clsx('mx-auto')}
           >
-            <a href={`${album.url}?${searchParams.toString()}`}>
+            <a href={createExternalURL(album.url).toString()}>
               {album.album} by {album.artist}
             </a>
           </iframe>
@@ -60,7 +56,7 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
         title={
           <>
             <A
-              href={`${album.url}?${searchParams.toString()}`}
+              href={createExternalURL(album.url).toString()}
               target="_blank"
               className={clsx(
                 'italic',

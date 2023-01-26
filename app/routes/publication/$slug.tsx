@@ -4,7 +4,6 @@ import retry from 'async-retry'
 
 import db from '~/lib/db.server'
 import lastPresented from '~/lib/lastPresented.server'
-import { urlWithUTMParams, utmParams } from '~/lib/queryParams'
 import spotifyLib from '~/lib/spotify.server'
 import wikipedia from '~/lib/wikipedia.server'
 
@@ -17,6 +16,7 @@ import { A, Heading, Layout } from '~/components/Base'
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
+import useUTM from '~/hooks/useUTM'
 
 export async function loader({ params, request, context }: LoaderArgs) {
   const headers = new Headers()
@@ -130,13 +130,9 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export default function PublicationBySlug() {
   const data = useLoaderData<typeof loader>()
+  const { createExternalURL } = useUTM()
 
   if (data.type === 'bandcamp') {
-    const searchParams = utmParams({
-      campaign: 'publication',
-      term: 'bandcamp-daily',
-    })
-
     return (
       <Layout
         headerBreadcrumbs={[
@@ -145,7 +141,7 @@ export default function PublicationBySlug() {
             'Bandcamp Daily',
             <A
               key="publication-url"
-              href={`https://daily.bandcamp.com/${searchParams.toString()}`}
+              href={createExternalURL('https://daily.bandcamp.com/').toString()}
               target="_blank"
             >
               Bandcamp Daily
@@ -160,9 +156,9 @@ export default function PublicationBySlug() {
               <Heading level="h5">
                 Read the{' '}
                 <A
-                  href={`${
+                  href={createExternalURL(
                     data.album.bandcampDailyURL
-                  }?${searchParams.toString()}`}
+                  ).toString()}
                   target="_blank"
                 >
                   Bandcamp Daily review
@@ -180,10 +176,7 @@ export default function PublicationBySlug() {
   let breadcrumbs: SearchBreadcrumbsProps['crumbs'] = ['Publication']
 
   if ('review' in data && data.review.slug.startsWith('http')) {
-    const url = urlWithUTMParams(data.review.slug, {
-      source: 'publication',
-      term: data.review.publicationSlug,
-    })
+    const url = createExternalURL(data.review.slug)
 
     if (data.slug.includes('p4k')) {
       footer = (
@@ -239,10 +232,7 @@ export default function PublicationBySlug() {
   }
 
   if (data.review.publicationURL) {
-    const publicationURL = urlWithUTMParams(data.review.publicationURL, {
-      campagin: 'publication',
-      term: data.review.publicationSlug,
-    })
+    const publicationURL = createExternalURL(data.review.publicationURL)
 
     breadcrumbs.push([
       data.review.publicationName,

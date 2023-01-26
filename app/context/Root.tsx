@@ -5,6 +5,7 @@ import LibraryProvider from '~/context/Library'
 import LoadingProvider from '~/context/Loading'
 import ModalProvider from '~/context/Modal'
 import SettingsContext from '~/context/Settings'
+import UTMParametersProvider from '~/context/UTMParameters'
 import UserContext from '~/context/User'
 
 interface Props {
@@ -21,9 +22,11 @@ const RootProvider: React.FC<React.PropsWithChildren<Props>> = ({
     <UserContext.Provider value={user}>
       <SettingsContext.Provider value={settings}>
         <LibraryProvider>
-          <ModalProvider>
-            <LoadingProvider>{children}</LoadingProvider>
-          </ModalProvider>
+          <UTMParametersProvider>
+            <ModalProvider>
+              <LoadingProvider>{children}</LoadingProvider>
+            </ModalProvider>
+          </UTMParametersProvider>
         </LibraryProvider>
       </SettingsContext.Provider>
     </UserContext.Provider>
