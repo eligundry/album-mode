@@ -8,10 +8,14 @@ export { default as EmojiText } from './EmojiText'
 export interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
   level: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
   noSpacing?: boolean
+  noStyles?: boolean
 }
 
 export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
-  ({ level, className, noSpacing = false, ...props }, ref) => {
+  (
+    { level, className, noSpacing = false, noStyles = false, ...props },
+    ref
+  ) => {
     const Component = level as unknown as React.FC<
       JSX.IntrinsicElements[typeof level]
     >
@@ -20,15 +24,17 @@ export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
       <Component
         ref={ref}
         className={clsx(
-          {
-            'text-4xl md:text-5xl': level === 'h1',
-            'text-3xl md:text-4xl': level === 'h2',
-            'text-2xl md:text-3xl': level === 'h3',
-            'text-xl md:text-2xl': level === 'h4',
-            'uppercase font-bold text-xs': level === 'h5',
-            'uppercase text-xs font-bold': level === 'h6',
-          },
-          !noSpacing && 'my-4',
+          !noStyles && [
+            {
+              'text-4xl md:text-5xl': level === 'h1',
+              'text-3xl md:text-4xl': level === 'h2',
+              'text-2xl md:text-3xl': level === 'h3',
+              'text-xl md:text-2xl': level === 'h4',
+              'uppercase font-bold text-xs': level === 'h5',
+              'uppercase text-xs font-bold': level === 'h6',
+            },
+            !noSpacing && 'my-4',
+          ],
           className
         )}
         {...props}

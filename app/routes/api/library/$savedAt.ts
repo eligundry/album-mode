@@ -1,14 +1,23 @@
-import { ActionArgs, json } from '@remix-run/node'
+import { ActionArgs } from '@remix-run/node'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import librarySync from '~/lib/librarySync.server'
+import {
+  badRequest,
+  noContent,
+  serverError,
+  unauthorized,
+} from '~/lib/responses.server'
 
 // Save an item by POSTing it to this endpoint
 export async function action({ request, params, context }: ActionArgs) {
   const savedAt = params.savedAt
 
   if (!savedAt) {
-    throw json({ error: 'savedAt must be provided in the url' }, 400)
+    throw badRequest({
+      error: 'savedAt must be provided in the url',
+      logger: context.logger,
+    })
   }
 
   const { serverTiming } = context
@@ -17,7 +26,10 @@ export async function action({ request, params, context }: ActionArgs) {
   )
 
   if (!session || !session?.user) {
-    throw json({ error: 'must be logged into spotify to use this route' }, 401)
+    throw unauthorized({
+      error: 'must be logged into spotify to use this route',
+      logger: context.logger,
+    })
   }
 
   const userID = session.user.id
@@ -27,15 +39,16 @@ export async function action({ request, params, context }: ActionArgs) {
       librarySync.removeItem(userID, savedAt)
     )
   } catch (e: any) {
-    throw json({ error: 'could not remove item', detail: e?.message }, 500)
+    throw serverError({
+      error: 'could not remove item',
+      detail: e?.message,
+      logger: context.logger,
+    })
   }
 
-  return json(
-    { msg: 'removed item' },
-    {
-      headers: {
-        [serverTiming.headerKey]: serverTiming.toString(),
-      },
-    }
-  )
+  return noContent({
+    headers: {
+      [serverTiming.headerKey]: serverTiming.toString(),
+    },
+  })
 }

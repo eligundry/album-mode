@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import youtubeStyles from 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css'
 
 import reddit from '~/lib/reddit.server'
+import { badRequest } from '~/lib/responses.server'
 
 import Bandcamp from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
@@ -23,11 +24,14 @@ export const links: LinksFunction = () => [
   },
 ]
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader: LoaderFunction = async ({
+  params,
+  context: { logger },
+}) => {
   const subreddit = params.subreddit
 
   if (!subreddit) {
-    throw json({ error: 'subreddit must be provided in the URL' }, 400)
+    throw badRequest({ error: 'subreddit must be provided in the URL', logger })
   }
 
   const post = await reddit.getRandomPost(subreddit)

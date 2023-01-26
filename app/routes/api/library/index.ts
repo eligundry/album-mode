@@ -3,14 +3,14 @@ import promiseHash from 'promise-hash'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import librarySync from '~/lib/librarySync.server'
-import logger from '~/lib/logging.server'
+import { badRequest, serverError, unauthorized } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import { SavedLibraryItem } from '~/lib/types/library'
 import userSettings from '~/lib/userSettings.server'
 
 // Save an item by POSTing it to this endpoint
 export async function action({ request, context }: ActionArgs) {
-  const { serverTiming } = context
+  const { serverTiming, logger } = context
   const { session, settings, spotify } = await promiseHash({
     session: serverTiming.track('spotify.session', () =>
       spotifyStrategy.getSession(request)
@@ -24,7 +24,10 @@ export async function action({ request, context }: ActionArgs) {
   })
 
   if (!session || !session.user) {
-    throw json({ error: 'must be logged into spotify to use this route' }, 401)
+    throw unauthorized({
+      error: 'must be logged into spotify to use this route',
+      logger,
+    })
   }
 
   const userID = session.user.id
@@ -32,7 +35,11 @@ export async function action({ request, context }: ActionArgs) {
   try {
     var item: SavedLibraryItem = await request.json()
   } catch (e: any) {
-    throw json({ error: 'could not load json', detail: e?.message }, 400)
+    throw badRequest({
+      error: 'could not load json',
+      detail: e?.message,
+      logger,
+    })
   }
 
   try {
@@ -60,17 +67,23 @@ export async function action({ request, context }: ActionArgs) {
             'spotify.followArtist',
             () =>
               item.type === 'album' &&
-              spotify.followArtist(item.artists[0].id).catch((error) =>
-                logger.warn({
-                  message: 'could not follow artist on Spotify',
-                  error,
-                })
-              )
+              spotify
+                .followArtist(item.artists.map((a) => a.id))
+                .catch((error) =>
+                  logger.warn({
+                    message: 'could not follow artist on Spotify',
+                    error,
+                  })
+                )
           ),
       ].filter(Boolean)
     )
   } catch (e: any) {
-    throw json({ error: 'could not save item', detail: e?.message }, 500)
+    throw serverError({
+      error: 'could not save item',
+      detail: e?.message,
+      logger,
+    })
   }
 
   return json(
@@ -85,13 +98,16 @@ export async function action({ request, context }: ActionArgs) {
 }
 
 export async function loader({ request, context }: LoaderArgs) {
-  const { serverTiming } = context
+  const { serverTiming, logger } = context
   const session = await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request)
   )
 
   if (!session || !session.user) {
-    throw json({ error: 'must be logged into spotify to use this route' }, 401)
+    throw unauthorized({
+      error: 'must be logged into spotify to use this route',
+      logger,
+    })
   }
 
   const userID = session.user.id
@@ -101,7 +117,11 @@ export async function loader({ request, context }: LoaderArgs) {
       librarySync.getLibrary(userID)
     )
   } catch (e: any) {
-    throw json({ error: 'could not fetch library', detail: e?.message }, 500)
+    throw serverError({
+      error: 'could not fetch library',
+      detail: e?.message,
+      logger,
+    })
   }
 
   return json(library, {

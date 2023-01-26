@@ -13,7 +13,8 @@ import {
 import config from '~/config'
 
 export const meta: MetaFunction = () => ({
-  title: 'Spotify Playlist Categories | Album Mode.party 🎉',
+  title: `Spotify Playlist Categories | ${config.siteTitle}`,
+  description: `${config.siteDescription} Maybe a playlist from one of the Spotify categories will catch your fancy!`,
 })
 
 export async function loader({ request, context }: LoaderArgs) {
@@ -48,6 +49,7 @@ export default function SpotifyCategories() {
               to={`/spotify/category/${category.id}`}
               key={category.id}
               mediaZoomOnHover
+              titleLevel="h3"
               media={
                 <img
                   src={category.icons[0].url}

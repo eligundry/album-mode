@@ -58,12 +58,7 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
             <A
               href={createExternalURL(album.url).toString()}
               target="_blank"
-              className={clsx(
-                'italic',
-                'tooltip',
-                'tooltip-bottom',
-                'text-left'
-              )}
+              className={clsx('italic', 'text-left')}
               data-tip="▶️ Play on Bandcamp"
             >
               {album.album}

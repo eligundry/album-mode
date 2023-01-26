@@ -2,6 +2,8 @@ import { Link, LinkProps } from '@remix-run/react'
 import clsx from 'clsx'
 import React from 'react'
 
+import { Heading, HeadingProps } from '~/components/Base'
+
 interface Props
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'media' | 'title'> {
   media?: React.ReactNode
@@ -10,6 +12,7 @@ interface Props
   actions?: React.ReactNode
   mediaZoomOnHover?: boolean
   actionsClassName?: string
+  titleLevel?: HeadingProps['level']
 }
 
 const cardWrapperClasses = (
@@ -40,6 +43,7 @@ export const Card = React.forwardRef<any, Props>(
       actions,
       className,
       mediaZoomOnHover,
+      titleLevel = 'h2',
       actionsClassName,
       ...props
     },
@@ -54,7 +58,9 @@ export const Card = React.forwardRef<any, Props>(
         {media}
         <div className={clsx('card-body', 'justify-between')}>
           <div>
-            <h2
+            <Heading
+              level={titleLevel}
+              noStyles
               className={clsx(
                 'card-title',
                 'flex-col',
@@ -63,7 +69,7 @@ export const Card = React.forwardRef<any, Props>(
               )}
             >
               {title}
-            </h2>
+            </Heading>
             {body}
           </div>
           {actions && (
@@ -94,6 +100,7 @@ export const CardLink: React.FC<
   className,
   mediaZoomOnHover,
   actionsClassName,
+  titleLevel = 'h2',
   ...props
 }) => {
   return (
@@ -104,7 +111,9 @@ export const CardLink: React.FC<
       {media}
       <div className={clsx('card-body', 'justify-between')}>
         <div>
-          <h2
+          <Heading
+            level={titleLevel}
+            noStyles
             className={clsx(
               'card-title',
               'flex-col',
@@ -113,7 +122,7 @@ export const CardLink: React.FC<
             )}
           >
             {title}
-          </h2>
+          </Heading>
           {body}
         </div>
         {actions && (

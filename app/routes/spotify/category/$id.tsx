@@ -1,9 +1,9 @@
-import ServerTiming from '@eligundry/server-timing'
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import promiseHash from 'promise-hash'
 
 import lastPresented from '~/lib/lastPresented.server'
+import { badRequest, serverError } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 
 import PlaylistErrorBoundary, {
@@ -11,16 +11,23 @@ import PlaylistErrorBoundary, {
 } from '~/components/Album/ErrorBoundary'
 import Playlist from '~/components/Album/Playlist'
 import { Layout, Link } from '~/components/Base'
+import config from '~/config'
 
-export async function loader({ params, request }: LoaderArgs) {
+export async function loader({
+  params,
+  request,
+  context: { serverTiming, logger },
+}: LoaderArgs) {
   const categoryID = params.id?.trim()
 
   if (!categoryID) {
-    throw json({ error: 'categoryID must be set as a route parameter' }, 400)
+    throw badRequest({
+      error: 'categoryID must be set as a route parameter',
+      logger,
+    })
   }
 
   const headers = new Headers()
-  const serverTiming = new ServerTiming()
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
@@ -34,7 +41,7 @@ export async function loader({ params, request }: LoaderArgs) {
   })
 
   if (!category) {
-    throw json({ error: 'could not pull category' }, 500)
+    throw serverError({ error: 'could not pull category', logger })
   }
 
   headers.set('Set-Cookie', await lastPresented.set(request, playlist.id))
@@ -45,6 +52,10 @@ export async function loader({ params, request }: LoaderArgs) {
 
 export const ErrorBoundary = PlaylistErrorBoundary
 export const CatchBoundary = PlaylistCatchBoundary
+export const meta: MetaFunction<typeof loader> = ({ data }) => ({
+  title: `${data.category.name} | ${config.siteTitle}`,
+  description: `${config.siteDescription} Listen to a ${data.category.name} playlist on Spotify!`,
+})
 
 export default function RandomSpotifyFeaturedPlaylist() {
   const { playlist, category } = useLoaderData<typeof loader>()

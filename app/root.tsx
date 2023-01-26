@@ -7,10 +7,11 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
 } from '@remix-run/react'
 import * as Sentry from '@sentry/browser'
 import { withSentry } from '@sentry/remix'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import type { User } from '~/lib/types/auth'
@@ -26,10 +27,10 @@ import styles from './styles/app.css'
 
 export const meta: MetaFunction = ({ data }) => ({
   charset: 'utf-8',
-  title: config.siteTitle,
+  title: `${config.siteTitle} | The music nerd robot that wants you to listen to something new on Spotify!`,
   viewport:
     'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
-  description: config.siteDescription,
+  description: `${config.siteDescription} Let us recommend an album on Spotify!`,
   version: data.ENV.SENTRY_RELEASE,
   generator: 'Remix <https://remix.run>',
 })
@@ -49,8 +50,10 @@ export const links: LinksFunction = () => [
   },
 ]
 
-export async function loader({ request, context }: LoaderArgs) {
-  const { serverTiming } = context
+export async function loader({
+  request,
+  context: { serverTiming },
+}: LoaderArgs) {
   const session = await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request)
   )
@@ -78,8 +81,20 @@ export async function loader({ request, context }: LoaderArgs) {
 }
 
 function App() {
+  const { pathname, search } = useLocation()
   const data = useLoaderData<typeof loader>()
   const { isDarkMode, pallete } = useTailwindTheme()
+  const canonicalURL = useMemo(() => {
+    const url = new URL(pathname + search, config.siteURL)
+
+    Object.entries(Object.fromEntries(url.searchParams)).forEach(([key]) => {
+      if (!config.allowedQueryParametersInCanoncialURL.includes(key)) {
+        url.searchParams.delete(key)
+      }
+    })
+
+    return url.toString()
+  }, [pathname, search])
 
   useEffect(() => {
     if (data.user) {
@@ -94,6 +109,7 @@ function App() {
       <head>
         <Meta />
         <meta name="theme-color" content={pallete['base-100']} />
+        <link rel="canonical" href={canonicalURL} />
         <Links />
         <Tracking />
       </head>

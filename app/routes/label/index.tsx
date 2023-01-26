@@ -1,6 +1,7 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
+import { badRequest } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import wikipedia from '~/lib/wikipedia.server'
 
@@ -11,16 +12,16 @@ import AlbumErrorBoundary, {
 import { Layout } from '~/components/Base'
 import WikipediaSummary from '~/components/WikipediaSummary'
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request, context: { logger } }: LoaderArgs) {
   const spotify = await spotifyLib.initializeFromRequest(request)
   const url = new URL(request.url)
   const label = url.searchParams.get('label')
 
   if (!label) {
-    throw json(
-      { error: 'label search paramter must be provided to search labels' },
-      400
-    )
+    throw badRequest({
+      error: 'label search paramter must be provided to search labels',
+      logger,
+    })
   }
 
   const album = await spotify.getRandomAlbumForLabel(label)

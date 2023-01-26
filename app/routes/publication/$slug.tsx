@@ -4,6 +4,7 @@ import retry from 'async-retry'
 
 import db from '~/lib/db.server'
 import lastPresented from '~/lib/lastPresented.server'
+import { badRequest } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import wikipedia from '~/lib/wikipedia.server'
 
@@ -18,14 +19,17 @@ import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 import useUTM from '~/hooks/useUTM'
 
-export async function loader({ params, request, context }: LoaderArgs) {
+export async function loader({
+  params,
+  request,
+  context: { serverTiming, logger },
+}: LoaderArgs) {
   const headers = new Headers()
   const slug = params.slug?.trim()
   const lastPresentedID = await lastPresented.getLastPresentedID(request)
-  const { serverTiming } = context
 
   if (!slug) {
-    throw json({ error: 'slug must be provided in the URL' }, 400)
+    throw badRequest({ error: 'slug must be provided in the URL', logger })
   }
 
   if (slug === 'bandcamp-daily') {
@@ -110,15 +114,15 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
   if (data.type === 'bandcamp') {
     title = `Bandcamp | ${config.siteTitle}`
-    description = "Listen to something good according to Bandcamp's staff"
+    description = `${config.siteDescription} Listen to something good according to Bandcamp's staff`
   }
 
   if (data.type === 'spotify') {
     title = `${data.review.publicationName} | ${config.siteTitle}`
-    description = `You simply must listen to this album that was highly rated by ${data.review.publicationName}!`
+    description = `${config.siteDescription} You simply must listen to this album that was highly rated by ${data.review.publicationName}!`
 
     if (data.review.publicationMetaDescription) {
-      description = data.review.publicationMetaDescription
+      description = `${config.siteDescription} ${data.review.publicationMetaDescription}`
     }
   }
 

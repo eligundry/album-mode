@@ -73,7 +73,8 @@ export default function Index() {
               </Heading>
               <p className={clsx('pb-4')}>
                 Tired of the same old songs? <br />
-                Let us recommend something that you might like.
+                Spotify's algorithim know you too well? <br />
+                Take a chance on a random album!
               </p>
               <ButtonLink to="/random" disabled={loading}>
                 <EmojiText emoji="▶️" label="play button">
@@ -116,7 +117,7 @@ export default function Index() {
               <SpotifyLoginButton />
             ) : (
               <>
-                <ButtonLink to="/spotify/album" disabled={loading}>
+                <ButtonLink to="/spotify/library" disabled={loading}>
                   Spotify Library
                 </ButtonLink>
                 <ButtonLink to="/spotify/currently-playing" disabled={loading}>

@@ -3,6 +3,7 @@ import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
 import db from '~/lib/db.server'
+import { badRequest, serverError } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 
 import Album from '~/components/Album'
@@ -14,27 +15,40 @@ import Debug from '~/components/Debug'
 import TweetEmbed from '~/components/TweetEmbed'
 import useUTM from '~/hooks/useUTM'
 
-export async function loader({ params, request }: LoaderArgs) {
+export async function loader({
+  params,
+  request,
+  context: { logger, serverTiming },
+}: LoaderArgs) {
   const username = params.username?.trim()
 
   if (!username) {
-    throw json({ error: 'username param must be present' }, 400)
+    throw badRequest({ error: 'username param must be present', logger })
   }
 
-  const tweet = await db.getRandomTweet(username)
+  const tweet = await serverTiming.track('db.getRandomTweet', () =>
+    db.getRandomTweet(username)
+  )
 
   switch (tweet.service) {
     case 'bandcamp': {
-      return json({
-        tweet,
-        service: 'bandcamp',
-        type: 'album',
-      })
+      return json(
+        {
+          tweet,
+          service: 'bandcamp',
+          type: 'album',
+        },
+        {
+          headers: {
+            [serverTiming.headerKey]: serverTiming.toString(),
+          },
+        }
+      )
     }
     case 'spotify': {
-      const spotify = await spotifyLib
-        .initializeFromRequest(request)
-        .then((s) => s.getClient())
+      const spotify = await serverTiming.track('spotify.init', () =>
+        spotifyLib.initializeFromRequest(request).then((s) => s.getClient())
+      )
       let embed:
         | SpotifyApi.PlaylistObjectSimplified
         | SpotifyApi.AlbumObjectSimplified
@@ -42,33 +56,46 @@ export async function loader({ params, request }: LoaderArgs) {
 
       switch (tweet.itemType) {
         case 'playlist': {
-          embed = await spotify
-            .getPlaylist(tweet.albumID)
-            .then((resp) => resp.body)
+          embed = await serverTiming.track('spotify.getPlaylist', () =>
+            spotify.getPlaylist(tweet.albumID).then((resp) => resp.body)
+          )
           break
         }
         case 'album':
         case 'track': {
-          embed = await spotify
-            .getAlbum(tweet.albumID)
-            .then((resp) => resp.body)
+          embed = await serverTiming.track('spotify.getAlbum', () =>
+            spotify.getAlbum(tweet.albumID).then((resp) => resp.body)
+          )
           break
         }
         default:
-          throw json(
-            { error: `unsupported spotify embed type ${tweet.itemType}` },
-            500
-          )
+          throw serverError({
+            error: `unsupported spotify embed type ${tweet.itemType}`,
+            logger,
+          })
       }
 
-      return json({
-        tweet,
-        service: 'spotify',
-        embed,
-      })
+      return json(
+        {
+          tweet,
+          service: 'spotify',
+          embed,
+        },
+        {
+          headers: {
+            [serverTiming.headerKey]: serverTiming.toString(),
+          },
+        }
+      )
     }
     default:
-      throw json({ error: `unsupported service ${tweet.service}` }, 400)
+      throw badRequest({
+        error: `unsupported service ${tweet.service}`,
+        logger,
+        headers: {
+          [serverTiming.headerKey]: serverTiming.toString(),
+        },
+      })
   }
 }
 
