@@ -21,6 +21,7 @@ export const settingsSchema = z.object({
     .default('false')
     .or(z.boolean().default(false)),
   lastPresented: z.string().optional(),
+  lastSearchTerm: z.string().optional(),
   lastSearchType: z.string().optional(),
 })
 
@@ -56,36 +57,46 @@ const setLastPresented = async ({
   request,
   lastPresented,
 }: SetParameters<{ lastPresented: string | undefined }>) => {
-  const currentQueryParam = getCurrentSearchTypeFromRequest(request)
+  const [lastSearchType, lastSearchTerm] = getCurrentSearchFromRequest(request)
   const cookie = await cookieFactory.parse(request.headers.get('Cookie'))
 
   return cookieFactory.serialize({
     ...defaultSettings,
     ...cookie,
     lastPresented,
-    lastSearchType: currentQueryParam,
+    lastSearchType,
+    lastSearchTerm,
   })
 }
 
-const getCurrentSearchTypeFromRequest = (
-  request: Request
-): string | undefined => {
-  const url = new URL(request.url)
-  const params = url.searchParams
+const albumSearchParams = z.object({
+  artist: z.string().optional(),
+  artistID: z.string().optional(),
+  genre: z.string().optional(),
+})
 
-  if (params.get('artist')) {
-    return 'artist'
-  } else if (params.get('genre')) {
-    return 'genre'
-  } else if (params.get('artistID')) {
-    return 'artistID'
-  } else if (url.pathname.startsWith('/publication')) {
-    return 'publication'
+const getCurrentSearchFromRequest = (
+  request: Request
+): [string, string] | [undefined, undefined] => {
+  const url = new URL(request.url)
+
+  if (url.pathname.startsWith('/publication')) {
+    return url.pathname.split('/').filter(Boolean) as [string, string]
   }
 
-  return undefined
+  const params = albumSearchParams.parse(url.searchParams)
+
+  if (params.artist) {
+    return ['artist', params.artist]
+  } else if (params.genre) {
+    return ['genre', params.genre]
+  } else if (params.artistID) {
+    return ['artistID', params.artistID]
+  }
+
+  return [undefined, undefined]
 }
 
-const api = { get, set, setLastPresented, getCurrentSearchTypeFromRequest }
+const api = { get, set, setLastPresented, getCurrentSearchFromRequest }
 
 export default api

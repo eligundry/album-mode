@@ -741,7 +741,7 @@ const cookieFactory = createCookie('spotify', {
 const initializeFromRequest = async (req: Request) => {
   const session = await spotifyStrategy.getSession(req)
   const settings = await userSettings.get(req)
-  const currentSearchType = userSettings.getCurrentSearchTypeFromRequest(req)
+  const [currentSearchType] = userSettings.getCurrentSearchFromRequest(req)
   const options: SpotifyOptions = {
     lastPresentedID: undefined,
   }

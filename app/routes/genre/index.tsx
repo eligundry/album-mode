@@ -1,4 +1,4 @@
-import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 import startCase from 'lodash/startCase'
@@ -20,10 +20,15 @@ export async function loader({
   request,
   context: { serverTiming, logger },
 }: LoaderArgs) {
+  const settings = await userSettings.get(request)
   const url = new URL(request.url)
   const genre = url.searchParams.get('genre')
 
   if (!genre) {
+    if (settings.lastSearchType === 'genre' && settings.lastSearchTerm) {
+      return redirect(`/genre?genre=${genre}`)
+    }
+
     throw badRequest({
       error: 'genre query param must be provided to search via genre',
       logger,

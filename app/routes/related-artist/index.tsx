@@ -1,4 +1,4 @@
-import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 import promiseHash from 'promise-hash'
@@ -22,6 +22,7 @@ export async function loader({
   context: { serverTiming, logger },
 }: LoaderArgs) {
   const url = new URL(request.url)
+  const settings = await userSettings.get(request)
   let artistParam = url.searchParams.get('artist')
   const artistID = url.searchParams.get('artistID')
   const spotify = await serverTiming.track('spotify.init', () =>
@@ -64,6 +65,16 @@ export async function loader({
     album = resp.album
     artist = resp.artist
   } else {
+    if (
+      settings.lastSearchTerm &&
+      (settings.lastSearchType === 'artist' ||
+        settings.lastSearchType === 'artistID')
+    ) {
+      return redirect(
+        `/related-artist?${settings.lastSearchType}=${settings.lastSearchTerm}`
+      )
+    }
+
     throw badRequest({
       error: 'artist OR artistID query param must be provided',
       logger,
