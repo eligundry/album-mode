@@ -1,8 +1,8 @@
 import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
-import lastPresented from '~/lib/lastPresented.server'
 import spotifyLib from '~/lib/spotify.server'
+import userSettings from '~/lib/userSettings.server'
 
 import AlbumErrorBoundary, {
   AlbumCatchBoundary,
@@ -12,7 +12,6 @@ import { Layout } from '~/components/Base'
 import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
-  const headers = new Headers()
   const { serverTiming } = context
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
@@ -20,10 +19,19 @@ export async function loader({ request, context }: LoaderArgs) {
   const playlist = await serverTiming.track('spotify.fetch', () =>
     spotify.getRandomFeaturedPlaylist()
   )
-  headers.set('Set-Cookie', await lastPresented.set(request, playlist.id))
-  headers.set(serverTiming.headerKey, serverTiming.toString())
 
-  return json({ playlist }, { headers })
+  return json(
+    { playlist },
+    {
+      headers: {
+        [serverTiming.headerKey]: serverTiming.toString(),
+        'Set-Cookie': await userSettings.setLastPresented({
+          request,
+          lastPresented: playlist.id,
+        }),
+      },
+    }
+  )
 }
 
 export const ErrorBoundary = AlbumErrorBoundary

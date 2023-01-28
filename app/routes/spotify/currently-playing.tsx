@@ -1,18 +1,9 @@
-import { LoaderArgs, json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { LoaderArgs, redirect } from '@remix-run/node'
 import retry from 'async-retry'
 
 import { spotifyStrategy } from '~/lib/auth.server'
-import lastPresented from '~/lib/lastPresented.server'
 import spotifyLib from '~/lib/spotify.server'
-import wikipedia from '~/lib/wikipedia.server'
 
-import Album from '~/components/Album'
-import AlbumErrorBoundary, {
-  AlbumCatchBoundary,
-} from '~/components/Album/ErrorBoundary'
-import { Layout } from '~/components/Base'
-import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
@@ -26,9 +17,9 @@ export async function loader({ request, context }: LoaderArgs) {
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
-  const { album, currentlyPlaying } = await retry(async (_, attempt) => {
+  const currentlyPlaying = await retry(async (_, attempt) => {
     const album = await serverTiming.track('spotify.fetch', () =>
-      spotify.getRandomAlbumSimilarToWhatIsCurrentlyPlaying()
+      spotify.getCurrentlyPlayingTrack()
     )
     serverTiming.add({
       label: 'attempts',
@@ -38,40 +29,12 @@ export async function loader({ request, context }: LoaderArgs) {
     return album
   }, config.asyncRetryConfig)
 
-  const wiki = await serverTiming.track('wikipedia', () =>
-    wikipedia.getSummaryForAlbum({
-      album: album.name,
-      artist: album.artists[0].name,
-    })
-  )
-  const headers = new Headers()
-  headers.append('Set-Cookie', await lastPresented.set(request, album.id))
-  headers.append(serverTiming.headerKey, serverTiming.toString())
-
-  return json(
+  return redirect(
+    `/related-artist?artistID=${currentlyPlaying.artists[0].id}`,
     {
-      album,
-      currentlyPlaying,
-      wiki,
-    },
-    { headers }
-  )
-}
-
-export const ErrorBoundary = AlbumErrorBoundary
-export const CatchBoundary = AlbumCatchBoundary
-
-export default function PlayMeSomethingLikeWhatsCurrentlyPlaying() {
-  const data = useLoaderData<typeof loader>()
-
-  return (
-    <Layout
-      headerBreadcrumbs={['Artist', data.currentlyPlaying.artists[0].name]}
-    >
-      <Album
-        album={data.album}
-        footer={<WikipediaSummary summary={data.wiki} />}
-      />
-    </Layout>
+      headers: {
+        [serverTiming.headerKey]: serverTiming.toString(),
+      },
+    }
   )
 }

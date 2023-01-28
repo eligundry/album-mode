@@ -2,9 +2,9 @@ import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import promiseHash from 'promise-hash'
 
-import lastPresented from '~/lib/lastPresented.server'
 import { badRequest, serverError } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
+import userSettings from '~/lib/userSettings.server'
 
 import PlaylistErrorBoundary, {
   AlbumCatchBoundary as PlaylistCatchBoundary,
@@ -27,7 +27,6 @@ export async function loader({
     })
   }
 
-  const headers = new Headers()
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
@@ -44,10 +43,18 @@ export async function loader({
     throw serverError({ error: 'could not pull category', logger })
   }
 
-  headers.set('Set-Cookie', await lastPresented.set(request, playlist.id))
-  headers.set(serverTiming.headerKey, serverTiming.toString())
-
-  return json({ playlist, category }, { headers })
+  return json(
+    { playlist, category },
+    {
+      headers: {
+        'set-cookie': await userSettings.setLastPresented({
+          request,
+          lastPresented: playlist.id,
+        }),
+        [serverTiming.headerKey]: serverTiming.toString(),
+      },
+    }
+  )
 }
 
 export const ErrorBoundary = PlaylistErrorBoundary

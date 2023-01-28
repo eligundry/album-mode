@@ -32,7 +32,7 @@ export async function action({ request, context: { logger } }: ActionArgs) {
     throw serverError({ error, logger })
   }
 
-  const cookie = await userSettings.set(settings)
+  const cookie = await userSettings.set({ request, ...settings })
 
   return json(settings, {
     headers: {

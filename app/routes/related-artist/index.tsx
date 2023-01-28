@@ -4,8 +4,8 @@ import retry from 'async-retry'
 import promiseHash from 'promise-hash'
 import { badRequest, serverError } from 'remix-utils'
 
-import lastPresented from '~/lib/lastPresented.server'
 import spotifyLib from '~/lib/spotify.server'
+import userSettings from '~/lib/userSettings.server'
 import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
@@ -21,7 +21,6 @@ export async function loader({
   request,
   context: { serverTiming, logger },
 }: LoaderArgs) {
-  const headers = new Headers()
   const url = new URL(request.url)
   let artistParam = url.searchParams.get('artist')
   const artistID = url.searchParams.get('artistID')
@@ -87,8 +86,6 @@ export async function loader({
       artist: album.artists[0].name,
     })
   })
-  headers.set('Set-Cookie', await lastPresented.set(request, album.id))
-  headers.set(serverTiming.headerKey, serverTiming.toString())
 
   return json(
     {
@@ -96,7 +93,15 @@ export async function loader({
       artist,
       wiki,
     },
-    { headers }
+    {
+      headers: {
+        'Set-Cookie': await userSettings.setLastPresented({
+          request,
+          lastPresented: album.id,
+        }),
+        [serverTiming.headerKey]: serverTiming.toString(),
+      },
+    }
   )
 }
 
