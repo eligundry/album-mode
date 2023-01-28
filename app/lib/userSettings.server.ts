@@ -11,28 +11,28 @@ const cookie = createCookie('userSettings', {
   secure: true,
 })
 
-export const settingsSchema = z.object({
-  followArtistAutomatically: zfd
-    .checkbox({ trueValue: 'true' })
-    .default('false')
-    .or(z.boolean().default(false)),
-  saveAlbumAutomatically: zfd
-    .checkbox({ trueValue: 'true' })
-    .default('false')
-    .or(z.boolean().default(false)),
+const checkboxOrBool = zfd
+  .checkbox({ trueValue: 'true' })
+  .default('false')
+  .or(z.boolean().default(false))
+
+export const schema = z.object({
+  followArtistAutomatically: checkboxOrBool,
+  saveAlbumAutomatically: checkboxOrBool,
   lastPresented: z.string().optional(),
   lastSearchTerm: z.string().optional(),
   lastSearchType: z.string().optional(),
 })
 
-const cookieFactory = createTypedCookie({ cookie, schema: settingsSchema })
+const cookieFactory = createTypedCookie({ cookie, schema })
 
-const defaultSettings = {
+const defaultSettings = Object.freeze({
   followArtistAutomatically: false,
   saveAlbumAutomatically: false,
   lastPresented: undefined,
   lastSearchType: undefined,
-}
+  lastSearchTerm: undefined,
+})
 
 const get = async (request: Request) => {
   const cookie = await cookieFactory
@@ -99,6 +99,13 @@ const getCurrentSearchFromRequest = (
   return [undefined, undefined]
 }
 
-const api = { get, set, setLastPresented, getCurrentSearchFromRequest }
+const api = {
+  get,
+  set,
+  setLastPresented,
+  getCurrentSearchFromRequest,
+  defaultSettings,
+  schema,
+}
 
 export default api

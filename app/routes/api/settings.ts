@@ -6,11 +6,6 @@ import { zfd } from 'zod-form-data'
 import { badRequest } from '~/lib/responses.server'
 import userSettings from '~/lib/userSettings.server'
 
-const schema = zfd.formData({
-  followArtistAutomatically: zfd.checkbox({ trueValue: 'true' }),
-  saveAlbumAutomatically: zfd.checkbox({ trueValue: 'true' }),
-})
-
 export async function action({ request, context: { logger } }: ActionArgs) {
   try {
     var data = await request.formData()
@@ -19,7 +14,7 @@ export async function action({ request, context: { logger } }: ActionArgs) {
   }
 
   try {
-    var settings = schema.parse(data)
+    var settings = zfd.formData(userSettings.schema).parse(data)
   } catch (error: any) {
     if (error instanceof ZodError) {
       throw badRequest({

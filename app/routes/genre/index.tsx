@@ -77,6 +77,10 @@ export async function loader({
 export const ErrorBoundary = AlbumErrorBoundary
 export const CatchBoundary = AlbumCatchBoundary
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  if (!data) {
+    return {}
+  }
+
   const genre = startCase(data.genre)
 
   return {

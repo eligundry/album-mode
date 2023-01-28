@@ -11,8 +11,10 @@ import Playlist from '~/components/Album/Playlist'
 import { Layout } from '~/components/Base'
 import config from '~/config'
 
-export async function loader({ request, context }: LoaderArgs) {
-  const { serverTiming } = context
+export async function loader({
+  request,
+  context: { serverTiming },
+}: LoaderArgs) {
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )

@@ -59,10 +59,16 @@ export async function loader({
 
 export const ErrorBoundary = PlaylistErrorBoundary
 export const CatchBoundary = PlaylistCatchBoundary
-export const meta: MetaFunction<typeof loader> = ({ data }) => ({
-  title: `${data.category.name} | ${config.siteTitle}`,
-  description: `${config.siteDescription} Listen to a ${data.category.name} playlist on Spotify!`,
-})
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  if (!data) {
+    return {}
+  }
+
+  return {
+    title: `${data.category.name} | ${config.siteTitle}`,
+    description: `${config.siteDescription} Listen to a ${data.category.name} playlist on Spotify!`,
+  }
+}
 
 export default function RandomSpotifyFeaturedPlaylist() {
   const { playlist, category } = useLoaderData<typeof loader>()

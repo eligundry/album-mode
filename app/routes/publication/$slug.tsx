@@ -119,6 +119,10 @@ export async function loader({
 export const ErrorBoundary = AlbumErrorBoundary
 export const CatchBoundary = AlbumCatchBoundary
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  if (!data) {
+    return {}
+  }
+
   let description = config.siteDescription
   let title = config.siteTitle
 
