@@ -36,6 +36,15 @@ const googleUpdateAlbum = async (
   ])
 
   if (!link) {
+    await prisma.albumReviewedByPublication.update({
+      data: {
+        reviewUnresolvabe: true,
+      },
+      where: {
+        id: album.id,
+      },
+    })
+
     return
   }
 
@@ -83,6 +92,9 @@ const main = async () => {
     where: {
       publication: {
         name: publicationName,
+      },
+      AND: {
+        reviewUnresolvabe: false,
       },
       NOT: {
         slug: {
