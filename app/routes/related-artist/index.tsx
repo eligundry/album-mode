@@ -1,11 +1,11 @@
-import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json, redirect } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 import promiseHash from 'promise-hash'
 import { badRequest, serverError } from 'remix-utils'
 
-import lastPresented from '~/lib/lastPresented.server'
 import spotifyLib from '~/lib/spotify.server'
+import userSettings from '~/lib/userSettings.server'
 import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
@@ -21,8 +21,8 @@ export async function loader({
   request,
   context: { serverTiming, logger },
 }: LoaderArgs) {
-  const headers = new Headers()
   const url = new URL(request.url)
+  const settings = await userSettings.get(request)
   let artistParam = url.searchParams.get('artist')
   const artistID = url.searchParams.get('artistID')
   const spotify = await serverTiming.track('spotify.init', () =>
@@ -65,6 +65,16 @@ export async function loader({
     album = resp.album
     artist = resp.artist
   } else {
+    if (
+      settings.lastSearchTerm &&
+      (settings.lastSearchType === 'artist' ||
+        settings.lastSearchType === 'artistID')
+    ) {
+      return redirect(
+        `/related-artist?${settings.lastSearchType}=${settings.lastSearchTerm}`
+      )
+    }
+
     throw badRequest({
       error: 'artist OR artistID query param must be provided',
       logger,
@@ -87,8 +97,6 @@ export async function loader({
       artist: album.artists[0].name,
     })
   })
-  headers.set('Set-Cookie', await lastPresented.set(request, album.id))
-  headers.set(serverTiming.headerKey, serverTiming.toString())
 
   return json(
     {
@@ -96,7 +104,15 @@ export async function loader({
       artist,
       wiki,
     },
-    { headers }
+    {
+      headers: {
+        'Set-Cookie': await userSettings.setLastPresented({
+          request,
+          lastPresented: album.id,
+        }),
+        [serverTiming.headerKey]: serverTiming.toString(),
+      },
+    }
   )
 }
 

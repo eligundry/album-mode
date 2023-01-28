@@ -2,8 +2,8 @@ import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
-import lastPresented from '~/lib/lastPresented.server'
 import spotifyLib from '~/lib/spotify.server'
+import userSettings from '~/lib/userSettings.server'
 import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
@@ -14,9 +14,10 @@ import { Layout } from '~/components/Base'
 import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 
-export async function loader({ request, context }: LoaderArgs) {
-  const headers = new Headers()
-  const { serverTiming } = context
+export async function loader({
+  request,
+  context: { serverTiming },
+}: LoaderArgs) {
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
@@ -37,15 +38,21 @@ export async function loader({ request, context }: LoaderArgs) {
       artist: album.artists[0].name,
     })
   )
-  headers.set('Set-Cookie', await lastPresented.set(request, album.id))
-  headers.set(serverTiming.headerKey, serverTiming.toString())
 
   return json(
     {
       album,
       wiki,
     },
-    { headers }
+    {
+      headers: {
+        'set-cookie': await userSettings.setLastPresented({
+          request,
+          lastPresented: album.id,
+        }),
+        [serverTiming.headerKey]: serverTiming.toString(),
+      },
+    }
   )
 }
 

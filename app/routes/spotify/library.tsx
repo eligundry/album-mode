@@ -3,8 +3,8 @@ import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
 import { spotifyStrategy } from '~/lib/auth.server'
-import lastPresented from '~/lib/lastPresented.server'
 import spotifyLib from '~/lib/spotify.server'
+import userSettings from '~/lib/userSettings.server'
 import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
@@ -19,7 +19,7 @@ export async function loader({ request, context }: LoaderArgs) {
   const { serverTiming } = context
   await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request, {
-      failureRedirect: '/',
+      failureRedirect: config.requiredLoginFailureRedirect,
     })
   )
 
@@ -43,16 +43,21 @@ export async function loader({ request, context }: LoaderArgs) {
       artist: album.artists[0].name,
     })
   )
-  const headers = new Headers()
-  headers.append('Set-Cookie', await lastPresented.set(request, album.id))
-  headers.append(serverTiming.headerKey, serverTiming.toString())
 
   return json(
     {
       album,
       wiki,
     },
-    { headers }
+    {
+      headers: {
+        'set-cookie': await userSettings.setLastPresented({
+          request,
+          lastPresented: album.id,
+        }),
+        [serverTiming.headerKey]: serverTiming.toString(),
+      },
+    }
   )
 }
 

@@ -14,6 +14,8 @@ const config = {
     randomize: false,
   },
   allowedQueryParametersInCanoncialURL: ['artist', 'artistID', 'genre'],
+  requiredLoginFailureRedirect:
+    '/?error=You must login to access this&showLoginButton=1',
 }
 
 export default config

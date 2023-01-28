@@ -1,9 +1,9 @@
-import { json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
 import db from '~/lib/db.server'
-import lastPresented from '~/lib/lastPresented.server'
+import userSettings from '~/lib/userSettings.server'
 
 import {
   ButtonLink,
@@ -30,14 +30,17 @@ import useLoading from '~/hooks/useLoading'
 import useSavedSearches from '~/hooks/useSavedSearches'
 import useUser from '~/hooks/useUser'
 
-export async function loader() {
+export async function loader({ request }: LoaderArgs) {
   return json(
     {
       publications: await db.getPublications(),
     },
     {
       headers: {
-        'Set-Cookie': await lastPresented.clearCookie(),
+        'Set-Cookie': await userSettings.setLastPresented({
+          request,
+          lastPresented: undefined,
+        }),
         'Cache-Control': config.cacheControl.public,
       },
     }

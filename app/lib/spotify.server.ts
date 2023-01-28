@@ -11,8 +11,8 @@ import util from 'util'
 import { spotifyStrategy } from '~/lib/auth.server'
 import cache from '~/lib/cache.server'
 import db from '~/lib/db.server'
-import lastPresented from '~/lib/lastPresented.server'
 import logger from '~/lib/logging.server'
+import userSettings from '~/lib/userSettings.server'
 
 import env from '~/env.server'
 
@@ -458,6 +458,22 @@ export class Spotify {
       throw new Error('User must be logged in to use this')
     }
 
+    const currentlyPlaying = await this.getCurrentlyPlayingTrack()
+    const album = await this.getRandomAlbumForRelatedArtistByID(
+      currentlyPlaying.artists[0].id
+    )
+
+    return {
+      album,
+      currentlyPlaying,
+    }
+  }
+
+  getCurrentlyPlayingTrack = async () => {
+    if (!this.userAccessToken) {
+      throw new Error('User must be logged in to use this')
+    }
+
     const client = await this.getClient()
     const playerState = await client
       .getMyCurrentPlaybackState({
@@ -474,14 +490,7 @@ export class Spotify {
       throw new Error('User must be listening to music to do this')
     }
 
-    const album = await this.getRandomAlbumForRelatedArtistByID(
-      currentlyPlaying.artists[0].id
-    )
-
-    return {
-      album,
-      currentlyPlaying,
-    }
+    return currentlyPlaying
   }
 
   getRandomNewRelease = async () => {
@@ -731,8 +740,14 @@ const cookieFactory = createCookie('spotify', {
 
 const initializeFromRequest = async (req: Request) => {
   const session = await spotifyStrategy.getSession(req)
+  const settings = await userSettings.get(req)
+  const [currentSearchType] = userSettings.getCurrentSearchFromRequest(req)
   const options: SpotifyOptions = {
-    lastPresentedID: await lastPresented.getLastPresentedID(req),
+    lastPresentedID: undefined,
+  }
+
+  if (settings.lastPresented && settings.lastSearchType === currentSearchType) {
+    options.lastPresentedID = settings.lastPresented
   }
 
   if (session?.accessToken) {

@@ -3,9 +3,9 @@ import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
 import db from '~/lib/db.server'
-import lastPresented from '~/lib/lastPresented.server'
 import { badRequest } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
+import userSettings from '~/lib/userSettings.server'
 import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
@@ -26,7 +26,11 @@ export async function loader({
 }: LoaderArgs) {
   const headers = new Headers()
   const slug = params.slug?.trim()
-  const lastPresentedID = await lastPresented.getLastPresentedID(request)
+  const settings = await userSettings.get(request)
+  const lastPresented =
+    settings.lastSearchType === 'publication' && settings.lastPresented
+      ? settings.lastPresented
+      : undefined
 
   if (!slug) {
     throw badRequest({ error: 'slug must be provided in the URL', logger })
@@ -35,7 +39,7 @@ export async function loader({
   if (slug === 'bandcamp-daily') {
     const album = await serverTiming.track('db', () =>
       db.getRandomBandcampDailyAlbum({
-        exceptID: lastPresentedID ?? undefined,
+        exceptID: lastPresented ?? undefined,
       })
     )
     const wiki = await serverTiming.track('wikipedia', () =>
@@ -46,7 +50,10 @@ export async function loader({
     )
     headers.set(
       'Set-Cookie',
-      await lastPresented.set(request, album.albumID.toString())
+      await userSettings.setLastPresented({
+        request,
+        lastPresented: album.albumID.toString(),
+      })
     )
     headers.set(serverTiming.headerKey, serverTiming.toString())
 
@@ -69,7 +76,7 @@ export async function loader({
     const review = await serverTiming.track(`db`, () =>
       db.getRandomAlbumForPublication({
         publicationSlug: slug,
-        exceptID: lastPresentedID,
+        exceptID: lastPresented,
       })
     )
     const album = await serverTiming.track(`spotify.fetch`, () =>
@@ -90,7 +97,10 @@ export async function loader({
   )
   headers.set(
     'Set-Cookie',
-    await lastPresented.set(request, review.id.toString())
+    await userSettings.setLastPresented({
+      request,
+      lastPresented: review.id.toString(),
+    })
   )
   headers.set(serverTiming.headerKey, serverTiming.toString())
 
@@ -109,6 +119,10 @@ export async function loader({
 export const ErrorBoundary = AlbumErrorBoundary
 export const CatchBoundary = AlbumCatchBoundary
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  if (!data) {
+    return {}
+  }
+
   let description = config.siteDescription
   let title = config.siteTitle
 

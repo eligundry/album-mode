@@ -45,7 +45,7 @@ export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
 
 export interface ButtonProps<T = HTMLButtonElement>
   extends React.HTMLAttributes<T> {
-  color?: 'primary' | 'info' | 'warning' | 'danger'
+  color?: 'primary' | 'info' | 'warning' | 'danger' | 'reset'
   size?: 'lg' | 'md' | 'sm' | 'xs'
   ghost?: boolean
   disabled?: boolean
