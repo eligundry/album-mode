@@ -246,6 +246,18 @@ export default function PublicationBySlug() {
           )}
         </Heading>
       )
+    } else if (
+      data.slug === 'resident-advisor' &&
+      data.review.slug.startsWith('https://')
+    ) {
+      footer = (
+        <Heading level="h5">
+          Read the{' '}
+          <A href={url.toString()} target="_blank">
+            Pitchfork Review
+          </A>
+        </Heading>
+      )
     }
   }
 
