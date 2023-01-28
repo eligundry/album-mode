@@ -254,7 +254,7 @@ export default function PublicationBySlug() {
         <Heading level="h5">
           Read the{' '}
           <A href={url.toString()} target="_blank">
-            Pitchfork Review
+            Resident Advisor Review
           </A>
         </Heading>
       )
