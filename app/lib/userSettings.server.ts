@@ -35,7 +35,9 @@ const defaultSettings = {
 }
 
 const get = async (request: Request) => {
-  const cookie = await cookieFactory.parse(request.headers.get('Cookie'))
+  const cookie = await cookieFactory
+    .parse(request.headers.get('Cookie') ?? '')
+    .catch(() => defaultSettings)
 
   if (!cookie) {
     return { ...defaultSettings }
@@ -49,7 +51,7 @@ type SetParameters<T> = T & {
 }
 
 const set = async ({ request, ...settings }: SetParameters<UserSettings>) => {
-  const cookie = await cookieFactory.parse(request.headers.get('Cookie'))
+  const cookie = await get(request)
   return cookieFactory.serialize({ ...defaultSettings, ...cookie, ...settings })
 }
 
@@ -58,7 +60,7 @@ const setLastPresented = async ({
   lastPresented,
 }: SetParameters<{ lastPresented: string | undefined }>) => {
   const [lastSearchType, lastSearchTerm] = getCurrentSearchFromRequest(request)
-  const cookie = await cookieFactory.parse(request.headers.get('Cookie'))
+  const cookie = await get(request)
 
   return cookieFactory.serialize({
     ...defaultSettings,

@@ -19,7 +19,7 @@ export async function loader({ request, context }: LoaderArgs) {
   const { serverTiming } = context
   await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request, {
-      failureRedirect: '/',
+      failureRedirect: config.requiredLoginFailureRedirect,
     })
   )
 

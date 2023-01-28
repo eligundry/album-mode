@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import React from 'react'
 import { ClientOnly } from 'remix-utils'
 
+import AutoAlert from '~/components/AutoAlert'
 import { DesktopLoader, MobileLoader } from '~/components/Loading'
 import SearchBreadcrumbs, {
   SearchBreadcrumbsProps,
@@ -143,6 +144,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           </section>
         </footer>
       </Container>
+      <AutoAlert />
       {isMobile && <MobileLoader />}
     </>
   )

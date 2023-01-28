@@ -10,7 +10,7 @@ import {
 export async function loader({ request }: LoaderArgs) {
   return authenticator.authenticate('spotify', request, {
     successRedirect: '/',
-    failureRedirect: '/',
+    failureRedirect: '/?error=We could not log you in, please try again later',
   })
 }
 
