@@ -29,15 +29,16 @@ model Publication {
 }
 
 model AlbumReviewedByPublication {
-  id            Int         @id @default(autoincrement())
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  publicationID Int
-  artist        String
-  album         String
-  slug          String      @unique
-  resolvable    Boolean     @default(true)
-  publication   Publication @relation(fields: [publicationID], references: [id])
+  id                Int         @id @default(autoincrement())
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  publicationID     Int
+  artist            String
+  album             String
+  slug              String      @unique
+  resolvable        Boolean     @default(true)
+  reviewUnresolvabe Boolean     @default(false)
+  publication       Publication @relation(fields: [publicationID], references: [id])
 }
 
 model BandcampDailyAlbum {
