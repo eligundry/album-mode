@@ -83,7 +83,6 @@
     "dotenv": "^16.0.3",
     "esbuild-register": "^3.4.2",
     "eslint": "^8.32.0",
-    "google-it": "^1.6.4",
     "happy-dom": "^8.1.5",
     "husky": "^8.0.3",
     "inquirer": "^9.1.4",
