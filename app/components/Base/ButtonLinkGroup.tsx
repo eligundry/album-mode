@@ -4,9 +4,9 @@ import { ButtonLink, ButtonLinkProps } from '~/components/Base'
 
 interface Props<T extends any = any> extends Omit<ButtonLinkProps, 'to'> {
   items: T[]
-  keyFunction: (item: T) => string
-  toFunction: (item: T) => string
-  childFunction: (item: T) => string | React.ReactNode
+  keyFunction: (item: T, i: number) => string
+  toFunction: (item: T, i: number) => string
+  childFunction: (item: T, i: number) => string | React.ReactNode
   wrapperClassName?: string
 }
 
@@ -21,14 +21,14 @@ function ButtonLinkGroup<T extends any>({
 }: Props<T>) {
   return (
     <ButtonLinkGroupWrapper className={clsx(wrapperClassName)}>
-      {items.map((item) => (
+      {items.map((item, i) => (
         <ButtonLink
-          to={toFunction(item)}
-          key={keyFunction(item)}
+          to={toFunction(item, i)}
+          key={keyFunction(item, i)}
           className={clsx(className)}
           {...props}
         >
-          {childFunction(item)}
+          {childFunction(item, i)}
         </ButtonLink>
       ))}
     </ButtonLinkGroupWrapper>
