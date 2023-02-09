@@ -31,7 +31,7 @@ export default function Genres() {
         <GenreSearchForm />
         <ButtonLinkGroup
           items={data.topGenres}
-          toFunction={(genre) => `/genre?genre=${genre}`}
+          toFunction={(genre) => `/genre/${genre}`}
           keyFunction={(genre) => genre}
           childFunction={(genre) => genre}
           wrapperClassName={clsx('mt-4')}

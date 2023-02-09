@@ -69,29 +69,29 @@ describe('useUTM', () => {
     },
     {
       it: 'genre',
-      url: 'https://album-mode.party/genre?genre=5th+wave+emo',
+      url: 'https://album-mode.party/genre/5th+wave+emo',
       params: {
         utm_campaign: 'genre',
-        utm_term: '5th wave emo',
+        utm_term: '5th+wave+emo',
       },
       embedURL: 'https://open.spotify.com/artist/0NvYpRJfbFyOI4QdsLJ1Jw',
     },
     {
       it: 'random genre',
-      url: 'https://album-mode.party/genre?genre=5th+wave+emo&from=random',
+      url: 'https://album-mode.party/genre/5th+wave+emo?from=random',
       params: {
         utm_campaign: 'genre',
-        utm_term: '5th wave emo',
+        utm_term: '5th+wave+emo',
         utm_medium: 'random',
       },
       embedURL: 'https://open.spotify.com/artist/0NvYpRJfbFyOI4QdsLJ1Jw',
     },
     {
       it: 'related artist by ID',
-      url: 'http://localhost:3000/related-artist?artistID=610dMJUjtyxC9ZrS30iZrX',
+      url: 'http://localhost:3000/spotify/artist-id/610dMJUjtyxC9ZrS30iZrX',
       params: {
-        utm_campaign: 'related-artist',
-        utm_term: 'artistID',
+        utm_campaign: 'spotify',
+        utm_term: 'artist-id',
         utm_content: '610dMJUjtyxC9ZrS30iZrX',
       },
       // Home Is Where Forever
@@ -99,11 +99,11 @@ describe('useUTM', () => {
     },
     {
       it: 'related artist by name',
-      url: 'http://localhost:3000/related-artist?artist=home%20is%20where',
+      url: 'http://localhost:3000/spotify/artist/home%20is%20where',
       params: {
-        utm_campaign: 'related-artist',
+        utm_campaign: 'spotify',
         utm_term: 'artist',
-        utm_content: 'home is where',
+        utm_content: encodeURIComponent('home is where'),
       },
     },
     {
