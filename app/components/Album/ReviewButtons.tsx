@@ -40,8 +40,8 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
             </Heading>
             <ButtonLinkGroup
               items={item.genres.slice(0, 3)}
-              keyFunction={(genre) => genre}
-              toFunction={(genre) => `/genre?genre=${genre}`}
+              keyFunction={(genre, i) => `${genre}-${i}`}
+              toFunction={(genre) => `/genre/${genre}`}
               childFunction={(genre) => genre}
               className={clsx('btn-xs')}
               wrapperClassName={clsx('mb-2')}

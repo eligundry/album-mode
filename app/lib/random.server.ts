@@ -13,11 +13,11 @@ const getAction = async (spotifyClient: Spotify): Promise<string> => {
       return `/publication/${await db.getRandomPublication()}?from=play-me-something`
 
     case 'genre':
-      return `/genre?genre=${await db.getRandomTopGenre()}&from=play-me-something`
+      return `/genre/${await db.getRandomTopGenre()}?from=play-me-something`
 
     case 'artist':
       const artist = await spotifyClient.getRandomTopArtist()
-      return `/related-artist?artistID=${artist.id}&from=play-me-something`
+      return `/spotify/artist-id/${artist.id}?from=play-me-something`
 
     default:
       throw new Error(`unsupported option ${option}`)

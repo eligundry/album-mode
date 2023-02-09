@@ -4,5 +4,5 @@ import db from '~/lib/db.server'
 
 export async function loader() {
   const genre = await db.getRandomGenre()
-  return redirect(`/genre?genre=${genre}&from=random`)
+  return redirect(`/genre/${genre}?from=random`)
 }

@@ -254,7 +254,7 @@ export class Spotify {
     let genres = artist.body.genres
 
     if (genres.length > 2) {
-      genres = [genres[0], ...sampleSize(genres, genres.length - 1)]
+      genres = [genres[0], ...sampleSize(genres.slice(1), genres.length - 1)]
     }
 
     return {

@@ -24,33 +24,17 @@ const UTMParametersProvider: React.FC<React.PropsWithChildren<{}>> = ({
     }
 
     const currentParams = new URLSearchParams(search.slice(1))
-    const [campaign, term] = pathname.split('/').filter(Boolean)
+    const [campaign, term, content] = pathname.split('/').filter(Boolean)
 
     if (!campaign) {
       return params
     }
 
     params.set('utm_campaign', campaign)
+    params.set('utm_term', term)
 
-    if (term) {
-      params.set('utm_term', term)
-    } else if (campaign === 'genre') {
-      const genre = currentParams.get('genre')
-
-      if (genre) {
-        params.set('utm_term', genre)
-      }
-    } else if (campaign === 'related-artist') {
-      const artistID = currentParams.get('artistID')
-      const artistName = currentParams.get('artist')
-
-      if (artistID) {
-        params.set('utm_term', 'artistID')
-        params.set('utm_content', artistID)
-      } else if (artistName) {
-        params.set('utm_term', 'artist')
-        params.set('utm_content', artistName)
-      }
+    if (content) {
+      params.set('utm_content', content)
     }
 
     const fromParam = currentParams.get('from')
