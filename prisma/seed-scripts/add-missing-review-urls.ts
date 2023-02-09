@@ -26,7 +26,7 @@ const main = async () => {
     {
       type: 'input',
       name: 'hostname',
-      message: 'What hostname should we search Google for?',
+      message: 'What hostname should we search DuckDuckGo for?',
     },
   ])
 
@@ -46,7 +46,7 @@ const main = async () => {
     },
   })
 
-  const googleUpdateAlbum = async (
+  const duckDuckGoUpdateAlbum = async (
     album: AlbumReviewedByPublication,
     hostname: string
   ) => {
@@ -55,14 +55,11 @@ const main = async () => {
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36',
     })
     const page = await context.newPage()
-    await page.goto('https://google.com')
-    await page
-      .getByRole('combobox')
-      .fill(`${album.album} ${album.artist} site:${hostname}`)
-    await page.getByRole('button', { name: 'Google Search' }).click()
-
+    const url = new URL('https://duckduckgo.com/')
+    url.searchParams.set('q', `${album.album} ${album.artist} site:${hostname}`)
+    await page.goto(url.toString())
     const linksLocator = page.locator(
-      `div[role="main"] a[href*="https://${hostname}"]:has(h3)`
+      `#links h2 a[href*="https://${hostname}"]`
     )
 
     try {
@@ -76,7 +73,7 @@ const main = async () => {
         {
           type: 'input',
           name: 'action',
-          message: `Could not search Google for ${album.album} by ${album.artist}. Do you want to enter URL manually?`,
+          message: `Could not search DuckDuckGo for ${album.album} by ${album.artist}. Do you want to enter URL manually?`,
         },
       ])
 
@@ -105,7 +102,7 @@ const main = async () => {
 
     for (let el of linkElms) {
       const link = await el.getAttribute('href')
-      const title = await el.locator('h3').textContent()
+      const title = await el.textContent()
 
       if (!link || !title) {
         continue
@@ -154,16 +151,29 @@ const main = async () => {
           id: album.id,
         },
       })
-      .catch((error) => {
+      .catch(async (error) => {
+        if (error.message.includes('slug')) {
+          await prisma.albumReviewedByPublication.update({
+            data: {
+              slug: link + `#${album.id}`,
+            },
+            where: {
+              id: album.id,
+            },
+          })
+
+          return
+        }
+
         console.error(error)
-        return googleUpdateAlbum(album, hostname)
+        return duckDuckGoUpdateAlbum(album, hostname)
       })
 
     await context.close()
   }
 
   for (let album of reviews) {
-    await googleUpdateAlbum(album, hostname)
+    await duckDuckGoUpdateAlbum(album, hostname)
   }
 }
 
