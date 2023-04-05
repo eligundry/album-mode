@@ -87,10 +87,17 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
                 </li>
               ))}
             </ul>
+            <h5 className={clsx('uppercase', 'font-bold', 'text-xs')}>
+              Released:{' '}
+              <time dateTime={album.release_date}>
+                {new Date(album.release_date).toLocaleDateString()}
+              </time>
+            </h5>
           </>
         }
         footer={footer}
         reviewProps={{ item: album }}
+        releaseDate={album.release_date}
       />
     </Container>
   )

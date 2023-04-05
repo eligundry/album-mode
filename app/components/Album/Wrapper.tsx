@@ -13,10 +13,11 @@ interface Props {
   footer?: React.ReactNode
   reviewProps: ReviewButtonProps
   className?: string
+  releaseDate?: string
 }
 
 const AlbumWrapper = React.forwardRef<any, Props>(
-  ({ embed, title, footer, reviewProps, className }, ref) => {
+  ({ embed, title, footer, reviewProps, className, releaseDate }, ref) => {
     const isMobile = useIsMobile()
     return (
       <Card
@@ -33,10 +34,20 @@ const AlbumWrapper = React.forwardRef<any, Props>(
         body={footer}
         actionsClassName={clsx('flex-col')}
         actions={
-          <ReviewButtons
-            className={clsx(isMobile && ['sticky', 'bottom-0'])}
-            {...reviewProps}
-          />
+          <>
+            {releaseDate && (
+              <h5 className={clsx('uppercase', 'font-bold', 'text-xs')}>
+                Released:{' '}
+                <time dateTime={releaseDate}>
+                  {new Date(releaseDate).toLocaleDateString()}
+                </time>
+              </h5>
+            )}
+            <ReviewButtons
+              className={clsx(isMobile && ['sticky', 'bottom-0'])}
+              {...reviewProps}
+            />
+          </>
         }
         // style={isMobile ? { height: 'calc(100vh - 150px)' } : undefined}
         ref={ref}
