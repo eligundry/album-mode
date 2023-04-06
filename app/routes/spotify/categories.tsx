@@ -2,6 +2,7 @@ import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
+import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 
 import { Container, Heading, Layout } from '~/components/Base'
@@ -11,11 +12,6 @@ import {
   GenericErrorBoundary,
 } from '~/components/ErrorBoundary'
 import config from '~/config'
-
-export const meta: MetaFunction = () => ({
-  title: `Spotify Playlist Categories | ${config.siteTitle}`,
-  description: `${config.siteDescription} Maybe a playlist from one of the Spotify categories will catch your fancy!`,
-})
 
 export async function loader({ request, context }: LoaderArgs) {
   const { serverTiming } = context
@@ -35,6 +31,11 @@ export async function loader({ request, context }: LoaderArgs) {
 
 export const ErrorBoundary = GenericErrorBoundary
 export const CatchBoundary = GenericCatchBoundary
+export const headers = forwardServerTimingHeaders
+export const meta: MetaFunction = () => ({
+  title: `Spotify Playlist Categories | ${config.siteTitle}`,
+  description: `${config.siteDescription} Maybe a playlist from one of the Spotify categories will catch your fancy!`,
+})
 
 export default function SpotifyCategories() {
   const { categories } = useLoaderData<typeof loader>()
@@ -56,7 +57,7 @@ export default function SpotifyCategories() {
                   width={category.icons[0].width}
                   height={category.icons[0].height}
                   alt={category.name}
-                  className={clsx('hover:scale-105 ease-in duration-100')}
+                  className={clsx('hover:scale-105', 'ease-in duration-100')}
                   loading="lazy"
                 />
               }

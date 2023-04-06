@@ -54,10 +54,10 @@ export async function loader({
   request,
   context: { serverTiming },
 }: LoaderArgs) {
-  const session = await serverTiming.track('spotify.session', () =>
+  const session = await serverTiming.track('root.spotify.session', () =>
     spotifyStrategy.getSession(request)
   )
-  const settings = await serverTiming.track('userSettings.get', () =>
+  const settings = await serverTiming.track('root.userSettings.get', () =>
     userSettings.get(request)
   )
 

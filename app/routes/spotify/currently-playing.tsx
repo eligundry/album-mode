@@ -2,9 +2,12 @@ import { LoaderArgs, redirect } from '@remix-run/node'
 import retry from 'async-retry'
 
 import { spotifyStrategy } from '~/lib/auth.server'
+import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 
 import config from '~/config'
+
+export const headers = forwardServerTimingHeaders
 
 export async function loader({ request, context }: LoaderArgs) {
   const { serverTiming } = context

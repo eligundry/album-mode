@@ -1,4 +1,4 @@
-import { ResponseInit } from '@remix-run/node'
+import { HeadersFunction, ResponseInit } from '@remix-run/node'
 import omit from 'lodash/omit'
 import {
   badRequest as _badRequest,
@@ -103,4 +103,18 @@ export function noContent(responseInit: Pick<ResponseInit, 'headers'> = {}) {
     status: 204,
     ...responseInit,
   })
+}
+
+export const forwardServerTimingHeaders: HeadersFunction = ({
+  loaderHeaders,
+}) => {
+  const serverTiming = loaderHeaders.get('Server-Timing')
+
+  if (serverTiming) {
+    return {
+      'server-timing': serverTiming,
+    }
+  }
+
+  return new Headers()
 }

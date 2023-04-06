@@ -1,6 +1,7 @@
 import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
+import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
 
@@ -38,6 +39,7 @@ export async function loader({
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const CatchBoundary = AlbumCatchBoundary
+export const headers = forwardServerTimingHeaders
 export const meta: MetaFunction<typeof loader> = () => ({
   title: `Featured Playlist | ${config.siteTitle}`,
   description:

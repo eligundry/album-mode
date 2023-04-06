@@ -4,6 +4,7 @@ import retry from 'async-retry'
 import startCase from 'lodash/startCase'
 
 import { badRequest } from '~/lib/responses.server'
+import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
 import wikipedia from '~/lib/wikipedia.server'
@@ -71,6 +72,7 @@ export async function loader({
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const CatchBoundary = AlbumCatchBoundary
+export const headers = forwardServerTimingHeaders
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data) {
     return {}

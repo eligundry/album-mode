@@ -3,6 +3,7 @@ import { useLoaderData } from '@remix-run/react'
 import promiseHash from 'promise-hash'
 
 import { badRequest, serverError } from '~/lib/responses.server'
+import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
 
@@ -59,6 +60,7 @@ export async function loader({
 
 export const ErrorBoundary = PlaylistErrorBoundary
 export const CatchBoundary = PlaylistCatchBoundary
+export const headers = forwardServerTimingHeaders
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data) {
     return {}
