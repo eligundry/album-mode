@@ -697,6 +697,34 @@ export class Spotify {
     const resp = await client.getArtistRelatedArtists(artistID)
     return resp.body.artists
   }
+
+  getRandomForYouPlaylist = async () => {
+    if (!this.userAccessToken) {
+      throw new Error('User must be logged in to use this')
+    }
+
+    const client = await this.getClient()
+    const resp = await client.search('for you', ['playlist'], {
+      limit: 50,
+      market: this.country,
+    })
+
+    if (!resp.body.playlists || !resp.body.playlists.total) {
+      throw new Error('Could not find any playlists')
+    }
+
+    const playlistsBySpotify = resp.body.playlists.items.filter(
+      (p) => p.owner.uri === 'spotify:user:spotify'
+    )
+
+    while (true) {
+      const playlist = sample(playlistsBySpotify)
+
+      if (playlist && playlist.id !== this.lastPresentedID) {
+        return playlist
+      }
+    }
+  }
 }
 
 const spotifyAPIFactory = () =>

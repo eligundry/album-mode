@@ -126,6 +126,9 @@ export default function Index() {
                 <ButtonLink to="/spotify/currently-playing" disabled={loading}>
                   Currently Playing
                 </ButtonLink>
+                <ButtonLink to="/spotify/for-you" disabled={loading}>
+                  For You
+                </ButtonLink>
               </>
             )}
             <ButtonLink to="/spotify/new-releases" disabled={loading}>
