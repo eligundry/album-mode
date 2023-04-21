@@ -1,4 +1,3 @@
-import React from 'react'
 import { unauthorized } from 'remix-utils'
 
 import { spotifyStrategy } from '~/lib/auth.server'

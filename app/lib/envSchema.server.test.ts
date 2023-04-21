@@ -12,6 +12,8 @@ const baseEnv = {
   CI: 'false',
   COMMIT_REF: 'xxx',
   DATABASE_URL: 'file:./dev.db?pool_timeout=0',
+  GROWTHBOOK_API_HOST: 'https://example.com',
+  GROWTHBOOK_CLIENT_KEY: 'xxx',
   LOGGER_EMAIL_SETTINGS: {
     publicKey: 'xxx',
     privateKey: 'xxx',
@@ -40,6 +42,8 @@ describe('envSchema', () => {
         'BASIC_AUTH_PASSWORD',
         'BASIC_AUTH_USERNAME',
         'COMMIT_REF',
+        'GROWTHBOOK_API_HOST',
+        'GROWTHBOOK_CLIENT_KEY',
         'LOGGER_EMAIL_SETTINGS',
         'OG_API_URL',
         'SENTRY_DSN',

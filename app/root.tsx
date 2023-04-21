@@ -9,11 +9,12 @@ import {
   useLoaderData,
   useLocation,
 } from '@remix-run/react'
-import * as Sentry from '@sentry/browser'
 import { withSentry } from '@sentry/remix'
-import { useEffect, useMemo } from 'react'
+import promiseHash from 'promise-hash'
+import { useMemo } from 'react'
 
 import { spotifyStrategy } from '~/lib/auth.server'
+import growthbookLib from '~/lib/growthbook.server'
 import type { User } from '~/lib/types/auth'
 import userSettings from '~/lib/userSettings.server'
 
@@ -54,22 +55,33 @@ export async function loader({
   request,
   context: { serverTiming },
 }: LoaderArgs) {
-  const session = await serverTiming.track('root.spotify.session', () =>
-    spotifyStrategy.getSession(request)
-  )
-  const settings = await serverTiming.track('root.userSettings.get', () =>
-    userSettings.get(request)
-  )
+  const { session, settings, gb } = await promiseHash({
+    session: serverTiming.track('root.spotify.session', () =>
+      spotifyStrategy.getSession(request)
+    ),
+    settings: serverTiming.track('root.userSettings.get', () =>
+      userSettings.get(request)
+    ),
+    gb: serverTiming.track('root.growthbook.get', () =>
+      growthbookLib.initializeFromRequest(request)
+    ),
+  })
 
   return json(
     {
       user: session?.user || (null as User | null),
       settings,
+      growthbook: {
+        features: gb.getFeatures(),
+        attributes: gb.getAttributes(),
+      },
       ENV: {
         SPOTIFY_CLIENT_ID: env.SPOTIFY_CLIENT_ID,
         SENTRY_DSN: env.SENTRY_DSN,
         SENTRY_RELEASE: env.COMMIT_REF,
         NODE_ENV: env.NODE_ENV,
+        GROWTHBOOK_API_HOST: env.GROWTHBOOK_API_HOST,
+        GROWTHBOOK_CLIENT_KEY: env.GROWTHBOOK_CLIENT_KEY,
       },
     },
     {
@@ -84,6 +96,10 @@ function App() {
   const { pathname, search } = useLocation()
   const data = useLoaderData<typeof loader>()
   const { isDarkMode, pallete } = useTailwindTheme()
+  const googleTagManagerDebug = useMemo(
+    () => new URLSearchParams(search.substring(1)).has('gtm_debug'),
+    []
+  )
   const canonicalURL = useMemo(() => {
     const url = new URL(pathname + search, config.siteURL)
 
@@ -96,14 +112,6 @@ function App() {
     return url.toString()
   }, [pathname, search])
 
-  useEffect(() => {
-    if (data.user) {
-      Sentry.setUser({
-        id: data.user.id,
-      })
-    }
-  }, [data.user])
-
   return (
     <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>
       <head>
@@ -111,10 +119,15 @@ function App() {
         <meta name="theme-color" content={pallete['base-100']} />
         <link rel="canonical" href={canonicalURL} />
         <Links />
-        <Tracking />
+        <Tracking disablePartytown={googleTagManagerDebug} />
       </head>
       <body>
-        <RootProvider user={data.user} settings={data.settings}>
+        <RootProvider
+          user={data.user}
+          settings={data.settings}
+          // @ts-ignore
+          growthbook={data.growthbook}
+        >
           <Outlet />
         </RootProvider>
         <ScrollRestoration />

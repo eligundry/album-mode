@@ -2,15 +2,23 @@ import { Partytown } from '@builder.io/partytown/react'
 
 import env from '~/env.server'
 
-const Tracking: React.FC = () => {
+interface Props {
+  disablePartytown?: boolean
+}
+
+const Tracking: React.FC<Props> = ({ disablePartytown }) => {
+  const scriptType = disablePartytown ? 'text/javascript' : 'text/partytown'
+
   return (
     <>
-      <Partytown
-        debug={env.NODE_ENV === 'development'}
-        forward={['dataLayer.push']}
-      />
+      {!disablePartytown && (
+        <Partytown
+          debug={env.NODE_ENV === 'development'}
+          forward={['dataLayer.push']}
+        />
+      )}
       <script
-        type="text/partytown"
+        type={scriptType}
         dangerouslySetInnerHTML={{
           __html: `
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
