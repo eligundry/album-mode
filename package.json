@@ -15,6 +15,7 @@
     "seed-script": "SEED_SCRIPT=true node --require esbuild-register",
     "lint": "eslint app/**/*.{ts,tsx}",
     "typecheck": "tsc -b",
+    "postinstall": "prisma generate",
     "prettier": "prettier .",
     "prettier:fix": "prettier . --write",
     "prepare": "husky install",
