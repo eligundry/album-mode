@@ -16,6 +16,8 @@ export const envSchema = z.object({
   CI: z.coerce.boolean().default(false),
   COMMIT_REF: z.string().optional(),
   DATABASE_URL: z.string(),
+  GROWTHBOOK_API_HOST: z.string().url().default('https://cdn.growthbook.io'),
+  GROWTHBOOK_CLIENT_KEY: z.string().default(''),
   LOGGER_EMAIL_SETTINGS: z
     .preprocess(
       (val) => (typeof val === 'string' ? JSON.parse(val) : val),
@@ -46,5 +48,7 @@ export const webAppEnvSchema = envSchema.extend({
     (val) => (typeof val === 'string' && val ? JSON.parse(val) : null),
     z.array(z.string().min(2))
   ),
+  GROWTHBOOK_API_HOST: z.string().url().default('https://cdn.growthbook.io'),
+  GROWTHBOOK_CLIENT_KEY: z.string(),
   OG_API_URL: z.string().url(),
 })

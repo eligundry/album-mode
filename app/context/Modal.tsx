@@ -79,8 +79,6 @@ const ModalProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
       return null
     }
 
-    console.log({ random: currentQueryParams.get('from') })
-
     if (
       currentQueryParams.get('from') === 'random' &&
       state.consecutiveRejectionCount === 3
@@ -132,8 +130,6 @@ const ModalProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
       clearRejections()
     }
   }, [location.pathname, clearRejections])
-
-  console.log({ visibleModal })
 
   return (
     <ModalContext.Provider

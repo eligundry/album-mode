@@ -173,7 +173,7 @@ export default function PublicationBySlug() {
           album={data.album}
           footer={
             <>
-              <Heading level="h5">
+              <Heading level="h5" noSpacing className="my-2">
                 Read the{' '}
                 <A
                   href={createExternalURL(
@@ -200,7 +200,7 @@ export default function PublicationBySlug() {
 
     if (data.slug.includes('p4k')) {
       footer = (
-        <Heading level="h5">
+        <Heading level="h5" noSpacing className="my-2">
           Read the{' '}
           <A href={url.toString()} target="_blank">
             Pitchfork Review
@@ -209,7 +209,7 @@ export default function PublicationBySlug() {
       )
     } else if (data.slug === 'needle-drop') {
       footer = (
-        <Heading level="h5">
+        <Heading level="h5" noSpacing className="my-2">
           Watch the{' '}
           <A href={url.toString()} target="_blank">
             Needle Drop review on YouTube
@@ -218,7 +218,7 @@ export default function PublicationBySlug() {
       )
     } else if (data.slug === '33-13-sound') {
       footer = (
-        <Heading level="h5">
+        <Heading level="h5" noSpacing className="my-2">
           Buy the{' '}
           <A href={url.toString()} target="_blank">
             {data.review.publicationName} book
@@ -228,7 +228,7 @@ export default function PublicationBySlug() {
       )
     } else if (data.slug === 'robert-christgau') {
       footer = (
-        <Heading level="h5">
+        <Heading level="h5" noSpacing className="my-2">
           {url.pathname.includes('get_album.php') ? (
             <>
               Read{' '}
@@ -253,7 +253,7 @@ export default function PublicationBySlug() {
       data.review.slug.startsWith('https://')
     ) {
       footer = (
-        <Heading level="h5">
+        <Heading level="h5" noSpacing className="my-2">
           Read the{' '}
           <A href={url.toString()} target="_blank">
             Resident Advisor Review
