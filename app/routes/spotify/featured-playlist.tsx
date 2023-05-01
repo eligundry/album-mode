@@ -50,8 +50,8 @@ export default function RandomSpotifyFeaturedPlaylist() {
   const { playlist } = useLoaderData<typeof loader>()
 
   return (
-    <Layout headerBreadcrumbs={['Spotify', 'Featured Playlist']}>
-      <Playlist playlist={playlist} />
+    <Layout hideFooter headerBreadcrumbs={['Spotify', 'Featured Playlist']}>
+      <Playlist forceTall playlist={playlist} />
     </Layout>
   )
 }

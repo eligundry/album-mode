@@ -15,12 +15,14 @@ import { A, ButtonLink, Container, EmojiText, Link } from './index'
 interface LayoutProps {
   className?: string
   headerBreadcrumbs?: SearchBreadcrumbsProps['crumbs']
+  hideFooter?: boolean
 }
 
 const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   children,
   className,
   headerBreadcrumbs,
+  hideFooter = false,
 }) => {
   const { loading } = useLoading()
   const isMobile = useIsMobile()
@@ -111,39 +113,41 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
       >
         {children}
       </main>
-      <Container>
-        <footer
-          className={clsx(
-            'footer',
-            'items-start',
-            'justify-between',
-            'py-4',
-            'px-4',
-            'sm:px-0'
-          )}
-        >
-          <section>
-            <h4 className={clsx('footer-title')}>Party Time</h4>
-            <Link to="/about">About</Link>
-            <Link to="/help">Help</Link>
-            <A
-              href="mailto:eligundry+album.mode.party@gmail.com"
-              target="_blank"
-            >
-              Contact
-            </A>
-            <Link to="/labs">Labs</Link>
-          </section>
-          <section>
-            <h4 className={clsx('footer-title')}>
-              Made with <EmojiText emoji="❤️" label="heart" noPadding /> by{' '}
-              <A href="https://eligundry.com" target="_blank">
-                Eli Gundry
+      {!hideFooter && (
+        <Container>
+          <footer
+            className={clsx(
+              'footer',
+              'items-start',
+              'justify-between',
+              'py-4',
+              'px-4',
+              'sm:px-0'
+            )}
+          >
+            <section>
+              <h4 className={clsx('footer-title')}>Party Time</h4>
+              <Link to="/about">About</Link>
+              <Link to="/help">Help</Link>
+              <A
+                href="mailto:eligundry+album.mode.party@gmail.com"
+                target="_blank"
+              >
+                Contact
               </A>
-            </h4>
-          </section>
-        </footer>
-      </Container>
+              <Link to="/labs">Labs</Link>
+            </section>
+            <section>
+              <h4 className={clsx('footer-title')}>
+                Made with <EmojiText emoji="❤️" label="heart" noPadding /> by{' '}
+                <A href="https://eligundry.com" target="_blank">
+                  Eli Gundry
+                </A>
+              </h4>
+            </section>
+          </footer>
+        </Container>
+      )}
       <AutoAlert />
       {isMobile && <MobileLoader />}
     </>

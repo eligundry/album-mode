@@ -72,11 +72,12 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   }
 }
 
-export default function RandomSpotifyFeaturedPlaylist() {
+export default function RandomSpotifyCategoryPlaylist() {
   const { playlist, category } = useLoaderData<typeof loader>()
 
   return (
     <Layout
+      hideFooter
       headerBreadcrumbs={[
         'Spotify',
         [
@@ -88,7 +89,7 @@ export default function RandomSpotifyFeaturedPlaylist() {
         category.name,
       ]}
     >
-      <Playlist playlist={playlist} />
+      <Playlist forceTall playlist={playlist} />
     </Layout>
   )
 }

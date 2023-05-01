@@ -26,13 +26,15 @@ const AlbumWrapper = React.forwardRef<any, Props>(
           'sm:card-side',
           'album-card-wrapper',
           'w-full',
-          'sm:w-3/4',
+          'sm:w-5/6',
+          ['min-h-[calc(100vh-6rem)]', 'sm:min-h-fit'],
+          ['shadow-none', 'sm:shadow-xl'],
           className
         )}
         media={embed}
         title={title}
         body={footer}
-        actionsClassName={clsx('flex-col')}
+        actionsClassName={clsx('flex-col', 'sticky')}
         actions={
           <>
             {releaseDate && (
@@ -49,7 +51,6 @@ const AlbumWrapper = React.forwardRef<any, Props>(
             />
           </>
         }
-        // style={isMobile ? { height: 'calc(100vh - 150px)' } : undefined}
         ref={ref}
       />
     )

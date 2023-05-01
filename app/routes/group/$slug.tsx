@@ -46,7 +46,7 @@ export default function GroupBySlug() {
   }
 
   return (
-    <Layout headerBreadcrumbs={['Group', group]}>
+    <Layout hideFooter headerBreadcrumbs={['Group', group]}>
       <Album album={album} footer={<WikipediaSummary summary={wiki} />} />
     </Layout>
   )

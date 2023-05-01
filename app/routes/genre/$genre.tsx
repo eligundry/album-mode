@@ -1,4 +1,4 @@
-import { LoaderArgs, MetaFunction, json, redirect } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 import startCase from 'lodash/startCase'
@@ -14,7 +14,6 @@ import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
-import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 
 export async function loader({
@@ -96,8 +95,8 @@ export default function GenreSearch() {
   }
 
   return (
-    <Layout headerBreadcrumbs={['Genre', genre]}>
-      <Album album={album} footer={<WikipediaSummary summary={data.wiki} />} />
+    <Layout hideFooter headerBreadcrumbs={['Genre', genre]}>
+      <Album album={album} wiki={data.wiki} />
     </Layout>
   )
 }

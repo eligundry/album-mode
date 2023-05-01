@@ -155,6 +155,7 @@ export default function PublicationBySlug() {
   if (data.type === 'bandcamp') {
     return (
       <Layout
+        hideFooter
         headerBreadcrumbs={[
           'Publication',
           [
@@ -277,16 +278,8 @@ export default function PublicationBySlug() {
   }
 
   return (
-    <Layout headerBreadcrumbs={breadcrumbs}>
-      <Album
-        album={data.album}
-        footer={
-          <>
-            {footer}
-            <WikipediaSummary summary={data.wiki} />
-          </>
-        }
-      />
+    <Layout headerBreadcrumbs={breadcrumbs} hideFooter>
+      <Album album={data.album} wiki={data.wiki} footer={footer} />
     </Layout>
   )
 }

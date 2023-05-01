@@ -21,7 +21,7 @@ const cardWrapperClasses = (
   clsx(
     'card',
     'card-compact',
-    'shadow-xl',
+    !props.className?.includes('shadow') && 'shadow-xl',
     'text-left',
     'overflow-hidden',
     props.mediaZoomOnHover && [

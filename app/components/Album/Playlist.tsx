@@ -1,4 +1,3 @@
-import { useMeasure } from '@react-hookz/web'
 import clsx from 'clsx'
 
 import { A, Container } from '~/components/Base'
@@ -11,31 +10,37 @@ import PlaylistWrapper from './Wrapper'
 interface Props {
   playlist: SpotifyApi.PlaylistObjectSimplified | SpotifyApi.PlaylistObjectFull
   footer?: string | React.ReactNode
+  forceTall?: boolean
 }
 
-const Playlist: React.FC<Props> = ({ playlist, footer }) => {
+const Playlist: React.FC<Props> = ({ playlist, footer, forceTall = false }) => {
   const isMobile = useIsMobile()
   const { createExternalURL } = useUTM()
   const playlistURL = createExternalURL(
     playlist.external_urls.spotify
   ).toString()
-  const [measures, wrapperRef] = useMeasure()
+  const isWide = !forceTall && isMobile
 
   return (
     <Container center>
       <PlaylistWrapper
-        ref={wrapperRef}
+        className={clsx(
+          'sm:items-stretch',
+          '[&_.card-body]:px-0',
+          '[&_.card-body]:sm:px-4'
+        )}
         embed={
-          <SpotifyEmbed
-            wide={isMobile}
-            className={clsx('mx-auto')}
-            link={playlistURL}
-            height={
-              !isMobile && measures?.height
-                ? Math.max(measures.height, 380)
-                : undefined
-            }
-          />
+          <div>
+            <SpotifyEmbed
+              className={clsx(
+                'mx-auto',
+                'sm:h-full',
+                ['w-full', 'sm:w-[300px]'],
+                [isWide ? 'max-h-[80px]' : 'min-h-[380px]', 'sm:min-h-full']
+              )}
+              link={playlistURL}
+            />
+          </div>
         }
         title={
           <A href={playlistURL} target="_blank">

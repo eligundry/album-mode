@@ -116,7 +116,7 @@ export default function RelatedArtistSearch() {
   const data = useLoaderData<typeof loader>()
 
   return (
-    <Layout headerBreadcrumbs={['Artist', data.artist.name ?? '']}>
+    <Layout headerBreadcrumbs={['Artist', data.artist.name ?? '']} hideFooter>
       <Album
         album={data.album}
         footer={<WikipediaSummary summary={data.wiki} />}

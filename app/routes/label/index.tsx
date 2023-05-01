@@ -44,7 +44,7 @@ export default function LabelSearch() {
   const data = useLoaderData<typeof loader>()
 
   return (
-    <Layout headerBreadcrumbs={['Labels', data.label]}>
+    <Layout hideFooter headerBreadcrumbs={['Labels', data.label]}>
       <Album
         album={data.album}
         footer={<WikipediaSummary summary={data.wiki} />}

@@ -1,8 +1,11 @@
 import clsx from 'clsx'
 import React from 'react'
 
+import type { WikipediaSummary as IWikipediaSummary } from '~/lib/wikipedia.server'
+
 import { A, Container } from '~/components/Base'
 import SpotifyEmbed from '~/components/Spotify/Embed'
+import WikipediaSummary from '~/components/WikipediaSummary'
 import useGTM from '~/hooks/useGTM'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 import useUTM from '~/hooks/useUTM'
@@ -12,32 +15,41 @@ import AlbumWrapper from './Wrapper'
 interface NewProps {
   album: SpotifyApi.AlbumObjectSimplified
   footer?: React.ReactNode
+  forceTall?: boolean
+  wiki?: IWikipediaSummary | null
 }
 
-const Album: React.FC<NewProps> = ({ album, footer }) => {
+const Album: React.FC<NewProps> = ({
+  album,
+  footer,
+  forceTall = false,
+  wiki,
+}) => {
   const isMobile = useIsMobile()
   const sendEvent = useGTM()
   const { createExternalURL } = useUTM()
   const albumURL = createExternalURL(album.external_urls.spotify).toString()
+  const isWide =
+    !forceTall && wiki && wiki.extract_html.length >= 300 && isMobile
 
   return (
     <Container center>
       <AlbumWrapper
-        className={clsx('sm:items-stretch')}
+        className={clsx(
+          'sm:items-stretch',
+          '[&_.card-body]:px-0',
+          '[&_.card-body]:sm:px-4'
+        )}
         embed={
           <div>
             <SpotifyEmbed
-              wide={isMobile}
-              className={clsx('mx-auto', 'sm:h-full')}
+              className={clsx(
+                'mx-auto',
+                'sm:h-full',
+                ['w-full', 'sm:w-[300px]'],
+                [isWide ? 'max-h-[80px]' : 'min-h-[380px]', 'sm:min-h-full']
+              )}
               link={albumURL}
-              style={
-                !isMobile
-                  ? {
-                      maxWidth: '300px',
-                      minHeight: '380px',
-                    }
-                  : undefined
-              }
             />
           </div>
         }
@@ -89,7 +101,12 @@ const Album: React.FC<NewProps> = ({ album, footer }) => {
             </ul>
           </>
         }
-        footer={footer}
+        footer={
+          <>
+            {footer}
+            {wiki && <WikipediaSummary summary={wiki} />}
+          </>
+        }
         reviewProps={{ item: album }}
         releaseDate={album.release_date}
       />

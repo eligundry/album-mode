@@ -12,7 +12,6 @@ import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
-import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 import env from '~/env.server'
 
@@ -107,11 +106,8 @@ export default function RelatedArtistSearch() {
   const data = useLoaderData<typeof loader>()
 
   return (
-    <Layout headerBreadcrumbs={['Artist', data.artist.name ?? '']}>
-      <Album
-        album={data.album}
-        footer={<WikipediaSummary summary={data.wiki} />}
-      />
+    <Layout headerBreadcrumbs={['Artist', data.artist.name ?? '']} hideFooter>
+      <Album album={data.album} wiki={data.wiki} />
     </Layout>
   )
 }

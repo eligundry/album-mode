@@ -13,7 +13,6 @@ import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
-import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
@@ -73,11 +72,8 @@ export default function RandomAlbumFromSpotifyLibrary() {
   const data = useLoaderData<typeof loader>()
 
   return (
-    <Layout headerBreadcrumbs={['Spotify', 'Library']}>
-      <Album
-        album={data.album}
-        footer={<WikipediaSummary summary={data.wiki} />}
-      />
+    <Layout hideFooter headerBreadcrumbs={['Spotify', 'Library']}>
+      <Album album={data.album} wiki={data.wiki} />
     </Layout>
   )
 }
