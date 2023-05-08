@@ -36,7 +36,7 @@ const Playlist: React.FC<Props> = ({ playlist, footer, forceTall = false }) => {
                 'mx-auto',
                 'sm:h-full',
                 ['w-full', 'sm:w-[300px]'],
-                [isWide ? 'max-h-[80px]' : 'min-h-[380px]', 'sm:min-h-full']
+                [isWide ? 'max-h-[80px]' : 'min-h-[380px]', 'sm:min-h-[380px]']
               )}
               link={playlistURL}
             />

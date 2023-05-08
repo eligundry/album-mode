@@ -10,7 +10,6 @@ import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
-import WikipediaSummary from '~/components/WikipediaSummary'
 
 export async function loader({ request, context: { logger } }: LoaderArgs) {
   const spotify = await spotifyLib.initializeFromRequest(request)
@@ -45,10 +44,7 @@ export default function LabelSearch() {
 
   return (
     <Layout hideFooter headerBreadcrumbs={['Labels', data.label]}>
-      <Album
-        album={data.album}
-        footer={<WikipediaSummary summary={data.wiki} />}
-      />
+      <Album album={data.album} wiki={data.wiki} />
     </Layout>
   )
 }

@@ -10,7 +10,6 @@ import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
-import WikipediaSummary from '~/components/WikipediaSummary'
 
 export async function loader({
   params,
@@ -47,7 +46,7 @@ export default function GroupBySlug() {
 
   return (
     <Layout hideFooter headerBreadcrumbs={['Group', group]}>
-      <Album album={album} footer={<WikipediaSummary summary={wiki} />} />
+      <Album album={album} wiki={wiki} />
     </Layout>
   )
 }

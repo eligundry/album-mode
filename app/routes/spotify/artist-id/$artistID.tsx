@@ -1,4 +1,4 @@
-import { LoaderArgs, MetaFunction, json, redirect } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 import promiseHash from 'promise-hash'
@@ -14,7 +14,6 @@ import AlbumErrorBoundary, {
   AlbumCatchBoundary,
 } from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
-import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 import env from '~/env.server'
 
@@ -117,10 +116,7 @@ export default function RelatedArtistSearch() {
 
   return (
     <Layout headerBreadcrumbs={['Artist', data.artist.name ?? '']} hideFooter>
-      <Album
-        album={data.album}
-        footer={<WikipediaSummary summary={data.wiki} />}
-      />
+      <Album album={data.album} wiki={data.wiki} />
     </Layout>
   )
 }
