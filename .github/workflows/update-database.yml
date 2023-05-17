@@ -104,50 +104,51 @@ jobs:
           file_pattern: 'prisma/dev.db'
           branch: ${{ env.UPDATE_JOB_TAG }}
 
-  UpdateTwitterTables:
-    runs-on: ubuntu-latest
-    needs:
-      - UpdatePublications
-    strategy:
-      max-parallel: 1
-      matrix:
-        user:
-          - FranziaMom
-          - emotivesunday
-    steps:
-      - run: echo "UPDATE_JOB_TAG=updates/$(date +"%Y-%m-%d")" >> $GITHUB_ENV
-        name: 'Fetch git branch pattern'
-
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ env.UPDATE_JOB_TAG }}
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: 'Pull albums from @${{ matrix.user }}'
-        run: npm run seed-script -- prisma/seed-scripts/twitter.ts --username "${{ matrix.user }}" --pageLimit 4
-
-      - name: 'Commit changes, if needed'
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: 'Automated database update from GitHub Actions (Twitter user ${{ matrix.user }})'
-          commit_user_name: 'DJ Octo[bot]'
-          commit_user_email: 'eligundry+dj.octobot@gmail.com'
-          commit_author: 'DJ Octo[bot] <eligundry+dj.octobot@gmail.com>'
-          file_pattern: 'prisma/dev.db'
-          branch: ${{ env.UPDATE_JOB_TAG }}
+  # Fuck Elon Musk for breaking this!
+  # UpdateTwitterTables:
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - UpdatePublications
+  #   strategy:
+  #     max-parallel: 1
+  #     matrix:
+  #       user:
+  #         - FranziaMom
+  #         - emotivesunday
+  #   steps:
+  #     - run: echo "UPDATE_JOB_TAG=updates/$(date +"%Y-%m-%d")" >> $GITHUB_ENV
+  #       name: 'Fetch git branch pattern'
+  #
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         ref: ${{ env.UPDATE_JOB_TAG }}
+  #
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 16
+  #         cache: 'npm'
+  #
+  #     - name: Install dependencies
+  #       run: npm ci
+  #
+  #     - name: 'Pull albums from @${{ matrix.user }}'
+  #       run: npm run seed-script -- prisma/seed-scripts/twitter.ts --username "${{ matrix.user }}" --pageLimit 4
+  #
+  #     - name: 'Commit changes, if needed'
+  #       uses: stefanzweifel/git-auto-commit-action@v4
+  #       with:
+  #         commit_message: 'Automated database update from GitHub Actions (Twitter user ${{ matrix.user }})'
+  #         commit_user_name: 'DJ Octo[bot]'
+  #         commit_user_email: 'eligundry+dj.octobot@gmail.com'
+  #         commit_author: 'DJ Octo[bot] <eligundry+dj.octobot@gmail.com>'
+  #         file_pattern: 'prisma/dev.db'
+  #         branch: ${{ env.UPDATE_JOB_TAG }}
 
   CommitDatabaseTransaction:
     runs-on: ubuntu-latest
     needs:
       - UpdatePublications
-      - UpdateTwitterTables
+      # - UpdateTwitterTables
     steps:
       - run: echo "UPDATE_JOB_TAG=updates/$(date +"%Y-%m-%d")" >> $GITHUB_ENV
         name: 'Fetch git branch pattern'
