@@ -24,8 +24,6 @@ export const meta: MetaFunction = () => ({
 export async function loader() {
   return json(
     await promiseHash({
-      groups: db.getArtistGroupings(),
-      subreddits: db.getSubreddits(),
       twitterUsers: db.getTwitterUsers(),
     })
   )
@@ -65,30 +63,6 @@ export default function LibraryPage() {
           className="labels"
         >
           <LabelSearchForm />
-        </HomeSection>
-        <HomeSection
-          title="Subreddits"
-          subtitle="Hear what the frontpage of the internet is listening to."
-          className="subreddits"
-        >
-          <ButtonLinkGroup
-            items={data.subreddits}
-            keyFunction={(subreddit) => subreddit}
-            toFunction={(subreddit) => `/reddit/${subreddit}`}
-            childFunction={(subreddit) => `/r/${subreddit}`}
-          />
-        </HomeSection>
-        <HomeSection
-          title="Groups"
-          subtitle="Here are some groups that we think are cool."
-          className="groups"
-        >
-          <ButtonLinkGroup
-            items={data.groups}
-            keyFunction={(group) => group.slug}
-            toFunction={(group) => `/group/${group.slug}`}
-            childFunction={(group) => group.name}
-          />
         </HomeSection>
       </Container>
     </Layout>
