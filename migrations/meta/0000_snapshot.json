@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "d5134c9d-1f88-4ed3-87d5-f6e5012f4c3b",
+  "id": "c00611c5-e1af-4339-88a4-29981071c8bb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "ReviewedItems": {
@@ -16,6 +16,14 @@
         },
         "createdAt": {
           "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -100,6 +108,14 @@
           "autoincrement": false,
           "default": "CURRENT_TIMESTAMP"
         },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
         "name": {
           "name": "name",
           "type": "text",
@@ -156,18 +172,26 @@
           "autoincrement": false,
           "default": "CURRENT_TIMESTAMP"
         },
-        "slug": {
-          "name": "slug",
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         }
       },
       "indexes": {
-        "uq_SpotifyGenreSlug": {
-          "name": "uq_SpotifyGenreSlug",
+        "uq_SpotifyGenreName": {
+          "name": "uq_SpotifyGenreName",
           "columns": [
-            "slug"
+            "name"
           ],
           "isUnique": true
         }

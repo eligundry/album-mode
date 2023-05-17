@@ -9,3 +9,4 @@ public/robots.txt
 .nvmrc
 *.toml
 migrations/*
+data.db

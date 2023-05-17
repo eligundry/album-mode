@@ -12,7 +12,7 @@ const recordKeeping = {
   createdAt: integer('createdAt', { mode: 'timestamp' })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: integer('createdAt', { mode: 'timestamp' })
+  updatedAt: integer('updatedAt', { mode: 'timestamp' })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
 }
@@ -67,9 +67,9 @@ export const spotifyGenres = sqliteTable(
   'SpotifyGenres',
   {
     ...recordKeeping,
-    slug: text('slug').notNull(),
+    name: text('name').notNull(),
   },
   (spotifyGenre) => ({
-    uniqueSlug: uniqueIndex('uq_SpotifyGenreSlug').on(spotifyGenre.slug),
+    uniqueSlug: uniqueIndex('uq_SpotifyGenreName').on(spotifyGenre.name),
   })
 )
