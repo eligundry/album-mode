@@ -6,9 +6,7 @@ import spotifyLib from '~/lib/spotify.server'
 import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
-import AlbumErrorBoundary, {
-  AlbumCatchBoundary,
-} from '~/components/Album/ErrorBoundary'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 
 export async function loader({
@@ -37,7 +35,6 @@ export async function loader({
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
-export const CatchBoundary = AlbumCatchBoundary
 
 export default function LabelBySlug() {
   const data = useLoaderData<typeof loader>()

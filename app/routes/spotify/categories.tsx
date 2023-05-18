@@ -7,10 +7,7 @@ import spotifyLib from '~/lib/spotify.server'
 
 import { Container, Heading, Layout } from '~/components/Base'
 import { CardLink } from '~/components/Base/Card'
-import {
-  GenericCatchBoundary,
-  GenericErrorBoundary,
-} from '~/components/ErrorBoundary'
+import { PageErrorBoundary } from '~/components/ErrorBoundary'
 import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
@@ -29,8 +26,7 @@ export async function loader({ request, context }: LoaderArgs) {
   return json({ categories }, { headers })
 }
 
-export const ErrorBoundary = GenericErrorBoundary
-export const CatchBoundary = GenericCatchBoundary
+export const ErrorBoundary = PageErrorBoundary
 export const headers = forwardServerTimingHeaders
 export const meta: MetaFunction = () => ({
   title: `Spotify Playlist Categories | ${config.siteTitle}`,

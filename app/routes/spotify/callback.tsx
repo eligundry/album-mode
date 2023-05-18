@@ -2,10 +2,7 @@ import { LoaderArgs } from '@remix-run/node'
 
 import { authenticator } from '~/lib/auth.server'
 
-import {
-  GenericCatchBoundary,
-  GenericErrorBoundary,
-} from '~/components/ErrorBoundary'
+import { PageErrorBoundary } from '~/components/ErrorBoundary'
 
 export async function loader({ request }: LoaderArgs) {
   return authenticator.authenticate('spotify', request, {
@@ -14,8 +11,7 @@ export async function loader({ request }: LoaderArgs) {
   })
 }
 
-export const ErrorBoundary = GenericErrorBoundary
-export const CatchBoundary = GenericCatchBoundary
+export const ErrorBoundary = PageErrorBoundary
 
 export default function Callback() {
   return null

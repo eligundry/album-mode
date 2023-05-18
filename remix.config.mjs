@@ -7,4 +7,7 @@ export default {
   ignoredRouteFiles: ['.*'],
   serverDependenciesToBundle: ['@eligundry/server-timing'],
   tailwind: true,
+  future: {
+    v2_errorBoundary: true,
+  },
 }

@@ -7,9 +7,7 @@ import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
 
-import AlbumErrorBoundary, {
-  AlbumCatchBoundary,
-} from '~/components/Album/ErrorBoundary'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import Playlist from '~/components/Album/Playlist'
 import { Layout } from '~/components/Base'
 import config from '~/config'
@@ -52,7 +50,6 @@ export async function loader({ request, context }: LoaderArgs) {
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
-export const CatchBoundary = AlbumCatchBoundary
 export const headers = forwardServerTimingHeaders
 export const meta: MetaFunction<typeof loader> = () => ({
   title: `For You | ${config.siteTitle}`,

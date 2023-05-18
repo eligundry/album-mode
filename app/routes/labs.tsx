@@ -8,10 +8,7 @@ import db from '~/lib/db.server'
 import { Container, Heading, Layout, Link, Typography } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import HomeSection from '~/components/Base/HomeSection'
-import {
-  GenericCatchBoundary,
-  GenericErrorBoundary,
-} from '~/components/ErrorBoundary'
+import { PageErrorBoundary } from '~/components/ErrorBoundary'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
 import config from '~/config'
 
@@ -31,8 +28,7 @@ export async function loader() {
   )
 }
 
-export const ErrorBoundary = GenericErrorBoundary
-export const CatchBoundary = GenericCatchBoundary
+export const ErrorBoundary = PageErrorBoundary
 
 export default function LibraryPage() {
   const data = useLoaderData<typeof loader>()
