@@ -8,7 +8,7 @@ import logger from './app/lib/logging.server'
 /**
  * @type {import('@remix-run/netlify').GetLoadContextFunction}
  */
-function getLoadContext(event, context) {
+async function getLoadContext(event, context) {
   const serverTiming = new ServerTiming()
   const requestLogger = logger.child({
     requestID: context.awsRequestId,
@@ -17,7 +17,7 @@ function getLoadContext(event, context) {
     userAgent: event.headers['user-agent'],
   })
 
-  requestLogger.info(undefined)
+  // requestLogger.info(undefined)
 
   return {
     logger: requestLogger,

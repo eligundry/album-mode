@@ -6,10 +6,7 @@ import db from '~/lib/db.server'
 
 import { Container, Heading, Layout } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
-import {
-  GenericCatchBoundary,
-  GenericErrorBoundary,
-} from '~/components/ErrorBoundary'
+import { PageErrorBoundary } from '~/components/ErrorBoundary'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
 import config from '~/config'
 
@@ -23,8 +20,7 @@ export const meta: MetaFunction = () => ({
   title: `Labels 🏷 | ${config.siteTitle}`,
 })
 
-export const ErrorBoundary = GenericErrorBoundary
-export const CatchBoundary = GenericCatchBoundary
+export const ErrorBoundary = PageErrorBoundary
 
 export default function LabelSearch() {
   const data = useLoaderData<typeof loader>()

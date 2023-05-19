@@ -7,4 +7,7 @@ export default {
   ignoredRouteFiles: ['.*'],
   serverDependenciesToBundle: ['@eligundry/server-timing', 'better-sqlite3'],
   tailwind: true,
+  future: {
+    v2_errorBoundary: true,
+  },
 }

@@ -6,10 +6,7 @@ import db from '~/lib/db.server'
 
 import { Container, Heading, Layout } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
-import {
-  GenericCatchBoundary,
-  GenericErrorBoundary,
-} from '~/components/ErrorBoundary'
+import { PageErrorBoundary } from '~/components/ErrorBoundary'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 
 export async function loader() {
@@ -18,8 +15,7 @@ export async function loader() {
   })
 }
 
-export const ErrorBoundary = GenericErrorBoundary
-export const CatchBoundary = GenericCatchBoundary
+export const ErrorBoundary = PageErrorBoundary
 
 export default function Genres() {
   const data = useLoaderData<typeof loader>()

@@ -11,9 +11,7 @@ import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
-import AlbumErrorBoundary, {
-  AlbumCatchBoundary,
-} from '~/components/Album/ErrorBoundary'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { A, Heading, Layout } from '~/components/Base'
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import WikipediaSummary from '~/components/WikipediaSummary'
@@ -72,6 +70,7 @@ export async function loader({
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
+  console.log('spotify worked!')
 
   const { album, review } = await retry(async (_, attempt) => {
     const review = await serverTiming.track(`db`, () =>
@@ -90,6 +89,9 @@ export async function loader({
 
     return { album, review }
   }, config.asyncRetryConfig)
+
+  console.log('database query worked!')
+
   const wiki = await serverTiming.track('wikipedia', () =>
     wikipedia.getSummaryForAlbum({
       album: album.name,
@@ -118,35 +120,34 @@ export async function loader({
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
-export const CatchBoundary = AlbumCatchBoundary
 export const headers = forwardServerTimingHeaders
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  if (!data) {
-    return {}
-  }
-
-  let description = config.siteDescription
-  let title = config.siteTitle
-
-  if (data.type === 'bandcamp') {
-    title = `Bandcamp | ${config.siteTitle}`
-    description = `${config.siteDescription} Listen to something good according to Bandcamp's staff`
-  }
-
-  if (data.type === 'spotify') {
-    title = `${data.review.publicationName} | ${config.siteTitle}`
-    description = `${config.siteDescription} You simply must listen to this album that was highly rated by ${data.review.publicationName}!`
-
-    if (data.review.publicationMetaDescription) {
-      description = `${config.siteDescription} ${data.review.publicationMetaDescription}`
-    }
-  }
-
-  return {
-    title,
-    description,
-  }
-}
+// export const meta: MetaFunction<typeof loader> = ({ data }) => {
+//   if (!data) {
+//     return {}
+//   }
+//
+//   let description = config.siteDescription
+//   let title = config.siteTitle
+//
+//   if (data.type === 'bandcamp') {
+//     title = `Bandcamp | ${config.siteTitle}`
+//     description = `${config.siteDescription} Listen to something good according to Bandcamp's staff`
+//   }
+//
+//   if (data.type === 'spotify') {
+//     title = `${data.review.publicationName} | ${config.siteTitle}`
+//     description = `${config.siteDescription} You simply must listen to this album that was highly rated by ${data.review.publicationName}!`
+//
+//     if (data.review.publicationMetaDescription) {
+//       description = `${config.siteDescription} ${data.review.publicationMetaDescription}`
+//     }
+//   }
+//
+//   return {
+//     title,
+//     description,
+//   }
+// }
 
 export default function PublicationBySlug() {
   const data = useLoaderData<typeof loader>()

@@ -1,4 +1,4 @@
-import { useCatch } from '@remix-run/react'
+import { isRouteErrorResponse, useRouteError } from '@remix-run/react'
 import clsx from 'clsx'
 
 import {
@@ -12,17 +12,27 @@ import {
 import useCurrentPath from '~/hooks/useCurrentPath'
 import useLoading from '~/hooks/useLoading'
 
-interface AlbumErrorBoundaryProps {
-  error: Error
-  hideStack?: boolean
-}
-
-const AlbumErrorBoundary: React.FC<AlbumErrorBoundaryProps> = ({
-  error,
-  hideStack = false,
-}) => {
+const AlbumErrorBoundary: React.FC = () => {
   const currentPath = useCurrentPath()
   const { loading } = useLoading()
+  const error = useRouteError()
+  let body = <>Unknown error</>
+
+  if (isRouteErrorResponse(error)) {
+    body = (
+      <>
+        Code: {error.status}
+        {JSON.stringify(error.data, undefined, 2)}
+      </>
+    )
+  } else if (error instanceof Error) {
+    body = (
+      <>
+        {error.message}
+        {error.stack && `Stack trace:\n${error.stack}`}
+      </>
+    )
+  }
 
   return (
     <Layout>
@@ -35,11 +45,7 @@ const AlbumErrorBoundary: React.FC<AlbumErrorBoundaryProps> = ({
           </Typography>
           <details className={clsx('mb-6')}>
             <summary>Detailed error message</summary>
-            <pre className={clsx('whitespace-pre-line')}>
-              {error.name !== 'Error' && error.name + '\n'}
-              {error.message + '\n'}
-              {!hideStack && error.stack}
-            </pre>
+            <pre className={clsx('whitespace-pre-line')}>{body}</pre>
           </details>
           <ButtonLink
             to={currentPath}
@@ -54,15 +60,6 @@ const AlbumErrorBoundary: React.FC<AlbumErrorBoundaryProps> = ({
       </Container>
     </Layout>
   )
-}
-
-export const AlbumCatchBoundary = () => {
-  const caught = useCatch()
-  const error = new Error(
-    `${caught.status}: ${caught.data?.error ?? caught.data.toString()}`
-  )
-
-  return <AlbumErrorBoundary error={error} hideStack />
 }
 
 export default AlbumErrorBoundary
