@@ -1,8 +1,10 @@
 import Database from 'better-sqlite3'
-import { and, eq, neq, sql } from 'drizzle-orm'
+import { and, eq, ne, sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 
 import { reviewedItems, reviewers, spotifyGenres } from './schema.server'
+
+export { reviewedItems, reviewers, spotifyGenres }
 
 const sqlite = new Database('data.db')
 export const db = drizzle(sqlite)
@@ -27,7 +29,7 @@ const getRandomReviewedItem = async ({
     .where(
       and(
         eq(reviewedItems.resolvable, 1),
-        exceptID && neq(reviewedItems.id, exceptID)
+        exceptID ? ne(reviewedItems.id, exceptID) : undefined
       )
     )
     .orderBy(sql`RANDOM()`)
@@ -42,3 +44,7 @@ const getRandomReviewedItem = async ({
     .limit(1)
     .get()
 }
+
+const api = { getRandomReviewedItem }
+
+export default api

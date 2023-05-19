@@ -29,6 +29,7 @@ export const reviewers = sqliteTable(
     metadata: blob('metadata', { mode: 'json' }).$type<{
       metaDescription?: string | null
       url?: string
+      twitterUserID?: string
     }>(),
   },
   (publication) => ({
@@ -50,9 +51,11 @@ export const reviewedItems = sqliteTable(
     resolvable: integer('resolvable').notNull().$type<0 | 1>().default(1),
     metadata: blob('metadata', { mode: 'json' }).$type<{
       reviewUnresolvable?: boolean
-      bandcampImageURL?: string | null
+      imageURL?: string | null
       bandcampURL?: string | null
       blurb?: string
+      spotifyItemType?: 'album' | 'track' | 'playlist'
+      spotifyItemID?: string
     }>(),
   },
   (review) => ({
