@@ -52,10 +52,15 @@ export const reviewedItems = sqliteTable(
     metadata: blob('metadata', { mode: 'json' }).$type<{
       reviewUnresolvable?: boolean
       imageURL?: string | null
-      bandcampURL?: string | null
       blurb?: string
-      spotifyItemType?: 'album' | 'track' | 'playlist'
-      spotifyItemID?: string
+      spotify?: {
+        itemType: 'album' | 'track' | 'playlist'
+        itemID: string
+      }
+      bandcamp?: {
+        url: string
+        albumID: string
+      }
     }>(),
   },
   (review) => ({

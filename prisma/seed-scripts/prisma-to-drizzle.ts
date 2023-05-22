@@ -111,7 +111,10 @@ async function main() {
           resolvable: 1,
           createdAt: album.createdAt,
           metadata: {
-            bandcampURL: album.url,
+            bandcamp: {
+              albumID: album.albumID,
+              url: album.url,
+            },
             imageURL: album.imageURL,
           },
         })
@@ -145,15 +148,20 @@ async function main() {
 
       for (const tweet of tweets) {
         const metadata: (typeof reviewedItems)['metadata']['_']['data'] = {
-          // @ts-ignore
-          spotifyItemType: tweet.itemType,
           imageURL: tweet.imageURL,
         }
 
         if (tweet.service === 'spotify') {
-          metadata.spotifyItemID = tweet.albumID
+          metadata.spotify = {
+            // @ts-ignore
+            itemType: tweet.itemType,
+            albumID: tweet.albumID,
+          }
         } else {
-          metadata.bandcampURL = tweet.url
+          metadata.bandcamp = {
+            url: tweet.url,
+            albumID: tweet.albumID,
+          }
         }
 
         try {

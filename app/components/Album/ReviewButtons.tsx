@@ -29,6 +29,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
   const playURL = createExternalURL(
     item.type === 'bandcamp' ? item.url : item.external_urls.spotify
   )
+  console.log({ width, height })
 
   return (
     <>
@@ -114,7 +115,11 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
           height={height}
           recycle={false}
           numberOfPieces={party ? 500 : 0}
-          style={{ pointerEvents: 'none' }}
+          style={{
+            position: 'fixed',
+            pointerEvents: 'none',
+            top: 0,
+          }}
           onConfettiComplete={(confetti) => {
             setParty(false)
             confetti?.reset()
