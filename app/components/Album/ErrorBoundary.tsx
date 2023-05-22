@@ -28,7 +28,7 @@ const AlbumErrorBoundary: React.FC = () => {
   } else if (error instanceof Error) {
     body = (
       <>
-        {error.message}
+        {`${error.message}\n`}
         {error.stack && `Stack trace:\n${error.stack}`}
       </>
     )

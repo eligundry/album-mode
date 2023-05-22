@@ -2,6 +2,7 @@ import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
+import database from '~/lib/database/index.server'
 import db from '~/lib/db.server'
 import { badRequest } from '~/lib/responses.server'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
@@ -35,47 +36,46 @@ export async function loader({
     throw badRequest({ error: 'slug must be provided in the URL', logger })
   }
 
-  if (slug === 'bandcamp-daily') {
-    const album = await serverTiming.track('db', () =>
-      db.getRandomBandcampDailyAlbum({
-        exceptID: lastPresented ?? undefined,
-      })
-    )
-    const wiki = await serverTiming.track('wikipedia', () =>
-      wikipedia.getSummaryForAlbum({
-        album: album.album,
-        artist: album.artist,
-      })
-    )
-    headers.set(
-      'Set-Cookie',
-      await userSettings.setLastPresented({
-        request,
-        lastPresented: album.albumID.toString(),
-      })
-    )
-    headers.set(serverTiming.headerKey, serverTiming.toString())
-
-    return json(
-      {
-        slug: 'bandcamp-daily',
-        album,
-        wiki,
-        type: 'bandcamp' as const,
-      },
-      { headers }
-    )
-  }
+  // if (slug === 'bandcamp-daily') {
+  //   const album = await serverTiming.track('db', () =>
+  //     db.getRandomBandcampDailyAlbum({
+  //       exceptID: lastPresented ?? undefined,
+  //     })
+  //   )
+  //   const wiki = await serverTiming.track('wikipedia', () =>
+  //     wikipedia.getSummaryForAlbum({
+  //       album: album.album,
+  //       artist: album.artist,
+  //     })
+  //   )
+  //   headers.set(
+  //     'Set-Cookie',
+  //     await userSettings.setLastPresented({
+  //       request,
+  //       lastPresented: album.albumID.toString(),
+  //     })
+  //   )
+  //   headers.set(serverTiming.headerKey, serverTiming.toString())
+  //
+  //   return json(
+  //     {
+  //       slug: 'bandcamp-daily',
+  //       album,
+  //       wiki,
+  //       type: 'bandcamp' as const,
+  //     },
+  //     { headers }
+  //   )
+  // }
 
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
-  console.log('spotify worked!')
 
   const { album, review } = await retry(async (_, attempt) => {
     const review = await serverTiming.track(`db`, () =>
-      db.getRandomAlbumForPublication({
-        publicationSlug: slug,
+      database.getRandomReviewedItem({
+        reviewerSlug: slug,
         exceptID: lastPresented,
       })
     )
@@ -121,33 +121,33 @@ export async function loader({
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
-// export const meta: MetaFunction<typeof loader> = ({ data }) => {
-//   if (!data) {
-//     return {}
-//   }
-//
-//   let description = config.siteDescription
-//   let title = config.siteTitle
-//
-//   if (data.type === 'bandcamp') {
-//     title = `Bandcamp | ${config.siteTitle}`
-//     description = `${config.siteDescription} Listen to something good according to Bandcamp's staff`
-//   }
-//
-//   if (data.type === 'spotify') {
-//     title = `${data.review.publicationName} | ${config.siteTitle}`
-//     description = `${config.siteDescription} You simply must listen to this album that was highly rated by ${data.review.publicationName}!`
-//
-//     if (data.review.publicationMetaDescription) {
-//       description = `${config.siteDescription} ${data.review.publicationMetaDescription}`
-//     }
-//   }
-//
-//   return {
-//     title,
-//     description,
-//   }
-// }
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  if (!data) {
+    return {}
+  }
+
+  let description = config.siteDescription
+  let title = config.siteTitle
+
+  if (data.type === 'bandcamp') {
+    title = `Bandcamp | ${config.siteTitle}`
+    description = `${config.siteDescription} Listen to something good according to Bandcamp's staff`
+  }
+
+  if (data.type === 'spotify') {
+    title = `${data.review.publicationName} | ${config.siteTitle}`
+    description = `${config.siteDescription} You simply must listen to this album that was highly rated by ${data.review.publicationName}!`
+
+    if (data.review.publicationMetaDescription) {
+      description = `${config.siteDescription} ${data.review.publicationMetaDescription}`
+    }
+  }
+
+  return {
+    title,
+    description,
+  }
+}
 
 export default function PublicationBySlug() {
   const data = useLoaderData<typeof loader>()

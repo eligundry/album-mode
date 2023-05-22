@@ -14,30 +14,59 @@ const getRandomReviewedItem = async ({
   exceptID = 0,
 }: {
   reviewerSlug: string
-  exceptID?: number
+  exceptID?: number | string
 }) => {
-  const itemIDSubquery = db
-    .select({ id: reviewedItems.id })
-    .from(reviewedItems)
-    .innerJoin(
-      reviewers,
-      and(
-        eq(reviewers.slug, reviewerSlug),
-        eq(reviewers.id, reviewedItems.reviewerID)
+  const itemIDSubquery = db.$with('sq').as(
+    db
+      .select({ id: reviewedItems.id })
+      .from(reviewedItems)
+      .innerJoin(
+        reviewers,
+        and(
+          eq(reviewers.slug, reviewerSlug),
+          eq(reviewers.id, reviewedItems.reviewerID)
+        )
       )
-    )
-    .where(
-      and(
-        eq(reviewedItems.resolvable, 1),
-        exceptID ? ne(reviewedItems.id, exceptID) : undefined
+      .where(
+        and(
+          eq(reviewedItems.resolvable, 1),
+          exceptID ? ne(reviewedItems.id, Number(exceptID)) : undefined
+        )
       )
-    )
-    .orderBy(sql`RANDOM()`)
-    .limit(1)
-    .as('sq')
+      .orderBy(sql`RANDOM()`)
+      .limit(1)
+  )
+
+  console.log(
+    db
+      .with(itemIDSubquery)
+      .select({
+        id: reviewedItems.id,
+        album: reviewedItems.name,
+        artist: reviewedItems.creator,
+        reviewURL: reviewedItems.reviewURL,
+        publicationName: reviewers.name,
+        publicationSlug: reviewers.slug,
+        publicationMetadata: reviewers.metadata,
+      })
+      .from(reviewedItems)
+      .innerJoin(reviewers, eq(reviewers.id, reviewedItems.reviewerID))
+      .where(eq(reviewedItems.id, itemIDSubquery.id))
+      .limit(1)
+      .get()
+  )
 
   return db
-    .select()
+    .with(itemIDSubquery)
+    .select({
+      id: reviewedItems.id,
+      album: reviewedItems.name,
+      artist: reviewedItems.creator,
+      reviewURL: reviewedItems.reviewURL,
+      publicationName: reviewers.name,
+      publicationSlug: reviewers.slug,
+      publicationMetadata: reviewers.metadata,
+    })
     .from(reviewedItems)
     .innerJoin(reviewers, eq(reviewers.id, reviewedItems.reviewerID))
     .where(eq(reviewedItems.id, itemIDSubquery.id))
