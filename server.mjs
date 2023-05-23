@@ -22,7 +22,7 @@ async function getLoadContext(event, context) {
     logger: requestLogger,
   })
 
-  // requestLogger.info(undefined)
+  requestLogger.info(undefined)
 
   return {
     logger: requestLogger,
