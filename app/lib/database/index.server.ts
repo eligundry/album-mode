@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3'
-import { and, eq, ne, sql } from 'drizzle-orm'
+import { and, eq, like, lt, ne, sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 
 import { reviewedItems, reviewers, spotifyGenres } from './schema.server'
@@ -55,6 +55,79 @@ const getRandomReviewedItem = async ({
     .get()
 }
 
-const api = { getRandomReviewedItem }
+const getPublications = async () =>
+  db
+    .select({
+      name: reviewers.name,
+      slug: reviewers.slug,
+    })
+    .from(reviewers)
+    .where(eq(reviewers.service, 'publication'))
+    .orderBy(reviewers.name)
+    .all()
+
+const getTopGenres = async (limit = 100) =>
+  db
+    .select({ name: spotifyGenres.name })
+    .from(spotifyGenres)
+    .orderBy(spotifyGenres.id)
+    .limit(limit)
+    .all()
+    .map((genre) => genre.name)
+
+const searchGenres = async (q: string) =>
+  db
+    .select({ name: spotifyGenres.name })
+    .from(spotifyGenres)
+    .where(like(spotifyGenres.name, q + '%'))
+    .orderBy(spotifyGenres.id)
+    .limit(100 * q.length)
+    .all()
+    .map((genre) => genre.name)
+
+const getRandomGenre = async (limit?: number) => {
+  const { id } = db
+    .select({ id: spotifyGenres.id })
+    .from(spotifyGenres)
+    .where(limit ? lt(spotifyGenres.id, limit) : undefined)
+    .orderBy(sql`RANDOM()`)
+    .limit(1)
+    .get()
+
+  return db
+    .select({ name: spotifyGenres.name })
+    .from(spotifyGenres)
+    .where(eq(spotifyGenres.id, id))
+    .limit(1)
+    .get().name
+}
+
+const getTwitterUsers = async () =>
+  db
+    .select({ username: reviewers.name })
+    .from(reviewers)
+    .where(eq(reviewers.service, 'twitter'))
+    .orderBy(sql`1 COLLATE NOCASE`)
+    .all()
+    .map((user) => user.username)
+
+const getRandomPublication = async () =>
+  db
+    .select({ slug: reviewers.slug })
+    .from(reviewers)
+    .where(eq(reviewers.service, 'publication'))
+    .orderBy(sql`RANDOM()`)
+    .limit(1)
+    .get().slug
+
+const api = {
+  getRandomReviewedItem,
+  getPublications,
+  getTopGenres,
+  searchGenres,
+  getTwitterUsers,
+  getRandomPublication,
+  getRandomGenre,
+}
 
 export default api

@@ -149,13 +149,16 @@ async function main() {
       for (const tweet of tweets) {
         const metadata: (typeof reviewedItems)['metadata']['_']['data'] = {
           imageURL: tweet.imageURL,
+          twitter: {
+            id: tweet.tweetID,
+          },
         }
 
         if (tweet.service === 'spotify') {
           metadata.spotify = {
             // @ts-ignore
             itemType: tweet.itemType,
-            albumID: tweet.albumID,
+            itemID: tweet.albumID,
           }
         } else {
           metadata.bandcamp = {

@@ -2,7 +2,7 @@ import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
-import db from '~/lib/db.server'
+import database from '~/lib/database/index.server'
 import { badRequest, serverError } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 
@@ -27,7 +27,7 @@ export async function loader({
   }
 
   const tweet = await serverTiming.track('db.getRandomTweet', () =>
-    db.getRandomTweet(username)
+    database.getRandomReviewedItem({ reviewerSlug: username })
   )
 
   switch (tweet.service) {
@@ -35,7 +35,7 @@ export async function loader({
       return json(
         {
           tweet,
-          service: 'bandcamp',
+          service: 'bandcamp' as const,
           type: 'album',
         },
         {
@@ -49,28 +49,35 @@ export async function loader({
       const spotify = await serverTiming.track('spotify.init', () =>
         spotifyLib.initializeFromRequest(request).then((s) => s.getClient())
       )
+
+      if (!tweet.reviewMetadata?.spotify) {
+        throw new Error('tweet.service = "spotify" must have spotify metadata')
+      }
+
+      const { itemID, itemType } = tweet.reviewMetadata.spotify
+
       let embed:
         | SpotifyApi.PlaylistObjectSimplified
         | SpotifyApi.AlbumObjectSimplified
         | undefined
 
-      switch (tweet.itemType) {
-        case 'playlist': {
+      switch (itemType) {
+        case 'playlist':
           embed = await serverTiming.track('spotify.getPlaylist', () =>
-            spotify.getPlaylist(tweet.albumID).then((resp) => resp.body)
+            spotify.getPlaylist(itemID).then((resp) => resp.body)
           )
           break
-        }
+
         case 'album':
         case 'track': {
           embed = await serverTiming.track('spotify.getAlbum', () =>
-            spotify.getAlbum(tweet.albumID).then((resp) => resp.body)
+            spotify.getAlbum(itemID).then((resp) => resp.body)
           )
           break
         }
         default:
           throw serverError({
-            error: `unsupported spotify embed type ${tweet.itemType}`,
+            error: `unsupported spotify embed type ${itemType}`,
             logger,
           })
       }
@@ -78,7 +85,7 @@ export async function loader({
       return json(
         {
           tweet,
-          service: 'spotify',
+          service: 'spotify' as const,
           embed,
         },
         {
@@ -104,25 +111,42 @@ export const ErrorBoundary = AlbumErrorBoundary
 export default function AlbumFromTwitter() {
   const data = useLoaderData<typeof loader>()
   const { createExternalURL } = useUTM()
-  const tweet = <TweetEmbed tweet={data.tweet} />
+  const tweet = data.tweet.reviewMetadata?.twitter?.id ? (
+    <TweetEmbed tweetID={data.tweet.reviewMetadata.twitter.id} />
+  ) : null
   let album = null
+
+  if (data.service === 'bandcamp' && data.tweet.reviewMetadata?.bandcamp) {
+    album = (
+      <BandcampAlbum
+        albumID={data.tweet.reviewMetadata.bandcamp.albumID}
+        albumURL={data.tweet.reviewMetadata.bandcamp.url}
+        album={data.tweet.album}
+        artist={data.tweet.artist}
+        footer={tweet}
+      />
+    )
+  } else if (
+    data.service === 'spotify' &&
+    data.tweet.reviewMetadata?.spotify &&
+    data?.embed
+  ) {
+    switch (data.embed.type) {
+      case 'album':
+        album = <Album album={data.embed} footer={tweet} />
+        break
+      case 'playlist':
+        album = <Playlist playlist={data.embed} footer={tweet} />
+        break
+    }
+  }
 
   switch (data.service) {
     case 'bandcamp':
-      album = <BandcampAlbum album={data.tweet} footer={tweet} />
       break
     case 'spotify': {
       if (!('embed' in data)) {
         throw new Error('embed must be present for spotify')
-      }
-
-      switch (data.embed?.type) {
-        case 'album':
-          album = <Album album={data.embed} footer={tweet} />
-          break
-        case 'playlist':
-          album = <Playlist playlist={data.embed} footer={tweet} />
-          break
       }
 
       break
@@ -134,16 +158,16 @@ export default function AlbumFromTwitter() {
       headerBreadcrumbs={[
         'Twitter',
         [
-          `@${data.tweet.username}`,
+          `@${data.tweet.publicationName}`,
           <A
             href={createExternalURL(
-              `https://twitter.com/${data.tweet.username}`
+              `https://twitter.com/${data.tweet.publicationName}`
             ).toString()}
             target="_blank"
             className={clsx('normal-case')}
             key="twitter-link"
           >
-            @{data.tweet.username}
+            @{data.tweet.publicationName}
           </A>,
         ],
       ]}

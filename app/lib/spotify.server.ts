@@ -10,7 +10,6 @@ import util from 'util'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import cache from '~/lib/cache.server'
-import db from '~/lib/db.server'
 import logger from '~/lib/logging.server'
 import userSettings from '~/lib/userSettings.server'
 
@@ -588,26 +587,6 @@ export class Spotify {
     }
 
     return playlist
-  }
-
-  getRandomAlbumForGroupSlug = async (groupSlug: string) => {
-    const artist = await db.getRandomArtistFromGroupSlug(groupSlug)
-
-    if (!artist) {
-      throw new Error(`Could not find artist under group slug '${groupSlug}'`)
-    }
-
-    return this.getRandomAlbumForSearchTerm(`artist:"${artist.name}"`)
-  }
-
-  getRandomAlbumForLabelSlug = async (labelSlug: string) => {
-    const label = await db.getLabelBySlug(labelSlug)
-
-    if (!label) {
-      throw new Error(`Could not find label for slug '${labelSlug}'`)
-    }
-
-    return this.getRandomAlbumForLabel(label.name)
   }
 
   searchArists = async (term: string): Promise<SpotifyArtist[]> => {

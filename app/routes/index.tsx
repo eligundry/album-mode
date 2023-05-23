@@ -2,7 +2,7 @@ import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
-import db from '~/lib/db.server'
+import database from '~/lib/database/index.server'
 
 import {
   ButtonLink,
@@ -29,7 +29,7 @@ import useUser from '~/hooks/useUser'
 export async function loader() {
   return json(
     {
-      publications: await db.getPublications(),
+      publications: await database.getPublications(),
     },
     {
       headers: {

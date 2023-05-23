@@ -1,11 +1,10 @@
 import { MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
-import promiseHash from 'promise-hash'
 
-import db from '~/lib/db.server'
+import database from '~/lib/database/index.server'
 
-import { Container, Heading, Layout, Link, Typography } from '~/components/Base'
+import { Container, Heading, Layout, Typography } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import HomeSection from '~/components/Base/HomeSection'
 import { PageErrorBoundary } from '~/components/ErrorBoundary'
@@ -19,11 +18,9 @@ export const meta: MetaFunction = () => ({
 })
 
 export async function loader() {
-  return json(
-    await promiseHash({
-      twitterUsers: db.getTwitterUsers(),
-    })
-  )
+  return json({
+    twitterUsers: await database.getTwitterUsers(),
+  })
 }
 
 export const ErrorBoundary = PageErrorBoundary
@@ -54,7 +51,7 @@ export default function LibraryPage() {
           />
         </HomeSection>
         <HomeSection
-          title={<Link to="/labels">Labels</Link>}
+          title="Labels"
           subtitle="You know labels? Search and we'll see what we have. Otherwise, the link above has some ones to check out."
           className="labels"
         >

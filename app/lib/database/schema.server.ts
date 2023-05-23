@@ -61,6 +61,9 @@ export const reviewedItems = sqliteTable(
         url: string
         albumID: string
       }
+      twitter?: {
+        id: string
+      }
     }>(),
   },
   (review) => ({
