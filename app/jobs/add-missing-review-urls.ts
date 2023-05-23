@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import { and, eq, ne, notLike, sql } from 'drizzle-orm'
+import { and, eq, notLike, sql } from 'drizzle-orm'
 import inquirer from 'inquirer'
 import { chromium } from 'playwright'
 
