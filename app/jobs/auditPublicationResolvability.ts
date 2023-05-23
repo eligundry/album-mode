@@ -1,6 +1,7 @@
 import Bottleneck from 'bottleneck'
+import { eq, gt } from 'drizzle-orm'
 
-import { prisma } from '~/lib/db.server'
+import { db, reviewedItems } from '~/lib/database/index.server'
 import { Spotify } from '~/lib/spotify.server'
 
 const spotify = new Spotify()
@@ -20,29 +21,23 @@ const updateAlbumResolvability = limiter.wrap(
       console.log(`${album} by ${artist} is not resolvable`)
     }
 
-    await prisma.albumReviewedByPublication.update({
-      data: {
-        resolvable,
-      },
-      where: {
-        id,
-      },
-    })
+    db.update(reviewedItems)
+      .set({ resolvable: resolvable ? 1 : 0 })
+      .where(eq(reviewedItems.id, id))
+      .run()
   }
 )
 
 const main = async () => {
-  const albums = await prisma.albumReviewedByPublication.findMany({
-    where: {
-      id: {
-        gt: 1956,
-      },
-    },
-  })
+  const albums = db
+    .select()
+    .from(reviewedItems)
+    .where(gt(reviewedItems.id, 1956))
+    .all()
 
   await Promise.all(
-    albums.map(({ id, artist, album }) =>
-      updateAlbumResolvability(id, artist, album)
+    albums.map(({ id, creator, name }) =>
+      updateAlbumResolvability(id, creator, name)
     )
   )
 }

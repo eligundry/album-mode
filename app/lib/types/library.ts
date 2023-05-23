@@ -1,5 +1,3 @@
-import type { BandcampDailyAlbum } from '@prisma/client'
-
 export type SavedItem<T> = T & {
   savedAt: Date
 }

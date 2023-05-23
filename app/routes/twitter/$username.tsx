@@ -118,10 +118,13 @@ export default function AlbumFromTwitter() {
   if (data.service === 'bandcamp' && data.tweet.reviewMetadata?.bandcamp) {
     album = (
       <BandcampAlbum
-        albumID={data.tweet.reviewMetadata.bandcamp.albumID}
-        albumURL={data.tweet.reviewMetadata.bandcamp.url}
-        album={data.tweet.album}
-        artist={data.tweet.artist}
+        album={{
+          album: data.tweet.album,
+          albumID: data.tweet.reviewMetadata.bandcamp.albumID,
+          artist: data.tweet.artist,
+          imageURL: data.tweet.reviewMetadata.imageURL ?? null,
+          url: data.tweet.reviewMetadata.bandcamp.url,
+        }}
         footer={tweet}
       />
     )

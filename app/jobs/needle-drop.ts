@@ -1,4 +1,3 @@
-import { PrismaClient } from '@prisma/client'
 import retry from 'async-retry'
 import kebabCase from 'lodash/kebabCase'
 import { chromium } from 'playwright'
@@ -6,8 +5,6 @@ import { chromium } from 'playwright'
 import database from '~/lib/database/index.server'
 import logger from '~/lib/logging.server'
 import { urlWithUTMParams } from '~/lib/queryParams'
-
-const prisma = new PrismaClient()
 
 type DataMap = Record<
   string,
