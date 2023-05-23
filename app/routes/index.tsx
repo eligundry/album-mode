@@ -1,8 +1,6 @@
-import { json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
-
-import database from '~/lib/database/index.server'
 
 import {
   ButtonLink,
@@ -26,7 +24,7 @@ import useLoading from '~/hooks/useLoading'
 import useSavedSearches from '~/hooks/useSavedSearches'
 import useUser from '~/hooks/useUser'
 
-export async function loader() {
+export async function loader({ context: { database } }: LoaderArgs) {
   return json(
     {
       publications: await database.getPublications(),

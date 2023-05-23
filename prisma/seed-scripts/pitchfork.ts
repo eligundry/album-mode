@@ -1,13 +1,12 @@
-import { PrismaClient } from '@prisma/client'
 import axios from 'axios'
 import Bottleneck from 'bottleneck'
 import { stripHtml } from 'string-strip-html'
 import yargs from 'yargs'
 
+import database from '~/lib/database/index.server'
 import { urlWithUTMParams } from '~/lib/queryParams'
 import { ListEntity, PitchforkSearchResponse } from '~/lib/types/pitchfork'
 
-const prisma = new PrismaClient()
 const searchLimiter = new Bottleneck({
   maxConcurrent: 5,
   minTime: 1000,
@@ -16,11 +15,7 @@ const searchLimiter = new Bottleneck({
 type PitchforkSlug = 'bnm' | 'bnr' | '8-plus' | '7-plus' | 'sunday-reviews'
 
 const scrapeP4k = async (slug: PitchforkSlug) => {
-  const publication = await prisma.publication.findFirst({
-    where: {
-      slug: `p4k-${slug}`,
-    },
-  })
+  const publication = await database.getPublication(`p4k-${slug}`)
 
   if (!publication) {
     throw new Error(`Could not find Pitchfork publication for 'p4k-${slug}'`)
@@ -30,7 +25,7 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   // the first 3 pages
   const resp = await getSearchPage(slug, 12, 0)
   const totalAlbums = resp.count
-  const pages = Math.min(Math.round(totalAlbums / 12), 4)
+  const pages = Math.min(Math.round(totalAlbums / 12), 20)
   // const pages = Math.round(totalAlbums / 12)
   console.log(`we will be fetching ${pages} pages`)
   let rawAlbums = [...(resp.results.list ?? [])]
@@ -46,21 +41,22 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   // Insert them into the DB
   let inserted = 0
   await Promise.all(
-    rawAlbums.map((album) =>
-      prisma.albumReviewedByPublication
-        .create({
-          data: {
-            publicationID: publication.id,
-            album: stripHtml(album.seoTitle || album.title).result,
-            slug: urlWithUTMParams(`https://pitchfork.com${album.url}`, {
-              term: `p4k-${slug}`,
-            }).toString(),
-            artist: album.artists?.[0]?.display_name || '',
+    rawAlbums.map(async (album) => {
+      return database
+        .insertReviewedItem({
+          reviewerID: publication.id,
+          reviewURL: urlWithUTMParams(`https://pitchfork.com${album.url}`, {
+            term: `p4k-${slug}`,
+          }).toString(),
+          name: stripHtml(album.seoTitle || album.title).result,
+          creator: album.artists?.[0]?.display_name || '',
+          metadata: {
+            blurb: album.seoDescription ?? null,
           },
         })
         .then(() => inserted++)
         .catch(() => {})
-    )
+    })
   )
 
   console.log(`Inserted ${inserted} albums`)

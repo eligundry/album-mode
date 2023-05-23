@@ -2,7 +2,6 @@ import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
-import database from '~/lib/database/index.server'
 import { badRequest } from '~/lib/responses.server'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -20,7 +19,7 @@ import useUTM from '~/hooks/useUTM'
 export async function loader({
   params,
   request,
-  context: { serverTiming, logger },
+  context: { serverTiming, logger, database },
 }: LoaderArgs) {
   const headers = new Headers()
   const slug = params.slug?.trim()
@@ -210,8 +209,6 @@ export default function PublicationBySlug() {
   } else {
     breadcrumbs.push(data.review.publicationName)
   }
-
-  console.log(data)
 
   return (
     <Layout headerBreadcrumbs={breadcrumbs} hideFooter>

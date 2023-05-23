@@ -1,8 +1,6 @@
-import { MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
-
-import database from '~/lib/database/index.server'
 
 import { Container, Heading, Layout, Typography } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
@@ -17,7 +15,7 @@ export const meta: MetaFunction = () => ({
     'Features for Album Mode.party that are not ready for prime time.',
 })
 
-export async function loader() {
+export async function loader({ context: { database } }: LoaderArgs) {
   return json({
     twitterUsers: await database.getTwitterUsers(),
   })

@@ -29,7 +29,6 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
   const playURL = createExternalURL(
     item.type === 'bandcamp' ? item.url : item.external_urls.spotify
   )
-  console.log({ width, height })
 
   return (
     <>

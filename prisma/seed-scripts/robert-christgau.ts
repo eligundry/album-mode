@@ -1,4 +1,3 @@
-import { PrismaClient } from '@prisma/client'
 import axios from 'axios'
 import { JSDOM } from 'jsdom'
 import kebabCase from 'lodash/kebabCase'
@@ -6,9 +5,9 @@ import trim from 'lodash/trim'
 import { stripHtml } from 'string-strip-html'
 import { TextDecoder } from 'util'
 
+import database from '~/lib/database/index.server'
 import logger from '~/lib/logging.server'
 
-const prisma = new PrismaClient()
 const axiosChristgau = axios.create({
   baseURL: 'https://www.robertchristgau.com/xg/pnj/',
   responseType: 'arraybuffer',
@@ -90,12 +89,13 @@ const seedPazzAndJop = async () => {
 
       await Promise.all(
         albums.map(async (data) =>
-          prisma.albumReviewedByPublication
-            .create({
-              data: {
-                publicationID: 1,
-                ...data,
-              },
+          database
+            .insertReviewedItem({
+              reviewerID: 1,
+              reviewURL: data.slug,
+              name: data.album,
+              creator: data.artist,
+              metadata: {},
             })
             .then(() => inserted++)
             .catch(() => {})
@@ -200,12 +200,13 @@ const seedPazzAndJopDeansLists = async () => {
 
       await Promise.all(
         albums.map(async (data) =>
-          prisma.albumReviewedByPublication
-            .create({
-              data: {
-                publicationID: 1,
-                ...data,
-              },
+          database
+            .insertReviewedItem({
+              reviewerID: 1,
+              reviewURL: data.slug,
+              name: data.album,
+              creator: data.artist,
+              metadata: {},
             })
             .then(() => inserted++)
             .catch(() => {})

@@ -1,12 +1,11 @@
 import { LoaderArgs, redirect } from '@remix-run/node'
 import sample from 'lodash/sample'
 
-import database from '~/lib/database/index.server'
 import spotifyLib from '~/lib/spotify.server'
 
 const options = ['artist', 'genre', 'publication'] as const
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request, context: { database } }: LoaderArgs) {
   const option = sample<(typeof options)[number]>(options)
 
   switch (option) {

@@ -3,6 +3,7 @@ import retry from 'async-retry'
 import kebabCase from 'lodash/kebabCase'
 import { chromium } from 'playwright'
 
+import database from '~/lib/database/index.server'
 import logger from '~/lib/logging.server'
 import { urlWithUTMParams } from '~/lib/queryParams'
 
@@ -17,20 +18,7 @@ type DataMap = Record<
 >
 
 const needleDrop = async () => {
-  const publication = await prisma.publication
-    .create({
-      data: {
-        name: 'Needle Drop',
-        slug: 'needle-drop',
-      },
-    })
-    .catch(() =>
-      prisma.publication.findFirst({
-        where: {
-          slug: 'needle-drop',
-        },
-      })
-    )
+  const publication = await database.getPublication('needle-drop')
 
   if (!publication) {
     throw new Error('could not create or fetch publication')
@@ -135,14 +123,12 @@ const needleDrop = async () => {
 
   await Promise.all(
     Object.entries(albumArtistMap).map(([album, { artist, reviewURL }]) =>
-      prisma.albumReviewedByPublication
-        .create({
-          data: {
-            publicationID: publication.id,
-            album: album,
-            artist: artist,
-            slug: reviewURL,
-          },
+      database
+        .insertReviewedItem({
+          reviewerID: publication.id,
+          reviewURL,
+          name: album,
+          creator: artist,
         })
         .then(() => inserted++)
         .catch(() => {})

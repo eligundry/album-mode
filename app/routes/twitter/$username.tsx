@@ -2,7 +2,6 @@ import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
-import database from '~/lib/database/index.server'
 import { badRequest, serverError } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 
@@ -18,7 +17,7 @@ import useUTM from '~/hooks/useUTM'
 export async function loader({
   params,
   request,
-  context: { logger, serverTiming },
+  context: { logger, serverTiming, database },
 }: LoaderArgs) {
   const username = params.username?.trim()
 

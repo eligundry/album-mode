@@ -3,6 +3,7 @@ import * as build from '@remix-run/dev/server-build'
 import { createRequestHandler } from '@remix-run/netlify'
 
 import env from './app/env.server'
+import { DatabaseClient } from './app/lib/database/index.server'
 import logger from './app/lib/logging.server'
 
 /**
@@ -16,12 +17,17 @@ async function getLoadContext(event, context) {
     method: event.httpMethod,
     userAgent: event.headers['user-agent'],
   })
+  const database = new DatabaseClient({
+    path: 'data.db',
+    logger: requestLogger,
+  })
 
   // requestLogger.info(undefined)
 
   return {
     logger: requestLogger,
     serverTiming,
+    database,
   }
 }
 

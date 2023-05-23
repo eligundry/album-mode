@@ -1,9 +1,14 @@
 import { PrismaClient } from '@prisma/client'
-import retry from 'async-retry'
 import Bottleneck from 'bottleneck'
+import { and, eq, inArray } from 'drizzle-orm'
 import { BrowserContext, chromium } from 'playwright'
 
 import bandcamp from '~/lib/bandcamp.server'
+import database, {
+  db,
+  reviewedItems,
+  reviewers,
+} from '~/lib/database/index.server'
 import logger from '~/lib/logging.server'
 import { BandcampAlbum } from '~/lib/types/bandcamp'
 
@@ -21,6 +26,7 @@ type DailyBandcampAlbum = BandcampAlbum & {
 
 const scrape = async () => {
   const browser = await chromium.launch()
+  const publication = await database.getPublication('bandcamp-daily')
 
   try {
     const context = await browser.newContext()
@@ -72,19 +78,22 @@ const scrape = async () => {
         continue
       }
 
-      const pathsAlreadyFetched =
-        (
-          await prisma.bandcampDailyAlbum.findMany({
-            select: {
-              bandcampDailyURL: true,
-            },
-            where: {
-              bandcampDailyURL: {
-                in: paths.map((p) => bandcampDailyBase + p),
-              },
-            },
-          })
-        )?.map(({ bandcampDailyURL }) => bandcampDailyURL) ?? []
+      const pathsAlreadyFetched = db
+        .select({ reviewURL: reviewedItems.reviewURL })
+        .from(reviewedItems)
+        .where(
+          and(
+            eq(reviewedItems.reviewerID, publication.id),
+            inArray(
+              reviewedItems.reviewURL,
+              paths.map((p) => bandcampDailyBase + p)
+            )
+          )
+        )
+        .all()
+        .map((r) => r.reviewURL)
+
+      console.log(pathsAlreadyFetched)
 
       if (pathsAlreadyFetched.length > 0) {
         continueFetching = false
@@ -112,43 +121,73 @@ const scrape = async () => {
     }
 
     const albums = await Promise.all(promises)
+    let inserted = 0
 
-    prisma.$transaction(async (txn) => {
-      let inserted = 0
-      await Promise.all(
-        albums
-          .filter((album): album is DailyBandcampAlbum => !!album)
-          .map(async (album) => {
-            const data = {
-              albumID: album.raw.id.toString(),
-              album: album.title,
-              artistID: album.raw.art_id.toString(),
-              artist: album.artist,
+    await Promise.all(
+      albums.map((album) => {
+        if (!album) return false
+
+        return database
+          .insertReviewedItem({
+            reviewerID: publication.id,
+            reviewURL: album.bandcampDailyURL,
+            name: album.title,
+            creator: album.artist,
+            service: 'bandcamp',
+            metadata: {
               imageURL: album.imageUrl,
-              url: album.url,
-              bandcampDailyURL: album.bandcampDailyURL,
-            }
-
-            try {
-              return txn.bandcampDailyAlbum
-                .create({ data })
-                .then(() => inserted++)
-            } catch (e) {
-              return txn.bandcampDailyAlbum.update({
-                data,
-                where: {
-                  albumID: data.albumID,
-                },
-              })
-            }
+              bandcamp: {
+                url: album.url,
+                albumID: album.raw.id.toString(),
+              },
+            },
           })
-      )
-
-      logger.info({
-        message: 'finished inserting albums',
-        inserted,
+          .then(() => inserted++)
+          .catch(() => {})
       })
+    )
+
+    logger.info({
+      message: 'finished inserting albums',
+      inserted,
     })
+
+    // prisma.$transaction(async (txn) => {
+    //   let inserted = 0
+    //   await Promise.all(
+    //     albums
+    //       .filter((album): album is DailyBandcampAlbum => !!album)
+    //       .map(async (album) => {
+    //         const data = {
+    //           albumID: album.raw.id.toString(),
+    //           album: album.title,
+    //           artistID: album.raw.art_id.toString(),
+    //           artist: album.artist,
+    //           imageURL: album.imageUrl,
+    //           url: album.url,
+    //           bandcampDailyURL: album.bandcampDailyURL,
+    //         }
+    //
+    //         try {
+    //           return txn.bandcampDailyAlbum
+    //             .create({ data })
+    //             .then(() => inserted++)
+    //         } catch (e) {
+    //           return txn.bandcampDailyAlbum.update({
+    //             data,
+    //             where: {
+    //               albumID: data.albumID,
+    //             },
+    //           })
+    //         }
+    //       })
+    //   )
+    //
+    //   logger.info({
+    //     message: 'finished inserting albums',
+    //     inserted,
+    //   })
+    // })
   } finally {
     await browser.close()
   }
