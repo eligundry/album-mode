@@ -11,9 +11,12 @@ import {
 import { BetterSQLite3Database, drizzle } from 'drizzle-orm/better-sqlite3'
 import { Logger as WinstonLogger } from 'winston'
 
+// import env from '~/env.server'
 import { reviewedItems, reviewers, spotifyGenres } from './schema.server'
+import type { ReviewedItem, Reviewer, SpotifyGenre } from './schema.server'
 
 export { reviewedItems, reviewers, spotifyGenres }
+export type { Reviewer, ReviewedItem, SpotifyGenre }
 
 const sqlite = new Database('data.db')
 export const db = drizzle(sqlite)
@@ -169,7 +172,7 @@ export class DatabaseClient {
     metadata?: typeof reviewers.metadata._.data
   }) => {
     try {
-      return db
+      const { lastInsertRowid } = db
         .insert(reviewers)
         .values({
           name: data.name,
@@ -177,8 +180,13 @@ export class DatabaseClient {
           service: data.service,
           metadata: data.metadata ?? {},
         })
-        .returning()
         .run()
+
+      return this.db
+        .select()
+        .from(reviewers)
+        .where(eq(reviewers.id, lastInsertRowid as number))
+        .get()
     } catch (e) {
       return this.getPublication(data.slug)
     }
@@ -192,35 +200,38 @@ export class DatabaseClient {
     reviewURL: string
     name: string
     creator: string
-    metadata?: typeof reviewedItems.metadata._.data
+    metadata?: ReviewedItem['metadata']
     service?: 'spotify' | 'bandcamp'
-  }) =>
-    db
-      .insert(reviewedItems)
-      .values({
-        reviewerID: data.reviewerID,
-        reviewURL: data.reviewURL,
-        name: data.name,
-        creator: data.creator,
-        service: data.service ?? 'spotify',
-        metadata: data.metadata ?? {},
-      })
-      .onConflictDoUpdate({
-        target: reviewedItems.id,
-        set: {
-          reviewerID: data.reviewerID,
-          reviewURL: data.reviewURL,
-          name: data.name,
-          creator: data.creator,
-          service: data.service ?? 'spotify',
-          metadata: data.metadata ?? {},
-        },
-        where: and(
-          eq(reviewedItems.reviewURL, data.reviewURL),
-          eq(reviewedItems.reviewerID, data.reviewerID)
-        ),
-      })
-      .run().lastInsertRowid
+  }) => {
+    const values = {
+      reviewerID: data.reviewerID,
+      reviewURL: data.reviewURL,
+      name: data.name,
+      creator: data.creator,
+      service: data.service ?? 'spotify',
+    }
+
+    if (data.metadata) {
+      // @ts-ignore
+      values.metadata = data.metadata
+    }
+
+    try {
+      return db.insert(reviewedItems).values(values).run().lastInsertRowid
+    } catch (e) {
+      return db
+        .update(reviewedItems)
+        .set(values)
+        .where(
+          and(
+            eq(reviewedItems.reviewerID, data.reviewerID),
+            eq(reviewedItems.reviewURL, data.reviewURL)
+          )
+        )
+        .returning()
+        .get().id
+    }
+  }
 }
 
 const api = new DatabaseClient({ path: 'data.db' })

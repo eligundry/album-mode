@@ -217,10 +217,13 @@ export default function PublicationBySlug() {
       )}
       {data.type === 'bandcamp' && data.review.reviewMetadata?.bandcamp && (
         <BandcampAlbum
-          albumID={data.review.reviewMetadata.bandcamp.albumID}
-          albumURL={data.review.reviewMetadata.bandcamp.url}
-          artist={data.review.artist}
-          album={data.review.album}
+          album={{
+            album: data.review.album,
+            albumID: data.review.reviewMetadata.bandcamp.albumID,
+            artist: data.review.artist,
+            imageURL: data.review.reviewMetadata.imageURL ?? null,
+            url: data.review.reviewMetadata.bandcamp.url,
+          }}
           wiki={data.wiki}
           footer={footer}
         />

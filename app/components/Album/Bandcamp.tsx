@@ -1,8 +1,7 @@
-import type { BandcampDailyAlbum } from '@prisma/client'
 import clsx from 'clsx'
 import React from 'react'
 
-import type { Tweet } from '~/lib/types/twitter'
+import type { BandcampAlbum as IBandcampAlbum } from '~/lib/types/library'
 import type { WikipediaSummary as IWikipediaSummary } from '~/lib/wikipedia.server'
 
 import { A, Container } from '~/components/Base'
@@ -14,27 +13,17 @@ import useUTM from '~/hooks/useUTM'
 import AlbumWrapper from './Wrapper'
 
 interface Props {
-  albumID: string
-  albumURL: string
-  album: string
-  artist: string
+  album: IBandcampAlbum
   footer?: string | React.ReactNode
   wiki?: IWikipediaSummary | null
 }
 
-const BandcampAlbum: React.FC<Props> = ({
-  albumID,
-  albumURL,
-  album,
-  artist,
-  footer,
-  wiki,
-}) => {
+const BandcampAlbum: React.FC<Props> = ({ album, footer, wiki }) => {
   const isMobile = useIsMobile()
   const { pallete } = useTailwindTheme()
   const { createExternalURL } = useUTM()
   const params = [
-    `album=${albumID}`,
+    `album=${album.albumID}`,
     'size=large',
     `bgcol=${pallete['base-100'].replace('#', '')}`,
     `linkcol=${pallete.primary.replace('#', '')}`,
@@ -45,6 +34,8 @@ const BandcampAlbum: React.FC<Props> = ({
   if (isMobile) {
     params.push('minimal=true')
   }
+
+  console.log({ album })
 
   return (
     <Container center>
@@ -61,31 +52,33 @@ const BandcampAlbum: React.FC<Props> = ({
             seamless
             className={clsx('mx-auto')}
           >
-            <a href={createExternalURL(albumURL).toString()}>
-              {album} by {artist}
+            <a href={createExternalURL(album.url).toString()}>
+              {album.album} by {album.artist}
             </a>
           </iframe>
         }
         title={
           <>
             <A
-              href={createExternalURL(albumURL).toString()}
+              href={createExternalURL(album.url).toString()}
               target="_blank"
               className={clsx('italic', 'text-left')}
               data-tip="▶️ Play on Bandcamp"
             >
-              {album}
+              {album.album}
             </A>
-            <span className={clsx('text-base')}>{artist}</span>
+            <span className={clsx('text-base')}>{album.artist}</span>
           </>
         }
-        footer={footer}
+        footer={
+          <>
+            {footer}
+            {wiki && <WikipediaSummary summary={wiki} />}
+          </>
+        }
         reviewProps={{
-          // @TODO figure out how I want to save bandcamp tweets
-          // @ts-ignore
           item: {
-            // ...review,
-            url: albumURL,
+            ...album,
             type: 'bandcamp',
           },
         }}

@@ -37,6 +37,8 @@ export const reviewers = sqliteTable(
   })
 )
 
+export type Reviewer = typeof reviewers._.model.select
+
 export const reviewedItems = sqliteTable(
   'ReviewedItems',
   {
@@ -74,6 +76,8 @@ export const reviewedItems = sqliteTable(
   })
 )
 
+export type ReviewedItem = typeof reviewedItems._.model.select
+
 export const spotifyGenres = sqliteTable(
   'SpotifyGenres',
   {
@@ -84,3 +88,5 @@ export const spotifyGenres = sqliteTable(
     uniqueSlug: uniqueIndex('uq_SpotifyGenreName').on(spotifyGenre.name),
   })
 )
+
+export type SpotifyGenre = typeof spotifyGenres._.model.select

@@ -25,7 +25,13 @@ const BandcampLibraryCard: React.FC<{ item: SavedBandcampItem }> = ({
             loading="lazy"
             decoding="async"
           />
-        ) : undefined
+        ) : (
+          <div
+            className={clsx('text-center', 'my-auto', 'text-8xl', 'my-[30%]')}
+          >
+            💿🎉
+          </div>
+        )
       }
       title={
         <>
