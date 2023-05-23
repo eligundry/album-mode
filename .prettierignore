@@ -8,3 +8,6 @@ prisma/*.db
 public/robots.txt
 .nvmrc
 *.toml
+migrations/*
+data.db
+.gitignore

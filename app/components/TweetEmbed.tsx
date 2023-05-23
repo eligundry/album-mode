@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react'
 import { TwitterTweetEmbed } from 'react-twitter-embed'
 
-import type { Tweet } from '~/lib/types/twitter'
-
 import { useDarkMode } from '~/hooks/useMediaQuery'
 
 interface Props {
-  tweet: Tweet
+  tweetID: string
 }
 
-const TweetEmbed: React.FC<Props> = ({ tweet }) => {
+const TweetEmbed: React.FC<Props> = ({ tweetID }) => {
   const [render, setRender] = useState(true)
   const isDarkMode = useDarkMode()
 
@@ -22,7 +20,7 @@ const TweetEmbed: React.FC<Props> = ({ tweet }) => {
     return () => {
       window.clearTimeout(timeoutID)
     }
-  }, [tweet.tweetID, isDarkMode])
+  }, [tweetID, isDarkMode])
 
   if (!render) {
     return null
@@ -30,7 +28,7 @@ const TweetEmbed: React.FC<Props> = ({ tweet }) => {
 
   return (
     <TwitterTweetEmbed
-      tweetId={tweet.tweetID}
+      tweetId={tweetID}
       options={{
         theme: isDarkMode ? 'dark' : 'light',
         cards: 'hidden',

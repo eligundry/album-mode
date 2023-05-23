@@ -1,17 +1,11 @@
-import { MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
-import promiseHash from 'promise-hash'
 
-import db from '~/lib/db.server'
-
-import { Container, Heading, Layout, Link, Typography } from '~/components/Base'
+import { Container, Heading, Layout, Typography } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import HomeSection from '~/components/Base/HomeSection'
-import {
-  GenericCatchBoundary,
-  GenericErrorBoundary,
-} from '~/components/ErrorBoundary'
+import { PageErrorBoundary } from '~/components/ErrorBoundary'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
 import config from '~/config'
 
@@ -21,18 +15,13 @@ export const meta: MetaFunction = () => ({
     'Features for Album Mode.party that are not ready for prime time.',
 })
 
-export async function loader() {
-  return json(
-    await promiseHash({
-      groups: db.getArtistGroupings(),
-      subreddits: db.getSubreddits(),
-      twitterUsers: db.getTwitterUsers(),
-    })
-  )
+export async function loader({ context: { database } }: LoaderArgs) {
+  return json({
+    twitterUsers: await database.getTwitterUsers(),
+  })
 }
 
-export const ErrorBoundary = GenericErrorBoundary
-export const CatchBoundary = GenericCatchBoundary
+export const ErrorBoundary = PageErrorBoundary
 
 export default function LibraryPage() {
   const data = useLoaderData<typeof loader>()
@@ -60,35 +49,11 @@ export default function LibraryPage() {
           />
         </HomeSection>
         <HomeSection
-          title={<Link to="/labels">Labels</Link>}
+          title="Labels"
           subtitle="You know labels? Search and we'll see what we have. Otherwise, the link above has some ones to check out."
           className="labels"
         >
           <LabelSearchForm />
-        </HomeSection>
-        <HomeSection
-          title="Subreddits"
-          subtitle="Hear what the frontpage of the internet is listening to."
-          className="subreddits"
-        >
-          <ButtonLinkGroup
-            items={data.subreddits}
-            keyFunction={(subreddit) => subreddit}
-            toFunction={(subreddit) => `/reddit/${subreddit}`}
-            childFunction={(subreddit) => `/r/${subreddit}`}
-          />
-        </HomeSection>
-        <HomeSection
-          title="Groups"
-          subtitle="Here are some groups that we think are cool."
-          className="groups"
-        >
-          <ButtonLinkGroup
-            items={data.groups}
-            keyFunction={(group) => group.slug}
-            toFunction={(group) => `/group/${group.slug}`}
-            childFunction={(group) => group.name}
-          />
         </HomeSection>
       </Container>
     </Layout>

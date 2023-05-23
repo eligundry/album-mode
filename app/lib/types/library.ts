@@ -1,5 +1,3 @@
-import type { BandcampDailyAlbum } from '@prisma/client'
-
 export type SavedItem<T> = T & {
   savedAt: Date
 }
@@ -13,7 +11,24 @@ export type SpotifyLibraryItem = (
   genres?: string[]
 }
 
-export type BandcampLibraryItem = BandcampDailyAlbum & { type: 'bandcamp' }
+export type LegacyBandcampAlbum = {
+  albumID: string
+  album: string
+  artistID: string
+  artist: string
+  bandcampDailyURL: string
+  imageURL: string | null
+  url: string
+  createdAt: Date
+  updatedAt: Date
+}
+export type BandcampAlbum = Omit<
+  LegacyBandcampAlbum,
+  'bandcampDailyURL' | 'createdAt' | 'updatedAt' | 'artistID'
+>
+export type BandcampLibraryItem = (BandcampAlbum | LegacyBandcampAlbum) & {
+  type: 'bandcamp'
+}
 export type LibraryItem = SpotifyLibraryItem | BandcampLibraryItem
 export type SavedLibraryItem = SavedItem<LibraryItem>
 export type SavedSpotifyItem = SavedItem<SpotifyLibraryItem>

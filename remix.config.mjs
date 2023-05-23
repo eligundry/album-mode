@@ -6,8 +6,8 @@ export default {
   server: './server.mjs',
   ignoredRouteFiles: ['.*'],
   serverDependenciesToBundle: ['@eligundry/server-timing'],
-  // appDirectory: "app",
-  // assetsBuildDirectory: "public/build",
-  // serverBuildPath: ".netlify/functions-internal/server.js",
-  // publicPath: "/build/",
+  tailwind: true,
+  future: {
+    v2_errorBoundary: true,
+  },
 }

@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+a,
+.btn,
+.label {
+  cursor: pointer;
+}
+
+details > summary {
+  cursor: pointer;
+}
+
+input[type='search'] {
+  -webkit-appearance: none;
+}
+
+.tooltip:before {
+  font-style: normal;
+  z-index: 10000;
+}

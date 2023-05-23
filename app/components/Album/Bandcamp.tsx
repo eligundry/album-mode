@@ -1,10 +1,11 @@
-import type { BandcampDailyAlbum } from '@prisma/client'
 import clsx from 'clsx'
 import React from 'react'
 
-import type { Tweet } from '~/lib/types/twitter'
+import type { BandcampAlbum as IBandcampAlbum } from '~/lib/types/library'
+import type { WikipediaSummary as IWikipediaSummary } from '~/lib/wikipedia.server'
 
 import { A, Container } from '~/components/Base'
+import WikipediaSummary from '~/components/WikipediaSummary'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 import useTailwindTheme from '~/hooks/useTailwindTheme'
 import useUTM from '~/hooks/useUTM'
@@ -12,11 +13,12 @@ import useUTM from '~/hooks/useUTM'
 import AlbumWrapper from './Wrapper'
 
 interface Props {
-  album: Omit<BandcampDailyAlbum, 'createdAt' | 'updatedAt'> | Tweet
+  album: IBandcampAlbum
   footer?: string | React.ReactNode
+  wiki?: IWikipediaSummary | null
 }
 
-const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
+const BandcampAlbum: React.FC<Props> = ({ album, footer, wiki }) => {
   const isMobile = useIsMobile()
   const { pallete } = useTailwindTheme()
   const { createExternalURL } = useUTM()
@@ -32,6 +34,8 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
   if (isMobile) {
     params.push('minimal=true')
   }
+
+  console.log({ album })
 
   return (
     <Container center>
@@ -66,10 +70,13 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer }) => {
             <span className={clsx('text-base')}>{album.artist}</span>
           </>
         }
-        footer={footer}
+        footer={
+          <>
+            {footer}
+            {wiki && <WikipediaSummary summary={wiki} />}
+          </>
+        }
         reviewProps={{
-          // @TODO figure out how I want to save bandcamp tweets
-          // @ts-ignore
           item: {
             ...album,
             type: 'bandcamp',

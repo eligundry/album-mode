@@ -1,4 +1,4 @@
-import { useCatch } from '@remix-run/react'
+import { isRouteErrorResponse, useRouteError } from '@remix-run/react'
 import clsx from 'clsx'
 
 import {
@@ -10,15 +10,26 @@ import {
   Typography,
 } from '~/components/Base'
 
-interface GenericErrorBoundaryProps {
-  error: Error
-  hideStack?: boolean
-}
+export const PageErrorBoundary: React.FC = () => {
+  const error = useRouteError()
+  let body = <>Unknown error</>
 
-export const GenericErrorBoundary: React.FC<GenericErrorBoundaryProps> = ({
-  error,
-  hideStack = false,
-}) => {
+  if (isRouteErrorResponse(error)) {
+    body = (
+      <>
+        Code: {error.status}
+        {JSON.stringify(error.data, undefined, 2)}
+      </>
+    )
+  } else if (error instanceof Error) {
+    body = (
+      <>
+        {error.message}
+        {error.stack && `Stack trace:\n${error.stack}`}
+      </>
+    )
+  }
+
   return (
     <Layout>
       <Container>
@@ -29,11 +40,7 @@ export const GenericErrorBoundary: React.FC<GenericErrorBoundaryProps> = ({
           </Typography>
           <details className={clsx('mb-6')}>
             <summary>Detailed error message</summary>
-            <pre className={clsx('whitespace-pre-line')}>
-              {error.name !== 'Error' && error.name + '\n'}
-              {error.message + '\n'}
-              {!hideStack && error.stack}
-            </pre>
+            <pre className={clsx('whitespace-pre-line')}>{body}</pre>
           </details>
           <ButtonLink to="/">
             <EmojiText emoji="🏚" label="broken home">
@@ -44,13 +51,4 @@ export const GenericErrorBoundary: React.FC<GenericErrorBoundaryProps> = ({
       </Container>
     </Layout>
   )
-}
-
-export const GenericCatchBoundary: React.FC = () => {
-  const caught = useCatch()
-  const error = new Error(
-    `${caught.status}: ${caught.data?.error ?? caught.data.toString()}`
-  )
-
-  return <GenericErrorBoundary hideStack error={error} />
 }

@@ -1,8 +1,6 @@
-import { redirect } from '@remix-run/node'
+import { LoaderArgs, redirect } from '@remix-run/node'
 
-import db from '~/lib/db.server'
-
-export async function loader() {
-  const genre = await db.getRandomGenre()
+export async function loader({ context: { database } }: LoaderArgs) {
+  const genre = await database.getRandomGenre()
   return redirect(`/genre/${genre}?from=random`)
 }

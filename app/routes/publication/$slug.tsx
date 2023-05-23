@@ -2,7 +2,6 @@ import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
-import db from '~/lib/db.server'
 import { badRequest } from '~/lib/responses.server'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -11,19 +10,16 @@ import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
-import AlbumErrorBoundary, {
-  AlbumCatchBoundary,
-} from '~/components/Album/ErrorBoundary'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { A, Heading, Layout } from '~/components/Base'
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
-import WikipediaSummary from '~/components/WikipediaSummary'
 import config from '~/config'
 import useUTM from '~/hooks/useUTM'
 
 export async function loader({
   params,
   request,
-  context: { serverTiming, logger },
+  context: { serverTiming, logger, database },
 }: LoaderArgs) {
   const headers = new Headers()
   const slug = params.slug?.trim()
@@ -37,49 +33,29 @@ export async function loader({
     throw badRequest({ error: 'slug must be provided in the URL', logger })
   }
 
-  if (slug === 'bandcamp-daily') {
-    const album = await serverTiming.track('db', () =>
-      db.getRandomBandcampDailyAlbum({
-        exceptID: lastPresented ?? undefined,
-      })
-    )
-    const wiki = await serverTiming.track('wikipedia', () =>
-      wikipedia.getSummaryForAlbum({
-        album: album.album,
-        artist: album.artist,
-      })
-    )
-    headers.set(
-      'Set-Cookie',
-      await userSettings.setLastPresented({
-        request,
-        lastPresented: album.albumID.toString(),
-      })
-    )
-    headers.set(serverTiming.headerKey, serverTiming.toString())
-
-    return json(
-      {
-        slug: 'bandcamp-daily',
-        album,
-        wiki,
-        type: 'bandcamp' as const,
-      },
-      { headers }
-    )
-  }
-
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request)
   )
 
-  const { album, review } = await retry(async (_, attempt) => {
+  const data = await retry(async (_, attempt) => {
     const review = await serverTiming.track(`db`, () =>
-      db.getRandomAlbumForPublication({
-        publicationSlug: slug,
+      database.getRandomReviewedItem({
+        reviewerSlug: slug,
         exceptID: lastPresented,
       })
     )
+
+    if (review.service === 'bandcamp') {
+      const wiki = await serverTiming.track('wikipedia', () =>
+        wikipedia.getSummaryForAlbum({
+          album: review.album,
+          artist: review.artist,
+        })
+      )
+
+      return { review, album: null, wiki, type: 'bandcamp' as const }
+    }
+
     const album = await serverTiming.track(`spotify.fetch`, () =>
       spotify.getAlbum(review.album, review.artist)
     )
@@ -88,37 +64,29 @@ export async function loader({
       desc: `${attempt} Attempt(s)`,
     })
 
-    return { album, review }
+    const wiki = await serverTiming.track('wikipedia', () =>
+      wikipedia.getSummaryForAlbum({
+        album: album.name,
+        artist: album.artists[0].name,
+      })
+    )
+
+    return { album, review, wiki, type: 'spotify' as const }
   }, config.asyncRetryConfig)
-  const wiki = await serverTiming.track('wikipedia', () =>
-    wikipedia.getSummaryForAlbum({
-      album: album.name,
-      artist: album.artists[0].name,
-    })
-  )
+
   headers.set(
     'Set-Cookie',
     await userSettings.setLastPresented({
       request,
-      lastPresented: review.id.toString(),
+      lastPresented: data.review.id.toString(),
     })
   )
   headers.set(serverTiming.headerKey, serverTiming.toString())
 
-  return json(
-    {
-      slug,
-      review,
-      album,
-      wiki,
-      type: 'spotify' as const,
-    },
-    { headers }
-  )
+  return json({ slug, ...data }, { headers })
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
-export const CatchBoundary = AlbumCatchBoundary
 export const headers = forwardServerTimingHeaders
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data) {
@@ -128,18 +96,11 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   let description = config.siteDescription
   let title = config.siteTitle
 
-  if (data.type === 'bandcamp') {
-    title = `Bandcamp | ${config.siteTitle}`
-    description = `${config.siteDescription} Listen to something good according to Bandcamp's staff`
-  }
+  title = `${data.review.publicationName} | ${config.siteTitle}`
+  description = `${config.siteDescription} You simply must listen to this album that was highly rated by ${data.review.publicationName}!`
 
-  if (data.type === 'spotify') {
-    title = `${data.review.publicationName} | ${config.siteTitle}`
-    description = `${config.siteDescription} You simply must listen to this album that was highly rated by ${data.review.publicationName}!`
-
-    if (data.review.publicationMetaDescription) {
-      description = `${config.siteDescription} ${data.review.publicationMetaDescription}`
-    }
+  if (data.review.publicationMetadata?.metaDescription) {
+    description = `${config.siteDescription} ${data.review.publicationMetadata?.metaDescription}`
   }
 
   return {
@@ -151,53 +112,11 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export default function PublicationBySlug() {
   const data = useLoaderData<typeof loader>()
   const { createExternalURL } = useUTM()
-
-  if (data.type === 'bandcamp') {
-    return (
-      <Layout
-        hideFooter
-        headerBreadcrumbs={[
-          'Publication',
-          [
-            'Bandcamp Daily',
-            <A
-              key="publication-url"
-              href={createExternalURL('https://daily.bandcamp.com/').toString()}
-              target="_blank"
-            >
-              Bandcamp Daily
-            </A>,
-          ],
-        ]}
-      >
-        <BandcampAlbum
-          album={data.album}
-          footer={
-            <>
-              <Heading level="h5" noSpacing className="my-2">
-                Read the{' '}
-                <A
-                  href={createExternalURL(
-                    data.album.bandcampDailyURL
-                  ).toString()}
-                  target="_blank"
-                >
-                  Bandcamp Daily review
-                </A>
-              </Heading>
-              <WikipediaSummary summary={data.wiki} />
-            </>
-          }
-        />
-      </Layout>
-    )
-  }
-
   let footer = null
   let breadcrumbs: SearchBreadcrumbsProps['crumbs'] = ['Publication']
 
-  if ('review' in data && data.review.slug.startsWith('http')) {
-    const url = createExternalURL(data.review.slug)
+  if ('review' in data && data.review.reviewURL.startsWith('http')) {
+    const url = createExternalURL(data.review.reviewURL)
 
     if (data.slug.includes('p4k')) {
       footer = (
@@ -251,7 +170,7 @@ export default function PublicationBySlug() {
       )
     } else if (
       data.slug === 'resident-advisor' &&
-      data.review.slug.startsWith('https://')
+      data.review.reviewURL.startsWith('https://')
     ) {
       footer = (
         <Heading level="h5" noSpacing className="my-2">
@@ -261,11 +180,25 @@ export default function PublicationBySlug() {
           </A>
         </Heading>
       )
+    } else if (
+      data.slug === 'bandcamp-daily' &&
+      data.review.reviewURL.startsWith('https://')
+    ) {
+      footer = (
+        <Heading level="h5" noSpacing className="my-2">
+          Read the{' '}
+          <A href={url.toString()} target="_blank">
+            Bandcamp Daily review
+          </A>
+        </Heading>
+      )
     }
   }
 
-  if (data.review.publicationURL) {
-    const publicationURL = createExternalURL(data.review.publicationURL)
+  if (data.review.publicationMetadata?.url) {
+    const publicationURL = createExternalURL(
+      data.review.publicationMetadata.url
+    )
 
     breadcrumbs.push([
       data.review.publicationName,
@@ -279,7 +212,22 @@ export default function PublicationBySlug() {
 
   return (
     <Layout headerBreadcrumbs={breadcrumbs} hideFooter>
-      <Album album={data.album} wiki={data.wiki} footer={footer} />
+      {data.type === 'spotify' && (
+        <Album album={data.album} wiki={data.wiki} footer={footer} />
+      )}
+      {data.type === 'bandcamp' && data.review.reviewMetadata?.bandcamp && (
+        <BandcampAlbum
+          album={{
+            album: data.review.album,
+            albumID: data.review.reviewMetadata.bandcamp.albumID,
+            artist: data.review.artist,
+            imageURL: data.review.reviewMetadata.imageURL ?? null,
+            url: data.review.reviewMetadata.bandcamp.url,
+          }}
+          wiki={data.wiki}
+          footer={footer}
+        />
+      )}
     </Layout>
   )
 }

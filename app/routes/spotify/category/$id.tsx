@@ -7,9 +7,7 @@ import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
 
-import PlaylistErrorBoundary, {
-  AlbumCatchBoundary as PlaylistCatchBoundary,
-} from '~/components/Album/ErrorBoundary'
+import PlaylistErrorBoundary from '~/components/Album/ErrorBoundary'
 import Playlist from '~/components/Album/Playlist'
 import { Layout, Link } from '~/components/Base'
 import config from '~/config'
@@ -59,7 +57,6 @@ export async function loader({
 }
 
 export const ErrorBoundary = PlaylistErrorBoundary
-export const CatchBoundary = PlaylistCatchBoundary
 export const headers = forwardServerTimingHeaders
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data) {

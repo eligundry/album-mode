@@ -8,9 +8,7 @@ import userSettings from '~/lib/userSettings.server'
 import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
-import AlbumErrorBoundary, {
-  AlbumCatchBoundary,
-} from '~/components/Album/ErrorBoundary'
+import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 import config from '~/config'
 import env from '~/env.server'
@@ -78,7 +76,6 @@ export async function loader({
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
-export const CatchBoundary = AlbumCatchBoundary
 export const headers = forwardServerTimingHeaders
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data) {

@@ -1,8 +1,6 @@
-import { json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
-
-import db from '~/lib/db.server'
 
 import {
   ButtonLink,
@@ -16,10 +14,7 @@ import ButtonLinkGroup, {
   ButtonLinkGroupWrapper,
 } from '~/components/Base/ButtonLinkGroup'
 import HomeSection from '~/components/Base/HomeSection'
-import {
-  GenericCatchBoundary,
-  GenericErrorBoundary,
-} from '~/components/ErrorBoundary'
+import { PageErrorBoundary } from '~/components/ErrorBoundary'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
 import SavedSearches from '~/components/SavedSearches'
@@ -29,10 +24,10 @@ import useLoading from '~/hooks/useLoading'
 import useSavedSearches from '~/hooks/useSavedSearches'
 import useUser from '~/hooks/useUser'
 
-export async function loader() {
+export async function loader({ context: { database } }: LoaderArgs) {
   return json(
     {
-      publications: await db.getPublications(),
+      publications: await database.getPublications(),
     },
     {
       headers: {
@@ -42,8 +37,7 @@ export async function loader() {
   )
 }
 
-export const ErrorBoundary = GenericErrorBoundary
-export const CatchBoundary = GenericCatchBoundary
+export const ErrorBoundary = PageErrorBoundary
 
 export default function Index() {
   const data = useLoaderData<typeof loader>()

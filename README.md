@@ -25,12 +25,12 @@ $ npm run seed-script -- scripts/dumpTailwindConfig.ts
 
 ## Database
 
-All the data used by this application lives in a sqlite database in `prisma/dev.db` that is checked into this repo and
+All the data used by this application lives in a sqlite database in `data.db` that is checked into this repo and
 deployed to production along with the code. There are a fair amount of seed/scraping scripts to populate this database
 with reviews from various publications. They can be run like so:
 
 ```bash
-$ npm run seed-script -- prisma/seed-scripts/pazz-and-jop.ts
+$ npm run seed-script -- app/jobs/pazz-and-jop.ts
 ```
 
 I have also setup a Github Action that runs weekly to update the data from some publications every Sunday at noon.
