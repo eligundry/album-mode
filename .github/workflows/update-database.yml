@@ -6,10 +6,6 @@ on:
 
 env:
   DATABASE_URL: 'file:./dev.db'
-  TWITTER_APP_KEY: ${{ secrets.TWITTER_APP_KEY }}
-  TWITTER_APP_SECRET: ${{ secrets.TWITTER_APP_SECRET }}
-  TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-  TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
   SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
   SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
   NODE_VERSION: 18
@@ -40,42 +36,42 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 5
-          command: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug bnm
+          command: npm run seed-script -- app/jobs/pitchfork.ts --slug bnm
 
       - name: 'Pull Pitchfork Best New Reissue reviews'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
           max_attempts: 5
-          command: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug bnr
+          command: npm run seed-script -- app/jobs/pitchfork.ts --slug bnr
 
       - name: 'Pull Pitchfork Sunday Reviews'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
           max_attempts: 5
-          command: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug sunday-reviews
+          command: npm run seed-script -- app/jobs/pitchfork.ts --slug sunday-reviews
 
       - name: 'Pull Pitchfork 8.0+ reviews'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
           max_attempts: 5
-          command: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug 8-plus
+          command: npm run seed-script -- app/jobs/pitchfork.ts --slug 8-plus
 
       - name: 'Pull Pitchfork 7.0+ reviews'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
           max_attempts: 5
-          command: npm run seed-script -- prisma/seed-scripts/pitchfork.ts --slug 7-plus
+          command: npm run seed-script -- app/jobs/pitchfork.ts --slug 7-plus
 
       - name: 'Pull Bandcamp Daily reviews'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 10
           max_attempts: 5
-          command: npm run seed-script -- prisma/seed-scripts/bandcamp-daily.ts
+          command: npm run seed-script -- app/jobs/bandcamp-daily.ts
 
       # @TODO This keeps timing out on the last pages. Data doesn't update
       # often, so we can run it manually for now.
@@ -84,7 +80,7 @@ jobs:
       #   with:
       #     timeout_minutes: 10
       #     max_attempts: 5
-      #     command: npm run seed-script -- prisma/seed-scripts/33-13.ts
+      #     command: npm run seed-script -- app/jobs/33-13.ts
 
       # @TODO This keeps running into issues because albumoftheyear.org is being
       # super annoying about scraping.
@@ -93,7 +89,7 @@ jobs:
       #   with:
       #     timeout_minutes: 10
       #     max_attempts: 5
-      #     command: npm run seed-script -- prisma/seed-scripts/needle-drop.ts
+      #     command: npm run seed-script -- app/jobs/needle-drop.ts
 
       - name: 'Commit changes, if needed'
         uses: stefanzweifel/git-auto-commit-action@v4
@@ -105,51 +101,10 @@ jobs:
           file_pattern: 'prisma/dev.db'
           branch: ${{ env.UPDATE_JOB_TAG }}
 
-  # Fuck Elon Musk for breaking this!
-  # UpdateTwitterTables:
-  #   runs-on: ubuntu-latest
-  #   needs:
-  #     - UpdatePublications
-  #   strategy:
-  #     max-parallel: 1
-  #     matrix:
-  #       user:
-  #         - FranziaMom
-  #         - emotivesunday
-  #   steps:
-  #     - run: echo "UPDATE_JOB_TAG=updates/$(date +"%Y-%m-%d")" >> $GITHUB_ENV
-  #       name: 'Fetch git branch pattern'
-  #
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         ref: ${{ env.UPDATE_JOB_TAG }}
-  #
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: ${{ env.NODE_VERSION }}
-  #         cache: 'npm'
-  #
-  #     - name: Install dependencies
-  #       run: npm ci
-  #
-  #     - name: 'Pull albums from @${{ matrix.user }}'
-  #       run: npm run seed-script -- prisma/seed-scripts/twitter.ts --username "${{ matrix.user }}" --pageLimit 4
-  #
-  #     - name: 'Commit changes, if needed'
-  #       uses: stefanzweifel/git-auto-commit-action@v4
-  #       with:
-  #         commit_message: 'Automated database update from GitHub Actions (Twitter user ${{ matrix.user }})'
-  #         commit_user_name: 'DJ Octo[bot]'
-  #         commit_user_email: 'eligundry+dj.octobot@gmail.com'
-  #         commit_author: 'DJ Octo[bot] <eligundry+dj.octobot@gmail.com>'
-  #         file_pattern: 'prisma/dev.db'
-  #         branch: ${{ env.UPDATE_JOB_TAG }}
-
   CommitDatabaseTransaction:
     runs-on: ubuntu-latest
     needs:
       - UpdatePublications
-      # - UpdateTwitterTables
     steps:
       - run: echo "UPDATE_JOB_TAG=updates/$(date +"%Y-%m-%d")" >> $GITHUB_ENV
         name: 'Fetch git branch pattern'
