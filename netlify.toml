@@ -22,10 +22,9 @@
 
 [functions]
   included_files = [
-    "prisma/dev.db",
+    "data.db",
     "!node_modules/@sentry/cli/**/*",
     "!node_modules/@sentry/webpack-plugin/**/*",
-    "!node_modules/.prisma/client/libquery_engine-darwin-arm64.dylib.node"
   ]
 
 [[plugins]]
