@@ -1,10 +1,13 @@
 import ServerTiming from '@eligundry/server-timing'
 import * as build from '@remix-run/dev/server-build'
 import { createRequestHandler } from '@remix-run/netlify'
+import { installGlobals } from '@remix-run/node'
 
 import { getEnv } from './app/env.server'
 import { constructRequestDatabase } from './app/lib/database/index.server'
 import { constructLogger } from './app/lib/logging.server'
+
+installGlobals()
 
 /**
  * @type {import('@remix-run/netlify').GetLoadContextFunction}
