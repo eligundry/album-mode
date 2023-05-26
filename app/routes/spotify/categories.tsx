@@ -16,7 +16,7 @@ export async function loader({ request, context }: LoaderArgs) {
     'Cache-Control': config.cacheControl.public,
   })
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request)
+    spotifyLib.initializeFromRequest(request, context)
   )
   const categories = await serverTiming.track('spotify.fetch', () =>
     spotify.getCategories()

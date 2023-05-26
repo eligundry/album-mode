@@ -16,11 +16,8 @@ import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import config from '~/config'
 import useUTM from '~/hooks/useUTM'
 
-export async function loader({
-  params,
-  request,
-  context: { serverTiming, logger, database },
-}: LoaderArgs) {
+export async function loader({ params, request, context }: LoaderArgs) {
+  const { serverTiming, logger, database } = context
   const headers = new Headers()
   const slug = params.slug?.trim()
   const settings = await userSettings.get(request)
@@ -32,9 +29,8 @@ export async function loader({
   if (!slug) {
     throw badRequest({ error: 'slug must be provided in the URL', logger })
   }
-
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request)
+    spotifyLib.initializeFromRequest(request, context)
   )
 
   const data = await retry(async (_, attempt) => {

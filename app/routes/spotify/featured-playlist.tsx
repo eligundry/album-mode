@@ -10,12 +10,10 @@ import Playlist from '~/components/Album/Playlist'
 import { Layout } from '~/components/Base'
 import config from '~/config'
 
-export async function loader({
-  request,
-  context: { serverTiming },
-}: LoaderArgs) {
+export async function loader({ request, context }: LoaderArgs) {
+  const { serverTiming } = context
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request)
+    spotifyLib.initializeFromRequest(request, context)
   )
   const playlist = await serverTiming.track('spotify.fetch', () =>
     spotify.getRandomFeaturedPlaylist()

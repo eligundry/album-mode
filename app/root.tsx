@@ -21,7 +21,6 @@ import userSettings from '~/lib/userSettings.server'
 import Tracking from '~/components/Tracking'
 import config from '~/config'
 import RootProvider from '~/context/Root'
-import env from '~/env.server'
 import useTailwindTheme from '~/hooks/useTailwindTheme'
 
 import styles from './styles/app.css'
@@ -53,7 +52,7 @@ export const links: LinksFunction = () => [
 
 export async function loader({
   request,
-  context: { serverTiming },
+  context: { serverTiming, env },
 }: LoaderArgs) {
   const { session, settings, gb } = await promiseHash({
     session: serverTiming.track('root.spotify.session', () =>

@@ -14,11 +14,8 @@ import Debug from '~/components/Debug'
 import TweetEmbed from '~/components/TweetEmbed'
 import useUTM from '~/hooks/useUTM'
 
-export async function loader({
-  params,
-  request,
-  context: { logger, serverTiming, database },
-}: LoaderArgs) {
+export async function loader({ params, request, context }: LoaderArgs) {
+  const { logger, serverTiming, database } = context
   const username = params.username?.trim()
 
   if (!username) {
@@ -46,7 +43,9 @@ export async function loader({
     }
     case 'spotify': {
       const spotify = await serverTiming.track('spotify.init', () =>
-        spotifyLib.initializeFromRequest(request).then((s) => s.getClient())
+        spotifyLib
+          .initializeFromRequest(request, context)
+          .then((s) => s.getClient())
       )
 
       if (!tweet.reviewMetadata?.spotify) {

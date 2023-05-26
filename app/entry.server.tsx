@@ -3,7 +3,9 @@ import { RemixServer } from '@remix-run/react'
 import * as Sentry from '@sentry/remix'
 import { renderToString } from 'react-dom/server'
 
-import env from '~/env.server'
+import { getEnv } from '~/env.server'
+
+const env = getEnv()
 
 Sentry.init({
   dsn: env.SENTRY_DSN,

@@ -1,8 +1,12 @@
 import { chromium } from 'playwright'
 
-import { db, spotifyGenres } from '~/lib/database/index.server'
+import {
+  constructConsoleDatabase,
+  spotifyGenres,
+} from '~/lib/database/index.server'
 
 const main = async () => {
+  const { database } = constructConsoleDatabase()
   const browser = await chromium.launch()
   const context = await browser.newContext()
   const page = await context.newPage()
@@ -11,14 +15,12 @@ const main = async () => {
 
   let inserted = 0
 
-  db.transaction((tx) => {
-    genres.forEach((genre) => {
-      try {
-        tx.insert(spotifyGenres).values({ name: genre }).run()
-        inserted++
-      } catch (e) {}
-    })
-  })
+  for (let genre of genres) {
+    try {
+      await database.insert(spotifyGenres).values({ name: genre }).run()
+      inserted++
+    } catch (e) {}
+  }
 
   console.log(`inserted ${inserted} genres`)
 

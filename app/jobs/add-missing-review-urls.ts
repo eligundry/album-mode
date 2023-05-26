@@ -5,7 +5,7 @@ import { chromium } from 'playwright'
 
 import {
   ReviewedItem,
-  db,
+  constructConsoleDatabase,
   reviewedItems,
   reviewers,
 } from '~/lib/database/index.server'
@@ -13,7 +13,8 @@ import {
 dotenv.config()
 
 const main = async () => {
-  const publications = db
+  const { database } = constructConsoleDatabase()
+  const publications = await database
     .select()
     .from(reviewers)
     .where(eq(reviewers.service, 'publication'))
@@ -37,7 +38,7 @@ const main = async () => {
     },
   ])
 
-  const reviews = db
+  const reviews = await database
     .select({
       id: reviewedItems.id,
       createdAt: reviewedItems.createdAt,
@@ -118,7 +119,8 @@ const main = async () => {
         data.reviewURL = action as string
       }
 
-      db.update(reviewedItems)
+      await database
+        .update(reviewedItems)
         .set(data)
         .where(eq(reviewedItems.id, album.id))
         .run()
@@ -159,7 +161,8 @@ const main = async () => {
     ])
 
     if (!link) {
-      db.update(reviewedItems)
+      await database
+        .update(reviewedItems)
         .set({
           metadata: {
             ...album.metadata,
@@ -173,14 +176,14 @@ const main = async () => {
     }
 
     try {
-      return db
+      return database
         .update(reviewedItems)
         .set({ reviewURL: link })
         .where(eq(reviewedItems.id, album.id))
         .run()
     } catch (e) {
       if (e instanceof Error && e.message.includes('reviewURL')) {
-        return db
+        return database
           .update(reviewedItems)
           .set({ reviewURL: link + `#${album.id}` })
           .where(eq(reviewedItems.id, album.id))

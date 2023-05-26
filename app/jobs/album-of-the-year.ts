@@ -2,7 +2,7 @@ import kebabCase from 'lodash/kebabCase'
 import { chromium } from 'playwright'
 import yargs from 'yargs'
 
-import database from '~/lib/database/index.server'
+import { constructConsoleDatabase } from '~/lib/database/index.server'
 
 interface Options {
   listID: string
@@ -13,6 +13,7 @@ interface Options {
 }
 
 const seedAlbumOfTheYear = async (options: Options) => {
+  const { model } = constructConsoleDatabase()
   const albumArtistMap: Record<string, string> = {}
   const browser = await chromium.launch()
 
@@ -76,7 +77,7 @@ const seedAlbumOfTheYear = async (options: Options) => {
     await browser.close()
   }
 
-  const publication = await database.getOrCreatePublication({
+  const publication = await model.getOrCreatePublication({
     name: options.name,
     slug: options.slug,
     service: 'publication',
@@ -91,7 +92,7 @@ const seedAlbumOfTheYear = async (options: Options) => {
 
   await Promise.all(
     Object.entries(albumArtistMap).map(([album, artist]) =>
-      database.insertReviewedItem({
+      model.insertReviewedItem({
         reviewerID: publication.id,
         reviewURL: `albumoftheyear.org/list/${options.listID}#${kebabCase(
           `${album}-${artist}`

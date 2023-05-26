@@ -22,7 +22,6 @@
 
 [functions]
   included_files = [
-    "data.db",
     "!node_modules/@sentry/cli/**/*",
     "!node_modules/@sentry/webpack-plugin/**/*",
   ]

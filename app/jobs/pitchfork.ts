@@ -3,7 +3,7 @@ import Bottleneck from 'bottleneck'
 import { stripHtml } from 'string-strip-html'
 import yargs from 'yargs'
 
-import database from '~/lib/database/index.server'
+import { constructConsoleDatabase } from '~/lib/database/index.server'
 import { urlWithUTMParams } from '~/lib/queryParams'
 import { ListEntity, PitchforkSearchResponse } from '~/lib/types/pitchfork'
 
@@ -15,7 +15,8 @@ const searchLimiter = new Bottleneck({
 type PitchforkSlug = 'bnm' | 'bnr' | '8-plus' | '7-plus' | 'sunday-reviews'
 
 const scrapeP4k = async (slug: PitchforkSlug) => {
-  const publication = await database.getPublication(`p4k-${slug}`)
+  const { model } = constructConsoleDatabase()
+  const publication = await model.getPublication(`p4k-${slug}`)
 
   if (!publication) {
     throw new Error(`Could not find Pitchfork publication for 'p4k-${slug}'`)
@@ -42,7 +43,7 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
   let inserted = 0
   await Promise.all(
     rawAlbums.map(async (album) => {
-      return database
+      return model
         .insertReviewedItem({
           reviewerID: publication.id,
           reviewURL: urlWithUTMParams(`https://pitchfork.com${album.url}`, {

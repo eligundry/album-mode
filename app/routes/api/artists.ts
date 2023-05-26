@@ -4,10 +4,10 @@ import spotifyLib from '~/lib/spotify.server'
 
 import config from '~/config'
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, context }) => {
   const url = new URL(request.url)
   const artist = url.searchParams.get('artist')
-  const spotify = await spotifyLib.initializeFromRequest(request)
+  const spotify = await spotifyLib.initializeFromRequest(request, context)
   const artists = await (artist
     ? spotify.searchArists(artist)
     : spotify.getTopArtists())

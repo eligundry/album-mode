@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3'
+import { createClient as createTursoClient } from '@libsql/client'
 import {
   Logger as DrizzleLogger,
   and,
@@ -8,23 +8,16 @@ import {
   ne,
   sql,
 } from 'drizzle-orm'
-import { BetterSQLite3Database, drizzle } from 'drizzle-orm/better-sqlite3'
+import { drizzle as tursoDrizzle } from 'drizzle-orm/libsql'
 import { Logger as WinstonLogger } from 'winston'
 
-// import env from '~/env.server'
+import { getEnv } from '~/env.server'
+
 import { reviewedItems, reviewers, spotifyGenres } from './schema.server'
 import type { ReviewedItem, Reviewer, SpotifyGenre } from './schema.server'
 
 export { reviewedItems, reviewers, spotifyGenres }
 export type { Reviewer, ReviewedItem, SpotifyGenre }
-
-const sqlite = new Database('data.db')
-export const db = drizzle(sqlite)
-
-export interface DatabaseClientOptions {
-  path: string
-  logger?: WinstonLogger | boolean
-}
 
 class DatabaseLogger implements DrizzleLogger {
   private logger: WinstonLogger
@@ -38,20 +31,15 @@ class DatabaseLogger implements DrizzleLogger {
   }
 }
 
+export interface DatabaseClientOptions {
+  drizzle: ReturnType<typeof tursoDrizzle>
+}
+
 export class DatabaseClient {
-  public db: BetterSQLite3Database
+  public db: DatabaseClientOptions['drizzle']
 
   constructor(options: DatabaseClientOptions) {
-    const sqlite = new Database(options.path)
-    let logger: boolean | DatabaseLogger = false
-
-    if (typeof options.logger === 'boolean') {
-      logger = options.logger
-    } else if (options.logger) {
-      logger = new DatabaseLogger(options.logger)
-    }
-
-    this.db = drizzle(sqlite, { logger })
+    this.db = options.drizzle
   }
 
   getRandomReviewedItem = async ({
@@ -61,7 +49,7 @@ export class DatabaseClient {
     reviewerSlug: string
     exceptID?: number | string
   }) => {
-    const itemID = db
+    const itemID = await this.db
       .select({ id: reviewedItems.id })
       .from(reviewedItems)
       .innerJoin(
@@ -81,7 +69,7 @@ export class DatabaseClient {
       .limit(1)
       .get()
 
-    return db
+    return this.db
       .select({
         id: reviewedItems.id,
         album: reviewedItems.name,
@@ -101,7 +89,7 @@ export class DatabaseClient {
   }
 
   getPublications = async () =>
-    db
+    this.db
       .select({
         name: reviewers.name,
         slug: reviewers.slug,
@@ -112,26 +100,26 @@ export class DatabaseClient {
       .all()
 
   getTopGenres = async (limit = 100) =>
-    db
+    this.db
       .select({ name: spotifyGenres.name })
       .from(spotifyGenres)
       .orderBy(spotifyGenres.id)
       .limit(limit)
       .all()
-      .map((genre) => genre.name)
+      .then((genres) => genres.map((genre) => genre.name))
 
   searchGenres = async (q: string) =>
-    db
+    this.db
       .select({ name: spotifyGenres.name })
       .from(spotifyGenres)
       .where(like(spotifyGenres.name, q + '%'))
       .orderBy(spotifyGenres.id)
       .limit(100 * q.length)
       .all()
-      .map((genre) => genre.name)
+      .then((genres) => genres.map((genre) => genre.name))
 
   getRandomGenre = async (limit?: number) => {
-    const { id } = db
+    const { id } = await this.db
       .select({ id: spotifyGenres.id })
       .from(spotifyGenres)
       .where(limit ? lt(spotifyGenres.id, limit) : undefined)
@@ -139,31 +127,33 @@ export class DatabaseClient {
       .limit(1)
       .get()
 
-    return db
+    return this.db
       .select({ name: spotifyGenres.name })
       .from(spotifyGenres)
       .where(eq(spotifyGenres.id, id))
       .limit(1)
-      .get().name
+      .get()
+      .then((genre) => genre.name)
   }
 
   getTwitterUsers = async () =>
-    db
+    this.db
       .select({ username: reviewers.name })
       .from(reviewers)
       .where(eq(reviewers.service, 'twitter'))
       .orderBy(sql`1 COLLATE NOCASE`)
       .all()
-      .map((user) => user.username)
+      .then((users) => users.map((user) => user.username))
 
   getRandomPublication = async () =>
-    db
+    this.db
       .select({ slug: reviewers.slug })
       .from(reviewers)
       .where(eq(reviewers.service, 'publication'))
       .orderBy(sql`RANDOM()`)
       .limit(1)
-      .get().slug
+      .get()
+      .then((publication) => publication.slug)
 
   getOrCreatePublication = async (data: {
     name: string
@@ -172,7 +162,7 @@ export class DatabaseClient {
     metadata?: typeof reviewers.metadata._.data
   }) => {
     try {
-      const { lastInsertRowid } = db
+      const { lastInsertRowid } = await this.db
         .insert(reviewers)
         .values({
           name: data.name,
@@ -185,7 +175,7 @@ export class DatabaseClient {
       return this.db
         .select()
         .from(reviewers)
-        .where(eq(reviewers.id, lastInsertRowid as number))
+        .where(eq(reviewers.id, Number(lastInsertRowid)))
         .get()
     } catch (e) {
       return this.getPublication(data.slug)
@@ -193,7 +183,7 @@ export class DatabaseClient {
   }
 
   getPublication = async (slug: string) =>
-    db.select().from(reviewers).where(eq(reviewers.slug, slug)).get()
+    this.db.select().from(reviewers).where(eq(reviewers.slug, slug)).get()
 
   insertReviewedItem = async (data: {
     reviewerID: number
@@ -217,9 +207,10 @@ export class DatabaseClient {
     }
 
     try {
-      return db.insert(reviewedItems).values(values).run().lastInsertRowid
+      const res = await this.db.insert(reviewedItems).values(values).run()
+      return res.lastInsertRowid
     } catch (e) {
-      return db
+      return this.db
         .update(reviewedItems)
         .set(values)
         .where(
@@ -229,11 +220,44 @@ export class DatabaseClient {
           )
         )
         .returning()
-        .get().id
+        .get()
+        .then((item) => item.id)
     }
   }
 }
 
-const api = new DatabaseClient({ path: 'data.db' })
+interface ConstructDatabaseOptions {
+  url: string
+  authToken: string
+  logger?: WinstonLogger | boolean
+}
 
-export default api
+export const constructRequestDatabase = ({
+  url,
+  authToken,
+  logger = false,
+}: ConstructDatabaseOptions) => {
+  const turso = createTursoClient({ url, authToken })
+  const drizzleLogger =
+    typeof logger === 'object' ? new DatabaseLogger(logger) : logger
+  const database = tursoDrizzle(turso, { logger: drizzleLogger })
+
+  return {
+    database,
+    model: new DatabaseClient({ drizzle: database }),
+  }
+}
+
+export const constructConsoleDatabase = () => {
+  const env = getEnv()
+  const turso = createTursoClient({
+    url: env.TURSO_DATABASE_URL,
+    authToken: env.TURSO_DATABASE_AUTH_TOKEN,
+  })
+  const database = tursoDrizzle(turso)
+
+  return {
+    database,
+    model: new DatabaseClient({ drizzle: database }),
+  }
+}

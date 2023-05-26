@@ -1,4 +1,4 @@
-import { createCookie } from '@remix-run/node'
+import { AppLoadContext, createCookie } from '@remix-run/node'
 import * as Sentry from '@sentry/remix'
 import pick from 'lodash/pick'
 import random from 'lodash/random'
@@ -7,13 +7,11 @@ import sampleSize from 'lodash/sampleSize'
 import SpotifyWebApi from 'spotify-web-api-node'
 import { WebapiError as SpotifyWebApiError } from 'spotify-web-api-node/src/response-error'
 import util from 'util'
+import type { Logger } from 'winston'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import cache from '~/lib/cache.server'
-import logger from '~/lib/logging.server'
 import userSettings from '~/lib/userSettings.server'
-
-import env from '~/env.server'
 
 import type { SpotifyArtist, SpotifyUser } from './types/spotify'
 
@@ -22,7 +20,9 @@ interface SpotifyOptions {
   refreshToken?: string | undefined | null
   country?: string
   lastPresentedID?: string | null
-  logger?: typeof logger
+  logger?: Logger
+  clientID: string
+  clientSecret: string
 }
 
 export class Spotify {
@@ -32,19 +32,19 @@ export class Spotify {
   private lastPresentedID: SpotifyOptions['lastPresentedID']
   private api: SpotifyWebApi
   private clientCredentialsTokenCacheKey = 'spotify-clientCredentialsToken'
-  private logger = logger
+  private logger?: Logger
 
-  constructor(options: SpotifyOptions = {}) {
+  constructor(options: SpotifyOptions) {
     this.userAccessToken = options.userAccessToken
     this.refreshToken = options.refreshToken
     this.country = options.country ?? 'US'
     this.lastPresentedID = options.lastPresentedID
-    this.logger = options.logger ?? logger
+    this.logger = options.logger
     this.api = new SpotifyWebApi({
-      clientId: env.SPOTIFY_CLIENT_ID,
-      clientSecret: env.SPOTIFY_CLIENT_SECRET,
+      clientId: options.clientID,
+      clientSecret: options.clientSecret,
       redirectUri:
-        env.NODE_ENV === 'production'
+        process.env.NODE_ENV === 'production'
           ? 'https://album-mode.party/spotify/callback'
           : 'http://localhost:3000/spotify/callback',
     })
@@ -123,7 +123,7 @@ export class Spotify {
             } catch (e: any) {
               if (e instanceof SpotifyWebApiError) {
                 if (e.statusCode === 429) {
-                  this.logger.error({
+                  this.logger?.error({
                     message: 'Spotify is rate limiting the application!',
                     exceptionMessage: e.message,
                     body: e.body,
@@ -133,7 +133,7 @@ export class Spotify {
                     method: propKey,
                   })
                 } else {
-                  this.logger.warn({
+                  this.logger?.warn({
                     message: 'Spotify threw an exception',
                     exceptionMessage: e.message,
                     body: e.body,
@@ -706,51 +706,19 @@ export class Spotify {
   }
 }
 
-const spotifyAPIFactory = () =>
-  new SpotifyWebApi({
-    clientId: env.SPOTIFY_CLIENT_ID,
-    clientSecret: env.SPOTIFY_CLIENT_SECRET,
-    redirectUri:
-      env.NODE_ENV === 'production'
-        ? 'https://album-mode.party/spotify/callback'
-        : 'http://localhost:3000/spotify/callback',
-  })
-
-export const spotifyAPI = spotifyAPIFactory()
-
-export const getMachineClient = async () => {
-  const client = spotifyAPIFactory()
-
-  if (!client.getAccessToken()) {
-    await client
-      .clientCredentialsGrant()
-      .then(({ body }) => client.setAccessToken(body.access_token))
-  }
-
-  return client
-}
-
-const getUserClient = (accessToken: string, refreshToken?: string) => {
-  const api = spotifyAPIFactory()
-  api.setAccessToken(accessToken)
-
-  if (refreshToken) {
-    api.setRefreshToken(refreshToken)
-  }
-
-  return api
-}
-
 const cookieFactory = createCookie('spotify', {
   maxAge: 3600,
 })
 
-const initializeFromRequest = async (req: Request) => {
+const initializeFromRequest = async (req: Request, context: AppLoadContext) => {
   const session = await spotifyStrategy.getSession(req)
   const settings = await userSettings.get(req)
   const [currentSearchType] = userSettings.getCurrentSearchFromRequest(req)
   const options: SpotifyOptions = {
     lastPresentedID: undefined,
+    logger: context?.logger,
+    clientID: context.env.SPOTIFY_CLIENT_ID,
+    clientSecret: context.env.SPOTIFY_CLIENT_SECRET,
   }
 
   if (settings.lastPresented && settings.lastSearchType === currentSearchType) {
@@ -780,9 +748,6 @@ const initializeFromRequest = async (req: Request) => {
 const api = {
   initializeFromRequest,
   cookieFactory,
-  spotifyAPI,
-  getUserClient,
-  getMachineClient,
 }
 
 export default api

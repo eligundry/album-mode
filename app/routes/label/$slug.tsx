@@ -9,18 +9,15 @@ import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 
-export async function loader({
-  params,
-  request,
-  context: { logger },
-}: LoaderArgs) {
+export async function loader({ params, request, context }: LoaderArgs) {
+  const { logger } = context
   const label = params.slug
 
   if (!label) {
     throw badRequest({ error: 'slug must be provided in URL', logger })
   }
 
-  const spotify = await spotifyLib.initializeFromRequest(request)
+  const spotify = await spotifyLib.initializeFromRequest(request, context)
   const album = await spotify.getRandomAlbumForLabel(label)
   const wiki = await wikipedia.getSummaryForAlbum({
     album: album.name,

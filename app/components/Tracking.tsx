@@ -1,7 +1,5 @@
 import { Partytown } from '@builder.io/partytown/react'
 
-import env from '~/env.server'
-
 interface Props {
   disablePartytown?: boolean
 }
@@ -12,10 +10,7 @@ const Tracking: React.FC<Props> = ({ disablePartytown }) => {
   return (
     <>
       {!disablePartytown && (
-        <Partytown
-          debug={env.NODE_ENV === 'development'}
-          forward={['dataLayer.push']}
-        />
+        <Partytown debug={false} forward={['dataLayer.push']} />
       )}
       <script
         type={scriptType}

@@ -12,11 +12,8 @@ import Playlist from '~/components/Album/Playlist'
 import { Layout, Link } from '~/components/Base'
 import config from '~/config'
 
-export async function loader({
-  params,
-  request,
-  context: { serverTiming, logger },
-}: LoaderArgs) {
+export async function loader({ params, request, context }: LoaderArgs) {
+  const { serverTiming, logger } = context
   const categoryID = params.id?.trim()
 
   if (!categoryID) {
@@ -27,7 +24,7 @@ export async function loader({
   }
 
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request)
+    spotifyLib.initializeFromRequest(request, context)
   )
   const { category, playlist } = await promiseHash({
     category: serverTiming.track('spotify.fetch-category', () =>

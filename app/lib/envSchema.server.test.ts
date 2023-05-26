@@ -11,7 +11,6 @@ const baseEnv = {
   BASIC_AUTH_PASSWORD: 'password',
   CI: 'false',
   COMMIT_REF: 'xxx',
-  DATABASE_URL: 'file:./dev.db?pool_timeout=0',
   GROWTHBOOK_API_HOST: 'https://example.com',
   GROWTHBOOK_CLIENT_KEY: 'xxx',
   LOGGER_EMAIL_SETTINGS: {
@@ -26,10 +25,8 @@ const baseEnv = {
   SENTRY_DSN: 'xxx',
   SPOTIFY_CLIENT_ID: 'xxx',
   SPOTIFY_CLIENT_SECRET: 'yyy',
-  TWITTER_APP_KEY: 'xxx',
-  TWITTER_APP_SECRET: 'yyy',
-  TWITTER_ACCESS_TOKEN: 'aaa',
-  TWITTER_ACCESS_SECRET: 'bbb',
+  TURSO_DATABASE_URL: 'libsql://database.turso.io',
+  TURSO_DATABASE_AUTH_TOKEN: 'xxx',
 }
 
 describe('envSchema', () => {
@@ -61,7 +58,8 @@ describe('envSchema', () => {
     'APP_AWS_ACCESS_KEY_ID',
     'APP_AWS_ACCESS_KEY_ID',
     'AUTH_SECRETS',
-    'DATABASE_URL',
+    'TURSO_DATABASE_URL',
+    'TURSO_DATABASE_AUTH_TOKEN',
     'OG_API_URL',
   ]
 

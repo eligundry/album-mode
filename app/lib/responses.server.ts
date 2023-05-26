@@ -8,24 +8,19 @@ import {
   unauthorized as _unauthorized,
   unprocessableEntity as _unprocessableEntity,
 } from 'remix-utils'
+import type { Logger } from 'winston'
 import type { ZodIssue } from 'zod'
-
-import globalLogger from '~/lib/logging.server'
 
 type ErrorMessage = {
   error: string
   detail?: string
   issues?: ZodIssue[]
-  logger?: typeof globalLogger
+  logger?: Logger
   headers?: HeadersInit
 }
 
-export function badRequest({
-  logger = globalLogger,
-  headers,
-  ...message
-}: ErrorMessage) {
-  logger.warn({
+export function badRequest({ logger, headers, ...message }: ErrorMessage) {
+  logger?.warn({
     message: message.error,
     ...omit(message, ['error']),
   })
@@ -33,12 +28,8 @@ export function badRequest({
   throw _badRequest(message, { headers })
 }
 
-export function serverError({
-  logger = globalLogger,
-  headers,
-  ...message
-}: ErrorMessage) {
-  logger.error({
+export function serverError({ logger, headers, ...message }: ErrorMessage) {
+  logger?.error({
     message: message.error,
     ...omit(message, ['error']),
   })
@@ -46,12 +37,8 @@ export function serverError({
   throw _serverError(message, { headers })
 }
 
-export function unauthorized({
-  logger = globalLogger,
-  headers,
-  ...message
-}: ErrorMessage) {
-  logger.info({
+export function unauthorized({ logger, headers, ...message }: ErrorMessage) {
+  logger?.info({
     message: message.error,
     ...omit(message, ['error']),
   })
@@ -59,12 +46,8 @@ export function unauthorized({
   throw _unauthorized(message, { headers })
 }
 
-export function forbidden({
-  logger = globalLogger,
-  headers,
-  ...message
-}: ErrorMessage) {
-  logger.info({
+export function forbidden({ logger, headers, ...message }: ErrorMessage) {
+  logger?.info({
     message: message.error,
     ...omit(message, ['error']),
   })
@@ -72,12 +55,8 @@ export function forbidden({
   throw _forbidden(message, { headers })
 }
 
-export function notFound({
-  logger = globalLogger,
-  headers,
-  ...message
-}: ErrorMessage) {
-  logger.info({
+export function notFound({ logger, headers, ...message }: ErrorMessage) {
+  logger?.info({
     message: message.error,
     ...omit(message, ['error']),
   })
@@ -86,11 +65,11 @@ export function notFound({
 }
 
 export function unprocessableEntity({
-  logger = globalLogger,
+  logger,
   headers,
   ...message
 }: ErrorMessage) {
-  logger.warn({
+  logger?.warn({
     message: message.error,
     ...omit(message, ['error']),
   })
