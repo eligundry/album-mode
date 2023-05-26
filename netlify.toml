@@ -26,5 +26,5 @@
     "!node_modules/@sentry/webpack-plugin/**/*",
   ]
 
-[[plugins]]
-  package = "@sentry/netlify-build-plugin"
+# [[plugins]]
+#   package = "@sentry/netlify-build-plugin"
