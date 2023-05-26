@@ -7,8 +7,8 @@ import { urlWithUTMParams } from '~/lib/queryParams'
 const bloomsburyScraper = async (storeSlug: string) => {
   const { model } = constructConsoleDatabase()
   const publication = await model.getOrCreatePublication({
-    name: '33 ⅓',
-    slug: '33-13',
+    name: '33 ⅓ Sound',
+    slug: '33-13-sound',
     service: 'publication',
     metadata: {
       url: 'https://333sound.com/33-13-series/',
