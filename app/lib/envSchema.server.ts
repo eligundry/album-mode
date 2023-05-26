@@ -15,8 +15,6 @@ export const envSchema = z.object({
   ),
   CI: z.coerce.boolean().default(false),
   COMMIT_REF: z.string().optional(),
-  DATABASE_URL: z.string(),
-  DATABASE_PATH: z.string().default('data.db'),
   GROWTHBOOK_API_HOST: z.string().url().default('https://cdn.growthbook.io'),
   GROWTHBOOK_CLIENT_KEY: z.string().default(''),
   LOGGER_EMAIL_SETTINGS: z
