@@ -3,10 +3,14 @@ import { and, eq, inArray } from 'drizzle-orm'
 import { BrowserContext, chromium } from 'playwright'
 
 import bandcamp from '~/lib/bandcamp.server'
-import database, { db, reviewedItems } from '~/lib/database/index.server'
+import {
+  constructConsoleDatabase,
+  reviewedItems,
+} from '~/lib/database/index.server'
 import { constructLogger } from '~/lib/logging.server'
 import { BandcampAlbum } from '~/lib/types/bandcamp'
 
+const { database, model } = constructConsoleDatabase()
 const logger = constructLogger()
 const bandcampDailyBase = 'https://daily.bandcamp.com'
 const bandcampDailyURL = new URL('https://daily.bandcamp.com/album-of-the-day')
@@ -21,7 +25,7 @@ type DailyBandcampAlbum = BandcampAlbum & {
 
 const scrape = async () => {
   const browser = await chromium.launch()
-  const publication = await database.getPublication('bandcamp-daily')
+  const publication = await model.getPublication('bandcamp-daily')
 
   try {
     const context = await browser.newContext()
@@ -73,7 +77,7 @@ const scrape = async () => {
         continue
       }
 
-      const pathsAlreadyFetched = db
+      const pathsAlreadyFetched = await database
         .select({ reviewURL: reviewedItems.reviewURL })
         .from(reviewedItems)
         .where(
@@ -86,7 +90,7 @@ const scrape = async () => {
           )
         )
         .all()
-        .map((r) => r.reviewURL)
+        .then((r) => r.map((r) => r.reviewURL))
 
       console.log(pathsAlreadyFetched)
 
@@ -122,7 +126,7 @@ const scrape = async () => {
       albums.map((album) => {
         if (!album) return false
 
-        return database
+        return model
           .insertReviewedItem({
             reviewerID: publication.id,
             reviewURL: album.bandcampDailyURL,

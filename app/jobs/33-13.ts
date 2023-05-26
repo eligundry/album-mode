@@ -1,11 +1,12 @@
 import { chromium } from 'playwright'
 
-import database from '~/lib/database/index.server'
+import { constructConsoleDatabase } from '~/lib/database/index.server'
 import { urlWithUTMParams } from '~/lib/queryParams'
 
 // Pulls albums from the US version of 33 1/3.
 const bloomsburyScraper = async (storeSlug: string) => {
-  const publication = await database.getOrCreatePublication({
+  const { model } = constructConsoleDatabase()
+  const publication = await model.getOrCreatePublication({
     name: '33 ⅓',
     slug: '33-13',
     service: 'publication',
@@ -66,7 +67,7 @@ const bloomsburyScraper = async (storeSlug: string) => {
           term: '33-13',
         })
 
-        database
+        model
           .insertReviewedItem({
             reviewerID: publication.id,
             reviewURL: slug.toString(),

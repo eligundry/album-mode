@@ -5,9 +5,10 @@ import trim from 'lodash/trim'
 import { stripHtml } from 'string-strip-html'
 import { TextDecoder } from 'util'
 
-import database from '~/lib/database/index.server'
+import { constructConsoleDatabase } from '~/lib/database/index.server'
 import { constructLogger } from '~/lib/logging.server'
 
+const { model } = constructConsoleDatabase()
 const logger = constructLogger()
 const axiosChristgau = axios.create({
   baseURL: 'https://www.robertchristgau.com/xg/pnj/',
@@ -90,7 +91,7 @@ const seedPazzAndJop = async () => {
 
       await Promise.all(
         albums.map(async (data) =>
-          database
+          model
             .insertReviewedItem({
               reviewerID: 1,
               reviewURL: data.slug,
@@ -201,7 +202,7 @@ const seedPazzAndJopDeansLists = async () => {
 
       await Promise.all(
         albums.map(async (data) =>
-          database
+          model
             .insertReviewedItem({
               reviewerID: 1,
               reviewURL: data.slug,

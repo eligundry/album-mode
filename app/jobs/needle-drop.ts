@@ -2,7 +2,7 @@ import retry from 'async-retry'
 import kebabCase from 'lodash/kebabCase'
 import { chromium } from 'playwright'
 
-import database from '~/lib/database/index.server'
+import { constructConsoleDatabase } from '~/lib/database/index.server'
 import { constructLogger } from '~/lib/logging.server'
 import { urlWithUTMParams } from '~/lib/queryParams'
 
@@ -17,7 +17,8 @@ type DataMap = Record<
 >
 
 const needleDrop = async () => {
-  const publication = await database.getPublication('needle-drop')
+  const { model } = constructConsoleDatabase()
+  const publication = await model.getPublication('needle-drop')
 
   if (!publication) {
     throw new Error('could not create or fetch publication')
@@ -122,7 +123,7 @@ const needleDrop = async () => {
 
   await Promise.all(
     Object.entries(albumArtistMap).map(([album, { artist, reviewURL }]) =>
-      database
+      model
         .insertReviewedItem({
           reviewerID: publication.id,
           reviewURL,

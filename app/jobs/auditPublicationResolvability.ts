@@ -1,12 +1,16 @@
 import Bottleneck from 'bottleneck'
 import { eq, gt } from 'drizzle-orm'
 
-import { db, reviewedItems } from '~/lib/database/index.server'
+import {
+  constructConsoleDatabase,
+  reviewedItems,
+} from '~/lib/database/index.server'
 import { Spotify } from '~/lib/spotify.server'
 
 import { getEnv } from '~/env.server'
 
 const env = getEnv()
+const { database } = constructConsoleDatabase()
 const spotify = new Spotify({
   clientID: env.SPOTIFY_CLIENT_ID,
   clientSecret: env.SPOTIFY_CLIENT_SECRET,
@@ -27,7 +31,8 @@ const updateAlbumResolvability = limiter.wrap(
       console.log(`${album} by ${artist} is not resolvable`)
     }
 
-    db.update(reviewedItems)
+    await database
+      .update(reviewedItems)
       .set({ resolvable: resolvable ? 1 : 0 })
       .where(eq(reviewedItems.id, id))
       .run()
@@ -35,7 +40,7 @@ const updateAlbumResolvability = limiter.wrap(
 )
 
 const main = async () => {
-  const albums = db
+  const albums = await database
     .select()
     .from(reviewedItems)
     .where(gt(reviewedItems.id, 1956))

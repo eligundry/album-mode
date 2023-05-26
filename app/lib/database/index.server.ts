@@ -11,6 +11,8 @@ import {
 import { drizzle as tursoDrizzle } from 'drizzle-orm/libsql'
 import { Logger as WinstonLogger } from 'winston'
 
+import { getEnv } from '~/env.server'
+
 import { reviewedItems, reviewers, spotifyGenres } from './schema.server'
 import type { ReviewedItem, Reviewer, SpotifyGenre } from './schema.server'
 
@@ -239,6 +241,20 @@ export const constructRequestDatabase = ({
   const drizzleLogger =
     typeof logger === 'object' ? new DatabaseLogger(logger) : logger
   const database = tursoDrizzle(turso, { logger: drizzleLogger })
+
+  return {
+    database,
+    model: new DatabaseClient({ drizzle: database }),
+  }
+}
+
+export const constructConsoleDatabase = () => {
+  const env = getEnv()
+  const turso = createTursoClient({
+    url: env.TURSO_DATABASE_URL,
+    authToken: env.TURSO_DATABASE_AUTH_TOKEN,
+  })
+  const database = tursoDrizzle(turso)
 
   return {
     database,
