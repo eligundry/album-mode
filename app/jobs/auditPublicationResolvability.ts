@@ -4,7 +4,13 @@ import { eq, gt } from 'drizzle-orm'
 import { db, reviewedItems } from '~/lib/database/index.server'
 import { Spotify } from '~/lib/spotify.server'
 
-const spotify = new Spotify()
+import { getEnv } from '~/env.server'
+
+const env = getEnv()
+const spotify = new Spotify({
+  clientID: env.SPOTIFY_CLIENT_ID,
+  clientSecret: env.SPOTIFY_CLIENT_SECRET,
+})
 const limiter = new Bottleneck({
   maxConcurrent: 10,
   minTime: 3 * 1000,

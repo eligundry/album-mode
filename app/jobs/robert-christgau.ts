@@ -6,8 +6,9 @@ import { stripHtml } from 'string-strip-html'
 import { TextDecoder } from 'util'
 
 import database from '~/lib/database/index.server'
-import logger from '~/lib/logging.server'
+import { constructLogger } from '~/lib/logging.server'
 
+const logger = constructLogger()
 const axiosChristgau = axios.create({
   baseURL: 'https://www.robertchristgau.com/xg/pnj/',
   responseType: 'arraybuffer',

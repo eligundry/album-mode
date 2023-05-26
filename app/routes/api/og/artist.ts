@@ -10,9 +10,9 @@ const paramsSchema = zfd.formData({
   artistID: z.string(),
 })
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request, context }: LoaderArgs) {
   const { artistID } = paramsSchema.parse(new URL(request.url).searchParams)
-  const spotify = await spotifyLib.initializeFromRequest(request)
+  const spotify = await spotifyLib.initializeFromRequest(request, context)
   const { artist, relatedArtists } = await promiseHash({
     artist: spotify.getArtistByID(artistID),
     relatedArtists: spotify.getRelatedArtists(artistID),

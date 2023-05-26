@@ -18,7 +18,7 @@ export async function loader({ request, context }: LoaderArgs) {
   )
 
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request)
+    spotifyLib.initializeFromRequest(request, context)
   )
   const currentlyPlaying = await retry(async (_, attempt) => {
     const album = await serverTiming.track('spotify.fetch', () =>

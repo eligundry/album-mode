@@ -9,8 +9,9 @@ import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 
-export async function loader({ request, context: { logger } }: LoaderArgs) {
-  const spotify = await spotifyLib.initializeFromRequest(request)
+export async function loader({ request, context }: LoaderArgs) {
+  const { logger } = context
+  const spotify = await spotifyLib.initializeFromRequest(request, context)
   const url = new URL(request.url)
   const label = url.searchParams.get('label')
 

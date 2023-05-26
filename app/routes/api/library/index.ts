@@ -19,7 +19,7 @@ export async function action({ request, context }: ActionArgs) {
       userSettings.get(request)
     ),
     spotify: serverTiming.track('spotify.init', () =>
-      spotifyLib.initializeFromRequest(request)
+      spotifyLib.initializeFromRequest(request, context)
     ),
   })
 

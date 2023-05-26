@@ -2,7 +2,7 @@ import { unauthorized } from 'remix-utils'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 
-import env from '~/env.server'
+import { getEnv } from '~/env.server'
 
 export const isAuthorized = async (request: Request) => {
   const session = await spotifyStrategy.getSession(request)
@@ -11,7 +11,7 @@ export const isAuthorized = async (request: Request) => {
     throw unauthorized({ error: 'you are not logged in!' })
   }
 
-  if (!env.ADMIN_SPOTIFY_USERNAMES.includes(session.user.name)) {
+  if (!getEnv().ADMIN_SPOTIFY_USERNAMES.includes(session.user.name)) {
     throw unauthorized({ error: 'you are not an admin!' })
   }
 

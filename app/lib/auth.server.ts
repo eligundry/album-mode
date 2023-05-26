@@ -2,7 +2,9 @@ import { createCookieSessionStorage } from '@remix-run/node'
 import { Authenticator } from 'remix-auth'
 import { SpotifyStrategy } from 'remix-auth-spotify'
 
-import env from '~/env.server'
+import { getEnv } from '~/env.server'
+
+const env = getEnv()
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {

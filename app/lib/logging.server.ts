@@ -2,9 +2,10 @@ import emailjs from '@emailjs/nodejs'
 import winston from 'winston'
 import Transport, { TransportStreamOptions } from 'winston-transport'
 
-import env from '~/env.server'
+import { getEnv } from '~/env.server'
 
 interface EmailJsTransportOptions extends TransportStreamOptions {
+  logger: winston.Logger
   publicKey: string
   privateKey: string
   templateID: string
@@ -18,8 +19,10 @@ class EmailJsTransport extends Transport implements Transport {
   templateID: string
   serviceID: string
   filter: EmailJsTransportOptions['filter']
+  logger: winston.Logger
 
   constructor({
+    logger,
     publicKey,
     privateKey,
     templateID,
@@ -33,6 +36,7 @@ class EmailJsTransport extends Transport implements Transport {
     this.templateID = templateID
     this.serviceID = serviceID
     this.filter = filter
+    this.logger = logger
   }
 
   public async log(info: any, next: () => void) {
@@ -55,12 +59,12 @@ class EmailJsTransport extends Transport implements Transport {
         }
       )
 
-      logger.debug({
+      this.logger.debug({
         message: 'sent log message to emailjs',
         response,
       })
     } catch (error) {
-      logger.warn({
+      this.logger.warn({
         message: 'could not send message through emailjs to notify of error',
         error,
       })
@@ -70,25 +74,30 @@ class EmailJsTransport extends Transport implements Transport {
   }
 }
 
-const logger = winston.createLogger({
-  level: 'info',
-  transports: [new winston.transports.Console()],
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json({
-      space: env.SEED_SCRIPT ? 4 : undefined,
-    })
-  ),
-})
+export const constructLogger = () => {
+  const env = getEnv()
 
-if (env.LOGGER_EMAIL_SETTINGS) {
-  logger.add(
-    new EmailJsTransport({
-      ...env.LOGGER_EMAIL_SETTINGS,
-      level: 'error',
-      filter: (info) => !!info.email,
-    })
-  )
+  const logger = winston.createLogger({
+    level: 'info',
+    transports: [new winston.transports.Console()],
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.json({
+        space: env.SEED_SCRIPT || env.NODE_ENV !== 'production' ? 4 : undefined,
+      })
+    ),
+  })
+
+  if (env.LOGGER_EMAIL_SETTINGS) {
+    logger.add(
+      new EmailJsTransport({
+        ...env.LOGGER_EMAIL_SETTINGS,
+        level: 'error',
+        filter: (info) => !!info.email,
+        logger,
+      })
+    )
+  }
+
+  return logger
 }
-
-export default logger

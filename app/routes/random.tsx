@@ -5,7 +5,8 @@ import spotifyLib from '~/lib/spotify.server'
 
 const options = ['artist', 'genre', 'publication'] as const
 
-export async function loader({ request, context: { database } }: LoaderArgs) {
+export async function loader({ request, context }: LoaderArgs) {
+  const { database } = context
   const option = sample<(typeof options)[number]>(options)
 
   switch (option) {
@@ -20,7 +21,7 @@ export async function loader({ request, context: { database } }: LoaderArgs) {
       )
 
     case 'artist':
-      const spotify = await spotifyLib.initializeFromRequest(request)
+      const spotify = await spotifyLib.initializeFromRequest(request, context)
       const artist = await spotify.getRandomTopArtist()
       return redirect(`/spotify/artist-id/${artist.id}?from=play-me-something`)
 

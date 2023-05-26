@@ -36,10 +36,8 @@ export const envSchema = z.object({
   SENTRY_DSN: z.string().optional(),
   SPOTIFY_CLIENT_ID: z.string(),
   SPOTIFY_CLIENT_SECRET: z.string(),
-  TWITTER_APP_KEY: z.string().optional(),
-  TWITTER_APP_SECRET: z.string().optional(),
-  TWITTER_ACCESS_TOKEN: z.string().optional(),
-  TWITTER_ACCESS_SECRET: z.string().optional(),
+  TURSO_DATABASE_URL: z.string().url().startsWith('libsql://'),
+  TURSO_DATABASE_AUTH_TOKEN: z.string(),
 })
 
 export const webAppEnvSchema = envSchema.extend({

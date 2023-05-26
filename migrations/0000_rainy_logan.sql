@@ -36,7 +36,7 @@ CREATE TRIGGER `trg_ReviewedItemsUpdatedAt`
 AFTER UPDATE ON `ReviewedItems`
 FOR EACH ROW
 BEGIN
-    UPDATE `ReviewedItems` SET updatedAt = CURRENT_TIMESTAMP WHERE id = OLD.id;
+    UPDATE `ReviewedItems` SET updatedAt = CURRENT_TIMESTAMP WHERE id = OLD.id
 END;
 --> statement-breakpoint
 CREATE TRIGGER `trg_ReviewersUpdatedAt`

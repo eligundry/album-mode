@@ -14,11 +14,8 @@ import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 import config from '~/config'
 
-export async function loader({
-  request,
-  params,
-  context: { serverTiming, logger },
-}: LoaderArgs) {
+export async function loader({ request, params, context }: LoaderArgs) {
+  const { serverTiming, logger } = context
   const genre = params.genre
 
   if (!genre) {
@@ -29,7 +26,7 @@ export async function loader({
   }
 
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request)
+    spotifyLib.initializeFromRequest(request, context)
   )
   const album = await retry(async (_, attempt) => {
     const album = await serverTiming.track('spotify.fetch', () =>

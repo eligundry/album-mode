@@ -11,7 +11,9 @@ import {
   defaultLibrary,
 } from '~/lib/types/library'
 
-import env from '~/env.server'
+import { getEnv } from '~/env.server'
+
+const env = getEnv()
 
 const TableName = 'AlbumModeLibrary'
 

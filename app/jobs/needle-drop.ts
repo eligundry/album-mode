@@ -3,8 +3,10 @@ import kebabCase from 'lodash/kebabCase'
 import { chromium } from 'playwright'
 
 import database from '~/lib/database/index.server'
-import logger from '~/lib/logging.server'
+import { constructLogger } from '~/lib/logging.server'
 import { urlWithUTMParams } from '~/lib/queryParams'
+
+const logger = constructLogger()
 
 type DataMap = Record<
   string,

@@ -4,9 +4,10 @@ import { BrowserContext, chromium } from 'playwright'
 
 import bandcamp from '~/lib/bandcamp.server'
 import database, { db, reviewedItems } from '~/lib/database/index.server'
-import logger from '~/lib/logging.server'
+import { constructLogger } from '~/lib/logging.server'
 import { BandcampAlbum } from '~/lib/types/bandcamp'
 
+const logger = constructLogger()
 const bandcampDailyBase = 'https://daily.bandcamp.com'
 const bandcampDailyURL = new URL('https://daily.bandcamp.com/album-of-the-day')
 const dailyLimiter = new Bottleneck({

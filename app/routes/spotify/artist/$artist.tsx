@@ -11,14 +11,10 @@ import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 import config from '~/config'
-import env from '~/env.server'
 
-export async function loader({
-  request,
-  params,
-  context: { serverTiming, logger },
-}: LoaderArgs) {
-  const spotify = await spotifyLib.initializeFromRequest(request)
+export async function loader({ request, params, context }: LoaderArgs) {
+  const { serverTiming, logger, env } = context
+  const spotify = await spotifyLib.initializeFromRequest(request, context)
   let artistParam = params.artist
 
   if (!artistParam) {
@@ -62,6 +58,7 @@ export async function loader({
       album,
       artist,
       wiki,
+      OG_API_URL: env.OG_API_URL,
     },
     {
       headers: {
@@ -84,7 +81,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
   const title = `Discover music similar to ${data.artist.name}`
   const description = `We think that you might like ${data.album.artists[0].name}`
-  const ogImage = `${env.OG_API_URL}/api/artist/${data.artist.id}`
+  const ogImage = `${data.OG_API_URL}/api/artist/${data.artist.id}`
 
   return {
     title: `${title} | ${config.siteTitle}`,
