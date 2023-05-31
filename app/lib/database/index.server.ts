@@ -13,10 +13,15 @@ import { Logger as WinstonLogger } from 'winston'
 
 import { getEnv } from '~/env.server'
 
-import { reviewedItems, reviewers, spotifyGenres } from './schema.server'
+import {
+  reviewedItems,
+  reviewers,
+  savedItems,
+  spotifyGenres,
+} from './schema.server'
 import type { ReviewedItem, Reviewer, SpotifyGenre } from './schema.server'
 
-export { reviewedItems, reviewers, spotifyGenres }
+export { reviewedItems, reviewers, spotifyGenres, savedItems }
 export type { Reviewer, ReviewedItem, SpotifyGenre }
 
 class DatabaseLogger implements DrizzleLogger {

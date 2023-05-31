@@ -7,14 +7,16 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/sqlite-core'
 
+const timestampSQL = sql`(cast(strftime('%s', 'now') as int))`
+
 const recordKeeping = {
   id: integer('id').primaryKey(),
   createdAt: integer('createdAt', { mode: 'timestamp' })
     .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
+    .default(timestampSQL),
   updatedAt: integer('updatedAt', { mode: 'timestamp' })
     .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
+    .default(timestampSQL),
 }
 
 export const reviewers = sqliteTable(
@@ -84,9 +86,49 @@ export const spotifyGenres = sqliteTable(
     ...recordKeeping,
     name: text('name').notNull(),
   },
-  (spotifyGenre) => ({
-    uniqueSlug: uniqueIndex('uq_SpotifyGenreName').on(spotifyGenre.name),
+  (spotifyGenres) => ({
+    uniqueSlug: uniqueIndex('uq_SpotifyGenreName').on(spotifyGenres.name),
   })
 )
 
 export type SpotifyGenre = typeof spotifyGenres._.model.select
+
+export type SavedSearch = {
+  type: 'search'
+  crumbs: string[]
+  path: string
+}
+
+export type LibraryItem = {
+  type: 'library'
+  name: string
+  creator: string
+  url: string
+  creatorURL?: string | null
+  imageURL?: string | null
+  service: 'spotify' | 'bandcamp'
+}
+
+export const savedItems = sqliteTable(
+  'SavedItems',
+  {
+    ...recordKeeping,
+    deletedAt: integer('deletedAt', { mode: 'timestamp' }),
+    user: text('user').notNull(),
+    type: text('type', { enum: ['library', 'search', 'settings'] }),
+    identifier: text('identifier').notNull(),
+    metadata: blob('metadata', { mode: 'json' }).$type<
+      SavedSearch | LibraryItem
+    >(),
+  },
+  (savedItems) => ({
+    uniqueSlug: uniqueIndex('uq_SavedItemsIdentifier').on(
+      savedItems.user,
+      savedItems.identifier,
+      savedItems.type,
+      savedItems.deletedAt
+    ),
+  })
+)
+
+export type SavedItem = typeof savedItems._.model.select
