@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import useGTM from '~/hooks/useGTM'
-import useLibrary, { LibraryItem } from '~/hooks/useLibrary'
+import useLibrary, { LocalLibraryItem } from '~/hooks/useLibrary'
 import useModal from '~/hooks/useModal'
 
 export default function useRating() {
@@ -10,29 +10,23 @@ export default function useRating() {
   const { clearRejections, addRejection } = useModal()
 
   const positiveReview = useCallback(
-    (item: LibraryItem) => {
-      const albumURL =
-        item.type === 'bandcamp' ? item.url : item.external_urls.spotify
-
+    (item: Omit<LocalLibraryItem, 'savedAt'>) => {
       clearRejections()
       saveItem(item)
       sendEvent({
         event: 'Positive Review',
-        albumURL,
+        albumURL: item.url,
       })
     },
     [sendEvent, saveItem, clearRejections]
   )
 
   const negativeReview = useCallback(
-    (item: LibraryItem) => {
-      const albumURL =
-        item.type === 'bandcamp' ? item.url : item.external_urls.spotify
-
+    (item: Omit<LocalLibraryItem, 'savedAt'>) => {
       addRejection()
       sendEvent({
         event: 'Negative Review',
-        albumURL,
+        albumURL: item.url,
       })
     },
     [sendEvent, addRejection]

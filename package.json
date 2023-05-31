@@ -21,7 +21,6 @@
     "migration:up": "drizzle-kit up:sqlite"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.332.0",
     "@builder.io/partytown": "^0.8.0",
     "@eligundry/server-timing": "^1.0.1",
     "@emailjs/nodejs": "^2.2.0",

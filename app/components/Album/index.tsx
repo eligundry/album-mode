@@ -13,7 +13,9 @@ import useUTM from '~/hooks/useUTM'
 import AlbumWrapper from './Wrapper'
 
 interface NewProps {
-  album: SpotifyApi.AlbumObjectSimplified
+  album: SpotifyApi.AlbumObjectSimplified & {
+    genres?: string[]
+  }
   footer?: React.ReactNode
   forceTall?: boolean
   wiki?: IWikipediaSummary | null
@@ -107,7 +109,17 @@ const Album: React.FC<NewProps> = ({
             {wiki && <WikipediaSummary summary={wiki} />}
           </>
         }
-        reviewProps={{ item: album }}
+        reviewProps={{
+          genres: album.genres,
+          item: {
+            service: 'spotify',
+            name: album.name,
+            creator: album.artists[0].name,
+            url: album.external_urls.spotify,
+            creatorURL: album.artists[0].external_urls.spotify,
+            image: album.images[0],
+          },
+        }}
         releaseDate={album.release_date}
       />
     </Container>

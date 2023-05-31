@@ -2,17 +2,23 @@ import { createClient as createTursoClient } from '@libsql/client'
 import {
   Logger as DrizzleLogger,
   and,
+  desc,
   eq,
+  isNull,
   like,
   lt,
   ne,
   sql,
 } from 'drizzle-orm'
 import { drizzle as tursoDrizzle } from 'drizzle-orm/libsql'
+import omit from 'lodash/omit'
 import { Logger as WinstonLogger } from 'winston'
+
+import type { LocalLibraryItem, ServerLibraryItem } from '~/lib/types/library'
 
 import { getEnv } from '~/env.server'
 
+import { librarySelectColumns } from './libraryQuery'
 import {
   reviewedItems,
   reviewers,
@@ -229,6 +235,55 @@ export class DatabaseClient {
         .then((item) => item.id)
     }
   }
+
+  getLibrary = async (username: string): Promise<ServerLibraryItem[]> =>
+    this.db
+      .select(librarySelectColumns)
+      .from(savedItems)
+      .where(
+        and(
+          eq(savedItems.user, username),
+          eq(savedItems.type, 'library'),
+          isNull(savedItems.deletedAt)
+        )
+      )
+      .orderBy(savedItems.id)
+      .all()
+
+  saveItemToLibrary = async ({
+    item,
+    username,
+  }: {
+    item: LocalLibraryItem
+    username: string
+  }) =>
+    this.db
+      .insert(savedItems)
+      .values({
+        type: 'library',
+        createdAt: item.savedAt ? new Date(item.savedAt) : new Date(),
+        user: username,
+        identifier: item.url,
+        metadata: {
+          type: 'library',
+          ...omit(item, ['savedAt']),
+        },
+      })
+      .returning(librarySelectColumns)
+      .get()
+
+  removeItemFromLibrary = async ({
+    id,
+    username,
+  }: {
+    id: number
+    username: string
+  }) =>
+    this.db
+      .update(savedItems)
+      .set({ deletedAt: new Date() })
+      .where(and(eq(savedItems.user, username), eq(savedItems.id, id)))
+      .run()
 }
 
 interface ConstructDatabaseOptions {

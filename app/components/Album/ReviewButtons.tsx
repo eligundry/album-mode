@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import { useState } from 'react'
 import Confetti from 'react-confetti'
 
-import type { LibraryItem } from '~/lib/types/library'
+import type { LocalLibraryItem } from '~/lib/types/library'
 
 import { ButtonLink, EmojiText, Heading } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
@@ -14,11 +14,16 @@ import useRating from '~/hooks/useRating'
 import useUTM from '~/hooks/useUTM'
 
 export interface ReviewButtonProps {
-  item: LibraryItem
+  item: Omit<LocalLibraryItem, 'savedAt'>
+  genres?: string[]
   className?: string
 }
 
-const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
+const ReviewButtons: React.FC<ReviewButtonProps> = ({
+  item,
+  genres,
+  className,
+}) => {
   const [party, setParty] = useState(false)
   const { positiveReview, negativeReview } = useRating()
   const { width, height } = useWindowSize()
@@ -26,20 +31,18 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({ item }) => {
   const refreshURL = useCurrentPath()
   const sendEvent = useGTM()
   const { createExternalURL } = useUTM()
-  const playURL = createExternalURL(
-    item.type === 'bandcamp' ? item.url : item.external_urls.spotify
-  )
+  const playURL = createExternalURL(item.url)
 
   return (
     <>
-      <div className={clsx('flex', 'flex-col', 'gap-2', 'w-full')}>
-        {item.type === 'album' && item.genres && item.genres.length > 0 && (
+      <div className={clsx('flex', 'flex-col', 'gap-2', 'w-full', className)}>
+        {genres && genres.length > 0 && (
           <>
             <Heading level="h5" noSpacing>
               Genres
             </Heading>
             <ButtonLinkGroup
-              items={item.genres.slice(0, 3)}
+              items={genres.slice(0, 3)}
               keyFunction={(genre, i) => `${genre}-${i}`}
               toFunction={(genre) => `/genre/${genre}`}
               childFunction={(genre) => genre}

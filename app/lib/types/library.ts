@@ -1,54 +1,10 @@
-export type SavedItem<T> = T & {
+import type { LibraryItem as _LibraryItem } from '~/lib/database/schema.server'
+
+export type ServerLibraryItem = Omit<_LibraryItem, 'type'> & {
+  id: number
   savedAt: Date
 }
-
-export type SpotifyLibraryItem = (
-  | SpotifyApi.PlaylistObjectFull
-  | SpotifyApi.PlaylistObjectSimplified
-  | SpotifyApi.AlbumObjectFull
-  | SpotifyApi.AlbumObjectSimplified
-) & {
-  genres?: string[]
-}
-
-export type LegacyBandcampAlbum = {
-  albumID: string
-  album: string
-  artistID: string
-  artist: string
-  bandcampDailyURL: string
-  imageURL: string | null
-  url: string
-  createdAt: Date
-  updatedAt: Date
-}
-export type BandcampAlbum = Omit<
-  LegacyBandcampAlbum,
-  'bandcampDailyURL' | 'createdAt' | 'updatedAt' | 'artistID'
->
-export type BandcampLibraryItem = (BandcampAlbum | LegacyBandcampAlbum) & {
-  type: 'bandcamp'
-}
-export type LibraryItem = SpotifyLibraryItem | BandcampLibraryItem
-export type SavedLibraryItem = SavedItem<LibraryItem>
-export type SavedSpotifyItem = SavedItem<SpotifyLibraryItem>
-export type SavedBandcampItem = SavedItem<BandcampLibraryItem>
-
-export interface LibraryV1 {
-  version: 1
-  items: SavedLibraryItem[]
-}
-
-export interface LibraryV2 extends Omit<LibraryV1, 'version'> {
-  version: 2
-  removedItemTimestamps: string[]
-}
-
-export type Library = LibraryV1 | LibraryV2
-export type CurrentLibrary = LibraryV2
-export const CurrentLibraryVersion = 2
-export const defaultLibrary: LibraryV2 = Object.freeze({
-  version: CurrentLibraryVersion,
-  items: [],
-  removedItemTimestamps: [],
-})
+export type LocalLibraryItem = Omit<ServerLibraryItem, 'id'>
+export type LibraryItem = ServerLibraryItem | LocalLibraryItem
+export type Library = LibraryItem[]
+export const defaultLibrary: Library = []

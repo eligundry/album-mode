@@ -9,20 +9,19 @@ import uniqBy from 'lodash/uniqBy'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
-  CurrentLibrary,
-  CurrentLibraryVersion,
   Library,
   LibraryItem,
-  SavedLibraryItem,
+  LocalLibraryItem,
+  ServerLibraryItem,
   defaultLibrary,
 } from '~/lib/types/library'
 
 import useUser from '~/hooks/useUser'
 
 export interface ILibraryContext {
-  library: Library['items']
-  saveItem: (item: LibraryItem) => Promise<void>
-  removeItem: (savedAt: Date) => Promise<void>
+  library: Library
+  saveItem: (item: Omit<LocalLibraryItem, 'savedAt'>) => Promise<void>
+  removeItem: (item: LibraryItem) => Promise<void>
 }
 
 export const LibraryContext = React.createContext<ILibraryContext>({
@@ -40,8 +39,8 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
 }) => {
   const user = useUser()
   const [loadedServerLibrary, setLoadedServerLibrary] = useState(false)
-  const { value: library, set: setLibrary } = useLocalStorage<CurrentLibrary>(
-    'albumModeLibrary',
+  const { value: library, set: setLibrary } = useLocalStorage<Library>(
+    'albumModeLibraryV2',
     {
       defaultValue: defaultLibrary,
       initializeWithValue: true,
@@ -63,7 +62,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
   )
 
   const saveItem = useCallback(
-    async (item: LibraryItem | SavedLibraryItem) => {
+    async (item: Omit<LocalLibraryItem, 'savedAt'>) => {
       const savedItem = {
         savedAt: new Date(),
         ...item,
@@ -76,7 +75,7 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
           updatedLibrary = defaultLibrary
         }
 
-        updatedLibrary.items.push(savedItem)
+        updatedLibrary.push(savedItem)
 
         return updatedLibrary
       })
@@ -88,6 +87,20 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
             'content-type': 'application/json',
           },
           body: JSON.stringify(savedItem),
+        }).then(async (resp) => {
+          if (!resp.ok) return
+          const savedItem = await resp.json()
+
+          setLibrary((lib) => {
+            if (!lib) {
+              return [savedItem]
+            }
+
+            let updatedLibrary = lib?.filter((i) => i.url !== item.url)
+            updatedLibrary.push(savedItem)
+
+            return updatedLibrary
+          })
         })
       }
     },
@@ -95,28 +108,17 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
   )
 
   const removeItem = useCallback(
-    async (savedAt: Date | string) => {
-      const strSavedAt =
-        typeof savedAt === 'string' ? savedAt : savedAt.toISOString()
-
+    async (item: LibraryItem) => {
       setLibrary((lib) => {
         if (!lib) {
           return defaultLibrary
         }
 
-        return {
-          ...lib,
-          items: lib.items.filter(
-            (l) => l.savedAt.toISOString() !== strSavedAt
-          ),
-          removedItemTimestamps: Array.from(
-            new Set([...lib.removedItemTimestamps, strSavedAt])
-          ),
-        }
+        return lib.filter((l) => l.url !== item.url)
       })
 
-      if (user?.id) {
-        await fetch(`/api/library/${strSavedAt}`, {
+      if (user?.id && 'id' in item && item.id) {
+        await fetch(`/api/library/${item.id}`, {
           method: 'DELETE',
         })
       }
@@ -135,38 +137,38 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
     }
 
     const resp = await fetch('/api/library')
-    const serverLibrary: CurrentLibrary = await resp.json()
-    const serverLibraryItemsSavedAt = serverLibrary.items.map((item) =>
-      typeof item.savedAt === 'string'
-        ? item.savedAt
-        : item.savedAt.toISOString()
+    const serverLibrary: ServerLibraryItem[] = await resp.json()
+    const serverLibraryItemURLs = serverLibrary.map((item) => item.url)
+    const unsavedLibraryItems = library.filter(
+      (item) => !serverLibraryItemURLs.includes(item.url) && !('id' in item)
     )
 
-    await Promise.all(
-      library.items.map(async (localItem) => {
-        const shouldBySynced =
-          !serverLibraryItemsSavedAt.includes(
-            localItem.savedAt.toISOString()
-          ) &&
-          !serverLibrary?.removedItemTimestamps?.includes(
-            localItem.savedAt.toISOString()
-          )
+    const syncedLibraryItems = await Promise.all(
+      unsavedLibraryItems.map(
+        async (localItem): Promise<ServerLibraryItem | false> => {
+          const resp = await fetch('/api/library', {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify(localItem),
+          })
 
-        if (!shouldBySynced) {
-          return
+          if (!resp.ok) {
+            return false
+          }
+
+          const savedItem = await resp.json()
+
+          return savedItem
         }
-
-        fetch('/api/library', {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify(localItem),
-        })
-      })
+      )
     )
 
-    setLibrary(mergeLibraryItems(library, serverLibrary))
+    setLibrary([
+      ...serverLibrary,
+      ...syncedLibraryItems.filter((i): i is ServerLibraryItem => !!i),
+    ])
     setLoadedServerLibrary(true)
   })
 
@@ -182,8 +184,8 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
   const value = useMemo<ILibraryContext>(
     () => ({
-      library: library?.items
-        ? library.items.sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
+      library: library
+        ? library.sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
         : [],
       saveItem,
       removeItem,
@@ -194,50 +196,6 @@ const LibraryProvider: React.FC<React.PropsWithChildren<{}>> = ({
   return (
     <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>
   )
-}
-
-const mergeLibraryItems = (
-  localLibrary: Library,
-  serverLibrary: Library
-): CurrentLibrary => {
-  const newRemovedAtTimeStamps = Array.from(
-    new Set([
-      ...('removedItemTimestamps' in localLibrary
-        ? localLibrary.removedItemTimestamps
-        : []),
-      ...('removedItemTimestamps' in serverLibrary
-        ? serverLibrary.removedItemTimestamps
-        : []),
-    ])
-  )
-  let newLibraryItems = [
-    ...serverLibrary.items.map((item) => ({
-      ...item,
-      savedAt:
-        typeof item.savedAt === 'string'
-          ? parseISO(item.savedAt)
-          : item.savedAt,
-    })),
-    ...localLibrary.items,
-  ]
-  newLibraryItems = uniqBy(newLibraryItems, (item) =>
-    item.savedAt.toISOString()
-  )
-    .filter(
-      (item) =>
-        !newRemovedAtTimeStamps.includes(
-          typeof item.savedAt === 'string'
-            ? item.savedAt
-            : item.savedAt.toISOString()
-        )
-    )
-    .sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt))
-
-  return {
-    version: CurrentLibraryVersion,
-    items: newLibraryItems,
-    removedItemTimestamps: newRemovedAtTimeStamps,
-  }
 }
 
 export default LibraryProvider

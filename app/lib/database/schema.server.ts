@@ -101,12 +101,16 @@ export type SavedSearch = {
 
 export type LibraryItem = {
   type: 'library'
+  service: 'spotify' | 'bandcamp'
   name: string
-  creator: string
+  creator?: string | null
   url: string
   creatorURL?: string | null
-  imageURL?: string | null
-  service: 'spotify' | 'bandcamp'
+  image?: {
+    url: string
+    width?: number
+    height?: number
+  } | null
 }
 
 export const savedItems = sqliteTable(

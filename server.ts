@@ -1,6 +1,9 @@
 import ServerTiming from '@eligundry/server-timing'
 import * as build from '@remix-run/dev/server-build'
-import { createRequestHandler } from '@remix-run/netlify'
+import {
+  GetLoadContextFunction,
+  createRequestHandler,
+} from '@remix-run/netlify'
 import { installGlobals } from '@remix-run/node'
 
 import { getEnv } from './app/env.server'
@@ -9,10 +12,7 @@ import { constructLogger } from './app/lib/logging.server'
 
 installGlobals()
 
-/**
- * @type {import('@remix-run/netlify').GetLoadContextFunction}
- */
-async function getLoadContext(event, context) {
+const getLoadContext: GetLoadContextFunction = async (event, context) => {
   const env = getEnv()
   const serverTiming = new ServerTiming()
   const requestLogger = constructLogger().child({
