@@ -1,3 +1,4 @@
+import dateCompareDesc from 'date-fns/compareDesc'
 import { useContext } from 'react'
 
 import { LibraryItem, LocalLibraryItem } from '~/lib/types/library'
@@ -11,5 +12,11 @@ export type { LibraryItem, LocalLibraryItem }
  * to in the browser's local storage.
  */
 export default function useLibrary() {
-  return useContext(LibraryContext)
+  const { items: library, saveItem, removeItem } = useContext(LibraryContext)
+
+  return {
+    library: library.sort((a, b) => dateCompareDesc(a.savedAt, b.savedAt)),
+    saveItem,
+    removeItem,
+  }
 }

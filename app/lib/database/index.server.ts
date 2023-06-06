@@ -2,7 +2,6 @@ import { createClient as createTursoClient } from '@libsql/client'
 import {
   Logger as DrizzleLogger,
   and,
-  desc,
   eq,
   isNull,
   like,
@@ -14,11 +13,15 @@ import { drizzle as tursoDrizzle } from 'drizzle-orm/libsql'
 import omit from 'lodash/omit'
 import { Logger as WinstonLogger } from 'winston'
 
-import type { LocalLibraryItem, ServerLibraryItem } from '~/lib/types/library'
+import type {
+  LocalLibraryItem,
+  SavedSearchInput,
+  ServerLibraryItem,
+} from '~/lib/types/library'
 
 import { getEnv } from '~/env.server'
 
-import { librarySelectColumns } from './libraryQuery'
+import { librarySelectColumns, savedSearchSelectColumns } from './fragments'
 import {
   reviewedItems,
   reviewers,
@@ -283,6 +286,60 @@ export class DatabaseClient {
       .update(savedItems)
       .set({ deletedAt: new Date() })
       .where(and(eq(savedItems.user, username), eq(savedItems.id, id)))
+      .run()
+
+  saveSearch = async ({
+    item,
+    username,
+  }: {
+    item: SavedSearchInput
+    username: string
+  }) =>
+    this.db
+      .insert(savedItems)
+      .values({
+        user: username,
+        type: 'search',
+        identifier: JSON.stringify(item),
+        metadata: {
+          type: 'search',
+          ...item,
+        },
+      })
+      .returning(savedSearchSelectColumns)
+      .get()
+
+  getSavedSearches = async (username: string) =>
+    this.db
+      .select(savedSearchSelectColumns)
+      .from(savedItems)
+      .where(
+        and(
+          eq(savedItems.user, username),
+          eq(savedItems.type, 'search'),
+          isNull(savedItems.deletedAt)
+        )
+      )
+      .limit(1)
+      .get()
+
+  removeSavedSearch = async ({
+    itemID,
+    username,
+  }: {
+    itemID: number
+    username: string
+  }) =>
+    this.db
+      .update(savedItems)
+      .set({ deletedAt: new Date() })
+      .where(
+        and(
+          eq(savedItems.id, itemID),
+          eq(savedItems.user, username),
+          isNull(savedItems.deletedAt)
+        )
+      )
       .run()
 }
 

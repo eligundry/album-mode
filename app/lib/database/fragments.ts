@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm'
 
-import { LibraryItem, savedItems } from './schema.server'
+import { LibraryItem, SavedSearch, savedItems } from './schema.server'
 
 export const librarySelectColumns = {
   id: savedItems.id,
@@ -19,4 +19,13 @@ export const librarySelectColumns = {
   image: sql`json_extract(${savedItems.metadata}, '$.image')`.mapWith(
     (v): LibraryItem['image'] => JSON.parse(v)
   ),
+}
+
+export const savedSearchSelectColumns = {
+  id: savedItems.id,
+  savedAt: savedItems.createdAt,
+  crumbs: sql`json_extract(${savedItems.metadata}, '$.crumbs')`.mapWith(
+    (v): SavedSearch['crumbs'] => JSON.parse(v)
+  ),
+  path: sql<string>`json_extract(${savedItems.metadata}, '$.path')`,
 }

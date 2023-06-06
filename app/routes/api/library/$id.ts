@@ -46,8 +46,6 @@ export async function action({ request, params, context }: ActionArgs) {
   }
 
   return noContent({
-    headers: {
-      [serverTiming.headerKey]: serverTiming.toString(),
-    },
+    headers: serverTiming.headers(),
   })
 }

@@ -100,9 +100,7 @@ export async function action({ request, context }: ActionArgs) {
 
   return json(savedItem, {
     status: 201,
-    headers: {
-      [serverTiming.headerKey]: serverTiming.toString(),
-    },
+    headers: serverTiming.headers(),
   })
 }
 
@@ -134,8 +132,6 @@ export async function loader({ request, context }: LoaderArgs) {
   }
 
   return json(library, {
-    headers: {
-      [serverTiming.headerKey]: serverTiming.toString(),
-    },
+    headers: serverTiming.headers(),
   })
 }
