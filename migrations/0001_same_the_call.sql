@@ -17,4 +17,4 @@ CREATE TABLE `SavedItems` (
 
  Due to that we don't generate migration automatically and it has to be done manually
 */
-CREATE UNIQUE INDEX `uq_SavedItemsIdentifier` ON `SavedItems` (`user`,`identifier`,`type`,`deletedAt`);
+CREATE UNIQUE INDEX `uq_SavedItemsIdentifier` ON `SavedItems` (`user`,`identifier`,`type`,coalesce(`deletedAt`, 0));

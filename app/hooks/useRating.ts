@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import useGTM from '~/hooks/useGTM'
-import useLibrary, { LocalLibraryItem } from '~/hooks/useLibrary'
+import useLibrary, { LibraryItemInput } from '~/hooks/useLibrary'
 import useModal from '~/hooks/useModal'
 
 export default function useRating() {
@@ -10,7 +10,7 @@ export default function useRating() {
   const { clearRejections, addRejection } = useModal()
 
   const positiveReview = useCallback(
-    (item: Omit<LocalLibraryItem, 'savedAt'>) => {
+    (item: LibraryItemInput) => {
       clearRejections()
       saveItem(item)
       sendEvent({
@@ -22,7 +22,7 @@ export default function useRating() {
   )
 
   const negativeReview = useCallback(
-    (item: Omit<LocalLibraryItem, 'savedAt'>) => {
+    (item: LibraryItemInput) => {
       addRejection()
       sendEvent({
         event: 'Negative Review',

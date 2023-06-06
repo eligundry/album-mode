@@ -3,7 +3,7 @@ import type {
   SavedSearch as _SavedSearch,
 } from '~/lib/database/schema.server'
 
-export type ItemInput<T> = T
+export type ItemInput<T> = Omit<T, 'type' | 'savedAt' | 'id'>
 export type ServerItem<T> = ItemInput<T> & {
   id: number
   savedAt: Date
@@ -15,10 +15,11 @@ export type LocalItem<T> = ItemInput<T> & {
 export type ServerLibraryItem = ServerItem<_LibraryItem>
 export type LocalLibraryItem = LocalItem<_LibraryItem>
 export type LibraryItem = ServerLibraryItem | LocalLibraryItem
+export type LibraryItemInput = ItemInput<_LibraryItem>
 export type Library = LibraryItem[]
 export const defaultLibrary: Library = []
 
-export type ServerSavedSearch = ServerItem<_SavedSearch>
-export type LocalSavedSearch = LocalItem<_SavedSearch>
-export type SavedSearchInput = ItemInput<_SavedSearch>
-export type SavedSearch = ServerSavedSearch | LocalSavedSearch
+export type SavedSearch = Omit<_SavedSearch, 'type'>
+export type ServerSavedSearch = ServerItem<SavedSearch>
+export type LocalSavedSearch = LocalItem<SavedSearch>
+export type SavedSearchInput = ItemInput<SavedSearch>

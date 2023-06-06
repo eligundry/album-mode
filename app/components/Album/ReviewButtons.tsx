@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import { useState } from 'react'
 import Confetti from 'react-confetti'
 
-import type { LocalLibraryItem } from '~/lib/types/library'
+import type { LibraryItemInput } from '~/lib/types/library'
 
 import { ButtonLink, EmojiText, Heading } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
@@ -14,7 +14,7 @@ import useRating from '~/hooks/useRating'
 import useUTM from '~/hooks/useUTM'
 
 export interface ReviewButtonProps {
-  item: Omit<LocalLibraryItem, 'savedAt'>
+  item: LibraryItemInput
   genres?: string[]
   className?: string
 }

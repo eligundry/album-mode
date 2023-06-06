@@ -268,8 +268,8 @@ export class DatabaseClient {
         user: username,
         identifier: item.url,
         metadata: {
-          type: 'library',
           ...omit(item, ['savedAt']),
+          type: 'library',
         },
       })
       .returning(librarySelectColumns)

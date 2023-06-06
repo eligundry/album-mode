@@ -10,18 +10,15 @@ import { ItemInput, LocalItem, ServerItem } from '~/lib/types/library'
 
 import useUser from '~/hooks/useUser'
 
-type SyncedItem = {
-  id?: number
-  savedAt: Date
-}
-
-interface ISyncedLocalStorageContext<T extends SyncedItem> {
+interface ISyncedLocalStorageContext<T extends Record<string, unknown>> {
   items: (ServerItem<T> | LocalItem<T>)[]
   saveItem: (item: ItemInput<T>) => Promise<void>
   removeItem: (item: ServerItem<T> | LocalItem<T>) => Promise<void>
 }
 
-export function syncedLocalStorageContextFactory<T extends SyncedItem>() {
+export function syncedLocalStorageContextFactory<
+  T extends Record<string, unknown>
+>() {
   return React.createContext<ISyncedLocalStorageContext<T>>({
     items: [],
     saveItem: async (item) => {
@@ -33,45 +30,40 @@ export function syncedLocalStorageContextFactory<T extends SyncedItem>() {
   })
 }
 
-interface ISyncedLocalStorageProviderProps<T extends SyncedItem> {
+interface ISyncedLocalStorageProviderProps<T extends Record<string, unknown>> {
   Context: React.Context<ISyncedLocalStorageContext<T>>
   apiPath: string
   localStorageKey: string
-  getIdentifier?: (item: LocalItem<T> | ServerItem<T>) => string | number
 }
 
-export function SyncedLocalStorageProvider<T extends SyncedItem>({
+export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
   children,
   Context,
   apiPath,
   localStorageKey,
-  getIdentifier = (item) => {
-    return item.savedAt.getTime()
-  },
 }: React.PropsWithChildren<ISyncedLocalStorageProviderProps<T>>) {
   const user = useUser()
   const [loadedServerItems, setLoadedServerItems] = useState(false)
-  const { value: items, set: setItems } = useLocalStorage<T[]>(
-    localStorageKey,
-    {
-      defaultValue: [],
-      initializeWithValue: true,
-      stringify: (value) => JSON.stringify(value),
-      parse: (value, fallback) => {
-        if (!value) {
-          return fallback
+  const { value: items, set: setItems } = useLocalStorage<
+    (ServerItem<T> | LocalItem<T>)[]
+  >(localStorageKey, {
+    defaultValue: [],
+    initializeWithValue: true,
+    stringify: (value) => JSON.stringify(value),
+    parse: (value, fallback) => {
+      if (!value) {
+        return fallback
+      }
+
+      return JSON.parse(value, (key, value) => {
+        if (key === 'savedAt') {
+          return new Date(value)
         }
 
-        return JSON.parse(value, (key, value) => {
-          if (key === 'savedAt') {
-            return new Date(value)
-          }
-
-          return value
-        })
-      },
-    }
-  )
+        return value
+      })
+    },
+  })
 
   const saveItem = useCallback<ISyncedLocalStorageContext<T>['saveItem']>(
     async (item) => {
@@ -140,13 +132,20 @@ export function SyncedLocalStorageProvider<T extends SyncedItem>({
     }
 
     const resp = await fetch(apiPath)
-    const serverItems: ServerItem<T>[] = await resp.json()
-    const serverItemIDs = serverItems.map((item) => getIdentifier(item))
+    const serverItems: ServerItem<T>[] = await resp.json().then((items) =>
+      items.map((item: ServerItem<T>) => ({
+        ...item,
+        savedAt: new Date(item.savedAt),
+      }))
+    )
+    console.log({ serverItems })
+    const serverItemSavedAts = serverItems.map((item) => item.savedAt.getTime())
     const unsavedItems = items.filter(
-      (item) => !serverItemIDs.includes(getIdentifier(item)) && !('id' in item)
+      (item) =>
+        !serverItemSavedAts.includes(item.savedAt.getTime()) && !('id' in item)
     )
 
-    const syncedItems = await Promise.all(
+    const syncedItems: ServerItem<T>[] = await Promise.all(
       unsavedItems.map(async (localItem): Promise<ServerItem<T> | false> => {
         const resp = await fetch(apiPath, {
           method: 'POST',
@@ -175,7 +174,9 @@ export function SyncedLocalStorageProvider<T extends SyncedItem>({
   })
 
   useEffect(() => {
-    console.error('could not fetch items', itemSyncState.error)
+    if (itemSyncState.error) {
+      console.error('could not fetch items', itemSyncState.error)
+    }
   }, [itemSyncState.error])
 
   return (
