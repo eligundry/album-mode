@@ -1,5 +1,4 @@
-import { useLocalStorageValue } from '@react-hookz/web'
-import { useCallback, useContext, useEffect } from 'react'
+import { useCallback, useContext } from 'react'
 
 import { SavedSearchContext } from '~/context/SavedSearches'
 import useCurrentPath from '~/hooks/useCurrentPath'
@@ -21,35 +20,6 @@ export default function useSavedSearches() {
     async (crumbs: string[]) => saveItem({ crumbs, path }),
     [path, saveItem]
   )
-
-  const { value: legacySearches, remove: removeLegacySearches } =
-    useLocalStorageValue<{
-      version: 1
-      searches: {
-        crumbs: string[]
-        path: string
-        savedAt: string
-      }[]
-    }>('albumModeSavedSearches', {
-      defaultValue: undefined,
-    })
-
-  useEffect(() => {
-    if (!legacySearches || !legacySearches.searches.length) {
-      return
-    }
-
-    console.log('migrating legacy searches', legacySearches)
-
-    Promise.all(
-      legacySearches.searches.map((search) =>
-        saveItem({
-          crumbs: search.crumbs,
-          path: search.path,
-        })
-      )
-    ).then(() => removeLegacySearches())
-  }, [legacySearches])
 
   return {
     searches: searches.reverse() ?? [],
