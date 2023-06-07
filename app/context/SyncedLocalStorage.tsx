@@ -4,6 +4,8 @@ import {
   useMountEffect,
 } from '@react-hookz/web'
 import dateCompareDesc from 'date-fns/compareDesc'
+import isDateEqual from 'date-fns/isEqual'
+import uniqBy from 'lodash/uniqBy'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { ItemInput, LocalItem, ServerItem } from '~/lib/types/library'
@@ -18,9 +20,9 @@ interface ISyncedLocalStorageContext<T extends Record<string, unknown>> {
 
 export function syncedLocalStorageContextFactory<
   T extends Record<string, unknown>
->() {
+>(defaultItems: (ServerItem<T> | LocalItem<T>)[] = []) {
   return React.createContext<ISyncedLocalStorageContext<T>>({
-    items: [],
+    items: defaultItems,
     saveItem: async (item) => {
       console.warn('called saveItem without a Provider', { item })
     },
@@ -30,10 +32,13 @@ export function syncedLocalStorageContextFactory<
   })
 }
 
-interface ISyncedLocalStorageProviderProps<T extends Record<string, unknown>> {
+export interface ISyncedLocalStorageProviderProps<
+  T extends Record<string, unknown>
+> {
   Context: React.Context<ISyncedLocalStorageContext<T>>
   apiPath: string
   localStorageKey: string
+  defaultValue?: (ServerItem<T> | LocalItem<T>)[]
 }
 
 export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
@@ -41,13 +46,14 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
   Context,
   apiPath,
   localStorageKey,
+  defaultValue = [],
 }: React.PropsWithChildren<ISyncedLocalStorageProviderProps<T>>) {
   const user = useUser()
   const [loadedServerItems, setLoadedServerItems] = useState(false)
   const { value: items, set: setItems } = useLocalStorage<
     (ServerItem<T> | LocalItem<T>)[]
   >(localStorageKey, {
-    defaultValue: [],
+    defaultValue,
     initializeWithValue: true,
     stringify: (value) => JSON.stringify(value),
     parse: (value, fallback) => {
@@ -83,12 +89,18 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
           },
           body: JSON.stringify(savedItem),
         })
+
+        if (!resp.ok) {
+          console.warn('could not save item', await resp.text())
+          throw new Error('could not save item, will attempt to sync later')
+        }
+
         const updatedItem = await resp.json()
 
         setItems((localItems) => {
           const updatedItems = Array.isArray(localItems)
             ? localItems.filter(
-                (item) => item.savedAt.getTime() !== savedItem.savedAt.getTime()
+                (item) => !isDateEqual(item.savedAt, savedItem.savedAt)
               )
             : []
           updatedItems.push(updatedItem)
@@ -104,9 +116,9 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
       const { savedAt } = item
       setItems((localItems) => {
         const updatedItems = Array.isArray(localItems)
-          ? localItems.filter(
-              (item) => item.savedAt.getTime() !== savedAt.getTime()
-            )
+          ? localItems.filter((item) => {
+              return !isDateEqual(item.savedAt, savedAt)
+            })
           : []
 
         return updatedItems
@@ -138,7 +150,6 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
         savedAt: new Date(item.savedAt),
       }))
     )
-    console.log({ serverItems })
     const serverItemSavedAts = serverItems.map((item) => item.savedAt.getTime())
     const unsavedItems = items.filter(
       (item) =>
@@ -165,7 +176,12 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
       })
     ).then((items) => items.filter((item): item is any => !!item))
 
-    setItems([...serverItems, ...syncedItems])
+    setItems(
+      uniqBy(
+        [...serverItems, ...syncedItems, ...items.filter((i) => !!i.id)],
+        'id'
+      )
+    )
     setLoadedServerItems(true)
   })
 
