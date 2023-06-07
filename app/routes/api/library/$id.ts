@@ -1,7 +1,6 @@
 import { ActionArgs } from '@remix-run/node'
 
 import { spotifyStrategy } from '~/lib/auth.server'
-import librarySync from '~/lib/librarySync.server'
 import {
   badRequest,
   noContent,
@@ -11,16 +10,16 @@ import {
 
 // Save an item by POSTing it to this endpoint
 export async function action({ request, params, context }: ActionArgs) {
-  const savedAt = params.savedAt
+  const id = parseInt(params.id ?? '0')
 
-  if (!savedAt) {
+  if (!id) {
     throw badRequest({
-      error: 'savedAt must be provided in the url',
+      error: 'id must be provided in the url',
       logger: context.logger,
     })
   }
 
-  const { serverTiming } = context
+  const { serverTiming, database } = context
   const session = await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request)
   )
@@ -35,8 +34,8 @@ export async function action({ request, params, context }: ActionArgs) {
   const userID = session.user.id
 
   try {
-    await serverTiming.track('librarySync.removeItem', () =>
-      librarySync.removeItem(userID, savedAt)
+    await serverTiming.track('db.removeItemFromLibrary', () =>
+      database.removeItemFromLibrary({ username: userID, id: id })
     )
   } catch (e: any) {
     throw serverError({
@@ -47,8 +46,6 @@ export async function action({ request, params, context }: ActionArgs) {
   }
 
   return noContent({
-    headers: {
-      [serverTiming.headerKey]: serverTiming.toString(),
-    },
+    headers: serverTiming.headers(),
   })
 }

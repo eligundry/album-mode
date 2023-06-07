@@ -56,7 +56,14 @@ const Playlist: React.FC<Props> = ({ playlist, footer, forceTall = false }) => {
           </>
         }
         reviewProps={{
-          item: playlist,
+          item: {
+            service: 'spotify',
+            name: playlist.name,
+            creator: playlist.owner.display_name,
+            url: playlist.external_urls.spotify,
+            creatorURL: playlist.owner.external_urls.spotify,
+            image: playlist.images[0],
+          },
         }}
       />
     </Container>

@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import React from 'react'
 
-import type { BandcampAlbum as IBandcampAlbum } from '~/lib/types/library'
+import type { LocalLibraryItem } from '~/lib/types/library'
 import type { WikipediaSummary as IWikipediaSummary } from '~/lib/wikipedia.server'
 
 import { A, Container } from '~/components/Base'
@@ -13,7 +13,13 @@ import useUTM from '~/hooks/useUTM'
 import AlbumWrapper from './Wrapper'
 
 interface Props {
-  album: IBandcampAlbum
+  album: {
+    album: string
+    albumID: string
+    artist: string
+    imageURL: string | null
+    url: string
+  }
   footer?: string | React.ReactNode
   wiki?: IWikipediaSummary | null
 }
@@ -78,8 +84,11 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer, wiki }) => {
         }
         reviewProps={{
           item: {
-            ...album,
-            type: 'bandcamp',
+            service: 'bandcamp',
+            name: album.album,
+            creator: album.artist,
+            url: album.url,
+            image: album.imageURL ? { url: album.imageURL } : null,
           },
         }}
       />

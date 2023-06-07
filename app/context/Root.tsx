@@ -7,6 +7,7 @@ import GrowthBookProvider from '~/context/GrowthBook'
 import LibraryProvider from '~/context/Library'
 import LoadingProvider from '~/context/Loading'
 import ModalProvider from '~/context/Modal'
+import SavedSearchesProvider from '~/context/SavedSearches'
 import SettingsContext from '~/context/Settings'
 import UTMParametersProvider from '~/context/UTMParameters'
 import UserProvider from '~/context/User'
@@ -31,11 +32,13 @@ const RootProvider: React.FC<React.PropsWithChildren<Props>> = ({
           attributes={growthbook.attributes}
         >
           <LibraryProvider>
-            <UTMParametersProvider>
-              <ModalProvider>
-                <LoadingProvider>{children}</LoadingProvider>
-              </ModalProvider>
-            </UTMParametersProvider>
+            <SavedSearchesProvider>
+              <UTMParametersProvider>
+                <ModalProvider>
+                  <LoadingProvider>{children}</LoadingProvider>
+                </ModalProvider>
+              </UTMParametersProvider>
+            </SavedSearchesProvider>
           </LibraryProvider>
         </GrowthBookProvider>
       </SettingsContext.Provider>

@@ -7,8 +7,6 @@ export const envSchema = z.object({
       z.array(z.string())
     )
     .default([]),
-  APP_AWS_ACCESS_KEY_ID: z.string().default(''),
-  APP_AWS_SECRET_ACCESS_KEY: z.string().default(''),
   AUTH_SECRETS: z.preprocess(
     (val) => (typeof val === 'string' ? JSON.parse(val) : ['']),
     z.array(z.string())
@@ -39,8 +37,6 @@ export const envSchema = z.object({
 })
 
 export const webAppEnvSchema = envSchema.extend({
-  APP_AWS_ACCESS_KEY_ID: z.string(),
-  APP_AWS_SECRET_ACCESS_KEY: z.string(),
   AUTH_SECRETS: z.preprocess(
     (val) => (typeof val === 'string' && val ? JSON.parse(val) : null),
     z.array(z.string().min(2))

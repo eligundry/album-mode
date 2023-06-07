@@ -1,79 +1,28 @@
-import { useLocalStorageValue as useLocalStorage } from '@react-hookz/web'
-import { useCallback } from 'react'
+import { useCallback, useContext } from 'react'
 
+import { SavedSearchContext } from '~/context/SavedSearches'
 import useCurrentPath from '~/hooks/useCurrentPath'
 
 const pathsToHideSaveButton = [
   '/spotify/currently-playing',
   '/spotify/featured-playlist',
+  '/spotify/library',
+  '/spotify/for-you',
 ]
-
-interface SavedSearch {
-  path: string
-  crumbs: string[]
-  savedAt: Date
-}
-
-interface SavedSearchData {
-  version: 1
-  searches: SavedSearch[]
-}
-
-const defaultState: SavedSearchData = {
-  version: 1,
-  searches: [],
-}
 
 export default function useSavedSearches() {
   const path = useCurrentPath()
-  const { value: state, set: setState } = useLocalStorage<SavedSearchData>(
-    'albumModeSavedSearches',
-    {
-      defaultValue: defaultState,
-      initializeWithValue: true,
-      parse: (value, fallback) => {
-        if (!value) {
-          return fallback
-        }
-
-        return JSON.parse(value, (key, value) => {
-          if (key === 'savedAt') {
-            return new Date(value)
-          }
-
-          return value
-        })
-      },
-      stringify: (value) => JSON.stringify(value),
-    }
-  )
-  const saveable = state?.searches
-    ? !state.searches.find((s) => s.path === path)
-    : true
+  const { items: searches, saveItem } = useContext(SavedSearchContext)
+  const saveable = searches ? !searches.find((s) => s.path === path) : true
   const showSaveButton = !pathsToHideSaveButton.find((p) => path.startsWith(p))
 
   const saveSearch = useCallback(
-    (crumbs: string[]) =>
-      setState((s) => {
-        let updatedState = s
-
-        if (!updatedState) {
-          updatedState = defaultState
-        }
-
-        updatedState.searches.push({
-          crumbs,
-          path,
-          savedAt: new Date(),
-        })
-
-        return updatedState
-      }),
-    [setState, path]
+    async (crumbs: string[]) => saveItem({ crumbs, path }),
+    [path, saveItem]
   )
 
   return {
-    searches: state?.searches.reverse() ?? [],
+    searches: searches.reverse() ?? [],
     /**
      * Is the current path from `useCurrentPath` saveable?
      */
@@ -83,7 +32,7 @@ export default function useSavedSearches() {
      * path from `useCurrentPath`.
      */
     saveSearch,
-    hasSavedSearches: !!state?.searches?.length,
+    hasSavedSearches: searches.length > 0,
     showSaveButton,
   }
 }

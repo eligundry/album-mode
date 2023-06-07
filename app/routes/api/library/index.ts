@@ -2,15 +2,14 @@ import { ActionArgs, LoaderArgs, json } from '@remix-run/node'
 import promiseHash from 'promise-hash'
 
 import { spotifyStrategy } from '~/lib/auth.server'
-import librarySync from '~/lib/librarySync.server'
 import { badRequest, serverError, unauthorized } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
-import { SavedLibraryItem } from '~/lib/types/library'
+import { LocalLibraryItem } from '~/lib/types/library'
 import userSettings from '~/lib/userSettings.server'
 
 // Save an item by POSTing it to this endpoint
 export async function action({ request, context }: ActionArgs) {
-  const { serverTiming, logger } = context
+  const { serverTiming, logger, database } = context
   const { session, settings, spotify } = await promiseHash({
     session: serverTiming.track('spotify.session', () =>
       spotifyStrategy.getSession(request)
@@ -33,7 +32,7 @@ export async function action({ request, context }: ActionArgs) {
   const userID = session.user.id
 
   try {
-    var item: SavedLibraryItem = await request.json()
+    var item: LocalLibraryItem = await request.json()
   } catch (e: any) {
     throw badRequest({
       error: 'could not load json',
@@ -42,42 +41,55 @@ export async function action({ request, context }: ActionArgs) {
     })
   }
 
+  let spotifyAlbumID: string | null = null
+  let spotifyArtistID: string | null = null
+
+  if (item.service === 'spotify') {
+    spotifyAlbumID =
+      item.url.match(/open.spotify.com\/album\/(.*)$/)?.[1] ?? null
+    spotifyArtistID =
+      item.url.match(/open.spotify.com\/artist\/(.*)$/)?.[1] ?? null
+  }
+
   try {
-    await Promise.all(
-      [
-        serverTiming.track('librarySync.saveItem', () =>
-          librarySync.saveItem(userID, item)
+    var { savedItem } = await promiseHash({
+      savedItem: serverTiming.track('db.saveItemToLibrary', () =>
+        database.saveItemToLibrary({
+          item,
+          username: userID,
+        })
+      ),
+      saveAlbum:
+        spotifyAlbumID &&
+        settings.saveAlbumAutomatically &&
+        serverTiming.track(
+          'spotify.saveAlbum',
+          () =>
+            spotifyAlbumID &&
+            spotify.saveAlbum(spotifyAlbumID).catch((error) => {
+              logger.warn({
+                message: 'could not save album on Spotify',
+                error,
+              })
+              serverTiming.add('spotify.saveAlbum failed')
+            })
         ),
-        item.type === 'album' &&
-          settings.saveAlbumAutomatically &&
-          serverTiming.track(
-            'spotify.saveAlbum',
-            () =>
-              item.type === 'album' &&
-              spotify.saveAlbum(item.id).catch((error) =>
-                logger.warn({
-                  message: 'could not save album on Spotify',
-                  error,
-                })
-              )
-          ),
-        item.type === 'album' &&
-          settings.followArtistAutomatically &&
-          serverTiming.track(
-            'spotify.followArtist',
-            () =>
-              item.type === 'album' &&
-              spotify
-                .followArtist(item.artists.map((a) => a.id))
-                .catch((error) =>
-                  logger.warn({
-                    message: 'could not follow artist on Spotify',
-                    error,
-                  })
-                )
-          ),
-      ].filter(Boolean)
-    )
+      followArtist:
+        spotifyArtistID &&
+        settings.followArtistAutomatically &&
+        serverTiming.track(
+          'spotify.followArtist',
+          () =>
+            spotifyArtistID &&
+            spotify.followArtist(spotifyArtistID).catch((error) => {
+              logger.warn({
+                message: 'could not follow artist on Spotify',
+                error,
+              })
+              serverTiming.add('spotify.followArtist failed')
+            })
+        ),
+    })
   } catch (e: any) {
     throw serverError({
       error: 'could not save item',
@@ -86,19 +98,14 @@ export async function action({ request, context }: ActionArgs) {
     })
   }
 
-  return json(
-    { msg: 'saved item', item },
-    {
-      status: 201,
-      headers: {
-        [serverTiming.headerKey]: serverTiming.toString(),
-      },
-    }
-  )
+  return json(savedItem, {
+    status: 201,
+    headers: serverTiming.headers(),
+  })
 }
 
 export async function loader({ request, context }: LoaderArgs) {
-  const { serverTiming, logger } = context
+  const { serverTiming, logger, database } = context
   const session = await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request)
   )
@@ -113,8 +120,8 @@ export async function loader({ request, context }: LoaderArgs) {
   const userID = session.user.id
 
   try {
-    var library = await serverTiming.track('librarySync.saveItem', () =>
-      librarySync.getLibrary(userID)
+    var library = await serverTiming.track('db.getLibrary', () =>
+      database.getLibrary(userID)
     )
   } catch (e: any) {
     throw serverError({
@@ -125,8 +132,6 @@ export async function loader({ request, context }: LoaderArgs) {
   }
 
   return json(library, {
-    headers: {
-      [serverTiming.headerKey]: serverTiming.toString(),
-    },
+    headers: serverTiming.headers(),
   })
 }

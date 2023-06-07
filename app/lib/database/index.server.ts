@@ -3,20 +3,34 @@ import {
   Logger as DrizzleLogger,
   and,
   eq,
+  isNull,
   like,
   lt,
   ne,
   sql,
 } from 'drizzle-orm'
 import { drizzle as tursoDrizzle } from 'drizzle-orm/libsql'
+import omit from 'lodash/omit'
 import { Logger as WinstonLogger } from 'winston'
+
+import type {
+  LocalLibraryItem,
+  SavedSearchInput,
+  ServerLibraryItem,
+} from '~/lib/types/library'
 
 import { getEnv } from '~/env.server'
 
-import { reviewedItems, reviewers, spotifyGenres } from './schema.server'
+import { librarySelectColumns, savedSearchSelectColumns } from './fragments'
+import {
+  reviewedItems,
+  reviewers,
+  savedItems,
+  spotifyGenres,
+} from './schema.server'
 import type { ReviewedItem, Reviewer, SpotifyGenre } from './schema.server'
 
-export { reviewedItems, reviewers, spotifyGenres }
+export { reviewedItems, reviewers, spotifyGenres, savedItems }
 export type { Reviewer, ReviewedItem, SpotifyGenre }
 
 class DatabaseLogger implements DrizzleLogger {
@@ -224,6 +238,109 @@ export class DatabaseClient {
         .then((item) => item.id)
     }
   }
+
+  getLibrary = async (username: string): Promise<ServerLibraryItem[]> =>
+    this.db
+      .select(librarySelectColumns)
+      .from(savedItems)
+      .where(
+        and(
+          eq(savedItems.user, username),
+          eq(savedItems.type, 'library'),
+          isNull(savedItems.deletedAt)
+        )
+      )
+      .orderBy(savedItems.id)
+      .all()
+
+  saveItemToLibrary = async ({
+    item,
+    username,
+  }: {
+    item: LocalLibraryItem
+    username: string
+  }) =>
+    this.db
+      .insert(savedItems)
+      .values({
+        type: 'library',
+        createdAt: item.savedAt ? new Date(item.savedAt) : new Date(),
+        user: username,
+        identifier: item.url,
+        metadata: {
+          ...omit(item, ['savedAt']),
+          type: 'library',
+        },
+      })
+      .returning(librarySelectColumns)
+      .get()
+
+  removeItemFromLibrary = async ({
+    id,
+    username,
+  }: {
+    id: number
+    username: string
+  }) =>
+    this.db
+      .update(savedItems)
+      .set({ deletedAt: new Date() })
+      .where(and(eq(savedItems.user, username), eq(savedItems.id, id)))
+      .run()
+
+  saveSearch = async ({
+    item,
+    username,
+  }: {
+    item: SavedSearchInput
+    username: string
+  }) =>
+    this.db
+      .insert(savedItems)
+      .values({
+        user: username,
+        type: 'search',
+        identifier: JSON.stringify(item),
+        metadata: {
+          type: 'search',
+          ...item,
+        },
+      })
+      .returning(savedSearchSelectColumns)
+      .get()
+
+  getSavedSearches = async (username: string) =>
+    this.db
+      .select(savedSearchSelectColumns)
+      .from(savedItems)
+      .where(
+        and(
+          eq(savedItems.user, username),
+          eq(savedItems.type, 'search'),
+          isNull(savedItems.deletedAt)
+        )
+      )
+      .limit(1)
+      .get()
+
+  removeSavedSearch = async ({
+    itemID,
+    username,
+  }: {
+    itemID: number
+    username: string
+  }) =>
+    this.db
+      .update(savedItems)
+      .set({ deletedAt: new Date() })
+      .where(
+        and(
+          eq(savedItems.id, itemID),
+          eq(savedItems.user, username),
+          isNull(savedItems.deletedAt)
+        )
+      )
+      .run()
 }
 
 interface ConstructDatabaseOptions {

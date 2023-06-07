@@ -1,54 +1,25 @@
-export type SavedItem<T> = T & {
+import type {
+  LibraryItem as _LibraryItem,
+  SavedSearch as _SavedSearch,
+} from '~/lib/database/schema.server'
+
+export type ItemInput<T> = Omit<T, 'type' | 'savedAt' | 'id'>
+export type ServerItem<T> = ItemInput<T> & {
+  id: number
+  savedAt: Date
+}
+export type LocalItem<T> = ItemInput<T> & {
   savedAt: Date
 }
 
-export type SpotifyLibraryItem = (
-  | SpotifyApi.PlaylistObjectFull
-  | SpotifyApi.PlaylistObjectSimplified
-  | SpotifyApi.AlbumObjectFull
-  | SpotifyApi.AlbumObjectSimplified
-) & {
-  genres?: string[]
-}
+export type ServerLibraryItem = ServerItem<_LibraryItem>
+export type LocalLibraryItem = LocalItem<_LibraryItem>
+export type LibraryItem = ServerLibraryItem | LocalLibraryItem
+export type LibraryItemInput = ItemInput<_LibraryItem>
+export type Library = LibraryItem[]
+export const defaultLibrary: Library = []
 
-export type LegacyBandcampAlbum = {
-  albumID: string
-  album: string
-  artistID: string
-  artist: string
-  bandcampDailyURL: string
-  imageURL: string | null
-  url: string
-  createdAt: Date
-  updatedAt: Date
-}
-export type BandcampAlbum = Omit<
-  LegacyBandcampAlbum,
-  'bandcampDailyURL' | 'createdAt' | 'updatedAt' | 'artistID'
->
-export type BandcampLibraryItem = (BandcampAlbum | LegacyBandcampAlbum) & {
-  type: 'bandcamp'
-}
-export type LibraryItem = SpotifyLibraryItem | BandcampLibraryItem
-export type SavedLibraryItem = SavedItem<LibraryItem>
-export type SavedSpotifyItem = SavedItem<SpotifyLibraryItem>
-export type SavedBandcampItem = SavedItem<BandcampLibraryItem>
-
-export interface LibraryV1 {
-  version: 1
-  items: SavedLibraryItem[]
-}
-
-export interface LibraryV2 extends Omit<LibraryV1, 'version'> {
-  version: 2
-  removedItemTimestamps: string[]
-}
-
-export type Library = LibraryV1 | LibraryV2
-export type CurrentLibrary = LibraryV2
-export const CurrentLibraryVersion = 2
-export const defaultLibrary: LibraryV2 = Object.freeze({
-  version: CurrentLibraryVersion,
-  items: [],
-  removedItemTimestamps: [],
-})
+export type SavedSearch = Omit<_SavedSearch, 'type'>
+export type ServerSavedSearch = ServerItem<SavedSearch>
+export type LocalSavedSearch = LocalItem<SavedSearch>
+export type SavedSearchInput = ItemInput<SavedSearch>

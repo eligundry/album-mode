@@ -4,8 +4,6 @@ import { describe, expect, it } from 'vitest'
 import { envSchema, webAppEnvSchema } from './envSchema.server'
 
 const baseEnv = {
-  APP_AWS_ACCESS_KEY_ID: 'xxx',
-  APP_AWS_SECRET_ACCESS_KEY: 'xxx',
   AUTH_SECRETS: '["xxx", "yyy"]',
   BASIC_AUTH_USERNAME: 'username',
   BASIC_AUTH_PASSWORD: 'password',
@@ -33,8 +31,6 @@ describe('envSchema', () => {
   it('should work for shell scripts', async () => {
     const result = envSchema.safeParse(
       omit({ ...baseEnv, SEED_SCRIPT: 'true', CI: 'true' }, [
-        'APP_AWS_ACCESS_KEY_ID',
-        'APP_AWS_SECRET_ACCESS_KEY',
         'AUTH_SECRETS',
         'BASIC_AUTH_PASSWORD',
         'BASIC_AUTH_USERNAME',
@@ -55,8 +51,6 @@ describe('envSchema', () => {
   })
 
   const requiredKeys = [
-    'APP_AWS_ACCESS_KEY_ID',
-    'APP_AWS_ACCESS_KEY_ID',
     'AUTH_SECRETS',
     'TURSO_DATABASE_URL',
     'TURSO_DATABASE_AUTH_TOKEN',
