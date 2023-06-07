@@ -15,6 +15,7 @@ import { Logger as WinstonLogger } from 'winston'
 
 import type {
   LocalLibraryItem,
+  LocalSavedSearch,
   SavedSearchInput,
   ServerLibraryItem,
 } from '~/lib/types/library'
@@ -292,7 +293,7 @@ export class DatabaseClient {
     item,
     username,
   }: {
-    item: SavedSearchInput
+    item: SavedSearchInput | LocalSavedSearch
     username: string
   }) =>
     this.db
@@ -301,6 +302,7 @@ export class DatabaseClient {
         user: username,
         type: 'search',
         identifier: JSON.stringify(item),
+        createdAt: 'savedAt' in item ? new Date(item.savedAt) : new Date(),
         metadata: {
           type: 'search',
           ...item,
@@ -320,8 +322,7 @@ export class DatabaseClient {
           isNull(savedItems.deletedAt)
         )
       )
-      .limit(1)
-      .get()
+      .all()
 
   removeSavedSearch = async ({
     itemID,
