@@ -150,7 +150,7 @@ export default function Index() {
             subtitle="Revisit a search that you performed on this site."
             className="saved-searches"
           >
-            <SavedSearches limit={20} />
+            <SavedSearches />
           </HomeSection>
         )}
       </Container>
