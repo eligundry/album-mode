@@ -730,11 +730,9 @@ const initializeFromRequest = async (req: Request, context: AppLoadContext) => {
     options.refreshToken = session.refreshToken
   }
 
-  // Netlify forwards the country based upon geoip in the x-country header
-  // https://answers.netlify.com/t/user-location-in-headers/11937/3
-  if (req.headers.get('x-country')) {
-    options.country = req.headers.get('x-country') || undefined
-  }
+  // Netlify forwards the country based upon geoip
+  // https://developers.cloudflare.com/fundamentals/get-started/reference/http-request-headers/#cf-ipcountry
+  options.country = req.headers.get('cf-ipcountry') ?? undefined
 
   const url = new URL(req.url)
 

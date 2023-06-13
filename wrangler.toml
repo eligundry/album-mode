@@ -1,0 +1,4 @@
+[[d1_databases]]
+binding = "DB" # i.e. available in your Worker on env.DB
+database_name = "album-mode"
+database_id = "32ea4bad-14ba-4b85-b7de-dbe9d90b24b4"

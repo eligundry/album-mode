@@ -24,8 +24,8 @@ const initializeFromRequest = async (req: Request) => {
     loggedIn: false,
   }
 
-  // Netlify will set this header for us based upon geoip
-  const country = req.headers.get('x-country')
+  // Cloudflare will set this header for us based upon geoip
+  const country = req.headers.get('cf-ipcountry')
 
   if (country) {
     attributes = { ...attributes, country }
