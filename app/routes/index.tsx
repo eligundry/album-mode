@@ -17,7 +17,6 @@ import HomeSection from '~/components/Base/HomeSection'
 import { PageErrorBoundary } from '~/components/ErrorBoundary'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
-import SavedSearches from '~/components/SavedSearches'
 import SpotifyLoginButton from '~/components/Spotify/LoginButton'
 import config from '~/config'
 import useLoading from '~/hooks/useLoading'
@@ -41,7 +40,7 @@ export const ErrorBoundary = PageErrorBoundary
 
 export default function Index() {
   const data = useLoaderData<typeof loader>()
-  const { hasSavedSearches } = useSavedSearches()
+  const { hasSavedSearches, searches } = useSavedSearches()
   const { loading } = useLoading()
   const user = useUser()
 
@@ -106,27 +105,69 @@ export default function Index() {
         >
           <ButtonLinkGroupWrapper>
             {!user ? (
-              <SpotifyLoginButton />
+              <SpotifyLoginButton
+                className={clsx(
+                  'breadcrumbs',
+                  ['btn-xs', 'py-0'],
+                  ['sm:btn-sm']
+                )}
+              />
             ) : (
               <>
-                <ButtonLink to="/spotify/library" disabled={loading}>
+                <ButtonLink
+                  to="/spotify/library"
+                  disabled={loading}
+                  className={clsx(
+                    'breadcrumbs',
+                    ['btn-xs', 'py-0'],
+                    ['sm:btn-sm']
+                  )}
+                >
                   Spotify Library
                 </ButtonLink>
-                <ButtonLink to="/spotify/currently-playing" disabled={loading}>
+                <ButtonLink
+                  to="/spotify/currently-playing"
+                  disabled={loading}
+                  className={clsx(
+                    'breadcrumbs',
+                    ['btn-xs', 'py-0'],
+                    ['sm:btn-sm']
+                  )}
+                >
                   Currently Playing
                 </ButtonLink>
-                <ButtonLink to="/spotify/for-you" disabled={loading}>
+                <ButtonLink
+                  to="/spotify/for-you"
+                  disabled={loading}
+                  className={clsx(
+                    'breadcrumbs',
+                    ['btn-xs', 'py-0'],
+                    ['sm:btn-sm']
+                  )}
+                >
                   For You
                 </ButtonLink>
               </>
             )}
-            <ButtonLink to="/spotify/new-releases" disabled={loading}>
+            <ButtonLink
+              to="/spotify/new-releases"
+              disabled={loading}
+              className={clsx('breadcrumbs', ['btn-xs', 'py-0'], ['sm:btn-sm'])}
+            >
               New Release
             </ButtonLink>
-            <ButtonLink to="/spotify/featured-playlist" disabled={loading}>
+            <ButtonLink
+              to="/spotify/featured-playlist"
+              disabled={loading}
+              className={clsx('breadcrumbs', ['btn-xs', 'py-0'], ['sm:btn-sm'])}
+            >
               Featured Playlist
             </ButtonLink>
-            <ButtonLink to="/spotify/categories" disabled={loading}>
+            <ButtonLink
+              to="/spotify/categories"
+              disabled={loading}
+              className={clsx('breadcrumbs', ['btn-xs', 'py-0'], ['sm:btn-sm'])}
+            >
               Playlist Categories
             </ButtonLink>
           </ButtonLinkGroupWrapper>
@@ -137,6 +178,7 @@ export default function Index() {
           className="publications"
         >
           <ButtonLinkGroup
+            className={clsx('breadcrumbs', ['btn-xs', 'py-0'], ['sm:btn-sm'])}
             items={data.publications}
             toFunction={(publication) => `/publication/${publication.slug}`}
             keyFunction={(publication) => publication.slug}
@@ -146,11 +188,24 @@ export default function Index() {
         </HomeSection>
         {hasSavedSearches && (
           <HomeSection
-            title={<Link to="/saved-searches">Saved Searches</Link>}
+            title="Saved Searches"
             subtitle="Revisit a search that you performed on this site."
             className="saved-searches"
           >
-            <SavedSearches />
+            <ButtonLinkGroup
+              className={clsx('breadcrumbs', ['btn-xs', 'py-0'], ['sm:btn-sm'])}
+              items={searches}
+              toFunction={({ path }) => path}
+              keyFunction={({ path }) => path}
+              childFunction={({ crumbs }) => (
+                <ul>
+                  {crumbs.map((crumb) => (
+                    <li key={crumb}>{crumb}</li>
+                  ))}
+                </ul>
+              )}
+              disabled={loading}
+            />
           </HomeSection>
         )}
       </Container>

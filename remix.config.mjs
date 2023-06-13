@@ -10,6 +10,7 @@ export default {
   serverBuildPath: '.netlify/functions-internal/server.js',
   serverDependenciesToBundle: ['@eligundry/server-timing'],
   tailwind: true,
+  postcss: true,
   future: {
     v2_errorBoundary: true,
   },

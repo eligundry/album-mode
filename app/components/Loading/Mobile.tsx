@@ -12,17 +12,19 @@ const MobileLoader: React.FC = () => {
   return (
     <button
       aria-label="Loading indicator"
-      style={{ left: '85%' }}
       className={clsx(
         'btn',
+        'btn-primary',
         'btn-square',
         'btn-primary',
-        'loading',
         'fixed',
         'bottom-4',
-        'pointer-events-none'
+        'pointer-events-none',
+        'left-[85%]'
       )}
-    />
+    >
+      <span className="loading loading-spinner" />
+    </button>
   )
 }
 

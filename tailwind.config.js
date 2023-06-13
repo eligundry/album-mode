@@ -8,6 +8,7 @@ module.exports = {
   theme: {
     container: {
       screens: {
+        phone: { max: '639px' },
         xl: '1024px',
         '2xl': '1024px',
       },
