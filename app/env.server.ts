@@ -4,10 +4,16 @@ import { envSchema, webAppEnvSchema } from './lib/envSchema.server'
 
 dotenv.config()
 
+interface Options {
+  isNotWebApp?: boolean
+  env?: any
+}
+
 export const getEnv = (
-  isNotWebApp = process.env.GITHUB_ACTIONS === 'true' ||
-    process.env.SEED_SCRIPT === 'true'
-) =>
-  isNotWebApp
-    ? envSchema.parse(process.env)
-    : webAppEnvSchema.parse(process.env)
+  { isNotWebApp, env }: Options = {
+    isNotWebApp:
+      process.env.GITHUB_ACTIONS === 'true' ||
+      process.env.SEED_SCRIPT === 'true',
+    env: process.env,
+  }
+) => (isNotWebApp ? envSchema.parse(env) : webAppEnvSchema.parse(env))

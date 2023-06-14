@@ -1,4 +1,9 @@
-import { LinksFunction, LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import {
+  LinksFunction,
+  LoaderArgs,
+  MetaFunction,
+  json,
+} from '@remix-run/cloudflare'
 import {
   Links,
   LiveReload,
@@ -9,7 +14,6 @@ import {
   useLoaderData,
   useLocation,
 } from '@remix-run/react'
-import { withSentry } from '@sentry/remix'
 import promiseHash from 'promise-hash'
 import { useMemo } from 'react'
 
@@ -25,13 +29,12 @@ import useTailwindTheme from '~/hooks/useTailwindTheme'
 
 import styles from './styles/app.css'
 
-export const meta: MetaFunction = ({ data }) => ({
+export const meta: MetaFunction = () => ({
   charset: 'utf-8',
   title: `${config.siteTitle} | The music nerd robot that wants you to listen to something new on Spotify!`,
   viewport:
     'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
   description: `${config.siteDescription} Let us recommend an album on Spotify!`,
-  version: data.ENV.SENTRY_RELEASE,
   generator: 'Remix <https://remix.run>',
 })
 
@@ -76,8 +79,6 @@ export async function loader({
       },
       ENV: {
         SPOTIFY_CLIENT_ID: env.SPOTIFY_CLIENT_ID,
-        SENTRY_DSN: env.SENTRY_DSN,
-        SENTRY_RELEASE: env.COMMIT_REF,
         NODE_ENV: env.NODE_ENV,
         GROWTHBOOK_API_HOST: env.GROWTHBOOK_API_HOST,
         GROWTHBOOK_CLIENT_KEY: env.GROWTHBOOK_CLIENT_KEY,
@@ -142,4 +143,4 @@ function App() {
   )
 }
 
-export default withSentry(App)
+export default App

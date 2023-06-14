@@ -1,4 +1,4 @@
-import { ActionArgs, json } from '@remix-run/node'
+import { ActionArgs, json } from '@remix-run/cloudflare'
 import { serverError } from 'remix-utils'
 import { ZodError } from 'zod'
 import { zfd } from 'zod-form-data'

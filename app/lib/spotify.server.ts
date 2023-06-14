@@ -1,5 +1,4 @@
-import { AppLoadContext, createCookie } from '@remix-run/node'
-import * as Sentry from '@sentry/remix'
+import { AppLoadContext, createCookie } from '@remix-run/cloudflare'
 import pick from 'lodash/pick'
 import random from 'lodash/random'
 import sample from 'lodash/sample'
@@ -75,88 +74,90 @@ export class Spotify {
 
     // Wrap the SpotifyApi in a proxy that will automatically trace and leave
     // breadcrumbs for all Spotify requests to Sentry.
-    return new Proxy(this.api, {
-      get: (target, propKey, receiver) => {
-        // @ts-ignore
-        const originalMethod = target?.[propKey]
+    // return new Proxy(this.api, {
+    //   get: (target, propKey, receiver) => {
+    //     // @ts-ignore
+    //     const originalMethod = target?.[propKey]
+    //
+    //     if (typeof originalMethod === 'function') {
+    //       // @ts-ignore
+    //       return (...args) => {
+    //         const methodName = propKey.toString()
+    //         const shouldTrack =
+    //           methodName !== 'getAccessToken' && !methodName.startsWith('_')
+    //         let transaction:
+    //           | ReturnType<typeof Sentry.startTransaction>
+    //           | undefined
+    //
+    //         if (shouldTrack) {
+    //           transaction = Sentry.startTransaction({
+    //             op: 'spotify',
+    //             name: propKey.toString(),
+    //           })
+    //
+    //           Sentry.addBreadcrumb({
+    //             type: 'spotify',
+    //             category: 'spotify',
+    //             level: 'debug',
+    //             message: propKey.toString(),
+    //             data: args.reduce((acc, curr, i) => {
+    //               acc[i] = curr
+    //               return acc
+    //             }, {}),
+    //           })
+    //         }
+    //
+    //         try {
+    //           // @ts-ignore
+    //           const res = originalMethod.apply(this.api, args)
+    //
+    //           if (
+    //             typeof res === 'object' &&
+    //             typeof res.finally === 'function'
+    //           ) {
+    //             return res.finally(() => transaction?.finish?.())
+    //           }
+    //
+    //           return res
+    //         } catch (e: any) {
+    //           if (e instanceof SpotifyWebApiError) {
+    //             if (e.statusCode === 429) {
+    //               this.logger?.error({
+    //                 message: 'Spotify is rate limiting the application!',
+    //                 exceptionMessage: e.message,
+    //                 body: e.body,
+    //                 headers: e.headers,
+    //                 statusCode: e.statusCode,
+    //                 email: true,
+    //                 method: propKey,
+    //               })
+    //             } else {
+    //               this.logger?.warn({
+    //                 message: 'Spotify threw an exception',
+    //                 exceptionMessage: e.message,
+    //                 body: e.body,
+    //                 headers: e.headers,
+    //                 statusCode: e.statusCode,
+    //                 method: propKey,
+    //               })
+    //             }
+    //           }
+    //
+    //           throw e
+    //         } finally {
+    //           // If it dies, it dies
+    //           try {
+    //             transaction?.finish?.()
+    //           } catch (e) {}
+    //         }
+    //       }
+    //     }
+    //
+    //     return Reflect.get(target, propKey, receiver)
+    //   },
+    // })
 
-        if (typeof originalMethod === 'function') {
-          // @ts-ignore
-          return (...args) => {
-            const methodName = propKey.toString()
-            const shouldTrack =
-              methodName !== 'getAccessToken' && !methodName.startsWith('_')
-            let transaction:
-              | ReturnType<typeof Sentry.startTransaction>
-              | undefined
-
-            if (shouldTrack) {
-              transaction = Sentry.startTransaction({
-                op: 'spotify',
-                name: propKey.toString(),
-              })
-
-              Sentry.addBreadcrumb({
-                type: 'spotify',
-                category: 'spotify',
-                level: 'debug',
-                message: propKey.toString(),
-                data: args.reduce((acc, curr, i) => {
-                  acc[i] = curr
-                  return acc
-                }, {}),
-              })
-            }
-
-            try {
-              // @ts-ignore
-              const res = originalMethod.apply(this.api, args)
-
-              if (
-                typeof res === 'object' &&
-                typeof res.finally === 'function'
-              ) {
-                return res.finally(() => transaction?.finish?.())
-              }
-
-              return res
-            } catch (e: any) {
-              if (e instanceof SpotifyWebApiError) {
-                if (e.statusCode === 429) {
-                  this.logger?.error({
-                    message: 'Spotify is rate limiting the application!',
-                    exceptionMessage: e.message,
-                    body: e.body,
-                    headers: e.headers,
-                    statusCode: e.statusCode,
-                    email: true,
-                    method: propKey,
-                  })
-                } else {
-                  this.logger?.warn({
-                    message: 'Spotify threw an exception',
-                    exceptionMessage: e.message,
-                    body: e.body,
-                    headers: e.headers,
-                    statusCode: e.statusCode,
-                    method: propKey,
-                  })
-                }
-              }
-
-              throw e
-            } finally {
-              // If it dies, it dies
-              try {
-                transaction?.finish?.()
-              } catch (e) {}
-            }
-          }
-        }
-
-        return Reflect.get(target, propKey, receiver)
-      },
-    })
+    return this.api
   }
 
   getRandomAlbumForSearchTerm = async (

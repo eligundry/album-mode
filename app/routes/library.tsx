@@ -1,4 +1,4 @@
-import type { MetaFunction } from '@remix-run/node'
+import type { MetaFunction } from '@remix-run/cloudflare'
 import clsx from 'clsx'
 
 import { Container, Heading, Layout, Typography } from '~/components/Base'

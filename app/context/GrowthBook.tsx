@@ -5,7 +5,6 @@ import {
   GrowthBookSSRData,
   useGrowthBookSSR,
 } from '@growthbook/growthbook-react'
-import * as Sentry from '@sentry/browser'
 import { useMemo } from 'react'
 
 import useGTM from '~/hooks/useGTM'
@@ -26,13 +25,10 @@ const GrowthBookProvider: React.FC<
           experiment_id: experiment.key,
           variation_id: result.key,
         })
-
-        Sentry.setTag(`growthbook:${experiment.key}`, result.key)
       },
       onFeatureUsage: (key, result) => {
         if (!result.experiment) {
           console.debug('feature_used', { key, result })
-          Sentry.setTag(`growthbook:${key}`, result.value)
         }
       },
     }

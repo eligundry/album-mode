@@ -1,4 +1,4 @@
-import { LoaderArgs } from '@remix-run/node'
+import { LoaderArgs } from '@remix-run/cloudflare'
 
 import { authenticator } from '~/lib/auth.server'
 

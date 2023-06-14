@@ -1,4 +1,4 @@
-import { LoaderArgs, redirect } from '@remix-run/node'
+import { LoaderArgs, redirect } from '@remix-run/cloudflare'
 import retry from 'async-retry'
 
 import { spotifyStrategy } from '~/lib/auth.server'

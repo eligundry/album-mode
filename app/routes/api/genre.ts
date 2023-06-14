@@ -1,4 +1,4 @@
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderFunction, json } from '@remix-run/cloudflare'
 
 import config from '~/config'
 

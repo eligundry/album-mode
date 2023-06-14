@@ -1,4 +1,4 @@
-import { ActionArgs } from '@remix-run/node'
+import { ActionArgs } from '@remix-run/cloudflare'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import {

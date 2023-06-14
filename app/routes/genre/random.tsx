@@ -1,4 +1,4 @@
-import { LoaderArgs, redirect } from '@remix-run/node'
+import { LoaderArgs, redirect } from '@remix-run/cloudflare'
 
 export async function loader({ context: { database } }: LoaderArgs) {
   const genre = await database.getRandomGenre()

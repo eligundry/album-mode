@@ -1,4 +1,4 @@
-import { MetaFunction } from '@remix-run/node'
+import { MetaFunction } from '@remix-run/cloudflare'
 
 import { Container, Heading, Layout } from '~/components/Base'
 import FAQ from '~/components/FAQ'

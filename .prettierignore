@@ -2,6 +2,7 @@
 .netlify
 public/build
 public/\~partytown
+public/_headers
 .prettierignore
 .husky
 prisma/*.db

@@ -1,6 +1,4 @@
-// app/routes/auth/spotify.tsx
-import type { ActionArgs } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
+import { ActionArgs, redirect } from '@remix-run/cloudflare'
 
 import { authenticator } from '~/lib/auth.server'
 

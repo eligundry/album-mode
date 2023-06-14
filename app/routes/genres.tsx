@@ -1,4 +1,4 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/cloudflare'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 

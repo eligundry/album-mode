@@ -1,4 +1,4 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/cloudflare'
 import pick from 'lodash/pick'
 import promiseHash from 'promise-hash'
 import { z } from 'zod'

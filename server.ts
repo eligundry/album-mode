@@ -1,16 +1,18 @@
 import ServerTiming from '@eligundry/server-timing'
+import { logDevReady } from '@remix-run/cloudflare'
 import {
   GetLoadContextFunction,
   createPagesFunctionHandler,
 } from '@remix-run/cloudflare-pages'
 import * as build from '@remix-run/dev/server-build'
-import { installGlobals } from '@remix-run/node'
 
 import { getEnv } from './app/env.server'
 import { constructRequestDatabase } from './app/lib/database/index.server'
 import { constructLogger } from './app/lib/logging.server'
 
-installGlobals()
+if (process.env.NODE_ENV === 'development') {
+  setTimeout(() => logDevReady(build), 200)
+}
 
 const getLoadContext: GetLoadContextFunction = async (context) => {
   const env = getEnv()
@@ -26,7 +28,6 @@ const getLoadContext: GetLoadContextFunction = async (context) => {
     authToken: env.TURSO_DATABASE_AUTH_TOKEN,
     logger: requestLogger,
   })
-  console.log('hell0')
 
   requestLogger.info(undefined)
 
@@ -35,7 +36,6 @@ const getLoadContext: GetLoadContextFunction = async (context) => {
     serverTiming,
     database: model,
     env,
-    ...context.env,
   }
 }
 

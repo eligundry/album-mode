@@ -1,4 +1,4 @@
-import { LoaderArgs, redirect } from '@remix-run/node'
+import { LoaderArgs, redirect } from '@remix-run/cloudflare'
 import sample from 'lodash/sample'
 
 import spotifyLib from '~/lib/spotify.server'

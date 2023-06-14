@@ -1,33 +1,34 @@
-import type { EntryContext } from '@remix-run/node'
+import type { AppLoadContext, EntryContext } from '@remix-run/cloudflare'
 import { RemixServer } from '@remix-run/react'
-import * as Sentry from '@sentry/remix'
-import { renderToString } from 'react-dom/server'
+import { detect } from 'detect-browser'
+import { renderToReadableStream } from 'react-dom/server'
 
-import { getEnv } from '~/env.server'
-
-const env = getEnv()
-
-Sentry.init({
-  dsn: env.SENTRY_DSN,
-  release: env.COMMIT_REF,
-  tracesSampleRate: 1,
-  integrations: [],
-})
-
-export default function handleRequest(
+export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext
+  remixContext: EntryContext,
+  loadContext: AppLoadContext
 ) {
-  let markup = renderToString(
-    <RemixServer context={remixContext} url={request.url} />
+  const body = await renderToReadableStream(
+    <RemixServer context={remixContext} url={request.url} />,
+    {
+      signal: request.signal,
+      onError(error: unknown) {
+        // Log streaming rendering errors from inside the shell
+        console.error(error)
+        responseStatusCode = 500
+      },
+    }
   )
 
-  responseHeaders.set('Content-Type', 'text/html')
+  if (detect(request.headers.get('user-agent') ?? '')?.type.startsWith('bot')) {
+    await body.allReady
+  }
 
-  return new Response('<!DOCTYPE html>' + markup, {
-    status: responseStatusCode,
+  responseHeaders.set('Content-Type', 'text/html')
+  return new Response(body, {
     headers: responseHeaders,
+    status: responseStatusCode,
   })
 }

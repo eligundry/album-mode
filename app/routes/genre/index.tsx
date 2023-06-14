@@ -1,4 +1,4 @@
-import { LoaderArgs, redirect } from '@remix-run/node'
+import { LoaderArgs, redirect } from '@remix-run/cloudflare'
 
 import { badRequest } from '~/lib/responses.server'
 

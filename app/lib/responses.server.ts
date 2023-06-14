@@ -1,4 +1,4 @@
-import { HeadersFunction, ResponseInit } from '@remix-run/node'
+import { HeadersFunction } from '@remix-run/cloudflare'
 import omit from 'lodash/omit'
 import {
   badRequest as _badRequest,

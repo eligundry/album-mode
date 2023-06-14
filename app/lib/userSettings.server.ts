@@ -1,4 +1,4 @@
-import { createCookie } from '@remix-run/node'
+import { createCookie } from '@remix-run/cloudflare'
 import { createTypedCookie } from 'remix-utils'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
