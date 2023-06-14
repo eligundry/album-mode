@@ -95,7 +95,7 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
           throw new Error('could not save item, will attempt to sync later')
         }
 
-        const updatedItem = await resp.json()
+        const updatedItem: ServerItem<T> = await resp.json()
 
         setItems((localItems) => {
           const updatedItems = Array.isArray(localItems)
@@ -144,12 +144,11 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
     }
 
     const resp = await fetch(apiPath)
-    const serverItems: ServerItem<T>[] = await resp.json().then((items) =>
-      items.map((item: ServerItem<T>) => ({
-        ...item,
-        savedAt: new Date(item.savedAt),
-      }))
-    )
+    let serverItems: ServerItem<T>[] = await resp.json()
+    serverItems = serverItems.map((item) => ({
+      ...item,
+      savedAt: new Date(item.savedAt),
+    }))
     const serverItemSavedAts = serverItems.map((item) => item.savedAt.getTime())
     const unsavedItems = items.filter(
       (item) =>
@@ -170,7 +169,7 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
           return false
         }
 
-        const savedItem = await resp.json()
+        const savedItem: ServerItem<T> = await resp.json()
 
         return savedItem
       })

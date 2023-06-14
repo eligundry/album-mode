@@ -19,7 +19,7 @@
     "start": "cross-env NODE_ENV=production npm run wrangler",
     "test": "vitest",
     "typecheck": "tsc",
-    "wrangler": "wrangler pages dev ./public --compatibility-flags=\"nodejs_compat\" --local --compatibility-date=2023-06-13"
+    "wrangler": "wrangler pages dev ./public --local --compatibility-date=2023-06-13"
   },
   "dependencies": {
     "@builder.io/partytown": "^0.8.0",

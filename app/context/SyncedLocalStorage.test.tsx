@@ -180,7 +180,7 @@ describe('SyncedLocalStorage', () => {
     it('should sync a new item to the server', async () => {
       const mock = fetchMock.mockIf(/\/api\/person/, async (req) => {
         if (req.method === 'POST') {
-          const input = await req.json()
+          const input: any = await req.json()
 
           return {
             body: JSON.stringify({
@@ -304,7 +304,7 @@ describe('SyncedLocalStorage', () => {
       ]
       fetchMock.mockIf(/\/api\/person/, async (req) => {
         if (req.method === 'POST') {
-          const input = await req.json()
+          const input: any = await req.json()
 
           return {
             body: JSON.stringify({

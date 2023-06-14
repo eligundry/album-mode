@@ -8,3 +8,6 @@ node_modules
 coverage
 data.db
 functions
+.wrangler
+.vars
+.*.vars
