@@ -9,7 +9,7 @@ import util from 'util'
 import type { Logger } from 'winston'
 
 import { spotifyStrategy } from '~/lib/auth.server'
-import cache from '~/lib/cache.server'
+// import cache from '~/lib/cache.server'
 import userSettings from '~/lib/userSettings.server'
 
 import type { SpotifyArtist, SpotifyUser } from './types/spotify'
@@ -42,10 +42,7 @@ export class Spotify {
     this.api = new SpotifyWebApi({
       clientId: options.clientID,
       clientSecret: options.clientSecret,
-      redirectUri:
-        process.env.NODE_ENV === 'production'
-          ? 'https://album-mode.party/spotify/callback'
-          : 'http://localhost:3000/spotify/callback',
+      redirectUri: 'http://localhost:3000/spotify/callback',
     })
   }
 
@@ -57,16 +54,17 @@ export class Spotify {
         this.api.setRefreshToken(this.refreshToken)
       }
     } else if (!this.api.getAccessToken()) {
-      let token = cache.get<string>(this.clientCredentialsTokenCacheKey)
+      // let token = cache.get<string>(this.clientCredentialsTokenCacheKey)
+      let token = ''
 
       if (!token) {
         const data = await this.api.clientCredentialsGrant()
         token = data.body.access_token
-        cache.set(
-          this.clientCredentialsTokenCacheKey,
-          token,
-          data.body.expires_in
-        )
+        // cache.set(
+        //   this.clientCredentialsTokenCacheKey,
+        //   token,
+        //   data.body.expires_in
+        // )
       }
 
       this.api.setAccessToken(token)
@@ -607,9 +605,9 @@ export class Spotify {
 
   getTopArtists = async (): Promise<SpotifyArtist[]> => {
     const cacheKey = `spotify-topArtists-${this.country}`
-    let artists = cache.get<SpotifyArtist[]>(cacheKey)
+    let artists: SpotifyArtist[] = []
 
-    if (artists) {
+    if (artists && artists.length > 0) {
       return artists
     }
 
@@ -634,7 +632,7 @@ export class Spotify {
       id: artist.id,
       image: artist.images.at(-1),
     }))
-    cache.set(cacheKey, artists)
+    // cache.set(cacheKey, artists)
 
     return artists
   }

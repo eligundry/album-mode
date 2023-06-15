@@ -1,8 +1,7 @@
-import dotenv from 'dotenv'
-
+// import dotenv from 'dotenv'
 import { envSchema, webAppEnvSchema } from './lib/envSchema.server'
 
-dotenv.config()
+// dotenv.config()
 
 interface Options {
   isNotWebApp?: boolean
@@ -16,4 +15,6 @@ export const getEnv = (
       process.env.SEED_SCRIPT === 'true',
     env: process.env,
   }
-) => (isNotWebApp ? envSchema.parse(env) : webAppEnvSchema.parse(env))
+) => {
+  return isNotWebApp ? envSchema.safeParse(env) : webAppEnvSchema.safeParse(env)
+}

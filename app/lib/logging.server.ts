@@ -75,7 +75,7 @@ class EmailJsTransport extends Transport implements Transport {
 }
 
 export const constructLogger = () => {
-  const env = getEnv()
+  // const env = getEnv()
 
   const logger = winston.createLogger({
     level: 'info',
@@ -83,21 +83,21 @@ export const constructLogger = () => {
     format: winston.format.combine(
       winston.format.timestamp(),
       winston.format.json({
-        space: env.SEED_SCRIPT || env.NODE_ENV !== 'production' ? 4 : undefined,
+        space: 4,
       })
     ),
   })
 
-  if (env.LOGGER_EMAIL_SETTINGS) {
-    logger.add(
-      new EmailJsTransport({
-        ...env.LOGGER_EMAIL_SETTINGS,
-        level: 'error',
-        filter: (info) => !!info.email,
-        logger,
-      })
-    )
-  }
+  // if (env.LOGGER_EMAIL_SETTINGS) {
+  //   logger.add(
+  //     new EmailJsTransport({
+  //       ...env.LOGGER_EMAIL_SETTINGS,
+  //       level: 'error',
+  //       filter: (info) => !!info.email,
+  //       logger,
+  //     })
+  //   )
+  // }
 
   return logger
 }
