@@ -1,5 +1,4 @@
 import { AppLoadContext, createCookie } from '@remix-run/node'
-import * as Sentry from '@sentry/remix'
 import pick from 'lodash/pick'
 import random from 'lodash/random'
 import sample from 'lodash/sample'
@@ -73,8 +72,7 @@ export class Spotify {
       this.api.setAccessToken(token)
     }
 
-    // Wrap the SpotifyApi in a proxy that will automatically trace and leave
-    // breadcrumbs for all Spotify requests to Sentry.
+    // Wrap the SpotifyApi in a proxy to track some errors more easily
     return new Proxy(this.api, {
       get: (target, propKey, receiver) => {
         // @ts-ignore
@@ -84,41 +82,10 @@ export class Spotify {
           // @ts-ignore
           return (...args) => {
             const methodName = propKey.toString()
-            const shouldTrack =
-              methodName !== 'getAccessToken' && !methodName.startsWith('_')
-            let transaction:
-              | ReturnType<typeof Sentry.startTransaction>
-              | undefined
-
-            if (shouldTrack) {
-              transaction = Sentry.startTransaction({
-                op: 'spotify',
-                name: propKey.toString(),
-              })
-
-              Sentry.addBreadcrumb({
-                type: 'spotify',
-                category: 'spotify',
-                level: 'debug',
-                message: propKey.toString(),
-                data: args.reduce((acc, curr, i) => {
-                  acc[i] = curr
-                  return acc
-                }, {}),
-              })
-            }
 
             try {
               // @ts-ignore
               const res = originalMethod.apply(this.api, args)
-
-              if (
-                typeof res === 'object' &&
-                typeof res.finally === 'function'
-              ) {
-                return res.finally(() => transaction?.finish?.())
-              }
-
               return res
             } catch (e: any) {
               if (e instanceof SpotifyWebApiError) {
@@ -145,11 +112,6 @@ export class Spotify {
               }
 
               throw e
-            } finally {
-              // If it dies, it dies
-              try {
-                transaction?.finish?.()
-              } catch (e) {}
             }
           }
         }

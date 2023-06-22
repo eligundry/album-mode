@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/remix'
 import wiki from 'wikipedia'
 
 interface AlbumSearch {
@@ -7,19 +6,6 @@ interface AlbumSearch {
 }
 
 const getSummaryForAlbum = async (search: AlbumSearch) => {
-  const transaction = Sentry.startTransaction({
-    op: 'wikipedia',
-    name: 'getSummaryForAlbum',
-  })
-
-  Sentry.addBreadcrumb({
-    level: 'debug',
-    type: 'wikipedia',
-    category: 'wikipedia',
-    message: 'getSummaryForAlbum',
-    data: search,
-  })
-
   try {
     const searchResp = await wiki.search(`${search.album} ${search.artist}`, {
       limit: 1,
@@ -40,8 +26,6 @@ const getSummaryForAlbum = async (search: AlbumSearch) => {
     }
   } catch (e) {
     return null
-  } finally {
-    transaction.finish()
   }
 }
 

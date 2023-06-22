@@ -3,12 +3,9 @@
  */
 export default {
   ignoredRouteFiles: ['**/.*'],
-  server:
-    process.env.NETLIFY || process.env.NETLIFY_LOCAL
-      ? './server.ts'
-      : undefined,
-  serverBuildPath: '.netlify/functions-internal/server.js',
-  serverDependenciesToBundle: ['@eligundry/server-timing'],
+  server: process.env.NODE_ENV === 'development' ? undefined : './server.ts',
+  serverBuildPath: 'api/index.js',
+  // serverDependenciesToBundle: ['@eligundry/server-timing'],
   tailwind: true,
   postcss: true,
   future: {

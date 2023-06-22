@@ -9,7 +9,6 @@ import {
   useLoaderData,
   useLocation,
 } from '@remix-run/react'
-import { withSentry } from '@sentry/remix'
 import promiseHash from 'promise-hash'
 import { useMemo } from 'react'
 
@@ -76,8 +75,6 @@ export async function loader({
       },
       ENV: {
         SPOTIFY_CLIENT_ID: env.SPOTIFY_CLIENT_ID,
-        SENTRY_DSN: env.SENTRY_DSN,
-        SENTRY_RELEASE: env.COMMIT_REF,
         NODE_ENV: env.NODE_ENV,
         GROWTHBOOK_API_HOST: env.GROWTHBOOK_API_HOST,
         GROWTHBOOK_CLIENT_KEY: env.GROWTHBOOK_CLIENT_KEY,
@@ -142,4 +139,4 @@ function App() {
   )
 }
 
-export default withSentry(App)
+export default App
