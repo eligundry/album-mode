@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm run partytown && npm run build:remix",
     "build:remix": "remix build",
-    "dev": "remix dev",
+    "dev": "cross-env NODE_ENV=production remix watch",
     "partytown": "partytown copylib public/~partytown",
     "seed-script": "SEED_SCRIPT=true node --require esbuild-register",
     "lint": "eslint app/**/*.{ts,tsx}",
@@ -89,6 +89,7 @@
     "inquirer": "^9.2.3",
     "jsdom": "^22.0.0",
     "lint-staged": "^13.2.2",
+    "npm-run-all": "^4.1.5",
     "playwright": "^1.33.0",
     "postcss": "^8.4.23",
     "prettier": "^2.8.8",
