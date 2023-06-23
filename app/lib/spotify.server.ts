@@ -1,5 +1,4 @@
 import { AppLoadContext, createCookie } from '@remix-run/node'
-import * as Sentry from '@sentry/remix'
 import pick from 'lodash/pick'
 import random from 'lodash/random'
 import sample from 'lodash/sample'
@@ -10,7 +9,6 @@ import util from 'util'
 import type { Logger } from 'winston'
 
 import { spotifyStrategy } from '~/lib/auth.server'
-import cache from '~/lib/cache.server'
 import userSettings from '~/lib/userSettings.server'
 
 import type { SpotifyArtist, SpotifyUser } from './types/spotify'
@@ -25,13 +23,14 @@ interface SpotifyOptions {
   clientSecret: string
 }
 
+let _accessToken: string | null = null
+
 export class Spotify {
   private userAccessToken: SpotifyOptions['userAccessToken']
   private refreshToken: SpotifyOptions['refreshToken']
   private country: string
   private lastPresentedID: SpotifyOptions['lastPresentedID']
   private api: SpotifyWebApi
-  private clientCredentialsTokenCacheKey = 'spotify-clientCredentialsToken'
   private logger?: Logger
 
   constructor(options: SpotifyOptions) {
@@ -58,23 +57,15 @@ export class Spotify {
         this.api.setRefreshToken(this.refreshToken)
       }
     } else if (!this.api.getAccessToken()) {
-      let token = cache.get<string>(this.clientCredentialsTokenCacheKey)
-
-      if (!token) {
+      if (!_accessToken) {
         const data = await this.api.clientCredentialsGrant()
-        token = data.body.access_token
-        cache.set(
-          this.clientCredentialsTokenCacheKey,
-          token,
-          data.body.expires_in
-        )
+        _accessToken = data.body.access_token
       }
 
-      this.api.setAccessToken(token)
+      this.api.setAccessToken(_accessToken)
     }
 
-    // Wrap the SpotifyApi in a proxy that will automatically trace and leave
-    // breadcrumbs for all Spotify requests to Sentry.
+    // Wrap the SpotifyApi in a proxy that will do some automatic reporting
     return new Proxy(this.api, {
       get: (target, propKey, receiver) => {
         // @ts-ignore
@@ -86,39 +77,14 @@ export class Spotify {
             const methodName = propKey.toString()
             const shouldTrack =
               methodName !== 'getAccessToken' && !methodName.startsWith('_')
-            let transaction:
-              | ReturnType<typeof Sentry.startTransaction>
-              | undefined
 
             if (shouldTrack) {
-              transaction = Sentry.startTransaction({
-                op: 'spotify',
-                name: propKey.toString(),
-              })
-
-              Sentry.addBreadcrumb({
-                type: 'spotify',
-                category: 'spotify',
-                level: 'debug',
-                message: propKey.toString(),
-                data: args.reduce((acc, curr, i) => {
-                  acc[i] = curr
-                  return acc
-                }, {}),
-              })
+              // @TODO Server timing this?
             }
 
             try {
               // @ts-ignore
               const res = originalMethod.apply(this.api, args)
-
-              if (
-                typeof res === 'object' &&
-                typeof res.finally === 'function'
-              ) {
-                return res.finally(() => transaction?.finish?.())
-              }
-
               return res
             } catch (e: any) {
               if (e instanceof SpotifyWebApiError) {
@@ -145,11 +111,6 @@ export class Spotify {
               }
 
               throw e
-            } finally {
-              // If it dies, it dies
-              try {
-                transaction?.finish?.()
-              } catch (e) {}
             }
           }
         }
@@ -538,23 +499,13 @@ export class Spotify {
     }
 
   getCategories = async () => {
-    const cacheKey = `spotify-categories-${this.country}`
-    let categories = cache.get<SpotifyApi.CategoryObject[]>(cacheKey)
-
-    if (categories) {
-      return categories
-    }
-
     const client = await this.getClient()
     const resp = await client.getCategories({
       country: this.country,
       limit: 50,
     })
 
-    categories = resp.body.categories.items
-    cache.set(cacheKey, categories)
-
-    return categories
+    return resp.body.categories.items
   }
 
   getCategory = async (categoryID: string) => {
@@ -605,13 +556,6 @@ export class Spotify {
   }
 
   getTopArtists = async (): Promise<SpotifyArtist[]> => {
-    const cacheKey = `spotify-topArtists-${this.country}`
-    let artists = cache.get<SpotifyArtist[]>(cacheKey)
-
-    if (artists) {
-      return artists
-    }
-
     const client = await this.getClient()
     // https://open.spotify.com/playlist/37i9dQZEVXbLp5XoPON0wI?si=ec81b7dcedf843a4
     const topSongsPlaylist = await client.getPlaylist('37i9dQZEVXbLp5XoPON0wI')
@@ -628,12 +572,11 @@ export class Spotify {
       new Set<string>()
     )
     const artistsResp = await client.getArtists([...topArtistIDs])
-    artists = artistsResp.body.artists.map((artist) => ({
+    const artists = artistsResp.body.artists.map((artist) => ({
       name: artist.name,
       id: artist.id,
       image: artist.images.at(-1),
     }))
-    cache.set(cacheKey, artists)
 
     return artists
   }

@@ -1,18 +1,6 @@
 import type { EntryContext } from '@remix-run/node'
 import { RemixServer } from '@remix-run/react'
-import * as Sentry from '@sentry/remix'
 import { renderToString } from 'react-dom/server'
-
-import { getEnv } from '~/env.server'
-
-const env = getEnv()
-
-Sentry.init({
-  dsn: env.SENTRY_DSN,
-  release: env.COMMIT_REF,
-  tracesSampleRate: 1,
-  integrations: [],
-})
 
 export default function handleRequest(
   request: Request,
