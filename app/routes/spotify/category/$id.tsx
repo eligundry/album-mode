@@ -1,4 +1,4 @@
-import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, V2_MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import promiseHash from 'promise-hash'
 
@@ -55,15 +55,18 @@ export async function loader({ params, request, context }: LoaderArgs) {
 
 export const ErrorBoundary = PlaylistErrorBoundary
 export const headers = forwardServerTimingHeaders
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
   if (!data) {
-    return {}
+    return []
   }
 
-  return {
-    title: `${data.category.name} | ${config.siteTitle}`,
-    description: `${config.siteDescription} Listen to a ${data.category.name} playlist on Spotify!`,
-  }
+  return [
+    { title: `${data.category.name} | ${config.siteTitle}` },
+    {
+      name: 'description',
+      content: `${config.siteDescription} Listen to a ${data.category.name} playlist on Spotify!`,
+    },
+  ]
 }
 
 export default function RandomSpotifyCategoryPlaylist() {

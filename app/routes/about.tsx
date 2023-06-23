@@ -1,4 +1,4 @@
-import type { MetaFunction } from '@remix-run/node'
+import type { V2_MetaFunction } from '@remix-run/node'
 import clsx from 'clsx'
 
 import {
@@ -11,10 +11,13 @@ import {
 } from '~/components/Base'
 import config from '~/config'
 
-export const meta: MetaFunction = () => ({
-  title: `About | ${config.siteTitle}`,
-  description: `Everything you need to know about ${config.siteTitle}`,
-})
+export const meta: V2_MetaFunction = () => [
+  { title: `About | ${config.siteTitle}` },
+  {
+    name: 'description',
+    content: `Everything you need to know about ${config.siteTitle}`,
+  },
+]
 
 const emailHref = 'mailto:eligundry+album-mode.party@gmail.com'
 

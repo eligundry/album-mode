@@ -1,4 +1,9 @@
-import { LinksFunction, LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import {
+  LinksFunction,
+  LoaderArgs,
+  V2_MetaFunction,
+  json,
+} from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -24,15 +29,29 @@ import useTailwindTheme from '~/hooks/useTailwindTheme'
 
 import styles from './styles/app.css'
 
-export const meta: MetaFunction = ({ data }) => ({
-  charset: 'utf-8',
-  title: `${config.siteTitle} | The music nerd robot that wants you to listen to something new on Spotify!`,
-  viewport:
-    'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
-  description: `${config.siteDescription} Let us recommend an album on Spotify!`,
-  version: data.ENV.COMMIT_REF,
-  generator: 'Remix <https://remix.run>',
-})
+export const meta: V2_MetaFunction = ({ data }) => [
+  { charset: 'utf-8' },
+  {
+    title: `${config.siteTitle} | The music nerd robot that wants you to listen to something new on Spotify!`,
+  },
+  {
+    name: 'viewport',
+    content:
+      'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
+  },
+  {
+    name: 'description',
+    content: `${config.siteDescription} Let us recommend an album on Spotify!`,
+  },
+  {
+    name: 'version',
+    content: data.ENV.COMMIT_REF,
+  },
+  {
+    name: 'generator',
+    content: 'Remix <https://remix.run>',
+  },
+]
 
 export const links: LinksFunction = () => [
   {

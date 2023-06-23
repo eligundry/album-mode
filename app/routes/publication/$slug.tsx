@@ -1,4 +1,4 @@
-import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, V2_MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
@@ -84,9 +84,9 @@ export async function loader({ params, request, context }: LoaderArgs) {
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
   if (!data) {
-    return {}
+    return []
   }
 
   let description = config.siteDescription
@@ -99,10 +99,13 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     description = `${config.siteDescription} ${data.review.publicationMetadata?.metaDescription}`
   }
 
-  return {
-    title,
-    description,
-  }
+  return [
+    { title },
+    {
+      name: 'description',
+      content: description,
+    },
+  ]
 }
 
 export default function PublicationBySlug() {

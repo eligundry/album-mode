@@ -1,4 +1,4 @@
-import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, V2_MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
@@ -9,11 +9,13 @@ import { PageErrorBoundary } from '~/components/ErrorBoundary'
 import LabelSearchForm from '~/components/Forms/LabelSearch'
 import config from '~/config'
 
-export const meta: MetaFunction = () => ({
-  title: `Labs 🧪 | ${config.siteTitle}`,
-  descriptions:
-    'Features for Album Mode.party that are not ready for prime time.',
-})
+export const meta: V2_MetaFunction = () => [
+  { title: `Labs 🧪 | ${config.siteTitle}` },
+  {
+    name: 'description',
+    content: 'Features for Album Mode.party that are not ready for prime time.',
+  },
+]
 
 export async function loader({ context: { database } }: LoaderArgs) {
   return json({

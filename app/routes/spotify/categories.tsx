@@ -1,4 +1,4 @@
-import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, V2_MetaFunction, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
@@ -28,10 +28,13 @@ export async function loader({ request, context }: LoaderArgs) {
 
 export const ErrorBoundary = PageErrorBoundary
 export const headers = forwardServerTimingHeaders
-export const meta: MetaFunction = () => ({
-  title: `Spotify Playlist Categories | ${config.siteTitle}`,
-  description: `${config.siteDescription} Maybe a playlist from one of the Spotify categories will catch your fancy!`,
-})
+export const meta: V2_MetaFunction = () => [
+  { title: `Spotify Playlist Categories | ${config.siteTitle}` },
+  {
+    name: 'description',
+    content: `${config.siteDescription} Maybe a playlist from one of the Spotify categories will catch your fancy!`,
+  },
+]
 
 export default function SpotifyCategories() {
   const { categories } = useLoaderData<typeof loader>()

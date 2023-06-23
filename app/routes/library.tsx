@@ -1,4 +1,4 @@
-import type { MetaFunction } from '@remix-run/node'
+import type { V2_MetaFunction } from '@remix-run/node'
 import clsx from 'clsx'
 
 import { Container, Heading, Layout, Typography } from '~/components/Base'
@@ -7,10 +7,13 @@ import Library from '~/components/Library'
 import config from '~/config'
 import useUser from '~/hooks/useUser'
 
-export const meta: MetaFunction = () => ({
-  title: `Library | ${config.siteTitle}`,
-  description: 'Albums that you like are saved here.',
-})
+export const meta: V2_MetaFunction = () => [
+  { title: `Library | ${config.siteTitle}` },
+  {
+    name: 'description',
+    content: 'Albums that you like are saved here.',
+  },
+]
 
 export default function LibraryPage() {
   const user = useUser()
