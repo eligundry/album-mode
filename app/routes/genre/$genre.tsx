@@ -1,8 +1,9 @@
-import { LoaderArgs, V2_MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 import startCase from 'lodash/startCase'
 
+import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { badRequest } from '~/lib/responses.server'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -66,20 +67,20 @@ export async function loader({ request, params, context }: LoaderArgs) {
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
-export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
+export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
   if (!data) {
     return []
   }
 
   const genre = startCase(data.genre)
 
-  return [
+  return mergeMeta(matches, [
     { title: `${genre} | ${config.siteTitle}` },
     {
       name: 'description',
       content: `Discover new music from the ${genre} genre on Spotify!`,
     },
-  ]
+  ])
 }
 
 export default function GenreSearch() {

@@ -1,9 +1,4 @@
-import {
-  LinksFunction,
-  LoaderArgs,
-  V2_MetaFunction,
-  json,
-} from '@remix-run/node'
+import { LoaderArgs, V2_MetaFunction, json } from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -14,8 +9,8 @@ import {
   useLoaderData,
   useLocation,
 } from '@remix-run/react'
-import promiseHash from 'promise-hash'
 import { useMemo } from 'react'
+import { promiseHash } from 'remix-utils'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import growthbookLib from '~/lib/growthbook.server'
@@ -51,18 +46,18 @@ export const meta: V2_MetaFunction = ({ data }) => [
     name: 'generator',
     content: 'Remix <https://remix.run>',
   },
-]
-
-export const links: LinksFunction = () => [
   {
+    tagName: 'link',
     rel: 'stylesheet',
     href: styles,
   },
   {
+    tagName: 'link',
     rel: 'icon',
     href: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💿</text></svg>',
   },
   {
+    tagName: 'link',
     rel: 'shortcut icon',
     href: '/favicon.png',
   },

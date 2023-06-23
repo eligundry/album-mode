@@ -1,7 +1,8 @@
-import { LoaderArgs, V2_MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { badRequest, serverError } from 'remix-utils'
 
+import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
@@ -74,16 +75,16 @@ export async function loader({ request, params, context }: LoaderArgs) {
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
-export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
+export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
   if (!data) {
-    return []
+    return mergeMeta(matches, [])
   }
 
   const title = `Discover music similar to ${data.artist.name}`
   const description = `We think that you might like ${data.album.artists[0].name}`
   const ogImage = `${data.OG_API_URL}/api/artist/${data.artist.id}`
 
-  return [
+  return mergeMeta(matches, [
     { title: `${title} | ${config.siteTitle}` },
     { name: 'description', description },
     { property: 'og:title', content: title },
@@ -93,7 +94,7 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data }) => {
     { property: 'twitter:title', content: title },
     { property: 'twitter:description', content: description },
     { property: 'twitter:image', content: ogImage },
-  ]
+  ])
 }
 
 export default function RelatedArtistSearch() {

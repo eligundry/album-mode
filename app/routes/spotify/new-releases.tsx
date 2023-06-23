@@ -1,7 +1,8 @@
-import { LoaderArgs, V2_MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
+import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
@@ -54,13 +55,14 @@ export async function loader({ request, context }: LoaderArgs) {
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
-export const meta: V2_MetaFunction<typeof loader> = () => [
-  { title: `New Releases | ${config.siteTitle}` },
-  {
-    name: 'description',
-    content: 'Listen to a random album that just came out!',
-  },
-]
+export const meta: AppMetaFunction<typeof loader> = ({ matches }) =>
+  mergeMeta(matches, [
+    { title: `New Releases | ${config.siteTitle}` },
+    {
+      name: 'description',
+      content: 'Listen to a random album that just came out!',
+    },
+  ])
 
 export default function SpotifyNewReleases() {
   const data = useLoaderData<typeof loader>()

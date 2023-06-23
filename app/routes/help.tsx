@@ -1,16 +1,17 @@
-import { V2_MetaFunction } from '@remix-run/node'
+import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 
 import { Container, Heading, Layout } from '~/components/Base'
 import FAQ from '~/components/FAQ'
 import config from '~/config'
 
-export const meta: V2_MetaFunction = () => [
-  { title: `Help | ${config.siteTitle}` },
-  {
-    name: 'description',
-    content: `Answers to commonly asked questions for ${config.siteTitle}`,
-  },
-]
+export const meta: AppMetaFunction = ({ matches }) =>
+  mergeMeta(matches, [
+    { title: `Help | ${config.siteTitle}` },
+    {
+      name: 'description',
+      content: `Answers to commonly asked questions for ${config.siteTitle}`,
+    },
+  ])
 
 export default function Help() {
   return (
