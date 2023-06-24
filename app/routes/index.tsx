@@ -106,6 +106,7 @@ export default function Index() {
           <ButtonLinkGroupWrapper>
             {!user ? (
               <SpotifyLoginButton
+                size={null}
                 className={clsx(
                   'breadcrumbs',
                   ['btn-xs', 'py-0'],
