@@ -55,7 +55,11 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
             blurb: album.seoDescription ?? null,
           },
         })
-        .then(() => inserted++)
+        .then((res) => {
+          if (res.created) {
+            inserted++
+          }
+        })
         .catch(() => {})
     })
   )

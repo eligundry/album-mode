@@ -223,7 +223,7 @@ export class DatabaseClient {
 
     try {
       const res = await this.db.insert(reviewedItems).values(values).run()
-      return res.lastInsertRowid
+      return { id: res.lastInsertRowid, created: true, updated: false }
     } catch (e) {
       return this.db
         .update(reviewedItems)
@@ -236,7 +236,7 @@ export class DatabaseClient {
         )
         .returning()
         .get()
-        .then((item) => item.id)
+        .then((item) => ({ id: item.id, created: false, updated: true }))
     }
   }
 

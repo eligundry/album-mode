@@ -99,7 +99,11 @@ const seedPazzAndJop = async () => {
               creator: data.artist,
               metadata: {},
             })
-            .then(() => inserted++)
+            .then((res) => {
+              if (res.created) {
+                inserted++
+              }
+            })
             .catch(() => {})
         )
       )
