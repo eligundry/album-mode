@@ -91,7 +91,7 @@ export default function Index() {
             <GenreSearchForm className={clsx('flex-1')} />
             <ButtonLink
               to="/genre/random"
-              className={clsx('self-start')}
+              className={clsx('self-start', 'btn-sm', 'sm:btn-md')}
               disabled={loading}
             >
               Random Genre
