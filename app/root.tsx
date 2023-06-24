@@ -24,44 +24,64 @@ import useTailwindTheme from '~/hooks/useTailwindTheme'
 
 import styles from './styles/app.css'
 
-export const meta: V2_MetaFunction = ({ data }) => [
-  { charset: 'utf-8' },
-  {
-    title: `${config.siteTitle} | The music nerd robot that wants you to listen to something new on Spotify!`,
-  },
-  {
-    name: 'viewport',
-    content:
-      'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
-  },
-  {
-    name: 'description',
-    content: `${config.siteDescription} Let us recommend an album on Spotify!`,
-  },
-  {
-    name: 'version',
-    content: data.ENV.COMMIT_REF,
-  },
-  {
-    name: 'generator',
-    content: 'Remix <https://remix.run>',
-  },
-  {
-    tagName: 'link',
-    rel: 'stylesheet',
-    href: styles,
-  },
-  {
-    tagName: 'link',
-    rel: 'icon',
-    href: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💿</text></svg>',
-  },
-  {
-    tagName: 'link',
-    rel: 'shortcut icon',
-    href: '/favicon.png',
-  },
-]
+export const meta: V2_MetaFunction = ({ data, location }) => {
+  const canonicalURL = new URL(
+    location.pathname + location.search,
+    config.siteURL
+  )
+
+  Object.entries(Object.fromEntries(canonicalURL.searchParams)).forEach(
+    ([key]) => {
+      if (!config.allowedQueryParametersInCanoncialURL.includes(key)) {
+        canonicalURL.searchParams.delete(key)
+      }
+    }
+  )
+
+  return [
+    { charset: 'utf-8' },
+    {
+      title: `${config.siteTitle} | The music nerd robot that wants you to listen to something new on Spotify!`,
+    },
+    {
+      name: 'viewport',
+      content:
+        'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
+    },
+    {
+      name: 'description',
+      content: `${config.siteDescription} Let us recommend an album on Spotify!`,
+    },
+    {
+      name: 'version',
+      content: data.ENV.COMMIT_REF,
+    },
+    {
+      name: 'generator',
+      content: 'Remix <https://remix.run>',
+    },
+    {
+      tagName: 'link',
+      rel: 'stylesheet',
+      href: styles,
+    },
+    {
+      tagName: 'link',
+      rel: 'icon',
+      href: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💿</text></svg>',
+    },
+    {
+      tagName: 'link',
+      rel: 'shortcut icon',
+      href: '/favicon.png',
+    },
+    {
+      tagName: 'link',
+      rel: 'canonical',
+      href: canonicalURL.toString(),
+    },
+  ]
+}
 
 export async function loader({
   request,
@@ -104,31 +124,19 @@ export async function loader({
 }
 
 function App() {
-  const { pathname, search } = useLocation()
+  const { search } = useLocation()
   const data = useLoaderData<typeof loader>()
   const { isDarkMode, pallete } = useTailwindTheme()
   const googleTagManagerDebug = useMemo(
     () => new URLSearchParams(search.substring(1)).has('gtm_debug'),
     []
   )
-  const canonicalURL = useMemo(() => {
-    const url = new URL(pathname + search, config.siteURL)
-
-    Object.entries(Object.fromEntries(url.searchParams)).forEach(([key]) => {
-      if (!config.allowedQueryParametersInCanoncialURL.includes(key)) {
-        url.searchParams.delete(key)
-      }
-    })
-
-    return url.toString()
-  }, [pathname, search])
 
   return (
     <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>
       <head>
         <Meta />
         <meta name="theme-color" content={pallete['base-100']} />
-        <link rel="canonical" href={canonicalURL} />
         <Links />
         <Tracking disablePartytown={googleTagManagerDebug} />
       </head>
