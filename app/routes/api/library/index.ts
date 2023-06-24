@@ -1,5 +1,5 @@
 import { ActionArgs, LoaderArgs, json } from '@remix-run/node'
-import promiseHash from 'promise-hash'
+import { promiseHash } from 'remix-utils'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import { badRequest, serverError, unauthorized } from '~/lib/responses.server'
@@ -59,36 +59,30 @@ export async function action({ request, context }: ActionArgs) {
           username: userID,
         })
       ),
-      saveAlbum:
-        spotifyAlbumID &&
-        settings.saveAlbumAutomatically &&
-        serverTiming.track(
-          'spotify.saveAlbum',
-          () =>
-            spotifyAlbumID &&
-            spotify.saveAlbum(spotifyAlbumID).catch((error) => {
-              logger.warn({
-                message: 'could not save album on Spotify',
-                error,
-              })
-              serverTiming.add('spotify.saveAlbum failed')
+      saveAlbum: serverTiming.track(
+        'spotify.saveAlbum',
+        () =>
+          spotifyAlbumID &&
+          spotify.saveAlbum(spotifyAlbumID).catch((error) => {
+            logger.warn({
+              message: 'could not save album on Spotify',
+              error,
             })
-        ),
-      followArtist:
-        spotifyArtistID &&
-        settings.followArtistAutomatically &&
-        serverTiming.track(
-          'spotify.followArtist',
-          () =>
-            spotifyArtistID &&
-            spotify.followArtist(spotifyArtistID).catch((error) => {
-              logger.warn({
-                message: 'could not follow artist on Spotify',
-                error,
-              })
-              serverTiming.add('spotify.followArtist failed')
+            serverTiming.add('spotify.saveAlbum failed')
+          })
+      ),
+      followArtist: serverTiming.track(
+        'spotify.followArtist',
+        () =>
+          spotifyArtistID &&
+          spotify.followArtist(spotifyArtistID).catch((error) => {
+            logger.warn({
+              message: 'could not follow artist on Spotify',
+              error,
             })
-        ),
+            serverTiming.add('spotify.followArtist failed')
+          })
+      ),
     })
   } catch (e: any) {
     throw serverError({

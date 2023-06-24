@@ -1,6 +1,6 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import pick from 'lodash/pick'
-import promiseHash from 'promise-hash'
+import { promiseHash } from 'remix-utils'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 

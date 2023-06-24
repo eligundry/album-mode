@@ -149,7 +149,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
         </Container>
       )}
       <AutoAlert />
-      {isMobile && <MobileLoader />}
+      <ClientOnly>{() => isMobile && <MobileLoader />}</ClientOnly>
     </>
   )
 }

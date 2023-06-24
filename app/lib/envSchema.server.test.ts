@@ -20,7 +20,6 @@ const baseEnv = {
   NODE_ENV: 'production',
   OG_API_URL: 'http://localhost:3001',
   SEED_SCRIPT: 'false',
-  SENTRY_DSN: 'xxx',
   SPOTIFY_CLIENT_ID: 'xxx',
   SPOTIFY_CLIENT_SECRET: 'yyy',
   TURSO_DATABASE_URL: 'libsql://database.turso.io',
@@ -39,7 +38,6 @@ describe('envSchema', () => {
         'GROWTHBOOK_CLIENT_KEY',
         'LOGGER_EMAIL_SETTINGS',
         'OG_API_URL',
-        'SENTRY_DSN',
       ])
     )
     expect(result.success).toBe(true)

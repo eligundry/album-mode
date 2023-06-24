@@ -1,9 +1,10 @@
-import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
-import promiseHash from 'promise-hash'
+import { promiseHash } from 'remix-utils'
 import { badRequest, serverError } from 'remix-utils'
 
+import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
@@ -83,26 +84,26 @@ export async function loader({ request, params, context }: LoaderArgs) {
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
   if (!data) {
-    return {}
+    return []
   }
 
   const title = `Discover music similar to ${data.artist.name}`
   const description = `We think that you might like ${data.album.artists[0].name}`
   const ogImage = `${data.OG_API_URL}/api/artist/${data.artist.id}`
 
-  return {
-    title: `${title} | ${config.siteTitle}`,
-    description,
-    'og:title': title,
-    'og:description': description,
-    'og:image': ogImage,
-    'twitter:card': 'summary_large_image',
-    'twitter:title': title,
-    'twitter:description': description,
-    'twitter:image': ogImage,
-  }
+  return mergeMeta(matches, [
+    { title: `${title} | ${config.siteTitle}` },
+    { name: description },
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: description },
+    { property: 'og:image', content: ogImage },
+    { property: 'twitter:card', content: 'summary_large_image' },
+    { property: 'twitter:title', content: title },
+    { property: 'twitter:description', content: description },
+    { property: 'twitter:image', content: ogImage },
+  ])
 }
 
 export default function RelatedArtistSearch() {

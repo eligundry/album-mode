@@ -2,13 +2,14 @@ import { GrowthBook, setPolyfills } from '@growthbook/growthbook'
 import { detect } from 'detect-browser'
 
 import { spotifyStrategy } from '~/lib/auth.server'
-import cache from '~/lib/cache.server'
+
+let _cache: Record<string, any> = {}
 
 setPolyfills({
   localStorage: {
-    getItem: (key: string) => cache.get(key) ?? null,
+    getItem: (key: string) => _cache[key] ?? null,
     setItem: (key: string, value: string) => {
-      cache.set(key, value, process.env.NODE_ENV === 'production' ? 60 : 1)
+      _cache[key] = value
     },
   },
 })

@@ -1,7 +1,8 @@
-import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import promiseHash from 'promise-hash'
+import { promiseHash } from 'remix-utils'
 
+import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { badRequest, serverError } from '~/lib/responses.server'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -55,15 +56,18 @@ export async function loader({ params, request, context }: LoaderArgs) {
 
 export const ErrorBoundary = PlaylistErrorBoundary
 export const headers = forwardServerTimingHeaders
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
   if (!data) {
-    return {}
+    return mergeMeta(matches, [])
   }
 
-  return {
-    title: `${data.category.name} | ${config.siteTitle}`,
-    description: `${config.siteDescription} Listen to a ${data.category.name} playlist on Spotify!`,
-  }
+  return mergeMeta(matches, [
+    { title: `${data.category.name} | ${config.siteTitle}` },
+    {
+      name: 'description',
+      content: `${config.siteDescription} Listen to a ${data.category.name} playlist on Spotify!`,
+    },
+  ])
 }
 
 export default function RandomSpotifyCategoryPlaylist() {

@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/browser'
 import React, { useEffect } from 'react'
 
 import type { User } from '~/lib/types/auth'
@@ -17,10 +16,6 @@ const UserProvider: React.FC<
     if (user?.id) {
       sendEvent({
         user_id: user.id,
-      })
-
-      Sentry.setUser({
-        id: user.id,
       })
     }
   }, [user?.id, sendEvent])

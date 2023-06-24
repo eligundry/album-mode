@@ -1,4 +1,4 @@
-import { LinksFunction, LoaderArgs, MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, V2_MetaFunction, json } from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -9,9 +9,8 @@ import {
   useLoaderData,
   useLocation,
 } from '@remix-run/react'
-import { withSentry } from '@sentry/remix'
-import promiseHash from 'promise-hash'
 import { useMemo } from 'react'
+import { promiseHash } from 'remix-utils'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import growthbookLib from '~/lib/growthbook.server'
@@ -25,26 +24,40 @@ import useTailwindTheme from '~/hooks/useTailwindTheme'
 
 import styles from './styles/app.css'
 
-export const meta: MetaFunction = ({ data }) => ({
-  charset: 'utf-8',
-  title: `${config.siteTitle} | The music nerd robot that wants you to listen to something new on Spotify!`,
-  viewport:
-    'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
-  description: `${config.siteDescription} Let us recommend an album on Spotify!`,
-  version: data.ENV.SENTRY_RELEASE,
-  generator: 'Remix <https://remix.run>',
-})
-
-export const links: LinksFunction = () => [
+export const meta: V2_MetaFunction = ({ data }) => [
+  { charset: 'utf-8' },
   {
+    title: `${config.siteTitle} | The music nerd robot that wants you to listen to something new on Spotify!`,
+  },
+  {
+    name: 'viewport',
+    content:
+      'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
+  },
+  {
+    name: 'description',
+    content: `${config.siteDescription} Let us recommend an album on Spotify!`,
+  },
+  {
+    name: 'version',
+    content: data.ENV.COMMIT_REF,
+  },
+  {
+    name: 'generator',
+    content: 'Remix <https://remix.run>',
+  },
+  {
+    tagName: 'link',
     rel: 'stylesheet',
     href: styles,
   },
   {
+    tagName: 'link',
     rel: 'icon',
     href: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💿</text></svg>',
   },
   {
+    tagName: 'link',
     rel: 'shortcut icon',
     href: '/favicon.png',
   },
@@ -76,8 +89,7 @@ export async function loader({
       },
       ENV: {
         SPOTIFY_CLIENT_ID: env.SPOTIFY_CLIENT_ID,
-        SENTRY_DSN: env.SENTRY_DSN,
-        SENTRY_RELEASE: env.COMMIT_REF,
+        COMMIT_REF: env.COMMIT_REF,
         NODE_ENV: env.NODE_ENV,
         GROWTHBOOK_API_HOST: env.GROWTHBOOK_API_HOST,
         GROWTHBOOK_CLIENT_KEY: env.GROWTHBOOK_CLIENT_KEY,
@@ -142,4 +154,4 @@ function App() {
   )
 }
 
-export default withSentry(App)
+export default App
