@@ -2,7 +2,6 @@ import clsx from 'clsx'
 
 import { A, Container } from '~/components/Base'
 import SpotifyEmbed from '~/components/Spotify/Embed'
-import { useIsMobile } from '~/hooks/useMediaQuery'
 import useUTM from '~/hooks/useUTM'
 
 import PlaylistWrapper from './Wrapper'
@@ -10,16 +9,13 @@ import PlaylistWrapper from './Wrapper'
 interface Props {
   playlist: SpotifyApi.PlaylistObjectSimplified | SpotifyApi.PlaylistObjectFull
   footer?: string | React.ReactNode
-  forceTall?: boolean
 }
 
-const Playlist: React.FC<Props> = ({ playlist, footer, forceTall = false }) => {
-  const isMobile = useIsMobile()
+const Playlist: React.FC<Props> = ({ playlist, footer }) => {
   const { createExternalURL } = useUTM()
   const playlistURL = createExternalURL(
     playlist.external_urls.spotify
   ).toString()
-  const isWide = !forceTall && isMobile
 
   return (
     <Container center>
@@ -36,7 +32,7 @@ const Playlist: React.FC<Props> = ({ playlist, footer, forceTall = false }) => {
                 'mx-auto',
                 'sm:h-full',
                 ['w-full', 'sm:w-[300px]'],
-                [isWide ? 'max-h-[80px]' : 'min-h-[380px]', 'sm:min-h-[380px]']
+                ['sm:min-h-[380px]', 'phone:h-[380px]']
               )}
               link={playlistURL}
             />

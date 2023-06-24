@@ -51,7 +51,7 @@ export default function RandomSpotifyFeaturedPlaylist() {
 
   return (
     <Layout hideFooter headerBreadcrumbs={['Spotify', 'Featured Playlist']}>
-      <Playlist forceTall playlist={playlist} />
+      <Playlist playlist={playlist} />
     </Layout>
   )
 }

@@ -66,7 +66,7 @@ export default function RandomAlbumFromSpotifyLibrary() {
 
   return (
     <Layout hideFooter headerBreadcrumbs={['Spotify', 'For You']}>
-      <Playlist forceTall playlist={data.playlist} />
+      <Playlist playlist={data.playlist} />
     </Layout>
   )
 }

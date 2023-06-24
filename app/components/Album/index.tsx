@@ -16,7 +16,6 @@ interface NewProps {
     genres?: string[]
   }
   footer?: React.ReactNode
-  forceTall?: boolean
   wiki?: IWikipediaSummary | null
 }
 
