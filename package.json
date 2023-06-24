@@ -38,7 +38,7 @@
     "daisyui": "^3.0.3",
     "date-fns": "^2.30.0",
     "detect-browser": "^5.3.0",
-    "drizzle-orm": "^0.25.4",
+    "drizzle-orm": "^0.27.0",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-confetti": "^6.1.0",
@@ -99,7 +99,7 @@
     "yargs": "^17.7.2"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=18,<19"
   },
   "prettier": {
     "trailingComma": "es5",
