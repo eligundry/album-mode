@@ -56,7 +56,7 @@ export const Card = React.forwardRef<any, Props>(
         {...props}
       >
         {media}
-        <div className={clsx('card-body', 'justify-between')}>
+        <div className={clsx('card-body', 'sm:justify-between')}>
           <div>
             <Heading
               level={titleLevel}

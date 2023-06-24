@@ -38,11 +38,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           'flex-col'
         )}
       >
-        {!isMobile && (
-          <ClientOnly fallback={<div className={clsx('w-full', 'h-[8px]')} />}>
-            {() => <DesktopLoader />}
-          </ClientOnly>
-        )}
+        <DesktopLoader />
         <Container
           className={clsx(
             'flex',

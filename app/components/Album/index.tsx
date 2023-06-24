@@ -7,7 +7,6 @@ import { A, Container } from '~/components/Base'
 import SpotifyEmbed from '~/components/Spotify/Embed'
 import WikipediaSummary from '~/components/WikipediaSummary'
 import useGTM from '~/hooks/useGTM'
-import { useIsMobile } from '~/hooks/useMediaQuery'
 import useUTM from '~/hooks/useUTM'
 
 import AlbumWrapper from './Wrapper'
@@ -21,18 +20,10 @@ interface NewProps {
   wiki?: IWikipediaSummary | null
 }
 
-const Album: React.FC<NewProps> = ({
-  album,
-  footer,
-  forceTall = false,
-  wiki,
-}) => {
-  const isMobile = useIsMobile()
+const Album: React.FC<NewProps> = ({ album, footer, wiki }) => {
   const sendEvent = useGTM()
   const { createExternalURL } = useUTM()
   const albumURL = createExternalURL(album.external_urls.spotify).toString()
-  const isWide =
-    !forceTall && wiki && wiki.extract_html.length >= 300 && isMobile
 
   return (
     <Container center>
@@ -49,7 +40,7 @@ const Album: React.FC<NewProps> = ({
                 'mx-auto',
                 'sm:h-full',
                 ['w-full', 'sm:w-[300px]'],
-                [isWide ? 'max-h-[80px]' : 'min-h-[380px]', 'sm:min-h-[380px]']
+                ['sm:min-h-[380px]', 'phone:h-[380px]']
               )}
               link={albumURL}
             />
@@ -109,8 +100,8 @@ const Album: React.FC<NewProps> = ({
             {wiki && <WikipediaSummary summary={wiki} />}
           </>
         }
+        genres={album.genres}
         reviewProps={{
-          genres: album.genres,
           item: {
             service: 'spotify',
             name: album.name,
