@@ -63,7 +63,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({
           replace={true}
           disabled={loading}
         >
-          <EmojiText emoji="🙌" label="raised hands">
+          <EmojiText emoji="🙌" label="raised hands" noPadding>
             <span className={clsx('btm-nav-label')}>Great!</span>
           </EmojiText>
         </ButtonLink>
@@ -79,6 +79,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({
             emoji="👎"
             label="thumbs down"
             className={clsx('sm:mt-1.5')}
+            noPadding
           >
             <span className={clsx('btm-nav-label')}>Nope!</span>
           </EmojiText>
@@ -95,7 +96,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({
             })
           }
         >
-          <EmojiText emoji="▶️" label="play button">
+          <EmojiText emoji="▶️" label="play button" noPadding>
             <span className={clsx('btm-nav-label')}>Play</span>
           </EmojiText>
         </ButtonLink>
