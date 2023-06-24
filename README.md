@@ -1,4 +1,4 @@
-# album-mode.party [![Netlify Status](https://api.netlify.com/api/v1/badges/e24e0200-16f4-4d50-a3f4-ef1edf891881/deploy-status)](https://app.netlify.com/sites/album-mode/deploys)
+# album-mode.party [![Netlify Status](https://api.netlify.com/api/v1/badges/5bc14dab-b8e9-463a-8e8a-839e1b8735fe/deploy-status)](https://app.netlify.com/sites/album-mode/deploys)
 
 Web application that recommends albums based upon magic (aka randomly selecting an album from a list).
 
