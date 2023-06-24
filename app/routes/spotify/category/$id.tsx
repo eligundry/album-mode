@@ -87,7 +87,7 @@ export default function RandomSpotifyCategoryPlaylist() {
         category.name,
       ]}
     >
-      <Playlist forceTall playlist={playlist} />
+      <Playlist playlist={playlist} />
     </Layout>
   )
 }

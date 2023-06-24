@@ -1,7 +1,6 @@
 import clsx from 'clsx'
 import React from 'react'
 
-import type { LocalLibraryItem } from '~/lib/types/library'
 import type { WikipediaSummary as IWikipediaSummary } from '~/lib/wikipedia.server'
 
 import { A, Container } from '~/components/Base'
@@ -41,22 +40,25 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer, wiki }) => {
     params.push('minimal=true')
   }
 
-  console.log({ album })
-
   return (
     <Container center>
       <AlbumWrapper
+        className={clsx(
+          'sm:items-stretch',
+          '[&_.card-body]:px-0',
+          '[&_.card-body]:sm:px-4'
+        )}
         embed={
           <iframe
             title="Bandcamp embed"
-            style={{
-              border: 0,
-              width: '350px',
-              height: isMobile ? '350px' : '470px',
-            }}
             src={`https://bandcamp.com/EmbeddedPlayer/${params.join('/')}`}
             seamless
-            className={clsx('mx-auto')}
+            className={clsx(
+              'mx-auto',
+              'border-none',
+              ['w-full', 'h-[390px]'],
+              ['sm:w-[350px]', 'sm:h-[470px]']
+            )}
           >
             <a href={createExternalURL(album.url).toString()}>
               {album.album} by {album.artist}

@@ -6,7 +6,6 @@ import Confetti from 'react-confetti'
 import type { LibraryItemInput } from '~/lib/types/library'
 
 import { ButtonLink, EmojiText, Heading } from '~/components/Base'
-import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import useCurrentPath from '~/hooks/useCurrentPath'
 import useGTM from '~/hooks/useGTM'
 import useLoading from '~/hooks/useLoading'
@@ -15,14 +14,14 @@ import useUTM from '~/hooks/useUTM'
 
 export interface ReviewButtonProps {
   item: LibraryItemInput
-  genres?: string[]
   className?: string
+  bottomNav?: boolean
 }
 
 const ReviewButtons: React.FC<ReviewButtonProps> = ({
   item,
-  genres,
   className,
+  bottomNav = false,
 }) => {
   const [party, setParty] = useState(false)
   const { positiveReview, negativeReview } = useRating()
@@ -35,69 +34,60 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({
 
   return (
     <>
-      <div className={clsx('flex', 'flex-col', 'gap-2', 'w-full', className)}>
-        {genres && genres.length > 0 && (
-          <>
-            <Heading level="h5" noSpacing>
-              Genres
-            </Heading>
-            <ButtonLinkGroup
-              items={genres.slice(0, 3)}
-              keyFunction={(genre, i) => `${genre}-${i}`}
-              toFunction={(genre) => `/genre/${genre}`}
-              childFunction={(genre) => genre}
-              className={clsx('btn-xs')}
-              wrapperClassName={clsx('mb-2')}
-            />
-          </>
-        )}
-        <Heading level="h5" noSpacing>
-          Rate to get the next recommendation
-        </Heading>
-        <div
-          className={clsx(
-            'grid',
+      <div
+        className={clsx(
+          'grid',
+          !bottomNav && [
             'grid-cols-2',
             'w-full',
             'justify-items-stretch',
-            'gap-2'
-          )}
+            'gap-2',
+          ],
+          bottomNav && [
+            'btm-nav',
+            'grid-cols-3',
+            '[&>.btn]:h-full',
+            '[&>.btn]:rounded-none',
+          ],
+          className
+        )}
+      >
+        <ButtonLink
+          to={refreshURL}
+          prefetch="render"
+          color="primary"
+          onClick={() => {
+            positiveReview(item)
+            setParty(true)
+          }}
+          replace={true}
+          disabled={loading}
         >
-          <ButtonLink
-            to={refreshURL}
-            prefetch="render"
-            color="primary"
-            onClick={() => {
-              positiveReview(item)
-              setParty(true)
-            }}
-            replace={true}
-            disabled={loading}
+          <EmojiText emoji="🙌" label="raised hands" noPadding>
+            <span className={clsx('btm-nav-label')}>Great!</span>
+          </EmojiText>
+        </ButtonLink>
+        <ButtonLink
+          to={refreshURL}
+          onClick={() => negativeReview(item)}
+          color="danger"
+          replace={true}
+          disabled={loading}
+          className={clsx('order-3', 'sm:order-2')}
+        >
+          <EmojiText
+            emoji="👎"
+            label="thumbs down"
+            className={clsx('sm:mt-1.5')}
+            noPadding
           >
-            <EmojiText emoji="🙌" label="raised hands">
-              Great!
-            </EmojiText>
-          </ButtonLink>
-          <ButtonLink
-            to={refreshURL}
-            onClick={() => negativeReview(item)}
-            color="danger"
-            replace={true}
-            disabled={loading}
-          >
-            <EmojiText
-              emoji="👎"
-              label="thumbs down"
-              className={clsx('mt-1.5')}
-            >
-              Nope!
-            </EmojiText>
-          </ButtonLink>
-        </div>
+            <span className={clsx('btm-nav-label')}>Nope!</span>
+          </EmojiText>
+        </ButtonLink>
         <ButtonLink
           href={playURL.toString()}
           color="info"
-          className={clsx('w-full')}
+          className={clsx('sm:col-span-2', ['order-2', 'sm:order-3'])}
           target="_blank"
           onClick={() =>
             sendEvent({
@@ -106,8 +96,8 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({
             })
           }
         >
-          <EmojiText emoji="▶️" label="play button">
-            Play
+          <EmojiText emoji="▶️" label="play button" noPadding>
+            <span className={clsx('btm-nav-label')}>Play</span>
           </EmojiText>
         </ButtonLink>
       </div>
