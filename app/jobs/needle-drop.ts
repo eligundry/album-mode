@@ -130,7 +130,11 @@ const needleDrop = async () => {
           name: album,
           creator: artist,
         })
-        .then(() => inserted++)
+        .then((res) => {
+          if (res.created) {
+            inserted++
+          }
+        })
         .catch(() => {})
     )
   )

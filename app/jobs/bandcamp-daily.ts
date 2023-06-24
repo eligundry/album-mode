@@ -141,7 +141,11 @@ const scrape = async () => {
               },
             },
           })
-          .then(() => inserted++)
+          .then((res) => {
+            if (res.created) {
+              inserted++
+            }
+          })
           .catch(() => {})
       })
     )
