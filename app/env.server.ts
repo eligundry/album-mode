@@ -11,3 +11,5 @@ export const getEnv = (
   isNotWebApp
     ? envSchema.parse(process.env)
     : webAppEnvSchema.parse(process.env)
+
+export type Env = ReturnType<typeof getEnv>

@@ -1,42 +1,26 @@
-import emailjs from '@emailjs/nodejs'
+import { Resend } from 'resend'
 import winston from 'winston'
 import Transport, { TransportStreamOptions } from 'winston-transport'
 
-import { getEnv } from '~/env.server'
+import ErrorEmailTemplate from '~/components/ErrorEmail'
+import { Env, getEnv } from '~/env.server'
 
-interface EmailJsTransportOptions extends TransportStreamOptions {
+interface ResendTransportOptions extends TransportStreamOptions {
   logger: winston.Logger
-  publicKey: string
-  privateKey: string
-  templateID: string
-  serviceID: string
   filter?: (info: any) => boolean
+  resendKey: string
 }
 
-class EmailJsTransport extends Transport implements Transport {
-  publicKey: string
-  privateKey: string
-  templateID: string
-  serviceID: string
-  filter: EmailJsTransportOptions['filter']
+class ResendTransport extends Transport implements Transport {
+  filter: ResendTransportOptions['filter']
   logger: winston.Logger
+  resend: Resend
 
-  constructor({
-    logger,
-    publicKey,
-    privateKey,
-    templateID,
-    serviceID,
-    filter,
-    ...transportOptions
-  }: EmailJsTransportOptions) {
+  constructor({ logger, filter, ...transportOptions }: ResendTransportOptions) {
     super(transportOptions)
-    this.publicKey = publicKey
-    this.privateKey = privateKey
-    this.templateID = templateID
-    this.serviceID = serviceID
     this.filter = filter
     this.logger = logger
+    this.resend = new Resend()
   }
 
   public async log(info: any, next: () => void) {
@@ -47,26 +31,23 @@ class EmailJsTransport extends Transport implements Transport {
     }
 
     try {
-      const response = await emailjs.send(
-        this.serviceID,
-        this.templateID,
-        {
-          logMessage: JSON.stringify(info, undefined, 2),
-        },
-        {
-          publicKey: this.publicKey,
-          privateKey: this.privateKey,
-        }
-      )
+      const response = await this.resend.emails.send({
+        from: 'Album-mode.party <app@album-mode.party>',
+        to: 'Eli Gundry <eligundry@gmail.com>',
+        subject: 'Error on Album-Mode.party',
+        // @ts-ignore
+        react: ErrorEmailTemplate({ info }),
+      })
 
       this.logger.debug({
-        message: 'sent log message to emailjs',
+        message: 'sent log message to resend',
         response,
       })
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error)
       this.logger.warn({
-        message: 'could not send message through emailjs to notify of error',
-        error,
+        message: 'could not send message through resend to notify of error',
+        error: error?.message,
       })
     }
 
@@ -74,8 +55,10 @@ class EmailJsTransport extends Transport implements Transport {
   }
 }
 
-export const constructLogger = () => {
-  const env = getEnv()
+export const constructLogger = (env?: Env) => {
+  if (!env) {
+    env = getEnv()
+  }
 
   const logger = winston.createLogger({
     level: 'info',
@@ -88,13 +71,13 @@ export const constructLogger = () => {
     ),
   })
 
-  if (env.LOGGER_EMAIL_SETTINGS) {
+  if (env.RESEND_API_KEY) {
     logger.add(
-      new EmailJsTransport({
-        ...env.LOGGER_EMAIL_SETTINGS,
+      new ResendTransport({
         level: 'error',
         filter: (info) => !!info.email,
         logger,
+        resendKey: env.RESEND_API_KEY,
       })
     )
   }

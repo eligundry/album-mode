@@ -15,19 +15,9 @@ export const envSchema = z.object({
   COMMIT_REF: z.string().optional(),
   GROWTHBOOK_API_HOST: z.string().url().default('https://cdn.growthbook.io'),
   GROWTHBOOK_CLIENT_KEY: z.string().default(''),
-  LOGGER_EMAIL_SETTINGS: z
-    .preprocess(
-      (val) => (typeof val === 'string' ? JSON.parse(val) : val),
-      z.object({
-        publicKey: z.string(),
-        privateKey: z.string(),
-        templateID: z.string(),
-        serviceID: z.string(),
-      })
-    )
-    .optional(),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('production'),
   OG_API_URL: z.string().url().default('http://localhost:3001'),
+  RESEND_API_KEY: z.string().optional(),
   SEED_SCRIPT: z.coerce.boolean().default(false),
   SPOTIFY_CLIENT_ID: z.string(),
   SPOTIFY_CLIENT_SECRET: z.string(),
