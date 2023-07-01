@@ -2,7 +2,7 @@ import clsx from 'clsx'
 
 import { ButtonLink, ButtonLinkProps } from '~/components/Base'
 
-interface Props<T extends any = any> extends Omit<ButtonLinkProps, 'to'> {
+interface Props<T = any> extends Omit<ButtonLinkProps, 'to'> {
   items: T[]
   keyFunction: (item: T, i: number) => string
   toFunction: (item: T, i: number) => string
@@ -10,7 +10,7 @@ interface Props<T extends any = any> extends Omit<ButtonLinkProps, 'to'> {
   wrapperClassName?: string
 }
 
-function ButtonLinkGroup<T extends any>({
+function ButtonLinkGroup<T = any>({
   items,
   keyFunction,
   toFunction,

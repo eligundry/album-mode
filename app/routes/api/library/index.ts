@@ -59,30 +59,34 @@ export async function action({ request, context }: ActionArgs) {
           username: userID,
         })
       ),
-      saveAlbum: serverTiming.track(
-        'spotify.saveAlbum',
-        () =>
-          spotifyAlbumID &&
-          spotify.saveAlbum(spotifyAlbumID).catch((error) => {
-            logger.warn({
-              message: 'could not save album on Spotify',
-              error,
-            })
-            serverTiming.add('spotify.saveAlbum failed')
+      saveAlbum: serverTiming.track('spotify.saveAlbum', () => {
+        if (!settings.saveAlbumAutomatically || !spotifyAlbumID) {
+          serverTiming.add('spotify.saveAlbum skipped')
+          return
+        }
+
+        return spotify.saveAlbum(spotifyAlbumID).catch((error) => {
+          logger.warn({
+            message: 'could not save album on Spotify',
+            error,
           })
-      ),
-      followArtist: serverTiming.track(
-        'spotify.followArtist',
-        () =>
-          spotifyArtistID &&
-          spotify.followArtist(spotifyArtistID).catch((error) => {
-            logger.warn({
-              message: 'could not follow artist on Spotify',
-              error,
-            })
-            serverTiming.add('spotify.followArtist failed')
+          serverTiming.add('spotify.saveAlbum failed')
+        })
+      }),
+      followArtist: serverTiming.track('spotify.followArtist', () => {
+        if (!settings.followArtistAutomatically || !spotifyArtistID) {
+          serverTiming.add('spotify.followArtist skipped')
+          return
+        }
+
+        return spotify.followArtist(spotifyArtistID).catch((error) => {
+          logger.warn({
+            message: 'could not follow artist on Spotify',
+            error,
           })
-      ),
+          serverTiming.add('spotify.followArtist failed')
+        })
+      }),
     })
   } catch (e: any) {
     throw serverError({

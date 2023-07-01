@@ -5,7 +5,7 @@ import Confetti from 'react-confetti'
 
 import type { LibraryItemInput } from '~/lib/types/library'
 
-import { ButtonLink, EmojiText, Heading } from '~/components/Base'
+import { ButtonLink, EmojiText } from '~/components/Base'
 import useCurrentPath from '~/hooks/useCurrentPath'
 import useGTM from '~/hooks/useGTM'
 import useLoading from '~/hooks/useLoading'

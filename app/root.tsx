@@ -7,14 +7,11 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useLocation,
 } from '@remix-run/react'
-import { useMemo } from 'react'
 import { promiseHash } from 'remix-utils'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import growthbookLib from '~/lib/growthbook.server'
-import type { User } from '~/lib/types/auth'
 import userSettings from '~/lib/userSettings.server'
 
 import Tracking from '~/components/Tracking'
@@ -101,7 +98,7 @@ export async function loader({
 
   return json(
     {
-      user: session?.user || (null as User | null),
+      user: session?.user ?? null,
       settings,
       growthbook: {
         features: gb.getFeatures(),
@@ -124,13 +121,9 @@ export async function loader({
 }
 
 function App() {
-  const { search } = useLocation()
+  // @ts-ignore
   const data = useLoaderData<typeof loader>()
   const { isDarkMode, pallete } = useTailwindTheme()
-  const googleTagManagerDebug = useMemo(
-    () => new URLSearchParams(search.substring(1)).has('gtm_debug'),
-    []
-  )
 
   return (
     <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>
@@ -138,7 +131,7 @@ function App() {
         <Meta />
         <meta name="theme-color" content={pallete['base-100']} />
         <Links />
-        <Tracking disablePartytown={googleTagManagerDebug} />
+        <Tracking />
       </head>
       <body>
         <RootProvider
