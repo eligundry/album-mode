@@ -15,7 +15,7 @@ installGlobals()
 const getLoadContext: GetLoadContextFunction = async (event, context) => {
   const env = getEnv()
   const serverTiming = new ServerTiming()
-  const requestLogger = constructLogger().child({
+  const requestLogger = constructLogger(env).child({
     requestID: context.awsRequestId,
     path: event.path + (event.rawQuery ? '?' + event.rawQuery : ''),
     method: event.httpMethod,
