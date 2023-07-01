@@ -1,10 +1,14 @@
 import { Partytown } from '@builder.io/partytown/react'
+import { useLocation } from '@remix-run/react'
+import React, { useMemo } from 'react'
 
-interface Props {
-  disablePartytown?: boolean
-}
-
-const Tracking: React.FC<Props> = ({ disablePartytown }) => {
+const Tracking: React.FC = () => {
+  const { search } = useLocation()
+  const disablePartytown = useMemo(
+    () => new URLSearchParams(search.substring(1)).has('gtm_debug'),
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    []
+  )
   const scriptType = disablePartytown ? 'text/javascript' : 'text/partytown'
 
   return (
