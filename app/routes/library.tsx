@@ -3,11 +3,13 @@ import clsx from 'clsx'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 
 import { Container, Heading, Layout, Typography } from '~/components/Base'
+import { PageErrorBoundary } from '~/components/ErrorBoundary'
 import SettingsForm from '~/components/Forms/Settings'
 import Library from '~/components/Library'
 import config from '~/config'
 import useUser from '~/hooks/useUser'
 
+export const ErrorBoundary = PageErrorBoundary
 export const meta: AppMetaFunction = ({ matches }) =>
   mergeMeta(matches, [
     { title: `Library | ${config.siteTitle}` },
