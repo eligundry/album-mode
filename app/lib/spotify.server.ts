@@ -221,6 +221,7 @@ export class Spotify {
       ...album,
       artists: [artist.body],
       genres,
+      primaryArtist: artist.body,
     }
   }
 
@@ -241,28 +242,27 @@ export class Spotify {
       Math.min(firstPageOfArtists.body.artists.total - 1, 300)
     )
 
-    let artistID =
-      firstPageOfArtists.body.artists.items[artistOffsetToFetch]?.id
+    let artist = firstPageOfArtists.body.artists.items[artistOffsetToFetch]
 
-    if (!artistID) {
-      const artist = await client
+    if (!artist) {
+      artist = await client
         .search(searchTerm, ['artist'], {
           limit: 1,
           offset: artistOffsetToFetch,
           market: this.country,
         })
-        .then((page) => page.body.artists?.items?.[0])
+        .then((page) => {
+          if (page.body.artists?.items?.[0]) {
+            return page.body.artists.items[0]
+          }
 
-      if (!artist) {
-        throw new Error('could not fetch artist from offset')
-      }
-
-      artistID = artist.id
+          throw new Error('could not fetch artist from offset')
+        })
     }
 
     // After we fetch a random artist, fetch a random album by them
     const albums = await client
-      .getArtistAlbums(artistID, {
+      .getArtistAlbums(artist.id, {
         limit: 50,
         include_groups: 'album',
       })
@@ -284,7 +284,8 @@ export class Spotify {
 
     return {
       ...album,
-      genres: await this.getGenreForArtist(album.artists[0].id),
+      genres: artist.genres,
+      primaryArtist: artist,
     }
   }
 
@@ -360,20 +361,23 @@ export class Spotify {
     switch (albums.length) {
       case 0:
         throw new Error('could not locate album by searching Spotify')
-      case 1:
+      case 1: {
+        const primaryArtist = await this.getArtistByID(albums[0].artists[0].id)
+
         return {
           ...albums[0],
-          // @TODO Maybe one day, we could defer this as an unresolved provmise
-          // using Remix? This doubles the response time of this function and is
-          // somewhat non-critical.
-          genres: await this.getGenreForArtist(albums[0].artists[0].id),
+          genres: primaryArtist.genres,
+          primaryArtist,
         }
+      }
       default: {
         const album = albums.sort((a) => (a.album_type !== 'single' ? 1 : 0))[0]
+        const primaryArtist = await this.getArtistByID(album.artists[0].id)
 
         return {
           ...album,
-          genres: await this.getGenreForArtist(album.artists[0].id),
+          genres: primaryArtist.genres,
+          primaryArtist,
         }
       }
     }
@@ -407,9 +411,12 @@ export class Spotify {
       throw new Error('we just presented this album, please retry')
     }
 
+    const primaryArtist = await this.getArtistByID(album.artists[0].id)
+
     return {
       ...album,
-      genres: await this.getGenreForArtist(album.artists[0].id),
+      genres: primaryArtist.genres,
+      primaryArtist,
     }
   }
 
@@ -466,9 +473,12 @@ export class Spotify {
       throw new Error('selected album that was last presented, please retry')
     }
 
+    const primaryArtist = await this.getArtistByID(album.artists[0].id)
+
     return {
       ...album,
-      genres: await this.getGenreForArtist(album.artists[0].id),
+      genres: primaryArtist.genres,
+      primaryArtist,
     }
   }
 

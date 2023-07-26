@@ -8,9 +8,14 @@ const DesktopLoader: React.FC = () => {
   const [scrolled, setScrolled] = useState(false)
 
   useLayoutEffect(() => {
-    window.addEventListener('scroll', function () {
-      setScrolled(this.scrollY > 40)
-    })
+    const callback: Parameters<typeof window.addEventListener<'scroll'>>[1] =
+      function () {
+        setScrolled(this.scrollY > 40)
+      }
+
+    window.addEventListener('scroll', callback)
+
+    return () => window.removeEventListener('scroll', callback)
   }, [])
 
   return (
