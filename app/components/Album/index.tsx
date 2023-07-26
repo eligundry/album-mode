@@ -14,6 +14,7 @@ import AlbumWrapper from './Wrapper'
 interface NewProps {
   album: SpotifyApi.AlbumObjectSimplified & {
     genres?: string[]
+    primaryArtist?: SpotifyApi.SingleArtistResponse
   }
   footer?: React.ReactNode
   wiki?: IWikipediaSummary | null
@@ -100,6 +101,7 @@ const Album: React.FC<NewProps> = ({ album, footer, wiki }) => {
           </>
         }
         genres={album.genres}
+        popularity={album.primaryArtist?.popularity}
         reviewProps={{
           item: {
             service: 'spotify',

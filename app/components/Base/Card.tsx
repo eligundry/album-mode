@@ -74,12 +74,7 @@ export const Card = React.forwardRef<any, Props>(
           </div>
           {actions && (
             <div
-              className={clsx(
-                'card-actions',
-                'justify-end',
-                'mt-2',
-                actionsClassName
-              )}
+              className={clsx('card-actions', 'justify-end', actionsClassName)}
             >
               {actions}
             </div>
