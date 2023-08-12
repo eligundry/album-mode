@@ -84,7 +84,7 @@ const Control: React.FC<ControlProps> = (props) => {
         'relative',
         'pr-0',
         isFocused && 'input-primary',
-        className
+        className,
       )}
       {...innerProps}
     >

@@ -95,12 +95,12 @@ const seedAlbumOfTheYear = async (options: Options) => {
       model.insertReviewedItem({
         reviewerID: publication.id,
         reviewURL: `albumoftheyear.org/list/${options.listID}#${kebabCase(
-          `${album}-${artist}`
+          `${album}-${artist}`,
         )}`,
         name: album,
         creator: artist,
-      })
-    )
+      }),
+    ),
   )
 
   console.log(albumArtistMap)

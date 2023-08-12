@@ -12,13 +12,13 @@ export async function action({ request, context }: ActionArgs) {
   const { serverTiming, logger, database } = context
   const { session, settings, spotify } = await promiseHash({
     session: serverTiming.track('spotify.session', () =>
-      spotifyStrategy.getSession(request)
+      spotifyStrategy.getSession(request),
     ),
     settings: serverTiming.track('userSettings.get', () =>
-      userSettings.get(request)
+      userSettings.get(request),
     ),
     spotify: serverTiming.track('spotify.init', () =>
-      spotifyLib.initializeFromRequest(request, context)
+      spotifyLib.initializeFromRequest(request, context),
     ),
   })
 
@@ -57,7 +57,7 @@ export async function action({ request, context }: ActionArgs) {
         database.saveItemToLibrary({
           item,
           username: userID,
-        })
+        }),
       ),
       saveAlbum: serverTiming.track('spotify.saveAlbum', () => {
         if (!settings.saveAlbumAutomatically || !spotifyAlbumID) {
@@ -105,7 +105,7 @@ export async function action({ request, context }: ActionArgs) {
 export async function loader({ request, context }: LoaderArgs) {
   const { serverTiming, logger, database } = context
   const session = await serverTiming.track('spotify.session', () =>
-    spotifyStrategy.getSession(request)
+    spotifyStrategy.getSession(request),
   )
 
   if (!session || !session.user) {
@@ -119,7 +119,7 @@ export async function loader({ request, context }: LoaderArgs) {
 
   try {
     var library = await serverTiming.track('db.getLibrary', () =>
-      database.getLibrary(userID)
+      database.getLibrary(userID),
     )
   } catch (e: any) {
     throw serverError({

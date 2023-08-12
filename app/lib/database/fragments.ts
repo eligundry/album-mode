@@ -17,7 +17,7 @@ export const librarySelectColumns = {
     string | null
   >`json_extract(${savedItems.metadata}, '$.creatorURL')`,
   image: sql`json_extract(${savedItems.metadata}, '$.image')`.mapWith(
-    (v): LibraryItem['image'] => JSON.parse(v)
+    (v): LibraryItem['image'] => JSON.parse(v),
   ),
 }
 
@@ -25,7 +25,7 @@ export const savedSearchSelectColumns = {
   id: savedItems.id,
   savedAt: savedItems.createdAt,
   crumbs: sql`json_extract(${savedItems.metadata}, '$.crumbs')`.mapWith(
-    (v): SavedSearch['crumbs'] => JSON.parse(v)
+    (v): SavedSearch['crumbs'] => JSON.parse(v),
   ),
   path: sql<string>`json_extract(${savedItems.metadata}, '$.path')`,
 }

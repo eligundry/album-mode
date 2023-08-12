@@ -20,7 +20,7 @@ const MobileLoader: React.FC = () => {
         'fixed',
         'bottom-4',
         'pointer-events-none',
-        'left-[85%]'
+        'left-[85%]',
       )}
     >
       <span className="loading loading-spinner" />

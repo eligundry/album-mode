@@ -78,7 +78,7 @@ const albumSearchParams = z.object({
 })
 
 const getCurrentSearchFromRequest = (
-  request: Request
+  request: Request,
 ): [string, string] | [undefined, undefined] => {
   const url = new URL(request.url)
 

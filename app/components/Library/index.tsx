@@ -42,7 +42,7 @@ const LibraryCard: React.FC<{ item: LibraryItem }> = ({ item }) => {
               'text-ellipsis',
               'block',
               'nowrap',
-              'overflow-hidden'
+              'overflow-hidden',
             )}
             href={url}
             target="_blank"
@@ -57,7 +57,7 @@ const LibraryCard: React.FC<{ item: LibraryItem }> = ({ item }) => {
                 'text-ellipsis',
                 'block',
                 'nowrap',
-                'overflow-hidden'
+                'overflow-hidden',
               )}
               href={createExternalURL(item.creatorURL).toString()}
               target="_blank"
@@ -72,7 +72,7 @@ const LibraryCard: React.FC<{ item: LibraryItem }> = ({ item }) => {
                 'text-ellipsis',
                 'block',
                 'nowrap',
-                'overflow-hidden'
+                'overflow-hidden',
               )}
             >
               {item.creator}

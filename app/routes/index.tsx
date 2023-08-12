@@ -32,7 +32,7 @@ export async function loader({ context: { database } }: LoaderArgs) {
       headers: {
         'Cache-Control': config.cacheControl.public,
       },
-    }
+    },
   )
 }
 
@@ -110,7 +110,7 @@ export default function Index() {
                 className={clsx(
                   'breadcrumbs',
                   ['btn-xs', 'py-0'],
-                  ['sm:btn-sm']
+                  ['sm:btn-sm'],
                 )}
               />
             ) : (
@@ -121,7 +121,7 @@ export default function Index() {
                   className={clsx(
                     'breadcrumbs',
                     ['btn-xs', 'py-0'],
-                    ['sm:btn-sm']
+                    ['sm:btn-sm'],
                   )}
                 >
                   Spotify Library
@@ -132,7 +132,7 @@ export default function Index() {
                   className={clsx(
                     'breadcrumbs',
                     ['btn-xs', 'py-0'],
-                    ['sm:btn-sm']
+                    ['sm:btn-sm'],
                   )}
                 >
                   Currently Playing
@@ -143,7 +143,7 @@ export default function Index() {
                   className={clsx(
                     'breadcrumbs',
                     ['btn-xs', 'py-0'],
-                    ['sm:btn-sm']
+                    ['sm:btn-sm'],
                   )}
                 >
                   For You

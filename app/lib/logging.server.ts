@@ -67,7 +67,7 @@ export const constructLogger = (env?: Env) => {
       winston.format.timestamp(),
       winston.format.json({
         space: env.SEED_SCRIPT || env.NODE_ENV !== 'production' ? 4 : undefined,
-      })
+      }),
     ),
   })
 
@@ -78,7 +78,7 @@ export const constructLogger = (env?: Env) => {
         filter: (info) => !!info.email,
         logger,
         resendKey: env.RESEND_API_KEY,
-      })
+      }),
     )
   }
 

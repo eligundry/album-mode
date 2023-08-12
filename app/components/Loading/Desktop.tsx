@@ -30,7 +30,7 @@ const DesktopLoader: React.FC = () => {
         'bg-transparent',
         '[&::-webkit-progress-bar]:bg-transparent',
         showLoader && [scrolled ? 'fixed' : 'sticky', 'top-0'],
-        'phone:hidden'
+        'phone:hidden',
       )}
     />
   )

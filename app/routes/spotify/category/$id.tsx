@@ -28,14 +28,14 @@ export async function loader({ params, request, context }: LoaderArgs) {
   }
 
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request, context)
+    spotifyLib.initializeFromRequest(request, context),
   )
   const { category, playlist } = await promiseHash({
     category: serverTiming.track('spotify.fetch-category', () =>
-      spotify.getCategory(categoryID)
+      spotify.getCategory(categoryID),
     ),
     playlist: serverTiming.track('spotify.fetch-playlist', () =>
-      spotify.getRandomPlaylistForCategory(categoryID)
+      spotify.getRandomPlaylistForCategory(categoryID),
     ),
   })
 
@@ -53,7 +53,7 @@ export async function loader({ params, request, context }: LoaderArgs) {
         }),
         [serverTiming.headerKey]: serverTiming.toString(),
       },
-    }
+    },
   )
 }
 

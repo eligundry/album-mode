@@ -21,7 +21,7 @@ export async function action({ request, params, context }: ActionArgs) {
 
   const { serverTiming, database } = context
   const session = await serverTiming.track('spotify.session', () =>
-    spotifyStrategy.getSession(request)
+    spotifyStrategy.getSession(request),
   )
 
   if (!session || !session?.user) {
@@ -35,7 +35,7 @@ export async function action({ request, params, context }: ActionArgs) {
 
   try {
     await serverTiming.track('db.removeItemFromLibrary', () =>
-      database.removeItemFromLibrary({ username: userID, id: id })
+      database.removeItemFromLibrary({ username: userID, id: id }),
     )
   } catch (e: any) {
     throw serverError({

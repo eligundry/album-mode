@@ -41,7 +41,7 @@ const bloomsburyScraper = async (storeSlug: string) => {
       console.log(`fetching page ${pageIdx++}`)
 
       const items = page.locator(
-        '.search-results-list .product-listing-item .product-listing-item__info--title > a'
+        '.search-results-list .product-listing-item .product-listing-item__info--title > a',
       )
       const itemsCount = await items.count()
 
@@ -80,7 +80,7 @@ const bloomsburyScraper = async (storeSlug: string) => {
       try {
         await page
           .locator(
-            '#search-header .pagination:first-of-type li:not(.disabled):last-child > button'
+            '#search-header .pagination:first-of-type li:not(.disabled):last-child > button',
           )
           .click()
       } catch (e) {

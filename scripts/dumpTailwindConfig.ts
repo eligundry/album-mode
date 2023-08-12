@@ -24,7 +24,7 @@ fs.writeFileSync(
 
               return acc
             },
-            {} as Record<string, string>
+            {} as Record<string, string>,
           )
         : fullConfig.theme?.colors,
       ...pick(fullConfig.theme, [
@@ -36,8 +36,8 @@ fs.writeFileSync(
       ...pick(fullConfig, ['daisyui']),
     },
     undefined,
-    2
+    2,
   ),
-  'utf8'
+  'utf8',
 )
 // console.info(`Wrote tailwind config to ${p}`)

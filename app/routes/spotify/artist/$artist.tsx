@@ -33,7 +33,7 @@ export async function loader({ request, params, context }: LoaderArgs) {
   }
 
   const album = await serverTiming.track('spotify.fetch', () =>
-    searchMethod(artistParam as string)
+    searchMethod(artistParam as string),
   )
   const artist = album.artists[0]
 
@@ -44,7 +44,7 @@ export async function loader({ request, params, context }: LoaderArgs) {
           error: 'could not fetch album',
           logger,
         },
-        { headers: serverTiming.headers() }
+        { headers: serverTiming.headers() },
       )
     }
 
@@ -69,7 +69,7 @@ export async function loader({ request, params, context }: LoaderArgs) {
         }),
         [serverTiming.headerKey]: serverTiming.toString(),
       },
-    }
+    },
   )
 }
 

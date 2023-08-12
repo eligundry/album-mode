@@ -16,11 +16,11 @@ import config from '~/config'
 export async function loader({ request, context }: LoaderArgs) {
   const { serverTiming } = context
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request, context)
+    spotifyLib.initializeFromRequest(request, context),
   )
   const album = await retry(async (_, attempt) => {
     const album = await serverTiming.track('spotify.fetch', () =>
-      spotify.getRandomNewRelease()
+      spotify.getRandomNewRelease(),
     )
     serverTiming.add({
       label: 'attempts',
@@ -33,7 +33,7 @@ export async function loader({ request, context }: LoaderArgs) {
     wikipedia.getSummaryForAlbum({
       album: album.name,
       artist: album.artists[0].name,
-    })
+    }),
   )
 
   return json(
@@ -49,7 +49,7 @@ export async function loader({ request, context }: LoaderArgs) {
         }),
         [serverTiming.headerKey]: serverTiming.toString(),
       },
-    }
+    },
   )
 }
 

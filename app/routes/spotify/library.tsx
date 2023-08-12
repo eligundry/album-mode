@@ -19,15 +19,15 @@ export async function loader({ request, context }: LoaderArgs) {
   await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request, {
       failureRedirect: config.requiredLoginFailureRedirect,
-    })
+    }),
   )
 
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request, context)
+    spotifyLib.initializeFromRequest(request, context),
   )
   const album = await retry(async (_, attempt) => {
     const album = await serverTiming.track('spotify.fetch', () =>
-      spotify.getRandomAlbumFromUserLibrary()
+      spotify.getRandomAlbumFromUserLibrary(),
     )
     serverTiming.add({
       label: 'attempts',
@@ -40,7 +40,7 @@ export async function loader({ request, context }: LoaderArgs) {
     wikipedia.getSummaryForAlbum({
       album: album.name,
       artist: album.artists[0].name,
-    })
+    }),
   )
 
   return json(
@@ -56,7 +56,7 @@ export async function loader({ request, context }: LoaderArgs) {
         }),
         [serverTiming.headerKey]: serverTiming.toString(),
       },
-    }
+    },
   )
 }
 

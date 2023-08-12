@@ -31,7 +31,7 @@ const Album: React.FC<NewProps> = ({ album, footer, wiki }) => {
         className={clsx(
           'sm:items-stretch',
           '[&_.card-body]:px-0',
-          '[&_.card-body]:sm:px-4'
+          '[&_.card-body]:sm:px-4',
         )}
         embed={
           <div>
@@ -40,7 +40,7 @@ const Album: React.FC<NewProps> = ({ album, footer, wiki }) => {
                 'mx-auto',
                 'sm:h-full',
                 ['w-full', 'sm:w-[300px]'],
-                ['sm:min-h-[380px]', 'phone:h-[380px]']
+                ['sm:min-h-[380px]', 'phone:h-[380px]'],
               )}
               link={albumURL}
             />
@@ -69,14 +69,14 @@ const Album: React.FC<NewProps> = ({ album, footer, wiki }) => {
                 'leading-none',
                 'gap-x-1',
                 "[&_li:not(:last-child)]:after:content-['_•_']",
-                '[&_li:not(:last-child)]:after:text-sm'
+                '[&_li:not(:last-child)]:after:text-sm',
               )}
             >
               {album.artists.slice(0, 3).map((artist) => (
                 <li key={artist.id}>
                   <A
                     href={createExternalURL(
-                      artist.external_urls.spotify
+                      artist.external_urls.spotify,
                     ).toString()}
                     target="_blank"
                     className={clsx('text-base')}

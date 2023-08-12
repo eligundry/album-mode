@@ -18,15 +18,15 @@ export async function loader({ request, context }: LoaderArgs) {
   await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request, {
       failureRedirect: config.requiredLoginFailureRedirect,
-    })
+    }),
   )
 
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request, context)
+    spotifyLib.initializeFromRequest(request, context),
   )
   const playlist = await retry(async (_, attempt) => {
     const album = await serverTiming.track('spotify.fetch', () =>
-      spotify.getRandomForYouPlaylist()
+      spotify.getRandomForYouPlaylist(),
     )
     serverTiming.add({
       label: 'attempts',
@@ -46,7 +46,7 @@ export async function loader({ request, context }: LoaderArgs) {
         }),
         [serverTiming.headerKey]: serverTiming.toString(),
       },
-    }
+    },
   )
 }
 

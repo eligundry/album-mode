@@ -34,8 +34,8 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
     [...Array(pages).keys()]
       .map((p) => p + 1)
       .flatMap((page) =>
-        getSearchPage(slug, 12, page * 12).then((r) => r.results.list)
-      )
+        getSearchPage(slug, 12, page * 12).then((r) => r.results.list),
+      ),
   )
   rawAlbums.push(...allAlbums.flat().filter((a): a is ListEntity => !!a))
 
@@ -61,7 +61,7 @@ const scrapeP4k = async (slug: PitchforkSlug) => {
           }
         })
         .catch(() => {})
-    })
+    }),
   )
 
   console.log(`Inserted ${inserted} albums`)
@@ -102,20 +102,20 @@ const getSearchPage = searchLimiter.wrap(
     try {
       const resp = await axios.get<PitchforkSearchResponse>(
         'https://pitchfork.com/api/v2/search/',
-        { params }
+        { params },
       )
 
       return resp.data
     } catch (e: any) {
       if (e.response) {
         throw new Error(
-          `Request for page starting with offset ${start} failed with ${e.response.statusCode}: ${e.response.data}`
+          `Request for page starting with offset ${start} failed with ${e.response.statusCode}: ${e.response.data}`,
         )
       }
 
       throw e
     }
-  }
+  },
 )
 
 const main = async () => {

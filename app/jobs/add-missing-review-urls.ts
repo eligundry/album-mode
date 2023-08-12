@@ -56,14 +56,14 @@ const main = async () => {
       reviewers,
       and(
         eq(reviewers.name, publicationName),
-        eq(reviewers.id, reviewedItems.reviewerID)
-      )
+        eq(reviewers.id, reviewedItems.reviewerID),
+      ),
     )
     .where(
       and(
         notLike(reviewedItems.reviewURL, 'https://%'),
-        sql`COALESCE(json_extract(${reviewedItems.metadata}, '$.reviewUnresolvable'), 0) != 1`
-      )
+        sql`COALESCE(json_extract(${reviewedItems.metadata}, '$.reviewUnresolvable'), 0) != 1`,
+      ),
     )
     .orderBy(reviewedItems.id)
     .all()
@@ -79,7 +79,7 @@ const main = async () => {
 
   const duckDuckGoUpdateAlbum = async (
     album: ReviewedItem,
-    hostname: string
+    hostname: string,
   ): Promise<any> => {
     const context = await browser.newContext({
       userAgent:
@@ -90,7 +90,7 @@ const main = async () => {
     url.searchParams.set('q', `${album.name} ${album.creator} site:${hostname}`)
     await page.goto(url.toString())
     const linksLocator = page.locator(
-      `.react-results--main h2 a[href*="https://${hostname}"]`
+      `.react-results--main h2 a[href*="https://${hostname}"]`,
     )
 
     try {

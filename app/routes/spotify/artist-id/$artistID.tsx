@@ -18,7 +18,7 @@ export async function loader({ request, params, context }: LoaderArgs) {
   const { serverTiming, logger, env } = context
   const artistID = params.artistID
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request, context)
+    spotifyLib.initializeFromRequest(request, context),
   )
 
   if (!artistID) {
@@ -31,10 +31,10 @@ export async function loader({ request, params, context }: LoaderArgs) {
   const { album, artist } = await retry(async (_, attempt) => {
     const resp = await promiseHash({
       album: serverTiming.track('spotify.albumFetch', () =>
-        spotify.getRandomAlbumForRelatedArtistByID(artistID)
+        spotify.getRandomAlbumForRelatedArtistByID(artistID),
       ),
       artist: serverTiming.track('spotify.artistFetch', () =>
-        spotify.getArtistByID(artistID)
+        spotify.getArtistByID(artistID),
       ),
     })
     serverTiming.add({
@@ -52,7 +52,7 @@ export async function loader({ request, params, context }: LoaderArgs) {
           error: 'could not fetch album',
           logger,
         },
-        { headers: serverTiming.headers() }
+        { headers: serverTiming.headers() },
       )
     }
 
@@ -77,7 +77,7 @@ export async function loader({ request, params, context }: LoaderArgs) {
         }),
         [serverTiming.headerKey]: serverTiming.toString(),
       },
-    }
+    },
   )
 }
 

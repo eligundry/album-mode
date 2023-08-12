@@ -38,7 +38,7 @@ describe('envSchema', () => {
         'GROWTHBOOK_CLIENT_KEY',
         'LOGGER_EMAIL_SETTINGS',
         'OG_API_URL',
-      ])
+      ]),
     )
     expect(result.success).toBe(true)
   })
@@ -63,6 +63,6 @@ describe('envSchema', () => {
       if (!result.success) {
         expect(result.error.issues[0].path).toMatchObject([key])
       }
-    })
+    }),
   )
 })

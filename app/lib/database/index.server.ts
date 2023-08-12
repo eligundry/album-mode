@@ -71,14 +71,14 @@ export class DatabaseClient {
         reviewers,
         and(
           eq(reviewers.slug, reviewerSlug),
-          eq(reviewers.id, reviewedItems.reviewerID)
-        )
+          eq(reviewers.id, reviewedItems.reviewerID),
+        ),
       )
       .where(
         and(
           eq(reviewedItems.resolvable, 1),
-          exceptID ? ne(reviewedItems.id, Number(exceptID)) : undefined
-        )
+          exceptID ? ne(reviewedItems.id, Number(exceptID)) : undefined,
+        ),
       )
       .orderBy(sql`RANDOM()`)
       .limit(1)
@@ -231,8 +231,8 @@ export class DatabaseClient {
         .where(
           and(
             eq(reviewedItems.reviewerID, data.reviewerID),
-            eq(reviewedItems.reviewURL, data.reviewURL)
-          )
+            eq(reviewedItems.reviewURL, data.reviewURL),
+          ),
         )
         .returning()
         .get()
@@ -248,8 +248,8 @@ export class DatabaseClient {
         and(
           eq(savedItems.user, username),
           eq(savedItems.type, 'library'),
-          isNull(savedItems.deletedAt)
-        )
+          isNull(savedItems.deletedAt),
+        ),
       )
       .orderBy(savedItems.id)
       .all()
@@ -319,8 +319,8 @@ export class DatabaseClient {
         and(
           eq(savedItems.user, username),
           eq(savedItems.type, 'search'),
-          isNull(savedItems.deletedAt)
-        )
+          isNull(savedItems.deletedAt),
+        ),
       )
       .all()
 
@@ -338,8 +338,8 @@ export class DatabaseClient {
         and(
           eq(savedItems.id, itemID),
           eq(savedItems.user, username),
-          isNull(savedItems.deletedAt)
-        )
+          isNull(savedItems.deletedAt),
+        ),
       )
       .run()
 }

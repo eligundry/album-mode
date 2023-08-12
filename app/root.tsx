@@ -24,7 +24,7 @@ import styles from './styles/app.css'
 export const meta: V2_MetaFunction = ({ data, location }) => {
   const canonicalURL = new URL(
     location.pathname + location.search,
-    config.siteURL
+    config.siteURL,
   )
 
   Object.entries(Object.fromEntries(canonicalURL.searchParams)).forEach(
@@ -32,7 +32,7 @@ export const meta: V2_MetaFunction = ({ data, location }) => {
       if (!config.allowedQueryParametersInCanoncialURL.includes(key)) {
         canonicalURL.searchParams.delete(key)
       }
-    }
+    },
   )
 
   return [
@@ -86,13 +86,13 @@ export async function loader({
 }: LoaderArgs) {
   const { session, settings, gb } = await promiseHash({
     session: serverTiming.track('root.spotify.session', () =>
-      spotifyStrategy.getSession(request)
+      spotifyStrategy.getSession(request),
     ),
     settings: serverTiming.track('root.userSettings.get', () =>
-      userSettings.get(request)
+      userSettings.get(request),
     ),
     gb: serverTiming.track('root.growthbook.get', () =>
-      growthbookLib.initializeFromRequest(request)
+      growthbookLib.initializeFromRequest(request),
     ),
   })
 
@@ -116,7 +116,7 @@ export async function loader({
       headers: {
         [serverTiming.headerKey]: serverTiming.toString(),
       },
-    }
+    },
   )
 }
 

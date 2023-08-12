@@ -36,7 +36,7 @@ export const ModalContext = React.createContext<UseModals>({
     console.warn('addRejection called without the ModalProvider being mounted'),
   clearRejections: () =>
     console.warn(
-      'clearRejections called without the ModalProvider being mounted'
+      'clearRejections called without the ModalProvider being mounted',
     ),
   visibleModal: null,
 })
@@ -47,7 +47,7 @@ const ModalProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const location = useLocation()
   const currentQueryParams = useMemo(
     () => new URLSearchParams(location.search.substring(1)),
-    [location.search]
+    [location.search],
   )
   const { value: state, set } = useLocalStorageValue<ModalState>('modals', {
     initializeWithValue: true,
@@ -116,12 +116,12 @@ const ModalProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
         ...v,
         consecutiveRejectionCount: v.consecutiveRejectionCount + 1,
       })),
-    [set]
+    [set],
   )
 
   const clearRejections = useCallback(
     () => set((v = defaultState) => ({ ...v, consecutiveRejectionCount: 0 })),
-    [set]
+    [set],
   )
 
   // Navigating to the homepage will always clear the rejections

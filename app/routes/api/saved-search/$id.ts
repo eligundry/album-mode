@@ -12,7 +12,7 @@ export async function action({ request, params, context }: ActionArgs) {
   const { serverTiming, logger, database } = context
 
   const session = await serverTiming.track('spotify.session', () =>
-    spotifyStrategy.getSession(request)
+    spotifyStrategy.getSession(request),
   )
 
   if (!session || !session.user) {
@@ -37,7 +37,7 @@ export async function action({ request, params, context }: ActionArgs) {
       database.removeSavedSearch({
         itemID,
         username: userID,
-      })
+      }),
     )
 
     return noContent({

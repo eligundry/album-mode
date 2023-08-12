@@ -47,7 +47,7 @@ export const spotifyStrategy = new SpotifyStrategy(
       name: profile.displayName,
       image: profile.__json.images?.[0]?.url,
     },
-  })
+  }),
 )
 
 export const authenticator = new Authenticator(sessionStorage, {

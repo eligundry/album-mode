@@ -52,7 +52,7 @@ const scrape = async () => {
 
       let paths: string[] = []
       const linkElms = page.locator(
-        ".album-of-the-day .list-article.aotd a.title[href*='/album-of-the-day/']"
+        ".album-of-the-day .list-article.aotd a.title[href*='/album-of-the-day/']",
       )
       const linkElmsCount = await linkElms.count()
 
@@ -85,9 +85,9 @@ const scrape = async () => {
             eq(reviewedItems.reviewerID, publication.id),
             inArray(
               reviewedItems.reviewURL,
-              paths.map((p) => bandcampDailyBase + p)
-            )
-          )
+              paths.map((p) => bandcampDailyBase + p),
+            ),
+          ),
         )
         .all()
         .then((r) => r.map((r) => r.reviewURL))
@@ -97,7 +97,7 @@ const scrape = async () => {
       if (pathsAlreadyFetched.length > 0) {
         continueFetching = false
         paths = paths.filter(
-          (p) => !pathsAlreadyFetched.find((pa) => pa.endsWith(p))
+          (p) => !pathsAlreadyFetched.find((pa) => pa.endsWith(p)),
         )
       }
 
@@ -113,9 +113,9 @@ const scrape = async () => {
                 ...album,
                 bandcampDailyURL: bandcampDailyBase + path,
               }
-            }
-          )
-        )
+            },
+          ),
+        ),
       )
     }
 
@@ -147,7 +147,7 @@ const scrape = async () => {
             }
           })
           .catch(() => {})
-      })
+      }),
     )
 
     logger.info({
@@ -173,7 +173,7 @@ const getAlbumInfoFromBandcampDailyPath = dailyLimiter.wrap(
       try {
         var albumURL = await page
           .locator(
-            'mplayer > mplayer-inner > div.mptext > span.mpalbuminfo > a.mptralbum'
+            'mplayer > mplayer-inner > div.mptext > span.mpalbuminfo > a.mptralbum',
           )
           .getAttribute('href')
 
@@ -181,13 +181,13 @@ const getAlbumInfoFromBandcampDailyPath = dailyLimiter.wrap(
           console.error(
             `could not find album link for Bandcamp Daily '${
               bandcampDailyBase + path
-            }'`
+            }'`,
           )
           return false
         }
       } catch (e) {
         console.error(
-          `could not locate album link on ${bandcampDailyBase + path}`
+          `could not locate album link on ${bandcampDailyBase + path}`,
         )
         return false
       }
@@ -199,7 +199,7 @@ const getAlbumInfoFromBandcampDailyPath = dailyLimiter.wrap(
     } finally {
       await page.close()
     }
-  }
+  },
 )
 
 scrape()

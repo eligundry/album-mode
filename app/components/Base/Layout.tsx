@@ -35,7 +35,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           ['px-4', 'md:px-0'],
           ['pt-4', 'md:pt-0'],
           'flex',
-          'flex-col'
+          'flex-col',
         )}
       >
         <DesktopLoader />
@@ -44,7 +44,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
             'flex',
             'flex-wrap',
             ['pt-0', 'md:pt-2'],
-            'align-center'
+            'align-center',
           )}
         >
           <h1
@@ -53,7 +53,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               'font-bold',
               'whitespace-nowrap',
               'order-1',
-              'mr-auto'
+              'mr-auto',
             )}
           >
             <Link
@@ -73,7 +73,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
                 'flex-1',
                 ['justify-between', 'md:justify-center'],
                 'basis-1/2',
-                '[&>.breadcrumbs]:md:py-0'
+                '[&>.breadcrumbs]:md:py-0',
               )}
               crumbs={headerBreadcrumbs}
             />
@@ -87,7 +87,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               'align-middle',
               'order-2 md:order-3',
               'flex-1',
-              'font-bold'
+              'font-bold',
             )}
           >
             <ButtonLink to="/library" size="sm">
@@ -118,7 +118,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               'justify-between',
               'py-4',
               'px-4',
-              'sm:px-0'
+              'sm:px-0',
             )}
           >
             <section>

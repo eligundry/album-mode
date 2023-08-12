@@ -19,7 +19,7 @@ interface ISyncedLocalStorageContext<T extends Record<string, unknown>> {
 }
 
 export function syncedLocalStorageContextFactory<
-  T extends Record<string, unknown>
+  T extends Record<string, unknown>,
 >(defaultItems: (ServerItem<T> | LocalItem<T>)[] = []) {
   return React.createContext<ISyncedLocalStorageContext<T>>({
     items: defaultItems,
@@ -33,7 +33,7 @@ export function syncedLocalStorageContextFactory<
 }
 
 export interface ISyncedLocalStorageProviderProps<
-  T extends Record<string, unknown>
+  T extends Record<string, unknown>,
 > {
   Context: React.Context<ISyncedLocalStorageContext<T>>
   apiPath: string
@@ -100,7 +100,7 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
         setItems((localItems) => {
           const updatedItems = Array.isArray(localItems)
             ? localItems.filter(
-                (item) => !isDateEqual(item.savedAt, savedItem.savedAt)
+                (item) => !isDateEqual(item.savedAt, savedItem.savedAt),
               )
             : []
           updatedItems.push(updatedItem)
@@ -108,7 +108,7 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
         })
       }
     },
-    [user?.id, setItems, apiPath]
+    [user?.id, setItems, apiPath],
   )
 
   const removeItem = useCallback<ISyncedLocalStorageContext<T>['removeItem']>(
@@ -130,7 +130,7 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
         })
       }
     },
-    [apiPath, user?.id, setItems]
+    [apiPath, user?.id, setItems],
   )
 
   /**
@@ -148,12 +148,12 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
       items.map((item: ServerItem<T>) => ({
         ...item,
         savedAt: new Date(item.savedAt),
-      }))
+      })),
     )
     const serverItemSavedAts = serverItems.map((item) => item.savedAt.getTime())
     const unsavedItems = items.filter(
       (item) =>
-        !serverItemSavedAts.includes(item.savedAt.getTime()) && !('id' in item)
+        !serverItemSavedAts.includes(item.savedAt.getTime()) && !('id' in item),
     )
 
     const syncedItems: ServerItem<T>[] = await Promise.all(
@@ -173,14 +173,14 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
         const savedItem = await resp.json()
 
         return savedItem
-      })
+      }),
     ).then((items) => items.filter((item): item is any => !!item))
 
     setItems(
       uniqBy(
         [...serverItems, ...syncedItems, ...items.filter((i) => !!i.id)],
-        'id'
-      )
+        'id',
+      ),
     )
     setLoadedServerItems(true)
   })

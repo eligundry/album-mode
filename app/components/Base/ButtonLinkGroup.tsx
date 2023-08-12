@@ -45,7 +45,7 @@ export const ButtonLinkGroupWrapper: React.FC<
       'flex-wrap',
       'flex-row',
       'gap-2',
-      className
+      className,
     )}
   >
     {children}
