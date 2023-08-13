@@ -11,7 +11,11 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "spotify-web-api-node": ["./node_modules/spotify-web-api-fetch"],
+      "spotify-web-api-node/src/*": [
+        "./node_modules/spotify-web-api-fetch/src/*"
+      ]
     },
     "noEmit": true,
     "forceConsistentCasingInFileNames": true,
