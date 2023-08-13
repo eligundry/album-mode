@@ -102,7 +102,7 @@ describe('SyncedLocalStorage', () => {
       await act(() =>
         result.current.saveItem({
           name: 'Eli Gundry',
-        })
+        }),
       )
 
       expect(result.current.items).toHaveLength(1)
@@ -248,7 +248,7 @@ describe('SyncedLocalStorage', () => {
               {children}
             </Wrapper>
           ),
-        })
+        }),
       )
 
       expect(result.current.items).toHaveLength(3)
@@ -287,7 +287,7 @@ describe('SyncedLocalStorage', () => {
               {children}
             </Wrapper>
           ),
-        })
+        }),
       )
 
       expect(result.current.items).toHaveLength(2)
@@ -337,7 +337,7 @@ describe('SyncedLocalStorage', () => {
               {children}
             </Wrapper>
           ),
-        })
+        }),
       )
 
       expect(result.current.items).toHaveLength(3)
@@ -377,11 +377,11 @@ describe('SyncedLocalStorage', () => {
               {children}
             </Wrapper>
           ),
-        })
+        }),
       )
 
       await act(() =>
-        expect(() => result.current.saveItem(newPerson)).rejects.toThrowError()
+        expect(() => result.current.saveItem(newPerson)).rejects.toThrowError(),
       )
 
       expect(result.current.items).toHaveLength(1)
@@ -421,7 +421,7 @@ describe('SyncedLocalStorage', () => {
               {children}
             </Wrapper>
           ),
-        })
+        }),
       )
 
       await act(() => result.current.removeItem(localPeople[0]))

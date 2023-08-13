@@ -15,7 +15,7 @@ export default function useMediaQuery(query: Query, defaultState = false) {
 export function useIsMobile() {
   return useMediaQuery(
     (theme) => `only screen and (max-width: ${theme.screens.sm})`,
-    true
+    true,
   )
 }
 

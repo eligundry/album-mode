@@ -57,7 +57,7 @@ const UTMParametersProvider: React.FC<React.PropsWithChildren<{}>> = ({
 
       return url
     },
-    [params]
+    [params],
   )
 
   return (

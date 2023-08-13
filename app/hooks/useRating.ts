@@ -18,7 +18,7 @@ export default function useRating() {
         albumURL: item.url,
       })
     },
-    [sendEvent, saveItem, clearRejections]
+    [sendEvent, saveItem, clearRejections],
   )
 
   const negativeReview = useCallback(
@@ -29,7 +29,7 @@ export default function useRating() {
         albumURL: item.url,
       })
     },
-    [sendEvent, addRejection]
+    [sendEvent, addRejection],
   )
 
   return { positiveReview, negativeReview }

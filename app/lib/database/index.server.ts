@@ -71,20 +71,24 @@ export class DatabaseClient {
         reviewers,
         and(
           eq(reviewers.slug, reviewerSlug),
-          eq(reviewers.id, reviewedItems.reviewerID)
-        )
+          eq(reviewers.id, reviewedItems.reviewerID),
+        ),
       )
       .where(
         and(
           eq(reviewedItems.resolvable, 1),
-          exceptID ? ne(reviewedItems.id, Number(exceptID)) : undefined
-        )
+          exceptID ? ne(reviewedItems.id, Number(exceptID)) : undefined,
+        ),
       )
       .orderBy(sql`RANDOM()`)
       .limit(1)
       .get()
 
-    return this.db
+    if (!itemID) {
+      throw new Error('could not query reviewedItems by random')
+    }
+
+    const reviewedItem = await this.db
       .select({
         id: reviewedItems.id,
         album: reviewedItems.name,
@@ -101,6 +105,12 @@ export class DatabaseClient {
       .where(eq(reviewedItems.id, itemID.id))
       .limit(1)
       .get()
+
+    if (!reviewedItem) {
+      throw new Error(`could not query reviewedItems for ID ${itemID}`)
+    }
+
+    return reviewedItem
   }
 
   getPublications = async () =>
@@ -134,7 +144,7 @@ export class DatabaseClient {
       .then((genres) => genres.map((genre) => genre.name))
 
   getRandomGenre = async (limit?: number) => {
-    const { id } = await this.db
+    const res = await this.db
       .select({ id: spotifyGenres.id })
       .from(spotifyGenres)
       .where(limit ? lt(spotifyGenres.id, limit) : undefined)
@@ -142,13 +152,23 @@ export class DatabaseClient {
       .limit(1)
       .get()
 
+    if (!res) {
+      throw new Error('could not query spotifyGenres by random')
+    }
+
     return this.db
       .select({ name: spotifyGenres.name })
       .from(spotifyGenres)
-      .where(eq(spotifyGenres.id, id))
+      .where(eq(spotifyGenres.id, res.id))
       .limit(1)
       .get()
-      .then((genre) => genre.name)
+      .then((genre) => {
+        if (!genre) {
+          throw new Error(`could not pull spotifyGenre for ID ${res.id}`)
+        }
+
+        return genre.name
+      })
   }
 
   getTwitterUsers = async () =>
@@ -168,7 +188,13 @@ export class DatabaseClient {
       .orderBy(sql`RANDOM()`)
       .limit(1)
       .get()
-      .then((publication) => publication.slug)
+      .then((publication) => {
+        if (!publication) {
+          throw new Error('could not query reviewers by random')
+        }
+
+        return publication.slug
+      })
 
   getOrCreatePublication = async (data: {
     name: string
@@ -187,18 +213,35 @@ export class DatabaseClient {
         })
         .run()
 
-      return this.db
+      const publication = await this.db
         .select()
         .from(reviewers)
         .where(eq(reviewers.id, Number(lastInsertRowid)))
         .get()
+
+      if (!publication) {
+        throw new Error('could not query newly created publication')
+      }
+
+      return publication
     } catch (e) {
       return this.getPublication(data.slug)
     }
   }
 
-  getPublication = async (slug: string) =>
-    this.db.select().from(reviewers).where(eq(reviewers.slug, slug)).get()
+  getPublication = async (slug: string) => {
+    const publication = await this.db
+      .select()
+      .from(reviewers)
+      .where(eq(reviewers.slug, slug))
+      .get()
+
+    if (!publication) {
+      throw new Error(`could not query publication for slug ${slug}`)
+    }
+
+    return publication
+  }
 
   insertReviewedItem = async (data: {
     reviewerID: number
@@ -231,8 +274,8 @@ export class DatabaseClient {
         .where(
           and(
             eq(reviewedItems.reviewerID, data.reviewerID),
-            eq(reviewedItems.reviewURL, data.reviewURL)
-          )
+            eq(reviewedItems.reviewURL, data.reviewURL),
+          ),
         )
         .returning()
         .get()
@@ -248,8 +291,8 @@ export class DatabaseClient {
         and(
           eq(savedItems.user, username),
           eq(savedItems.type, 'library'),
-          isNull(savedItems.deletedAt)
-        )
+          isNull(savedItems.deletedAt),
+        ),
       )
       .orderBy(savedItems.id)
       .all()
@@ -319,8 +362,8 @@ export class DatabaseClient {
         and(
           eq(savedItems.user, username),
           eq(savedItems.type, 'search'),
-          isNull(savedItems.deletedAt)
-        )
+          isNull(savedItems.deletedAt),
+        ),
       )
       .all()
 
@@ -338,8 +381,8 @@ export class DatabaseClient {
         and(
           eq(savedItems.id, itemID),
           eq(savedItems.user, username),
-          isNull(savedItems.deletedAt)
-        )
+          isNull(savedItems.deletedAt),
+        ),
       )
       .run()
 }

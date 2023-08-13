@@ -14,7 +14,7 @@ interface Props {
 const Playlist: React.FC<Props> = ({ playlist, footer }) => {
   const { createExternalURL } = useUTM()
   const playlistURL = createExternalURL(
-    playlist.external_urls.spotify
+    playlist.external_urls.spotify,
   ).toString()
 
   return (
@@ -23,7 +23,7 @@ const Playlist: React.FC<Props> = ({ playlist, footer }) => {
         className={clsx(
           'sm:items-stretch',
           '[&_.card-body]:px-0',
-          '[&_.card-body]:sm:px-4'
+          '[&_.card-body]:sm:px-4',
         )}
         embed={
           <div>
@@ -32,7 +32,7 @@ const Playlist: React.FC<Props> = ({ playlist, footer }) => {
                 'mx-auto',
                 'sm:h-full',
                 ['w-full', 'sm:w-[300px]'],
-                ['sm:min-h-[380px]', 'phone:h-[380px]']
+                ['sm:min-h-[380px]', 'phone:h-[380px]'],
               )}
               link={playlistURL}
             />

@@ -30,7 +30,7 @@ export async function loader({ params, request, context }: LoaderArgs) {
     throw badRequest({ error: 'slug must be provided in the URL', logger })
   }
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request, context)
+    spotifyLib.initializeFromRequest(request, context),
   )
 
   const data = await retry(async (_, attempt) => {
@@ -38,7 +38,7 @@ export async function loader({ params, request, context }: LoaderArgs) {
       database.getRandomReviewedItem({
         reviewerSlug: slug,
         exceptID: lastPresented,
-      })
+      }),
     )
 
     if (review.service === 'bandcamp') {
@@ -46,14 +46,14 @@ export async function loader({ params, request, context }: LoaderArgs) {
         wikipedia.getSummaryForAlbum({
           album: review.album,
           artist: review.artist,
-        })
+        }),
       )
 
       return { review, album: null, wiki, type: 'bandcamp' as const }
     }
 
     const album = await serverTiming.track(`spotify.fetch`, () =>
-      spotify.getAlbum(review.album, review.artist)
+      spotify.getAlbum(review.album, review.artist),
     )
     serverTiming.add({
       label: 'attempts',
@@ -64,7 +64,7 @@ export async function loader({ params, request, context }: LoaderArgs) {
       wikipedia.getSummaryForAlbum({
         album: album.name,
         artist: album.artists[0].name,
-      })
+      }),
     )
 
     return { album, review, wiki, type: 'spotify' as const }
@@ -75,7 +75,7 @@ export async function loader({ params, request, context }: LoaderArgs) {
     await userSettings.setLastPresented({
       request,
       lastPresented: data.review.id.toString(),
-    })
+    }),
   )
   headers.set(serverTiming.headerKey, serverTiming.toString())
 
@@ -196,7 +196,7 @@ export default function PublicationBySlug() {
 
   if (data.review.publicationMetadata?.url) {
     const publicationURL = createExternalURL(
-      data.review.publicationMetadata.url
+      data.review.publicationMetadata.url,
     )
 
     breadcrumbs.push([

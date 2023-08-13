@@ -46,7 +46,7 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer, wiki }) => {
         className={clsx(
           'sm:items-stretch',
           '[&_.card-body]:px-0',
-          '[&_.card-body]:sm:px-4'
+          '[&_.card-body]:sm:px-4',
         )}
         embed={
           <iframe
@@ -57,7 +57,7 @@ const BandcampAlbum: React.FC<Props> = ({ album, footer, wiki }) => {
               'mx-auto',
               'border-none',
               ['w-full', 'h-[390px]'],
-              ['sm:w-[350px]', 'sm:h-[470px]']
+              ['sm:w-[350px]', 'sm:h-[470px]'],
             )}
           >
             <a href={createExternalURL(album.url).toString()}>

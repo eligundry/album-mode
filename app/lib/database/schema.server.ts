@@ -26,7 +26,7 @@ export const reviewers = sqliteTable(
     name: text('name').notNull(),
     slug: text('slug').notNull(),
     service: text('service', { enum: ['twitter', 'publication'] }).default(
-      'publication'
+      'publication',
     ),
     metadata: blob('metadata', { mode: 'json' }).$type<{
       metaDescription?: string | null
@@ -36,7 +36,7 @@ export const reviewers = sqliteTable(
   },
   (publication) => ({
     uniqueSlug: uniqueIndex('uq_PublicationSlug').on(publication.slug),
-  })
+  }),
 )
 
 export type Reviewer = typeof reviewers._.model.select
@@ -73,9 +73,9 @@ export const reviewedItems = sqliteTable(
   (review) => ({
     uniqueReviewURL: uniqueIndex('uq_AlbumsReviewedByPublicationReviewURL').on(
       review.reviewerID,
-      review.reviewURL
+      review.reviewURL,
     ),
-  })
+  }),
 )
 
 export type ReviewedItem = typeof reviewedItems._.model.select
@@ -88,7 +88,7 @@ export const spotifyGenres = sqliteTable(
   },
   (spotifyGenres) => ({
     uniqueSlug: uniqueIndex('uq_SpotifyGenreName').on(spotifyGenres.name),
-  })
+  }),
 )
 
 export type SpotifyGenre = typeof spotifyGenres._.model.select
@@ -130,9 +130,9 @@ export const savedItems = sqliteTable(
       savedItems.user,
       savedItems.identifier,
       savedItems.type,
-      savedItems.deletedAt
+      savedItems.deletedAt,
     ),
-  })
+  }),
 )
 
 export type SavedItem = typeof savedItems._.model.select

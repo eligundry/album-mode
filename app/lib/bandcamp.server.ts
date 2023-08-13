@@ -18,8 +18,8 @@ const getAlbum = bandcampLimiter.wrap(
         } else {
           resolve(data)
         }
-      })
-    )
+      }),
+    ),
 )
 
 const api = { getAlbum }

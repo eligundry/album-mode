@@ -27,7 +27,7 @@ const AutoAlert: React.FC = () => {
           'items-start',
           'content-center',
           ['left-[4.15%]', 'sm:left-2'],
-          ['w-11/12', 'sm:w-1/2']
+          ['w-11/12', 'sm:w-1/2'],
         )}
       >
         <div className={clsx('sm:place-self-center')}>

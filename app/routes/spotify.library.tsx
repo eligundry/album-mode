@@ -7,9 +7,10 @@ import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
+import wikipedia from '~/lib/wikipedia.server'
 
+import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import Playlist from '~/components/Album/Playlist'
 import { Layout } from '~/components/Base'
 import config from '~/config'
 
@@ -18,15 +19,15 @@ export async function loader({ request, context }: LoaderArgs) {
   await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request, {
       failureRedirect: config.requiredLoginFailureRedirect,
-    })
+    }),
   )
 
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request, context)
+    spotifyLib.initializeFromRequest(request, context),
   )
-  const playlist = await retry(async (_, attempt) => {
+  const album = await retry(async (_, attempt) => {
     const album = await serverTiming.track('spotify.fetch', () =>
-      spotify.getRandomForYouPlaylist()
+      spotify.getRandomAlbumFromUserLibrary(),
     )
     serverTiming.add({
       label: 'attempts',
@@ -35,38 +36,41 @@ export async function loader({ request, context }: LoaderArgs) {
 
     return album
   }, config.asyncRetryConfig)
+  const wiki = await serverTiming.track('wikipedia', () =>
+    wikipedia.getSummaryForAlbum({
+      album: album.name,
+      artist: album.artists[0].name,
+    }),
+  )
 
   return json(
-    { playlist },
+    {
+      album,
+      wiki,
+    },
     {
       headers: {
         'set-cookie': await userSettings.setLastPresented({
           request,
-          lastPresented: playlist.id,
+          lastPresented: album.id,
         }),
         [serverTiming.headerKey]: serverTiming.toString(),
       },
-    }
+    },
   )
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
 export const meta: AppMetaFunction<typeof loader> = ({ matches }) =>
-  mergeMeta(matches, [
-    { title: `For You | ${config.siteTitle}` },
-    {
-      name: 'description',
-      content: 'Listen to a random that Spotify has generated just for you!',
-    },
-  ])
+  mergeMeta(matches, [{ title: `Spotify Library | ${config.siteTitle}` }])
 
 export default function RandomAlbumFromSpotifyLibrary() {
   const data = useLoaderData<typeof loader>()
 
   return (
-    <Layout hideFooter headerBreadcrumbs={['Spotify', 'For You']}>
-      <Playlist playlist={data.playlist} />
+    <Layout hideFooter headerBreadcrumbs={['Spotify', 'Library']}>
+      <Album album={data.album} wiki={data.wiki} />
     </Layout>
   )
 }

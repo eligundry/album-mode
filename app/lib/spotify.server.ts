@@ -122,7 +122,7 @@ export class Spotify {
 
   getRandomAlbumForSearchTerm = async (
     searchTerm: string,
-    poolLimit = 1000
+    poolLimit = 1000,
   ): Promise<SpotifyApi.AlbumObjectSimplified> => {
     const client = await this.getClient()
 
@@ -136,7 +136,7 @@ export class Spotify {
 
     const albumOffsetToFetch = random(
       0,
-      Math.min(firstPage.body.albums.total - 1, poolLimit)
+      Math.min(firstPage.body.albums.total - 1, poolLimit),
     )
 
     if (albumOffsetToFetch < firstPage.body.albums.items.length - 1) {
@@ -152,7 +152,7 @@ export class Spotify {
     if (!resp.body.albums?.items?.[0]) {
       console.error(util.inspect(resp, false, 100000, true), albumOffsetToFetch)
       throw new Error(
-        `could not fetch album for search term from offset (Spotify status code: ${resp.statusCode})`
+        `could not fetch album for search term from offset (Spotify status code: ${resp.statusCode})`,
       )
     }
 
@@ -239,7 +239,7 @@ export class Spotify {
 
     const artistOffsetToFetch = random(
       0,
-      Math.min(firstPageOfArtists.body.artists.total - 1, 300)
+      Math.min(firstPageOfArtists.body.artists.total - 1, 300),
     )
 
     let artist = firstPageOfArtists.body.artists.items[artistOffsetToFetch]
@@ -270,13 +270,13 @@ export class Spotify {
         page.body.items.filter(
           (album) =>
             album.album_type !== 'single' &&
-            (!this.lastPresentedID || album.id !== this.lastPresentedID)
-        )
+            (!this.lastPresentedID || album.id !== this.lastPresentedID),
+        ),
       )
 
     if (!albums.length) {
       throw new Error(
-        'could not fetch an album for this artist from this genre'
+        'could not fetch an album for this artist from this genre',
       )
     }
 
@@ -354,7 +354,7 @@ export class Spotify {
       {
         limit: 50,
         market: this.country,
-      }
+      },
     )
     const albums = resp.body?.albums?.items ?? []
 
@@ -427,7 +427,7 @@ export class Spotify {
 
     const currentlyPlaying = await this.getCurrentlyPlayingTrack()
     const album = await this.getRandomAlbumForRelatedArtistByID(
-      currentlyPlaying.artists[0].id
+      currentlyPlaying.artists[0].id,
     )
 
     return {
@@ -524,7 +524,7 @@ export class Spotify {
   }
 
   getRandomPlaylistForCategory = async (
-    categoryID: string
+    categoryID: string,
   ): Promise<SpotifyApi.PlaylistObjectSimplified> => {
     const client = await this.getClient()
     let resp = await client.getPlaylistsForCategory(categoryID, {
@@ -579,7 +579,7 @@ export class Spotify {
 
         return acc
       },
-      new Set<string>()
+      new Set<string>(),
     )
     const artistsResp = await client.getArtists([...topArtistIDs])
     const artists = artistsResp.body.artists.map((artist) => ({
@@ -615,7 +615,7 @@ export class Spotify {
   followArtist = async (artistIDs: string | string[]) => {
     const client = await this.getClient()
     return client.followArtists(
-      Array.isArray(artistIDs) ? artistIDs : [artistIDs]
+      Array.isArray(artistIDs) ? artistIDs : [artistIDs],
     )
   }
 
@@ -646,7 +646,7 @@ export class Spotify {
     }
 
     const playlistsBySpotify = resp.body.playlists.items.filter(
-      (p) => p.owner.uri === 'spotify:user:spotify'
+      (p) => p.owner.uri === 'spotify:user:spotify',
     )
 
     while (true) {

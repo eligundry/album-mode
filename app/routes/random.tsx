@@ -12,12 +12,12 @@ export async function loader({ request, context }: LoaderArgs) {
   switch (option) {
     case 'publication':
       return redirect(
-        `/publication/${await database.getRandomPublication()}?from=play-me-something`
+        `/publication/${await database.getRandomPublication()}?from=play-me-something`,
       )
 
     case 'genre':
       return redirect(
-        `/genre/${await database.getRandomGenre(50)}?from=play-me-something`
+        `/genre/${await database.getRandomGenre(50)}?from=play-me-something`,
       )
 
     case 'artist':

@@ -61,11 +61,11 @@ const seedPazzAndJop = async () => {
 
       document
         .querySelectorAll(
-          'body > table > tbody > tr:nth-child(2) > td:nth-child(2) > p:nth-child(4) > table tr td[align=left]'
+          'body > table > tbody > tr:nth-child(2) > td:nth-child(2) > p:nth-child(4) > table tr td[align=left]',
         )
         .forEach((td) => {
           const albumName = cleanAlbumTitle(
-            td.querySelector('i')?.textContent ?? ''
+            td.querySelector('i')?.textContent ?? '',
           )
 
           if (!albumName) {
@@ -75,7 +75,7 @@ const seedPazzAndJop = async () => {
           const artistName =
             trim(
               td.querySelector('b')?.textContent?.replace(albumName, '') ?? '',
-              ': '
+              ': ',
             ) ?? albumName
 
           let slug = new URL('https://www.robertchristgau.com/get_artist.php')
@@ -104,12 +104,12 @@ const seedPazzAndJop = async () => {
                 inserted++
               }
             })
-            .catch(() => {})
-        )
+            .catch(() => {}),
+        ),
       )
 
       return albums
-    })
+    }),
   )
 
   logger.info({
@@ -149,7 +149,7 @@ const seedPazzAndJopDeansLists = async () => {
       const document = new JSDOM(html).window.document
       const albums: Album[] = []
       const htmlAlbumList = document.querySelector(
-        'body > table > tbody > tr:nth-child(2) > td:nth-child(2) > ol'
+        'body > table > tbody > tr:nth-child(2) > td:nth-child(2) > ol',
       )
 
       if (!htmlAlbumList) {
@@ -183,7 +183,7 @@ const seedPazzAndJopDeansLists = async () => {
         }
 
         const slugURL = new URL(
-          'https://www.robertchristgau.com/get_artist.php'
+          'https://www.robertchristgau.com/get_artist.php',
         )
         slugURL.searchParams.set('name', artist)
         slugURL.hash = kebabCase(`${artist} ${album}`)
@@ -215,12 +215,12 @@ const seedPazzAndJopDeansLists = async () => {
               metadata: {},
             })
             .then(() => inserted++)
-            .catch(() => {})
-        )
+            .catch(() => {}),
+        ),
       )
 
       return albums
-    })
+    }),
   )
 
   logger.info({

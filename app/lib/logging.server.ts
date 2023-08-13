@@ -35,8 +35,7 @@ class ResendTransport extends Transport implements Transport {
         from: 'Album-mode.party <app@album-mode.party>',
         to: 'Eli Gundry <eligundry@gmail.com>',
         subject: 'Error on Album-Mode.party',
-        // @ts-ignore
-        react: ErrorEmailTemplate({ info }),
+        react: ErrorEmailTemplate({ info }) ?? JSON.stringify(info, null, 2),
       })
 
       this.logger.debug({
@@ -67,7 +66,7 @@ export const constructLogger = (env?: Env) => {
       winston.format.timestamp(),
       winston.format.json({
         space: env.SEED_SCRIPT || env.NODE_ENV !== 'production' ? 4 : undefined,
-      })
+      }),
     ),
   })
 
@@ -78,7 +77,7 @@ export const constructLogger = (env?: Env) => {
         filter: (info) => !!info.email,
         logger,
         resendKey: env.RESEND_API_KEY,
-      })
+      }),
     )
   }
 

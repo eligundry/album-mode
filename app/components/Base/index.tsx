@@ -14,7 +14,7 @@ export interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
 export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
   (
     { level, className, noSpacing = false, noStyles = false, ...props },
-    ref
+    ref,
   ) => {
     const Component = level as unknown as React.FC<
       JSX.IntrinsicElements[typeof level]
@@ -35,12 +35,12 @@ export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
             },
             !noSpacing && 'my-4',
           ],
-          className
+          className,
         )}
         {...props}
       />
     )
-  }
+  },
 )
 
 export interface ButtonProps<T = HTMLButtonElement>
@@ -78,7 +78,7 @@ function buttonStyles<T>({
     ghost && 'btn-ghost',
     disabled && 'btn-disabled',
     loading && 'loading',
-    className
+    className,
   )
 }
 
@@ -139,7 +139,7 @@ export const Link: React.FC<
       'link-hover',
       color && !colorHover && 'link-primary',
       colorHover && ['hover:text-primary', 'hover:no-underline'],
-      className
+      className,
     )}
     {...props}
   />
@@ -166,7 +166,7 @@ export const Typography = React.forwardRef<
       variant === 'hint' && ['italic', 'text-gray-400'],
       variant === 'italics' && 'italic',
       variant === 'bold' && 'font-bold',
-      className
+      className,
     )}
     {...props}
   />
@@ -189,11 +189,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         'w-full',
         'focus:outline-primary',
         width === 'half' && ['mb-2', 'w-1/2'],
-        className
+        className,
       )}
       {...props}
     />
-  )
+  ),
 )
 
 export interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -214,11 +214,11 @@ export const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
           'align-items-center',
           'flex-col',
         ],
-        className
+        className,
       )}
       {...props}
     />
-  )
+  ),
 )
 
 type AProps = React.HTMLAttributes<HTMLHyperlinkElementUtils> & {
@@ -234,7 +234,7 @@ export const A = React.forwardRef<HTMLAnchorElement, AProps>(
       className={clsx('link', 'link-hover', 'link-primary', className)}
       {...props}
     />
-  )
+  ),
 )
 
 export interface FieldsetProps
@@ -255,11 +255,11 @@ export const Fieldset = React.forwardRef<HTMLFieldSetElement, FieldsetProps>(
           'flex flex-row': flexDirection === 'row',
           'flex flex-col': flexDirection === 'column',
         },
-        className
+        className,
       )}
       {...props}
     />
-  )
+  ),
 )
 
 export const Legend = React.forwardRef<

@@ -6,7 +6,7 @@ dotenv.config()
 
 export const getEnv = (
   isNotWebApp = process.env.GITHUB_ACTIONS === 'true' ||
-    process.env.SEED_SCRIPT === 'true'
+    process.env.SEED_SCRIPT === 'true',
 ) =>
   isNotWebApp
     ? envSchema.parse(process.env)

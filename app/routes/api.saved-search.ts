@@ -13,7 +13,7 @@ export async function action({ request, context }: ActionArgs) {
   const { serverTiming, logger, database } = context
 
   const session = await serverTiming.track('spotify.session', () =>
-    spotifyStrategy.getSession(request)
+    spotifyStrategy.getSession(request),
   )
 
   if (!session || !session.user) {
@@ -39,7 +39,7 @@ export async function action({ request, context }: ActionArgs) {
       database.saveSearch({
         item: res.data,
         username: userID,
-      })
+      }),
     )
 
     return json(savedSearch, {
@@ -55,7 +55,7 @@ export async function loader({ request, context }: LoaderArgs) {
   const { serverTiming, logger, database } = context
 
   const session = await serverTiming.track('spotify.session', () =>
-    spotifyStrategy.getSession(request)
+    spotifyStrategy.getSession(request),
   )
 
   if (!session || !session.user) {
@@ -69,7 +69,7 @@ export async function loader({ request, context }: LoaderArgs) {
 
   try {
     const searches = await serverTiming.track('db.getSavedSearches', () =>
-      database.getSavedSearches(userID)
+      database.getSavedSearches(userID),
     )
 
     return json(searches, {

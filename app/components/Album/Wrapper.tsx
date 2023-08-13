@@ -43,7 +43,7 @@ const AlbumWrapper: React.FC<Props> = ({
           ['shadow-none', 'sm:shadow-xl'],
           'phone:pb-[4rem]',
           'phone:rounded-none',
-          className
+          className,
         )}
         media={embed}
         title={title}
@@ -62,7 +62,7 @@ const AlbumWrapper: React.FC<Props> = ({
                 ],
                 ['phone:[&>.stat]:px-0', 'phone:grid-cols-2'],
                 ['[&_.stat-title]:font-bold', '[&_.stat-title]:uppercase'],
-                ['[&_.stat-desc]:whitespace-normal']
+                ['[&_.stat-desc]:whitespace-normal'],
               )}
             >
               {!!genres?.length && (
@@ -77,7 +77,7 @@ const AlbumWrapper: React.FC<Props> = ({
                     wrapperClassName={clsx(
                       'stat-actions',
                       'sm:flex-col',
-                      'mt-2'
+                      'mt-2',
                     )}
                   />
                 </div>
@@ -166,7 +166,7 @@ const PopularityDescription: React.FC<{ popularity: number }> = React.memo(
       default:
         return sample(['Hot 🔥', 'Festival Headliner'])
     }
-  }
+  },
 )
 
 const ReleaseDateDescription: React.FC<{ year: number }> = ({ year }) => {

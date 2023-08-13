@@ -24,7 +24,7 @@ const SearchBreadcrumbs: React.FC<SearchBreadcrumbsProps> = ({
           'capitalize',
           'font-bold',
           'mr-4',
-          'overflow-hidden'
+          'overflow-hidden',
         )}
       >
         <ul className={clsx('[&>li>*]:text-truncate')}>
@@ -35,7 +35,7 @@ const SearchBreadcrumbs: React.FC<SearchBreadcrumbsProps> = ({
                 <li key={crumb}>{crumb}</li>
               ) : (
                 <li key={crumb[0]}>{crumb[1]}</li>
-              )
+              ),
             )}
         </ul>
       </div>
@@ -45,8 +45,8 @@ const SearchBreadcrumbs: React.FC<SearchBreadcrumbsProps> = ({
           onClick={() =>
             saveSearch(
               crumbs.map((crumb) =>
-                typeof crumb === 'string' ? crumb : crumb[0]
-              )
+                typeof crumb === 'string' ? crumb : crumb[0],
+              ),
             )
           }
           disabled={!saveable}

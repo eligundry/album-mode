@@ -11,7 +11,7 @@ type Matches = Parameters<AppMetaFunction>[0]['matches']
 
 export function mergeMeta(
   matches: Matches,
-  meta: MetaDescriptor
+  meta: MetaDescriptor,
 ): MetaDescriptor {
   // @ts-ignore
   const allMeta = [...meta, ...matches.flatMap((m) => m.meta)]

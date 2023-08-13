@@ -14,10 +14,10 @@ import config from '~/config'
 export async function loader({ request, context }: LoaderArgs) {
   const { serverTiming } = context
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request, context)
+    spotifyLib.initializeFromRequest(request, context),
   )
   const playlist = await serverTiming.track('spotify.fetch', () =>
-    spotify.getRandomFeaturedPlaylist()
+    spotify.getRandomFeaturedPlaylist(),
   )
 
   return json(
@@ -30,7 +30,7 @@ export async function loader({ request, context }: LoaderArgs) {
           lastPresented: playlist.id,
         }),
       },
-    }
+    },
   )
 }
 

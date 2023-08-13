@@ -16,7 +16,7 @@ interface Props
 }
 
 const cardWrapperClasses = (
-  props: Pick<Props, 'mediaZoomOnHover' | 'className'>
+  props: Pick<Props, 'mediaZoomOnHover' | 'className'>,
 ) =>
   clsx(
     'card',
@@ -31,7 +31,7 @@ const cardWrapperClasses = (
       '[&>img]:ease-in',
       '[&>img]:duration-100',
     ],
-    props.className
+    props.className,
   )
 
 export const Card = React.forwardRef<any, Props>(
@@ -47,7 +47,7 @@ export const Card = React.forwardRef<any, Props>(
       actionsClassName,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <div
@@ -65,7 +65,7 @@ export const Card = React.forwardRef<any, Props>(
                 'card-title',
                 'flex-col',
                 'items-start',
-                'leading-none'
+                'leading-none',
               )}
             >
               {title}
@@ -82,7 +82,7 @@ export const Card = React.forwardRef<any, Props>(
         </div>
       </div>
     )
-  }
+  },
 )
 
 export const CardLink: React.FC<
@@ -113,7 +113,7 @@ export const CardLink: React.FC<
               'card-title',
               'flex-col',
               'items-start',
-              'leading-none'
+              'leading-none',
             )}
           >
             {title}
@@ -126,7 +126,7 @@ export const CardLink: React.FC<
               'card-actions',
               'justify-end',
               'mt-2',
-              actionsClassName
+              actionsClassName,
             )}
           >
             {actions}

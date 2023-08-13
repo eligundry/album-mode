@@ -8,8 +8,8 @@ env:
   NODE_VERSION: 16
 
 jobs:
-  lint:
-    name: Run linters
+  ci:
+    name: Run
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,31 +18,15 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
       - run: npm ci
+
       - name: Run linters
+        if: always()
         run: npm run lint
 
-  type-check:
-    name: Check types
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-      - run: npm ci
       - name: Check types
+        if: always()
         run: npm run typecheck
 
-  tests:
-    name: Run tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-      - run: npm ci
       - name: Run tests
+        if: always()
         run: npm test

@@ -17,7 +17,7 @@ export default function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
-  _loadContext: AppLoadContext
+  _loadContext: AppLoadContext,
 ) {
   const isbot =
     detect(request.headers.get('user-agent') ?? '')?.type?.startsWith('bot') ??
@@ -28,13 +28,13 @@ export default function handleRequest(
         request,
         responseStatusCode,
         responseHeaders,
-        remixContext
+        remixContext,
       )
     : handleBrowserRequest(
         request,
         responseStatusCode,
         responseHeaders,
-        remixContext
+        remixContext,
       )
 }
 
@@ -42,7 +42,7 @@ function handleBotRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext
+  remixContext: EntryContext,
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false
@@ -63,7 +63,7 @@ function handleBotRequest(
             new Response(body, {
               headers: responseHeaders,
               status: responseStatusCode,
-            })
+            }),
           )
 
           pipe(body)
@@ -80,7 +80,7 @@ function handleBotRequest(
             console.error(error)
           }
         },
-      }
+      },
     )
 
     setTimeout(abort, ABORT_DELAY)
@@ -91,7 +91,7 @@ function handleBrowserRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext
+  remixContext: EntryContext,
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false
@@ -112,7 +112,7 @@ function handleBrowserRequest(
             new Response(body, {
               headers: responseHeaders,
               status: responseStatusCode,
-            })
+            }),
           )
 
           pipe(body)
@@ -129,7 +129,7 @@ function handleBrowserRequest(
             console.error(error)
           }
         },
-      }
+      },
     )
 
     setTimeout(abort, ABORT_DELAY)

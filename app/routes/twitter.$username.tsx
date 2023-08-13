@@ -23,7 +23,7 @@ export async function loader({ params, request, context }: LoaderArgs) {
   }
 
   const tweet = await serverTiming.track('db.getRandomTweet', () =>
-    database.getRandomReviewedItem({ reviewerSlug: username })
+    database.getRandomReviewedItem({ reviewerSlug: username }),
   )
 
   switch (tweet.service) {
@@ -38,14 +38,14 @@ export async function loader({ params, request, context }: LoaderArgs) {
           headers: {
             [serverTiming.headerKey]: serverTiming.toString(),
           },
-        }
+        },
       )
     }
     case 'spotify': {
       const spotify = await serverTiming.track('spotify.init', () =>
         spotifyLib
           .initializeFromRequest(request, context)
-          .then((s) => s.getClient())
+          .then((s) => s.getClient()),
       )
 
       if (!tweet.reviewMetadata?.spotify) {
@@ -62,14 +62,14 @@ export async function loader({ params, request, context }: LoaderArgs) {
       switch (itemType) {
         case 'playlist':
           embed = await serverTiming.track('spotify.getPlaylist', () =>
-            spotify.getPlaylist(itemID).then((resp) => resp.body)
+            spotify.getPlaylist(itemID).then((resp) => resp.body),
           )
           break
 
         case 'album':
         case 'track': {
           embed = await serverTiming.track('spotify.getAlbum', () =>
-            spotify.getAlbum(itemID).then((resp) => resp.body)
+            spotify.getAlbum(itemID).then((resp) => resp.body),
           )
           break
         }
@@ -90,7 +90,7 @@ export async function loader({ params, request, context }: LoaderArgs) {
           headers: {
             [serverTiming.headerKey]: serverTiming.toString(),
           },
-        }
+        },
       )
     }
     default:
@@ -162,7 +162,7 @@ export default function AlbumFromTwitter() {
           `@${data.tweet.publicationName}`,
           <A
             href={createExternalURL(
-              `https://twitter.com/${data.tweet.publicationName}`
+              `https://twitter.com/${data.tweet.publicationName}`,
             ).toString()}
             target="_blank"
             className={clsx('normal-case')}

@@ -2,7 +2,6 @@ import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
-import { spotifyStrategy } from '~/lib/auth.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -16,18 +15,12 @@ import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
   const { serverTiming } = context
-  await serverTiming.track('spotify.session', () =>
-    spotifyStrategy.getSession(request, {
-      failureRedirect: config.requiredLoginFailureRedirect,
-    })
-  )
-
   const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request, context)
+    spotifyLib.initializeFromRequest(request, context),
   )
   const album = await retry(async (_, attempt) => {
     const album = await serverTiming.track('spotify.fetch', () =>
-      spotify.getRandomAlbumFromUserLibrary()
+      spotify.getRandomNewRelease(),
     )
     serverTiming.add({
       label: 'attempts',
@@ -40,7 +33,7 @@ export async function loader({ request, context }: LoaderArgs) {
     wikipedia.getSummaryForAlbum({
       album: album.name,
       artist: album.artists[0].name,
-    })
+    }),
   )
 
   return json(
@@ -56,20 +49,26 @@ export async function loader({ request, context }: LoaderArgs) {
         }),
         [serverTiming.headerKey]: serverTiming.toString(),
       },
-    }
+    },
   )
 }
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
 export const meta: AppMetaFunction<typeof loader> = ({ matches }) =>
-  mergeMeta(matches, [{ title: `Spotify Library | ${config.siteTitle}` }])
+  mergeMeta(matches, [
+    { title: `New Releases | ${config.siteTitle}` },
+    {
+      name: 'description',
+      content: 'Listen to a random album that just came out!',
+    },
+  ])
 
-export default function RandomAlbumFromSpotifyLibrary() {
+export default function SpotifyNewReleases() {
   const data = useLoaderData<typeof loader>()
 
   return (
-    <Layout hideFooter headerBreadcrumbs={['Spotify', 'Library']}>
+    <Layout hideFooter headerBreadcrumbs={['Spotify', 'New Releases']}>
       <Album album={data.album} wiki={data.wiki} />
     </Layout>
   )

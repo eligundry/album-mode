@@ -36,7 +36,7 @@ const updateAlbumResolvability = limiter.wrap(
       .set({ resolvable: resolvable ? 1 : 0 })
       .where(eq(reviewedItems.id, id))
       .run()
-  }
+  },
 )
 
 const main = async () => {
@@ -48,8 +48,8 @@ const main = async () => {
 
   await Promise.all(
     albums.map(({ id, creator, name }) =>
-      updateAlbumResolvability(id, creator, name)
-    )
+      updateAlbumResolvability(id, creator, name),
+    ),
   )
 }
 

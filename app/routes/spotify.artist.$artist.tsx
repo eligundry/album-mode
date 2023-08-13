@@ -1,7 +1,6 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import retry from 'async-retry'
-import { badRequest, promiseHash, serverError } from 'remix-utils'
+import { badRequest, serverError } from 'remix-utils'
 
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
@@ -16,34 +15,27 @@ import config from '~/config'
 
 export async function loader({ request, params, context }: LoaderArgs) {
   const { serverTiming, logger, env } = context
-  const artistID = params.artistID
-  const spotify = await serverTiming.track('spotify.init', () =>
-    spotifyLib.initializeFromRequest(request, context)
-  )
+  const spotify = await spotifyLib.initializeFromRequest(request, context)
+  let artistParam = params.artist
 
-  if (!artistID) {
+  if (!artistParam) {
     throw badRequest({
-      error: 'artistID must be provided as route param',
+      error: 'artist name must be provided as a route param',
       logger,
     })
   }
 
-  const { album, artist } = await retry(async (_, attempt) => {
-    const resp = await promiseHash({
-      album: serverTiming.track('spotify.albumFetch', () =>
-        spotify.getRandomAlbumForRelatedArtistByID(artistID)
-      ),
-      artist: serverTiming.track('spotify.artistFetch', () =>
-        spotify.getArtistByID(artistID)
-      ),
-    })
-    serverTiming.add({
-      label: 'attempts',
-      desc: `${attempt} Attempt(s)`,
-    })
+  let searchMethod = spotify.getRandomAlbumForRelatedArtist
 
-    return resp
-  }, config.asyncRetryConfig)
+  // If the search term is quoted, get random album for just that artist
+  if (artistParam.startsWith('"') && artistParam.endsWith('"')) {
+    searchMethod = spotify.getRandomAlbumForArtist
+  }
+
+  const album = await serverTiming.track('spotify.fetch', () =>
+    searchMethod(artistParam as string),
+  )
+  const artist = album.artists[0]
 
   const wiki = await serverTiming.track('wikipedia', () => {
     if (!album) {
@@ -52,7 +44,7 @@ export async function loader({ request, params, context }: LoaderArgs) {
           error: 'could not fetch album',
           logger,
         },
-        { headers: serverTiming.headers() }
+        { headers: serverTiming.headers() },
       )
     }
 
@@ -77,7 +69,7 @@ export async function loader({ request, params, context }: LoaderArgs) {
         }),
         [serverTiming.headerKey]: serverTiming.toString(),
       },
-    }
+    },
   )
 }
 
@@ -85,7 +77,7 @@ export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
 export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
   if (!data) {
-    return []
+    return mergeMeta(matches, [])
   }
 
   const title = `Discover music similar to ${data.artist.name}`
@@ -94,7 +86,7 @@ export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
 
   return mergeMeta(matches, [
     { title: `${title} | ${config.siteTitle}` },
-    { name: description },
+    { name: 'description', description },
     { property: 'og:title', content: title },
     { property: 'og:description', content: description },
     { property: 'og:image', content: ogImage },

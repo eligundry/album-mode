@@ -49,7 +49,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({
             '[&>.btn]:h-full',
             '[&>.btn]:rounded-none',
           ],
-          className
+          className,
         )}
       >
         <ButtonLink

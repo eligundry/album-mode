@@ -18,7 +18,7 @@ export default function useSavedSearches() {
 
   const saveSearch = useCallback(
     async (crumbs: string[]) => saveItem({ crumbs, path }),
-    [path, saveItem]
+    [path, saveItem],
   )
 
   return {

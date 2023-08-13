@@ -27,7 +27,7 @@ const Modal: React.FC<React.PropsWithChildren<Props>> = ({
                 'btn-circle',
                 'absolute',
                 'right-2',
-                'top-2'
+                'top-2',
               )}
             >
               ✕

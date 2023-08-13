@@ -79,7 +79,7 @@ const needleDrop = async () => {
         const artistAlbum = await row.locator('.albumListTitle a').textContent()
         const reviewURL = await row.locator('.scoreText a').getAttribute('href')
         const score = parseInt(
-          (await row.locator('.scoreValue').textContent()) ?? '0'
+          (await row.locator('.scoreValue').textContent()) ?? '0',
         )
 
         if (!artistAlbum || !reviewURL) {
@@ -135,8 +135,8 @@ const needleDrop = async () => {
             inserted++
           }
         })
-        .catch(() => {})
-    )
+        .catch(() => {}),
+    ),
   )
 
   logger.log({

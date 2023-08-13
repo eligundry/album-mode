@@ -9,7 +9,7 @@ const content = `
       <loc>https://album-mode.party/${p}</loc>
       <priority>0.7</priority>
     </url>
-    `
+    `,
     )
     .join('\n')}
 </urlset>

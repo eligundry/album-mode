@@ -4,12 +4,12 @@ export const envSchema = z.object({
   ADMIN_SPOTIFY_USERNAMES: z
     .preprocess(
       (val) => (typeof val === 'string' ? JSON.parse(val) : []),
-      z.array(z.string())
+      z.array(z.string()),
     )
     .default([]),
   AUTH_SECRETS: z.preprocess(
     (val) => (typeof val === 'string' ? JSON.parse(val) : ['']),
-    z.array(z.string())
+    z.array(z.string()),
   ),
   CI: z.coerce.boolean().default(false),
   COMMIT_REF: z.string().optional(),
@@ -28,7 +28,7 @@ export const envSchema = z.object({
 export const webAppEnvSchema = envSchema.extend({
   AUTH_SECRETS: z.preprocess(
     (val) => (typeof val === 'string' && val ? JSON.parse(val) : null),
-    z.array(z.string().min(2))
+    z.array(z.string().min(2)),
   ),
   GROWTHBOOK_API_HOST: z.string().url().default('https://cdn.growthbook.io'),
   GROWTHBOOK_CLIENT_KEY: z.string(),

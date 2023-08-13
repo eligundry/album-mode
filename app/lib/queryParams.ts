@@ -29,7 +29,7 @@ export const utmParams = (parameters: UTMs & Record<string, string>) => {
 
 export const urlWithUTMParams = (
   strURL: string,
-  parameters: UTMs & Record<string, string>
+  parameters: UTMs & Record<string, string>,
 ) => {
   const url = new URL(strURL)
   url.searchParams.set('utm_source', 'album-mode.party')
