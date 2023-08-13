@@ -61,7 +61,7 @@ export async function action({ request, context }: ActionArgs) {
       ),
       saveAlbum: serverTiming.track('spotify.saveAlbum', () => {
         if (!settings.saveAlbumAutomatically || !spotifyAlbumID) {
-          serverTiming.add('spotify.saveAlbum skipped')
+          serverTiming.add({ label: 'spotify.saveAlbum', desc: 'skipped' })
           return
         }
 
@@ -70,12 +70,12 @@ export async function action({ request, context }: ActionArgs) {
             message: 'could not save album on Spotify',
             error,
           })
-          serverTiming.add('spotify.saveAlbum failed')
+          serverTiming.add({ label: 'spotify.saveAlbum', desc: 'failed' })
         })
       }),
       followArtist: serverTiming.track('spotify.followArtist', () => {
         if (!settings.followArtistAutomatically || !spotifyArtistID) {
-          serverTiming.add('spotify.followArtist skipped')
+          serverTiming.add({ label: 'spotify.followArtist', desc: 'skipped' })
           return
         }
 
@@ -84,7 +84,7 @@ export async function action({ request, context }: ActionArgs) {
             message: 'could not follow artist on Spotify',
             error,
           })
-          serverTiming.add('spotify.followArtist failed')
+          serverTiming.add({ label: 'spotify.followArtist', desc: 'failed' })
         })
       }),
     })
