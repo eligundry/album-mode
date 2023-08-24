@@ -575,6 +575,23 @@ export class Spotify {
     }
   }
 
+  getUserTopArtists = async (): Promise<SpotifyArtist[]> => {
+    if (!this.api.getAccessToken()) {
+      throw new Error('User must be logged in to use this')
+    }
+
+    const artists = await this.api.currentUser.topItems(
+      'artists',
+      undefined,
+      50,
+    )
+    return artists.items.map((artist) => ({
+      name: artist.name,
+      id: artist.id,
+      image: artist.images.at(-1),
+    }))
+  }
+
   search = (query: {
     value?: string
     album?: string

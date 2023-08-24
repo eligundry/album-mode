@@ -26,6 +26,7 @@ export const scopes = [
   'user-library-modify',
   'user-read-playback-state',
   'user-follow-modify',
+  'user-top-read',
 ]
 
 export const spotifyStrategy = new SpotifyStrategy(

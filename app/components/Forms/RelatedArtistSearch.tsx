@@ -1,8 +1,10 @@
 import { Form, useSubmit } from '@remix-run/react'
 import clsx from 'clsx'
-import { useRef } from 'react'
+import { useCallback, useRef } from 'react'
 
 import type { SpotifyArtist } from '~/lib/types/spotify'
+
+import useUser from '~/hooks/useUser'
 
 import FunSelect from './FunSelect'
 
@@ -10,22 +12,30 @@ interface Props {
   className?: string
 }
 
-const searchAritsts = async (artist?: string): Promise<SpotifyArtist[]> => {
-  const url = new URL(`${window.location.origin}/api/artists`)
-
-  if (artist) {
-    url.searchParams.set('artist', artist)
-  }
-
-  const resp = await fetch(url.toString())
-  const data: SpotifyArtist[] = await resp.json()
-
-  return data
-}
-
 const RelatedArtistSearchForm: React.FC<Props> = ({ className }) => {
+  const user = useUser()
   const submit = useSubmit()
   const formRef = useRef<HTMLFormElement>(null)
+
+  const searchAritsts = useCallback(
+    async (artist?: string): Promise<SpotifyArtist[]> => {
+      const url = new URL(`${window.location.origin}/api/artists`)
+
+      if (artist) {
+        url.searchParams.set('artist', artist)
+      } else if (user) {
+        url.pathname = '/api/user-artists'
+      }
+
+      const resp = await fetch(url.toString(), {
+        credentials: 'include',
+      })
+      const data: SpotifyArtist[] = await resp.json()
+
+      return data
+    },
+    [user],
+  )
 
   return (
     <Form
