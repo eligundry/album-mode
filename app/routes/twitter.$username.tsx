@@ -1,5 +1,9 @@
 import { LoaderArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import type {
+  Album as FullAlbum,
+  Playlist as FullPlaylist,
+} from '@spotify/web-api-ts-sdk'
 import clsx from 'clsx'
 
 import { badRequest, serverError } from '~/lib/responses.server'
@@ -54,22 +58,19 @@ export async function loader({ params, request, context }: LoaderArgs) {
 
       const { itemID, itemType } = tweet.reviewMetadata.spotify
 
-      let embed:
-        | SpotifyApi.PlaylistObjectSimplified
-        | SpotifyApi.AlbumObjectSimplified
-        | undefined
+      let embed: FullPlaylist | FullAlbum | undefined
 
       switch (itemType) {
         case 'playlist':
           embed = await serverTiming.track('spotify.getPlaylist', () =>
-            spotify.getPlaylist(itemID).then((resp) => resp.body),
+            spotify.playlists.getPlaylist(itemID),
           )
           break
 
         case 'album':
         case 'track': {
           embed = await serverTiming.track('spotify.getAlbum', () =>
-            spotify.getAlbum(itemID).then((resp) => resp.body),
+            spotify.albums.get(itemID),
           )
           break
         }
@@ -84,6 +85,7 @@ export async function loader({ params, request, context }: LoaderArgs) {
         {
           tweet,
           service: 'spotify' as const,
+          itemType,
           embed,
         },
         {
@@ -134,9 +136,11 @@ export default function AlbumFromTwitter() {
   ) {
     switch (data.embed.type) {
       case 'album':
+        // @ts-expect-error
         album = <Album album={data.embed} footer={tweet} />
         break
       case 'playlist':
+        // @ts-expect-error
         album = <Playlist playlist={data.embed} footer={tweet} />
         break
     }

@@ -1,3 +1,7 @@
+import type {
+  Playlist as FullPlaylist,
+  SimplifiedPlaylist,
+} from '@spotify/web-api-ts-sdk'
 import clsx from 'clsx'
 
 import { A, Container } from '~/components/Base'
@@ -7,7 +11,7 @@ import useUTM from '~/hooks/useUTM'
 import PlaylistWrapper from './Wrapper'
 
 interface Props {
-  playlist: SpotifyApi.PlaylistObjectSimplified | SpotifyApi.PlaylistObjectFull
+  playlist: FullPlaylist | SimplifiedPlaylist | Omit<FullPlaylist, 'tracks'>
   footer?: string | React.ReactNode
 }
 
