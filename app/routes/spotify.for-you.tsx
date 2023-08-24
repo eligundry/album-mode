@@ -25,9 +25,7 @@ export async function loader({ request, context }: LoaderArgs) {
     spotifyLib.initializeFromRequest(request, context),
   )
   const playlist = await retry(async (_, attempt) => {
-    const album = await serverTiming.track('spotify.fetch', () =>
-      spotify.getRandomForYouPlaylist(),
-    )
+    const album = await spotify.getRandomForYouPlaylist()
     serverTiming.add({
       label: 'attempts',
       desc: `${attempt} Attempt(s)`,

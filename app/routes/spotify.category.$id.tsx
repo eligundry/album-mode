@@ -31,12 +31,8 @@ export async function loader({ params, request, context }: LoaderArgs) {
     spotifyLib.initializeFromRequest(request, context),
   )
   const { category, playlist } = await promiseHash({
-    category: serverTiming.track('spotify.fetch-category', () =>
-      spotify.getCategory(categoryID),
-    ),
-    playlist: serverTiming.track('spotify.fetch-playlist', () =>
-      spotify.getRandomPlaylistForCategory(categoryID),
-    ),
+    category: spotify.getCategory(categoryID),
+    playlist: spotify.getRandomPlaylistForCategory(categoryID),
   })
 
   if (!category) {

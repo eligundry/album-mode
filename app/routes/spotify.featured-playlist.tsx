@@ -16,9 +16,7 @@ export async function loader({ request, context }: LoaderArgs) {
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request, context),
   )
-  const playlist = await serverTiming.track('spotify.fetch', () =>
-    spotify.getRandomFeaturedPlaylist(),
-  )
+  const playlist = await spotify.getRandomFeaturedPlaylist()
 
   return json(
     { playlist },

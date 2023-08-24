@@ -9,11 +9,12 @@ import {
   SimplifiedPlaylist,
   SpotifyApi,
 } from '@spotify/web-api-ts-sdk'
+import crypto from 'crypto'
+import omit from 'lodash/omit'
 import pick from 'lodash/pick'
 import random from 'lodash/random'
 import sample from 'lodash/sample'
 import sampleSize from 'lodash/sampleSize'
-import type { Logger } from 'winston'
 
 import { scopes as spotifyScopes, spotifyStrategy } from '~/lib/auth.server'
 import userSettings from '~/lib/userSettings.server'
@@ -25,7 +26,6 @@ interface SpotifyOptions {
   accessToken?: AccessToken
   country?: Market
   lastPresentedID?: string | null
-  logger?: Logger
   clientID: string
   clientSecret: string
 }
@@ -34,12 +34,10 @@ export class Spotify {
   private country: Market
   private lastPresentedID: SpotifyOptions['lastPresentedID']
   private api: SpotifyApi
-  private logger?: Logger
 
   constructor(options: SpotifyOptions) {
     this.country = options.country ?? 'US'
     this.lastPresentedID = options.lastPresentedID
-    this.logger = options.logger
 
     if (options.accessToken) {
       this.api = SpotifyApi.withAccessToken(
@@ -267,7 +265,6 @@ export class Spotify {
   }
 
   async getAlbum(album: string, artist: string) {
-    const client = await this.getClient()
     const resp = await this.search({
       album,
       artist,
@@ -633,12 +630,55 @@ const initializeFromRequest = async (req: Request, context: AppLoadContext) => {
   const session = await spotifyStrategy.getSession(req)
   const settings = await userSettings.get(req)
   const [currentSearchType] = userSettings.getCurrentSearchFromRequest(req)
+  const { logger, serverTiming } = context
+  const serverTimings = new Map<string, typeof serverTiming>()
   const options: SpotifyOptions = {
     lastPresentedID: undefined,
-    logger: context?.logger,
+    logger,
     clientID: context.env.SPOTIFY_CLIENT_ID,
     clientSecret: context.env.SPOTIFY_CLIENT_SECRET,
-    sdkOptions: {},
+    sdkOptions: {
+      beforeRequest: (url, options) => {
+        if (logger) {
+          logger.debug('request start', {
+            label: 'spotify',
+            request: {
+              url,
+              ...omit(options, ['headers']),
+            },
+          })
+        }
+
+        const timingID = crypto
+          .createHash('md5')
+          .update(`${options.method ?? 'GET'} ${url}`)
+          .digest('hex')
+        serverTiming.start({
+          label: `spotify.request.${timingID}`,
+          desc: `${options.method ?? 'GET'} ${url}`,
+        })
+      },
+      afterRequest: (url, options, response) => {
+        if (logger) {
+          logger.debug('request end', {
+            label: 'spotify',
+            request: {
+              url,
+              ...omit(options, ['headers']),
+            },
+            response: pick(response, ['']),
+          })
+        }
+
+        const timingID = crypto
+          .createHash('md5')
+          .update(`${options.method ?? 'GET'} ${url}`)
+          .digest('hex')
+        serverTiming.end({
+          label: `spotify.request.${timingID}`,
+        })
+      },
+    },
   }
 
   if (settings.lastPresented && settings.lastSearchType === currentSearchType) {

@@ -32,9 +32,7 @@ export async function loader({ request, params, context }: LoaderArgs) {
     searchMethod = spotify.getRandomAlbumForArtist
   }
 
-  const album = await serverTiming.track('spotify.fetch', () =>
-    searchMethod(artistParam as string),
-  )
+  const album = await searchMethod(artistParam as string)
   const artist = album.artists[0]
 
   const wiki = await serverTiming.track('wikipedia', () => {

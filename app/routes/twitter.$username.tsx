@@ -62,16 +62,12 @@ export async function loader({ params, request, context }: LoaderArgs) {
 
       switch (itemType) {
         case 'playlist':
-          embed = await serverTiming.track('spotify.getPlaylist', () =>
-            spotify.playlists.getPlaylist(itemID),
-          )
+          embed = await spotify.playlists.getPlaylist(itemID)
           break
 
         case 'album':
         case 'track': {
-          embed = await serverTiming.track('spotify.getAlbum', () =>
-            spotify.albums.get(itemID),
-          )
+          embed = await spotify.albums.get(itemID)
           break
         }
         default:
