@@ -133,7 +133,7 @@ function App() {
         <Links />
         <Tracking />
       </head>
-      <body>
+      <body id="album-mode-root">
         <RootProvider
           user={data.user}
           settings={data.settings}
