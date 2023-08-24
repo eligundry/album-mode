@@ -5,7 +5,7 @@ import retry from 'async-retry'
 import { spotifyStrategy } from '~/lib/auth.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
-import spotifyLib, { timeRangeSchema } from '~/lib/spotify.server'
+import spotifyLib, { topArtistSearch } from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
 import wikipedia from '~/lib/wikipedia.server'
 
@@ -16,9 +16,7 @@ import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
   const { serverTiming } = context
-  const timeRange = timeRangeSchema.parse(
-    new URL(request.url).searchParams.get('timeRange'),
-  )
+  const params = topArtistSearch.parse(new URL(request.url).searchParams)
 
   await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request, {
@@ -30,7 +28,7 @@ export async function loader({ request, context }: LoaderArgs) {
     spotifyLib.initializeFromRequest(request, context),
   )
   const { album, targetArtist } = await retry(async (_, attempt) => {
-    const resp = await spotify.getRandomAlbumFromUsersTopArtists(timeRange)
+    const resp = await spotify.getRandomAlbumFromUsersTopArtists(params)
     serverTiming.add({
       label: 'attempts',
       desc: `${attempt} Attempt(s)`,
@@ -50,6 +48,7 @@ export async function loader({ request, context }: LoaderArgs) {
       album,
       targetArtist,
       wiki,
+      params,
     },
     {
       headers: {
@@ -70,12 +69,14 @@ export const meta: AppMetaFunction<typeof loader> = ({ matches }) =>
 
 export default function RandomAlbumFromTopArtistOnSpotify() {
   const data = useLoaderData<typeof loader>()
+  const headerBreadcrumbs = ['Top Artists', data.targetArtist.name]
+
+  if (data.params.related) {
+    headerBreadcrumbs.splice(1, 0, 'Related')
+  }
 
   return (
-    <Layout
-      hideFooter
-      headerBreadcrumbs={['Top Artists', data.targetArtist.name]}
-    >
+    <Layout hideFooter headerBreadcrumbs={headerBreadcrumbs}>
       <Album album={data.album} wiki={data.wiki} />
     </Layout>
   )
