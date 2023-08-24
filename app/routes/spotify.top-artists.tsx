@@ -11,7 +11,8 @@ import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import { Layout } from '~/components/Base'
+import { Layout, Link } from '~/components/Base'
+import type { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import config from '~/config'
 
 export async function loader({ request, context }: LoaderArgs) {
@@ -69,7 +70,15 @@ export const meta: AppMetaFunction<typeof loader> = ({ matches }) =>
 
 export default function RandomAlbumFromTopArtistOnSpotify() {
   const data = useLoaderData<typeof loader>()
-  const headerBreadcrumbs = ['Top Artists', data.targetArtist.name]
+  const headerBreadcrumbs: SearchBreadcrumbsProps['crumbs'] = [
+    'Top Artists',
+    [
+      data.targetArtist.name,
+      <Link key="artist-link" to={`/spotify/artist-id/${data.targetArtist.id}`}>
+        {data.targetArtist.name}
+      </Link>,
+    ],
+  ]
 
   if (data.params.related) {
     headerBreadcrumbs.splice(1, 0, 'Related')
