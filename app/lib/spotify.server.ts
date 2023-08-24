@@ -218,9 +218,11 @@ export class Spotify {
 
   getRandomAlbumForRelatedArtist = async (artistName: string) => {
     // First, we have to fetch the artist to get it's ID
-    const artist = await this.api
-      .search(`artist:"${artistName}"`, ['artist'], this.country, 1)
-      .then((resp) => resp.artists?.items?.[0])
+    const artist = await this.search({
+      artist: artistName,
+      type: ['artist'],
+      limit: 1,
+    }).then((resp) => resp.artists?.items?.[0])
 
     if (!artist) {
       throw new Error('could not find artist with that name')
