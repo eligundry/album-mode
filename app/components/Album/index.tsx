@@ -1,3 +1,8 @@
+import type {
+  Artist,
+  Album as FullAlbum,
+  SimplifiedAlbum,
+} from '@spotify/web-api-ts-sdk'
 import clsx from 'clsx'
 import React from 'react'
 
@@ -12,9 +17,9 @@ import useUTM from '~/hooks/useUTM'
 import AlbumWrapper from './Wrapper'
 
 interface NewProps {
-  album: SpotifyApi.AlbumObjectSimplified & {
+  album: (SimplifiedAlbum | FullAlbum) & {
     genres?: string[]
-    primaryArtist?: SpotifyApi.SingleArtistResponse
+    primaryArtist?: Artist
   }
   footer?: React.ReactNode
   wiki?: IWikipediaSummary | null

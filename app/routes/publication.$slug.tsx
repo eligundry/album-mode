@@ -52,9 +52,7 @@ export async function loader({ params, request, context }: LoaderArgs) {
       return { review, album: null, wiki, type: 'bandcamp' as const }
     }
 
-    const album = await serverTiming.track(`spotify.fetch`, () =>
-      spotify.getAlbum(review.album, review.artist),
-    )
+    const album = await spotify.getAlbum(review.album, review.artist)
     serverTiming.add({
       label: 'attempts',
       desc: `${attempt} Attempt(s)`,

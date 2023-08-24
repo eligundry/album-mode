@@ -20,13 +20,13 @@ export const sessionStorage = createCookieSessionStorage({
 export const { getSession, commitSession, destroySession } = sessionStorage
 
 // See https://developer.spotify.com/documentation/general/guides/authorization/scopes
-const scopes = [
+export const scopes = [
   'user-read-email',
   'user-library-read',
   'user-library-modify',
   'user-read-playback-state',
   'user-follow-modify',
-].join(' ')
+]
 
 export const spotifyStrategy = new SpotifyStrategy(
   {
@@ -34,7 +34,7 @@ export const spotifyStrategy = new SpotifyStrategy(
     clientSecret: env.SPOTIFY_CLIENT_SECRET,
     callbackURL: '/spotify/callback',
     sessionStorage,
-    scope: scopes,
+    scope: scopes.join(' '),
   },
   async ({ accessToken, refreshToken, extraParams, profile }) => ({
     accessToken,

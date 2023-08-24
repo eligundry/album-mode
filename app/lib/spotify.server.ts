@@ -1,162 +1,98 @@
 import { AppLoadContext, createCookie } from '@remix-run/node'
+import {
+  AccessToken,
+  ItemTypes,
+  Market,
+  MaxInt,
+  SdkOptions,
+  SimplifiedAlbum,
+  SimplifiedPlaylist,
+  SpotifyApi,
+} from '@spotify/web-api-ts-sdk'
+import crypto from 'crypto'
+import omit from 'lodash/omit'
 import pick from 'lodash/pick'
 import random from 'lodash/random'
 import sample from 'lodash/sample'
 import sampleSize from 'lodash/sampleSize'
-import SpotifyWebApi from 'spotify-web-api-node'
-import { WebapiError as SpotifyWebApiError } from 'spotify-web-api-node/src/response-error'
-import util from 'util'
-import type { Logger } from 'winston'
 
-import { spotifyStrategy } from '~/lib/auth.server'
+import { scopes as spotifyScopes, spotifyStrategy } from '~/lib/auth.server'
 import userSettings from '~/lib/userSettings.server'
 
 import type { SpotifyArtist, SpotifyUser } from './types/spotify'
 
 interface SpotifyOptions {
-  userAccessToken?: string | undefined
-  refreshToken?: string | undefined | null
-  country?: string
+  sdkOptions?: SdkOptions
+  accessToken?: AccessToken
+  country?: Market
   lastPresentedID?: string | null
-  logger?: Logger
   clientID: string
   clientSecret: string
 }
 
-let _accessToken: string | null = null
-
 export class Spotify {
-  private userAccessToken: SpotifyOptions['userAccessToken']
-  private refreshToken: SpotifyOptions['refreshToken']
-  private country: string
+  private country: Market
   private lastPresentedID: SpotifyOptions['lastPresentedID']
-  private api: SpotifyWebApi
-  private logger?: Logger
+  private api: SpotifyApi
 
   constructor(options: SpotifyOptions) {
-    this.userAccessToken = options.userAccessToken
-    this.refreshToken = options.refreshToken
     this.country = options.country ?? 'US'
     this.lastPresentedID = options.lastPresentedID
-    this.logger = options.logger
-    this.api = new SpotifyWebApi({
-      clientId: options.clientID,
-      clientSecret: options.clientSecret,
-      redirectUri:
-        process.env.NODE_ENV === 'production'
-          ? 'https://album-mode.party/spotify/callback'
-          : 'http://localhost:3000/spotify/callback',
-    })
+
+    if (options.accessToken) {
+      this.api = SpotifyApi.withAccessToken(
+        options.clientID,
+        options.accessToken,
+        options.sdkOptions,
+      )
+    } else {
+      this.api = SpotifyApi.withClientCredentials(
+        options.clientID,
+        options.clientSecret,
+        spotifyScopes,
+        options.sdkOptions,
+      )
+    }
   }
 
   getClient = async () => {
-    if (this.userAccessToken) {
-      this.api.setAccessToken(this.userAccessToken)
-
-      if (this.refreshToken) {
-        this.api.setRefreshToken(this.refreshToken)
-      }
-    } else if (!this.api.getAccessToken()) {
-      if (!_accessToken) {
-        const data = await this.api.clientCredentialsGrant()
-        _accessToken = data.body.access_token
-      }
-
-      this.api.setAccessToken(_accessToken)
-    }
-
-    // Wrap the SpotifyApi in a proxy that will do some automatic reporting
-    return new Proxy(this.api, {
-      get: (target, propKey, receiver) => {
-        // @ts-ignore
-        const originalMethod = target?.[propKey]
-
-        if (typeof originalMethod === 'function') {
-          // @ts-ignore
-          return (...args) => {
-            const methodName = propKey.toString()
-            const shouldTrack =
-              methodName !== 'getAccessToken' && !methodName.startsWith('_')
-
-            if (shouldTrack) {
-              // @TODO Server timing this?
-            }
-
-            try {
-              // @ts-ignore
-              const res = originalMethod.apply(this.api, args)
-              return res
-            } catch (e: any) {
-              if (e instanceof SpotifyWebApiError) {
-                if (e.statusCode === 429) {
-                  this.logger?.error({
-                    message: 'Spotify is rate limiting the application!',
-                    exceptionMessage: e.message,
-                    body: e.body,
-                    headers: e.headers,
-                    statusCode: e.statusCode,
-                    email: true,
-                    method: propKey,
-                  })
-                } else {
-                  this.logger?.warn({
-                    message: 'Spotify threw an exception',
-                    exceptionMessage: e.message,
-                    body: e.body,
-                    headers: e.headers,
-                    statusCode: e.statusCode,
-                    method: propKey,
-                  })
-                }
-              }
-
-              throw e
-            }
-          }
-        }
-
-        return Reflect.get(target, propKey, receiver)
-      },
-    })
+    return this.api
   }
 
   getRandomAlbumForSearchTerm = async (
     searchTerm: string,
     poolLimit = 1000,
-  ): Promise<SpotifyApi.AlbumObjectSimplified> => {
-    const client = await this.getClient()
-
-    const firstPage = await client.search(searchTerm, ['album'], {
-      market: this.country,
+  ): Promise<SimplifiedAlbum> => {
+    const firstPage = await this.search({
+      value: searchTerm,
+      type: ['album'],
     })
 
-    if (!firstPage.body.albums?.total) {
+    if (!firstPage.albums?.total) {
       throw new Error('could not fetch first page of albums search term')
     }
 
     const albumOffsetToFetch = random(
       0,
-      Math.min(firstPage.body.albums.total - 1, poolLimit),
+      Math.min(firstPage.albums.total - 1, poolLimit),
     )
 
-    if (albumOffsetToFetch < firstPage.body.albums.items.length - 1) {
-      return firstPage.body.albums.items[albumOffsetToFetch]
+    if (albumOffsetToFetch < firstPage.albums.items.length - 1) {
+      return firstPage.albums.items[albumOffsetToFetch]
     }
 
-    const resp = await client.search(searchTerm, ['album'], {
+    const resp = await this.search({
+      value: searchTerm,
+      type: ['album'],
       limit: 1,
       offset: albumOffsetToFetch,
-      market: this.country,
     })
 
-    if (!resp.body.albums?.items?.[0]) {
-      console.error(util.inspect(resp, false, 100000, true), albumOffsetToFetch)
-      throw new Error(
-        `could not fetch album for search term from offset (Spotify status code: ${resp.statusCode})`,
-      )
+    if (!resp.albums?.items?.[0]) {
+      throw new Error(`could not fetch album for search term from offset`)
     }
 
-    const album = resp.body.albums.items[0]
+    const album = resp.albums.items[0]
 
     if (album.album_type === 'single') {
       return this.getRandomAlbumForSearchTerm(searchTerm, poolLimit)
@@ -166,13 +102,11 @@ export class Spotify {
   }
 
   getRandomAlbumForArtist = async (artistName: string) => {
-    const client = await this.getClient()
-    const artist = await client
-      .search(`artist:"${artistName}"`, ['artist'], {
-        limit: 1,
-        market: this.country,
-      })
-      .then((resp) => resp.body.artists?.items?.[0])
+    const artist = await this.search({
+      artist: artistName,
+      type: ['artist'],
+      limit: 1,
+    }).then((resp) => resp.artists?.items?.[0])
 
     if (!artist) {
       throw new Error('not found: could not find artist with that name')
@@ -182,25 +116,22 @@ export class Spotify {
   }
 
   getRandomAlbumForArtistByID = async (artistID: string) => {
-    const client = await this.getClient()
-    const artistPromise = client.getArtist(artistID)
-    let resp = await client.getArtistAlbums(artistID, {
-      include_groups: 'album',
-      country: this.country,
-    })
-    let offset = random(0, Math.max(resp.body.total - 1, 0))
+    const artistPromise = this.api.artists.get(artistID)
+    let resp = await this.api.artists.albums(artistID, 'album', this.country)
+    let offset = random(0, Math.max(resp.total - 1, 0))
 
-    if (offset > resp.body.items.length - 1) {
-      resp = await client.getArtistAlbums(artistID, {
-        limit: 1,
+    if (offset > resp.items.length - 1) {
+      resp = await this.api.artists.albums(
+        artistID,
+        'album',
+        this.country,
+        1,
         offset,
-        include_groups: 'album',
-        country: this.country,
-      })
+      )
       offset = 0
     }
 
-    const album = resp.body.items[offset]
+    const album = resp.items[offset]
 
     if (!album) {
       throw new Error('could not fetch album from that offset, please retry')
@@ -211,7 +142,7 @@ export class Spotify {
     const artist = await artistPromise
 
     // Shuffle the genres, keeping the first one in it's place
-    let genres = artist.body.genres
+    let genres = artist.genres
 
     if (genres.length > 2) {
       genres = [genres[0], ...sampleSize(genres.slice(1), genres.length - 1)]
@@ -219,55 +150,51 @@ export class Spotify {
 
     return {
       ...album,
-      artists: [artist.body],
+      artists: [artist],
       genres,
-      primaryArtist: artist.body,
+      primaryArtist: artist,
     }
   }
 
   getRandomAlbumByGenre = async (genre: string) => {
     // First, we must fetch a random artist in this genre
     const searchTerm = `genre:"${genre}"`
-    const client = await this.getClient()
-    const firstPageOfArtists = await client.search(searchTerm, ['artist'], {
-      market: this.country,
+    const firstPageOfArtists = await this.search({
+      value: searchTerm,
+      type: ['artist'],
     })
 
-    if (!firstPageOfArtists.body.artists?.total) {
+    if (!firstPageOfArtists.artists?.total) {
       throw new Error('could not fetch first page of artists')
     }
 
     const artistOffsetToFetch = random(
       0,
-      Math.min(firstPageOfArtists.body.artists.total - 1, 300),
+      Math.min(firstPageOfArtists.artists.total - 1, 300),
     )
 
-    let artist = firstPageOfArtists.body.artists.items[artistOffsetToFetch]
+    let artist = firstPageOfArtists.artists.items[artistOffsetToFetch]
 
     if (!artist) {
-      artist = await client
-        .search(searchTerm, ['artist'], {
-          limit: 1,
-          offset: artistOffsetToFetch,
-          market: this.country,
-        })
-        .then((page) => {
-          if (page.body.artists?.items?.[0]) {
-            return page.body.artists.items[0]
-          }
+      artist = await this.search({
+        value: searchTerm,
+        type: ['artist'],
+        limit: 1,
+        offset: artistOffsetToFetch,
+      }).then((page) => {
+        if (page.artists?.items?.[0]) {
+          return page.artists.items[0]
+        }
 
-          throw new Error('could not fetch artist from offset')
-        })
+        throw new Error('could not fetch artist from offset')
+      })
     }
 
     // After we fetch a random artist, fetch a random album by them
-    const albums = await client
-      .getArtistAlbums(artist.id, {
-        limit: 50,
-        include_groups: 'album',
-      })
+    const albums = await this.api.artists
+      .albums(artist.id, 'album', this.country, 50)
       .then((page) =>
-        page.body.items.filter(
+        page.items.filter(
           (album) =>
             album.album_type !== 'single' &&
             (!this.lastPresentedID || album.id !== this.lastPresentedID),
@@ -290,14 +217,12 @@ export class Spotify {
   }
 
   getRandomAlbumForRelatedArtist = async (artistName: string) => {
-    const client = await this.getClient()
     // First, we have to fetch the artist to get it's ID
-    const artist = await client
-      .search(`artist:"${artistName}"`, ['artist'], {
-        limit: 1,
-        market: this.country,
-      })
-      .then((resp) => resp.body.artists?.items?.[0])
+    const artist = await this.search({
+      artist: artistName,
+      type: ['artist'],
+      limit: 1,
+    }).then((resp) => resp.artists?.items?.[0])
 
     if (!artist) {
       throw new Error('could not find artist with that name')
@@ -307,11 +232,10 @@ export class Spotify {
   }
 
   getRandomAlbumForRelatedArtistByID = async (artistID: string) => {
-    const client = await this.getClient()
     // Next, we need to fetch the related artists
-    const relatedArtists = await client.getArtistRelatedArtists(artistID)
+    const relatedArtists = await this.api.artists.relatedArtists(artistID)
 
-    if (relatedArtists.statusCode !== 200) {
+    if (!relatedArtists.artists.length) {
       throw new Error('could not fetch related artists')
     }
 
@@ -319,7 +243,7 @@ export class Spotify {
     // original search term)
     const targetArtistID = sample([
       artistID,
-      ...relatedArtists.body.artists.map((a) => a.id),
+      ...relatedArtists.artists.map((a) => a.id),
       artistID,
     ])
 
@@ -336,9 +260,7 @@ export class Spotify {
   }
 
   async getArtistByID(artistID: string) {
-    const client = await this.getClient()
-    const resp = await client.getArtist(artistID)
-    return resp.body
+    return this.api.artists.get(artistID)
   }
 
   async getGenreForArtist(artistID: string) {
@@ -347,16 +269,13 @@ export class Spotify {
   }
 
   async getAlbum(album: string, artist: string) {
-    const client = await this.getClient()
-    const resp = await client.search(
-      `album:"${album}" artist:"${artist}"`,
-      ['album'],
-      {
-        limit: 50,
-        market: this.country,
-      },
-    )
-    const albums = resp.body?.albums?.items ?? []
+    const resp = await this.search({
+      album,
+      artist,
+      type: ['album'],
+      limit: 50,
+    })
+    const albums = resp.albums?.items ?? []
 
     switch (albums.length) {
       case 0:
@@ -384,26 +303,27 @@ export class Spotify {
   }
 
   getRandomAlbumFromUserLibrary = async () => {
-    if (!this.userAccessToken) {
+    if (!this.api.getAccessToken()) {
       throw new Error('User must be logged in to use this')
     }
 
-    const client = await this.getClient()
-    let resp = await client.getMySavedAlbums({
-      market: this.country,
-    })
-    let offset = random(0, resp.body.total - 1)
+    let resp = await this.api.currentUser.albums.savedAlbums(
+      50,
+      0,
+      this.country,
+    )
+    let offset = random(0, resp.total - 1)
 
-    if (offset > resp.body.items.length - 1) {
-      resp = await client.getMySavedAlbums({
+    if (offset > resp.items.length - 1) {
+      resp = await this.api.currentUser.albums.savedAlbums(
+        1,
         offset,
-        limit: 1,
-        market: this.country,
-      })
+        this.country,
+      )
       offset = 0
     }
 
-    const album = resp.body.items[offset]?.album
+    const album = resp.items[offset]?.album
 
     if (!album) {
       throw new Error('could not fetch album from that offset, please retry')
@@ -421,7 +341,7 @@ export class Spotify {
   }
 
   getRandomAlbumSimilarToWhatIsCurrentlyPlaying = async () => {
-    if (!this.userAccessToken) {
+    if (!this.api.getAccessToken()) {
       throw new Error('User must be logged in to use this')
     }
 
@@ -437,16 +357,11 @@ export class Spotify {
   }
 
   getCurrentlyPlayingTrack = async () => {
-    if (!this.userAccessToken) {
+    if (!this.api.getAccessToken()) {
       throw new Error('User must be logged in to use this')
     }
 
-    const client = await this.getClient()
-    const playerState = await client
-      .getMyCurrentPlaybackState({
-        market: this.country,
-      })
-      .then((resp) => resp.body)
+    const playerState = await this.api.player.getPlaybackState(this.country)
     const currentlyPlaying = playerState.item
 
     if (
@@ -461,13 +376,12 @@ export class Spotify {
   }
 
   getRandomNewRelease = async () => {
-    const client = await this.getClient()
-    const resp = await client.getNewReleases({
-      country: this.country,
-      limit: 50,
-      offset: random(0, 49),
-    })
-    const album = resp.body.albums.items[0]
+    const resp = await this.api.browse.getNewReleases(
+      this.country,
+      50,
+      random(0, 49),
+    )
+    const album = resp.albums.items[0]
 
     if (album.id === this.lastPresentedID) {
       throw new Error('selected album that was last presented, please retry')
@@ -482,40 +396,41 @@ export class Spotify {
     }
   }
 
-  getRandomFeaturedPlaylist =
-    async (): Promise<SpotifyApi.PlaylistObjectSimplified> => {
-      const client = await this.getClient()
-      let resp = await client.getFeaturedPlaylists({
-        country: this.country,
-      })
-      let offset = random(0, resp.body.playlists.total - 1)
+  getRandomFeaturedPlaylist = async (): Promise<SimplifiedPlaylist> => {
+    // @ts-ignore
+    let resp = await this.api.browse.getFeaturedPlaylists(this.country)
+    let offset = random(0, resp.playlists.total - 1)
 
-      if (offset > resp.body.playlists.items.length - 1) {
-        resp = await client.getFeaturedPlaylists({
-          country: this.country,
-          limit: 1,
-          offset,
-        })
-        offset = 0
-      }
-
-      const playlist = resp.body.playlists.items[offset]
-
-      if (playlist.id === this.lastPresentedID) {
-        return this.getRandomFeaturedPlaylist()
-      }
-
-      return playlist
+    if (offset > resp.playlists.items.length - 1) {
+      resp = await this.api.browse.getFeaturedPlaylists(
+        // @ts-ignore
+        this.country,
+        undefined,
+        undefined,
+        1,
+        offset,
+      )
+      offset = 0
     }
 
-  getCategories = async () => {
-    const client = await this.getClient()
-    const resp = await client.getCategories({
-      country: this.country,
-      limit: 50,
-    })
+    const playlist = resp.playlists.items[offset]
 
-    return resp.body.categories.items
+    if (playlist.id === this.lastPresentedID) {
+      return this.getRandomFeaturedPlaylist()
+    }
+
+    return playlist
+  }
+
+  getCategories = async () => {
+    const resp = await this.api.browse.getCategories(
+      // @ts-ignore
+      this.country,
+      undefined,
+      50,
+    )
+
+    return resp.categories.items
   }
 
   getCategory = async (categoryID: string) => {
@@ -525,23 +440,26 @@ export class Spotify {
 
   getRandomPlaylistForCategory = async (
     categoryID: string,
-  ): Promise<SpotifyApi.PlaylistObjectSimplified> => {
-    const client = await this.getClient()
-    let resp = await client.getPlaylistsForCategory(categoryID, {
-      country: this.country,
-    })
-    let offset = random(0, resp.body.playlists.total - 1)
+  ): Promise<SimplifiedPlaylist> => {
+    let resp = await this.api.browse.getPlaylistsForCategory(
+      categoryID,
+      // @ts-ignore
+      this.country,
+    )
+    let offset = random(0, resp.playlists.total - 1)
 
-    if (offset > resp.body.playlists.items.length - 1) {
-      resp = await client.getPlaylistsForCategory(categoryID, {
-        country: this.country,
-        limit: 1,
+    if (offset > resp.playlists.items.length - 1) {
+      resp = await this.api.browse.getPlaylistsForCategory(
+        categoryID,
+        // @ts-ignore
+        this.country,
+        1,
         offset,
-      })
+      )
       offset = 0
     }
 
-    const playlist = resp.body.playlists.items[offset]
+    const playlist = resp.playlists.items[offset]
 
     if (!playlist || playlist.id === this.lastPresentedID) {
       return this.getRandomPlaylistForCategory(categoryID)
@@ -551,13 +469,13 @@ export class Spotify {
   }
 
   searchArists = async (term: string): Promise<SpotifyArtist[]> => {
-    const client = await this.getClient()
-    const results = await client.search(term, ['artist'], {
-      market: this.country,
+    const results = await this.search({
+      value: term,
+      type: ['artist'],
     })
 
     return (
-      results.body.artists?.items.map((artist) => ({
+      results.artists?.items.map((artist) => ({
         name: artist.name,
         id: artist.id,
         image: artist.images.at(-1),
@@ -566,23 +484,26 @@ export class Spotify {
   }
 
   getTopArtists = async (): Promise<SpotifyArtist[]> => {
-    const client = await this.getClient()
     // https://open.spotify.com/playlist/37i9dQZEVXbLp5XoPON0wI?si=ec81b7dcedf843a4
-    const topSongsPlaylist = await client.getPlaylist('37i9dQZEVXbLp5XoPON0wI')
-    const topArtistIDs = topSongsPlaylist.body.tracks.items.reduce(
-      (acc, track) => {
-        const artistID = track.track?.artists[0].id
-
-        if (artistID) {
-          acc.add(artistID)
-        }
-
-        return acc
-      },
-      new Set<string>(),
+    const topSongsPlaylist = await this.api.playlists.getPlaylist(
+      '37i9dQZEVXbLp5XoPON0wI',
+      this.country,
     )
-    const artistsResp = await client.getArtists([...topArtistIDs])
-    const artists = artistsResp.body.artists.map((artist) => ({
+    const topArtistIDs = topSongsPlaylist.tracks.items.reduce((acc, track) => {
+      if ('show' in track.track) {
+        return acc
+      }
+
+      const artistID = track.track?.artists[0].id
+
+      if (artistID) {
+        acc.add(artistID)
+      }
+
+      return acc
+    }, new Set<string>())
+    const artistsResp = await this.api.artists.get([...topArtistIDs])
+    const artists = artistsResp.map((artist) => ({
       name: artist.name,
       id: artist.id,
       image: artist.images.at(-1),
@@ -597,15 +518,12 @@ export class Spotify {
   }
 
   getUser = async (): Promise<SpotifyUser | null> => {
-    if (!this.userAccessToken) {
+    if (!this.api.getAccessToken()) {
       return null
     }
 
     try {
-      const client = await this.getClient()
-      const resp = await client.getMe()
-      const user = resp.body
-
+      const user = await this.api.currentUser.profile()
       return pick(user, ['id', 'display_name', 'href', 'images', 'uri'])
     } catch (e) {
       return null
@@ -614,38 +532,37 @@ export class Spotify {
 
   followArtist = async (artistIDs: string | string[]) => {
     const client = await this.getClient()
-    return client.followArtists(
+    return client.currentUser.followArtistsOrUsers(
       Array.isArray(artistIDs) ? artistIDs : [artistIDs],
+      'artist',
     )
   }
 
   saveAlbum = async (albumID: string) => {
-    const client = await this.getClient()
-    return client.addToMySavedAlbums([albumID])
+    return this.api.currentUser.albums.saveAlbums([albumID])
   }
 
   getRelatedArtists = async (artistID: string) => {
-    const client = await this.getClient()
-    const resp = await client.getArtistRelatedArtists(artistID)
-    return resp.body.artists
+    const resp = await this.api.artists.relatedArtists(artistID)
+    return resp.artists
   }
 
   getRandomForYouPlaylist = async () => {
-    if (!this.userAccessToken) {
+    if (!this.api.getAccessToken()) {
       throw new Error('User must be logged in to use this')
     }
 
-    const client = await this.getClient()
-    const resp = await client.search('for you', ['playlist'], {
+    const resp = await this.search({
+      value: 'for you',
+      type: ['playlist'],
       limit: 50,
-      market: this.country,
     })
 
-    if (!resp.body.playlists || !resp.body.playlists.total) {
+    if (!resp.playlists || !resp.playlists.total) {
       throw new Error('Could not find any playlists')
     }
 
-    const playlistsBySpotify = resp.body.playlists.items.filter(
+    const playlistsBySpotify = resp.playlists.items.filter(
       (p) => p.owner.uri === 'spotify:user:spotify',
     )
 
@@ -657,6 +574,56 @@ export class Spotify {
       }
     }
   }
+
+  search = (query: {
+    value?: string
+    album?: string
+    artist?: string
+    track?: string
+    year?: string | number
+    upc?: string
+    hipster?: boolean
+    new?: string
+    isrc?: string
+    genre?: string
+    type: ItemTypes[]
+    limit?: MaxInt<50>
+    offset?: number
+    includeExternal?: string
+  }) => {
+    let q = ''
+
+    for (const [key, value] of Object.entries(query)) {
+      switch (key) {
+        case 'type':
+        case 'limit':
+        case 'offset':
+        case 'includeExternal':
+          continue
+
+        case 'value':
+          q = `${value}${q ? ' ' : ''}${q}`
+          break
+
+        case 'hipster':
+        case 'new':
+          q += `${q ? ' ' : ''}tag:${key}`
+          break
+
+        default:
+          q += `${q ? ' ' : ''}${key}:"${value}"`
+      }
+    }
+
+    return this.api.search(
+      q,
+      query.type,
+      this.country,
+      query.limit,
+      query.offset,
+      query.includeExternal,
+    )
+  }
 }
 
 const cookieFactory = createCookie('spotify', {
@@ -667,31 +634,89 @@ const initializeFromRequest = async (req: Request, context: AppLoadContext) => {
   const session = await spotifyStrategy.getSession(req)
   const settings = await userSettings.get(req)
   const [currentSearchType] = userSettings.getCurrentSearchFromRequest(req)
+  const { logger, serverTiming } = context
   const options: SpotifyOptions = {
     lastPresentedID: undefined,
-    logger: context?.logger,
     clientID: context.env.SPOTIFY_CLIENT_ID,
     clientSecret: context.env.SPOTIFY_CLIENT_SECRET,
+    sdkOptions: {
+      beforeRequest: (url, options) => {
+        if (logger) {
+          logger.debug('request start', {
+            label: 'spotify',
+            request: {
+              url,
+              ...omit(options, ['headers']),
+            },
+          })
+        }
+
+        const timingID = crypto
+          .createHash('md5')
+          .update(`${options.method ?? 'GET'} ${url}`)
+          .digest('hex')
+        serverTiming.start({
+          label: `spotify.request.${timingID}`,
+          desc: `${options.method ?? 'GET'} ${url}`,
+        })
+      },
+      afterRequest: (url, options, response) => {
+        if (logger) {
+          const isRateLimited = response.status === 429
+
+          logger[response.ok ? 'debug' : 'error'](
+            `request ${response.ok ? 'end' : 'error'}`,
+            {
+              label: 'spotify',
+              details: isRateLimited
+                ? 'Spotify is rate limiting the application!'
+                : undefined,
+              request: {
+                url,
+                ...omit(options, ['headers']),
+              },
+              response: pick(response, ['status']),
+              email: isRateLimited ? true : undefined,
+            },
+          )
+        }
+
+        const timingID = crypto
+          .createHash('md5')
+          .update(`${options.method ?? 'GET'} ${url}`)
+          .digest('hex')
+        serverTiming.end({
+          label: `spotify.request.${timingID}`,
+        })
+      },
+    },
   }
 
   if (settings.lastPresented && settings.lastSearchType === currentSearchType) {
     options.lastPresentedID = settings.lastPresented
   }
 
-  if (session?.accessToken) {
-    options.userAccessToken = session.accessToken
-    options.refreshToken = session.refreshToken
+  if (session) {
+    options.accessToken = {
+      access_token: session.accessToken,
+      refresh_token: session.refreshToken ?? '',
+      expires_in: session.expiresAt - Date.now(),
+      expires: session.expiresAt,
+      token_type: session.tokenType ?? 'Bearer',
+    }
   }
 
   // Netlify forwards the country based upon geoip in the x-country header
   // https://answers.netlify.com/t/user-location-in-headers/11937/3
   if (req.headers.get('x-country')) {
+    // @ts-ignore
     options.country = req.headers.get('x-country') || undefined
   }
 
   const url = new URL(req.url)
 
   if (url.searchParams.get('country')) {
+    // @ts-ignore
     options.country = url.searchParams.get('country') || undefined
   }
 

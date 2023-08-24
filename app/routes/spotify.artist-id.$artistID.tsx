@@ -30,12 +30,8 @@ export async function loader({ request, params, context }: LoaderArgs) {
 
   const { album, artist } = await retry(async (_, attempt) => {
     const resp = await promiseHash({
-      album: serverTiming.track('spotify.albumFetch', () =>
-        spotify.getRandomAlbumForRelatedArtistByID(artistID),
-      ),
-      artist: serverTiming.track('spotify.artistFetch', () =>
-        spotify.getArtistByID(artistID),
-      ),
+      album: spotify.getRandomAlbumForRelatedArtistByID(artistID),
+      artist: spotify.getArtistByID(artistID),
     })
     serverTiming.add({
       label: 'attempts',
