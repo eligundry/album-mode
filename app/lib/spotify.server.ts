@@ -631,10 +631,8 @@ const initializeFromRequest = async (req: Request, context: AppLoadContext) => {
   const settings = await userSettings.get(req)
   const [currentSearchType] = userSettings.getCurrentSearchFromRequest(req)
   const { logger, serverTiming } = context
-  const serverTimings = new Map<string, typeof serverTiming>()
   const options: SpotifyOptions = {
     lastPresentedID: undefined,
-    logger,
     clientID: context.env.SPOTIFY_CLIENT_ID,
     clientSecret: context.env.SPOTIFY_CLIENT_SECRET,
     sdkOptions: {
@@ -660,14 +658,23 @@ const initializeFromRequest = async (req: Request, context: AppLoadContext) => {
       },
       afterRequest: (url, options, response) => {
         if (logger) {
-          logger.debug('request end', {
-            label: 'spotify',
-            request: {
-              url,
-              ...omit(options, ['headers']),
+          const isRateLimited = response.status === 429
+
+          logger[response.ok ? 'debug' : 'error'](
+            `request ${response.ok ? 'end' : 'error'}`,
+            {
+              label: 'spotify',
+              details: isRateLimited
+                ? 'Spotify is rate limiting the application!'
+                : undefined,
+              request: {
+                url,
+                ...omit(options, ['headers']),
+              },
+              response: pick(response, ['status']),
+              email: isRateLimited ? true : undefined,
             },
-            response: pick(response, ['']),
-          })
+          )
         }
 
         const timingID = crypto
