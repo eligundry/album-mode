@@ -15,6 +15,7 @@ import pick from 'lodash/pick'
 import random from 'lodash/random'
 import sample from 'lodash/sample'
 import sampleSize from 'lodash/sampleSize'
+import { z } from 'zod'
 
 import { scopes as spotifyScopes, spotifyStrategy } from '~/lib/auth.server'
 import userSettings from '~/lib/userSettings.server'
@@ -337,6 +338,31 @@ export class Spotify {
       ...album,
       genres: primaryArtist.genres,
       primaryArtist,
+    }
+  }
+
+  getRandomAlbumFromUsersTopArtists = async (
+    timeRange: z.infer<typeof timeRangeSchema>,
+  ) => {
+    if (!this.api.getAccessToken()) {
+      throw new Error('User must be logged in to use this')
+    }
+
+    const artists = await this.api.currentUser.topItems(
+      'artists',
+      timeRange,
+      50,
+    )
+
+    if (!artists.items.length) {
+      throw new Error('could not fetch top artists')
+    }
+
+    const artist = sample(artists.items) ?? artists.items[0]
+
+    return {
+      targetArtist: artist,
+      album: await this.getRandomAlbumForArtistByID(artist.id),
     }
   }
 
@@ -739,6 +765,10 @@ const initializeFromRequest = async (req: Request, context: AppLoadContext) => {
 
   return new Spotify(options)
 }
+
+export const timeRangeSchema = z
+  .enum(['short_term', 'medium_term', 'long_term'])
+  .optional()
 
 const api = {
   initializeFromRequest,
