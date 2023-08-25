@@ -7,14 +7,14 @@ import useTailwindTheme from '~/hooks/useTailwindTheme'
 
 const FunSelect: React.FC<
   Omit<React.ComponentProps<typeof AsyncSelect>, 'styles'>
-> = (props) => {
+> = ({ components, ...props }) => {
   const { theme, pallete } = useTailwindTheme()
   const isDarkMode = useDarkMode()
 
   return (
     <AsyncSelect
       cacheOptions={false}
-      components={{ Control }}
+      components={{ Control, ...components }}
       styles={{
         input: (styles) => ({
           ...styles,

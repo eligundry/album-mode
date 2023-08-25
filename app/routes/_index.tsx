@@ -138,6 +138,28 @@ export default function Index() {
                   Currently Playing
                 </ButtonLink>
                 <ButtonLink
+                  to="/spotify/top-artists"
+                  disabled={loading}
+                  className={clsx(
+                    'breadcrumbs',
+                    ['btn-xs', 'py-0'],
+                    ['sm:btn-sm'],
+                  )}
+                >
+                  Top Artists
+                </ButtonLink>
+                <ButtonLink
+                  to="/spotify/top-artists?related=1"
+                  disabled={loading}
+                  className={clsx(
+                    'breadcrumbs',
+                    ['btn-xs', 'py-0'],
+                    ['sm:btn-sm'],
+                  )}
+                >
+                  Top Artist Relations
+                </ButtonLink>
+                <ButtonLink
                   to="/spotify/for-you"
                   disabled={loading}
                   className={clsx(

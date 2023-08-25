@@ -17,6 +17,7 @@ module.exports = {
     },
   },
   plugins: [require('@tailwindcss/typography'), require('daisyui')],
+  important: '#album-mode-root',
   daisyui: {
     logs: false,
     themes: [

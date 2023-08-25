@@ -15,6 +15,8 @@ import pick from 'lodash/pick'
 import random from 'lodash/random'
 import sample from 'lodash/sample'
 import sampleSize from 'lodash/sampleSize'
+import { z } from 'zod'
+import { zfd } from 'zod-form-data'
 
 import { scopes as spotifyScopes, spotifyStrategy } from '~/lib/auth.server'
 import userSettings from '~/lib/userSettings.server'
@@ -337,6 +339,38 @@ export class Spotify {
       ...album,
       genres: primaryArtist.genres,
       primaryArtist,
+    }
+  }
+
+  getRandomAlbumFromUsersTopArtists = async (
+    params: z.infer<typeof topArtistSearch>,
+  ) => {
+    if (!this.api.getAccessToken()) {
+      throw new Error('User must be logged in to use this')
+    }
+
+    const artists = await this.api.currentUser.topItems(
+      'artists',
+      params.timeRange,
+      50,
+    )
+
+    if (!artists.items.length) {
+      throw new Error('could not fetch top artists')
+    }
+
+    const targetArtist = sample(artists.items) ?? artists.items[0]
+
+    if (params.related) {
+      return {
+        targetArtist,
+        album: await this.getRandomAlbumForRelatedArtistByID(targetArtist.id),
+      }
+    }
+
+    return {
+      targetArtist,
+      album: await this.getRandomAlbumForArtistByID(targetArtist.id),
     }
   }
 
@@ -739,6 +773,11 @@ const initializeFromRequest = async (req: Request, context: AppLoadContext) => {
 
   return new Spotify(options)
 }
+
+export const topArtistSearch = zfd.formData({
+  timeRange: z.enum(['short_term', 'medium_term', 'long_term']).optional(),
+  related: z.coerce.boolean().default(false),
+})
 
 const api = {
   initializeFromRequest,
