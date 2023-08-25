@@ -29,7 +29,10 @@ export async function loader({ request, context }: LoaderArgs) {
     spotifyLib.initializeFromRequest(request, context),
   )
   const { album, targetArtist } = await retry(async (_, attempt) => {
-    const resp = await spotify.getRandomAlbumFromUsersTopArtists(params)
+    const resp = await spotify.getRandomAlbumFromUsersTopArtists({
+      ...params,
+      related: true,
+    })
     serverTiming.add({
       label: 'attempts',
       desc: `${attempt} Attempt(s)`,
@@ -65,12 +68,15 @@ export async function loader({ request, context }: LoaderArgs) {
 export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
 export const meta: AppMetaFunction<typeof loader> = ({ matches }) =>
-  mergeMeta(matches, [{ title: `Spotify Top Artists | ${config.siteTitle}` }])
+  mergeMeta(matches, [
+    { title: `Spotify Top Artist Relations | ${config.siteTitle}` },
+  ])
 
-export default function RandomAlbumFromTopArtistOnSpotify() {
+export default function RandomAlbumFromRelatedTopArtistOnSpotify() {
   const data = useLoaderData<typeof loader>()
   const headerBreadcrumbs: SearchBreadcrumbsProps['crumbs'] = [
     'Top Artists',
+    'Related',
     [
       data.targetArtist.name,
       <Link key="artist-link" to={`/spotify/artist-id/${data.targetArtist.id}`}>

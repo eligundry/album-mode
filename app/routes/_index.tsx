@@ -149,7 +149,7 @@ export default function Index() {
                   Top Artists
                 </ButtonLink>
                 <ButtonLink
-                  to="/spotify/top-artists?related=1"
+                  to="/spotify/top-artists-relations"
                   disabled={loading}
                   className={clsx(
                     'breadcrumbs',
@@ -157,7 +157,7 @@ export default function Index() {
                     ['sm:btn-sm'],
                   )}
                 >
-                  Top Artist Relations
+                  Top Artists Relations
                 </ButtonLink>
                 <ButtonLink
                   to="/spotify/for-you"
