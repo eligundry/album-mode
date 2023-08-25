@@ -76,6 +76,7 @@ const RelatedArtistSearchForm: React.FC<Props> = ({ className }) => {
 
             if (isMobile) {
               setTimeout(() => {
+                // @ts-ignore
                 formRef.current?.querySelector?.('.input input').focus?.()
               }, 2)
             }
