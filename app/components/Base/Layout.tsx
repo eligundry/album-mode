@@ -123,6 +123,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           >
             <section>
               <h4 className={clsx('footer-title')}>Party Time</h4>
+              <Link to="/browse">Browse</Link>
               <Link to="/about">About</Link>
               <Link to="/help">Help</Link>
               <A
