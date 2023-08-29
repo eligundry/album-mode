@@ -48,6 +48,7 @@ const ReviewButtons: React.FC<ReviewButtonProps> = ({
             'grid-cols-3',
             '[&>.btn]:h-full',
             '[&>.btn]:rounded-none',
+            'z-50',
           ],
           className,
         )}

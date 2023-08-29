@@ -9,7 +9,9 @@ import spotifyLib from '~/lib/spotify.server'
 
 import Album from '~/components/Album'
 import Playlist from '~/components/Album/Playlist'
-import { Layout } from '~/components/Base'
+import PublicationHeader from '~/components/Album/PublicationHeader'
+import { Container, Layout } from '~/components/Base'
+import BrowseSections from '~/components/BrowseSections'
 import config from '~/config'
 
 const loggedOutOptions = [
@@ -31,6 +33,7 @@ export async function loader({ request, context }: LoaderArgs) {
   const spotify = await spotifyLib.initializeFromRequest(request, context)
   const { database } = context
   const randomRecommendation = new RandomRecommendation(spotify, database)
+  const publications = await database.getPublications()
 
   return retry(async () => {
     switch (variant) {
@@ -42,12 +45,17 @@ export async function loader({ request, context }: LoaderArgs) {
           embed: album,
           review,
           wiki,
+          publications,
         })
       }
 
       case 'featured-playlist': {
         const playlist = await randomRecommendation.forFeaturedPlaylist()
-        return json({ variant, embed: playlist })
+        return json({
+          variant,
+          embed: playlist,
+          publications,
+        })
       }
 
       case 'top-artists':
@@ -56,7 +64,12 @@ export async function loader({ request, context }: LoaderArgs) {
           variant === 'top-artists-relations',
         )
 
-        return json({ variant, embed: album, wiki })
+        return json({
+          variant,
+          embed: album,
+          wiki,
+          publications,
+        })
       }
 
       default:
@@ -71,7 +84,18 @@ export default function Index() {
 
   switch (data.variant) {
     case 'publication':
-      embed = <Album album={data.embed} wiki={data.wiki} />
+      embed = (
+        <Album
+          album={data.embed}
+          wiki={data.wiki}
+          footer={
+            <PublicationHeader
+              slug={data.review.publicationSlug}
+              review={data.review}
+            />
+          }
+        />
+      )
       break
     case 'featured-playlist':
       embed = <Playlist playlist={data.embed} />
@@ -84,5 +108,12 @@ export default function Index() {
       break
   }
 
-  return <Layout>{embed}</Layout>
+  return (
+    <Layout>
+      {embed}
+      <Container>
+        <BrowseSections publications={data.publications} />
+      </Container>
+    </Layout>
+  )
 }
