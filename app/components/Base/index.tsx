@@ -297,3 +297,13 @@ export const Checkbox: React.FC<React.PropsWithChildren<CheckboxProps>> = ({
     </label>
   </div>
 )
+
+export const Blockquote: React.FC<React.HTMLProps<HTMLQuoteElement>> = ({
+  className,
+  ...props
+}) => (
+  <blockquote
+    className={clsx('border-primary', 'border-l-2', 'pl-2', className)}
+    {...props}
+  />
+)

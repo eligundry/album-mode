@@ -38,7 +38,7 @@ const AlbumWrapper: React.FC<Props> = ({
           'sm:card-side',
           'album-card-wrapper',
           'w-full',
-          'sm:w-5/6',
+          // 'sm:w-5/6',
           ['min-h-[calc(100vh-6rem)]', 'sm:min-h-fit'],
           ['shadow-none', 'sm:shadow-xl'],
           'phone:pb-[4rem]',

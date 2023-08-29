@@ -19,7 +19,8 @@ const UTMParametersProvider: React.FC<React.PropsWithChildren<{}>> = ({
       utm_source: 'album-mode.party',
     })
 
-    if (!pathname) {
+    if (!pathname || pathname === '/') {
+      params.set('utm_medium', 'homepage')
       return params
     }
 

@@ -30,15 +30,16 @@ export default class RandomRecommendation {
   }
 
   public async forUsersTopArtists(relations: boolean) {
-    const { album } = await this.spotify.getRandomAlbumFromUsersTopArtists({
-      timeRange: undefined,
-      related: relations,
-    })
+    const { album, targetArtist } =
+      await this.spotify.getRandomAlbumFromUsersTopArtists({
+        timeRange: undefined,
+        related: relations,
+      })
     const wiki = await wikipedia.getSummaryForAlbum({
       album: album.name,
       artist: album.artists[0].name,
     })
 
-    return { album, wiki }
+    return { album, wiki, targetArtist }
   }
 }
