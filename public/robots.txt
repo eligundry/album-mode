@@ -9,10 +9,12 @@ Disallow: /group/*
 Disallow: /publication/*
 Disallow: /label/*
 Disallow: /related-artist*
+Disallow: /related-artist/*
 Disallow: /spotify/*
 Allow: /spotify/categories
 Disallow: /reddit/*
 Disallow: /genre*
+Disallow: /genre/*
 Disallow: /library*
 Disallow: /saved-searches*
 Disallow: /random*
