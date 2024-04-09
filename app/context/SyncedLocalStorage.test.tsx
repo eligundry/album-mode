@@ -399,6 +399,7 @@ describe('SyncedLocalStorage', () => {
         ...newPerson,
       }
 
+      // @ts-expect-error This errors out for some reason but is totally valid
       fetchMock.mockIf(/\/api\/person/, async (req) => {
         if (req.method === 'POST') {
           if (!redirectCalled) {
