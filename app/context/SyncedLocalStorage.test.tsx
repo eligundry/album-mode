@@ -389,6 +389,61 @@ describe('SyncedLocalStorage', () => {
       expect(consoleMock).toHaveBeenCalledTimes(1)
     })
 
+    it('should follow auth redirects', async () => {
+      const newPerson = { name: 'Jane Doe' }
+      vi.spyOn(console, 'warn').mockImplementation(() => {})
+      let redirectCalled = false
+      const serverPerson = {
+        id: 1,
+        savedAt: new Date('2023-01-03'),
+        ...newPerson,
+      }
+
+      fetchMock.mockIf(/\/api\/person/, async (req) => {
+        if (req.method === 'POST') {
+          if (!redirectCalled) {
+            redirectCalled = true
+            return {
+              status: 307,
+              counter: 1,
+              headers: {
+                location: '/api/person',
+              },
+            }
+          }
+
+          return {
+            status: 201,
+            body: JSON.stringify(serverPerson),
+            headers: {
+              'content-type': 'application/json',
+            },
+          }
+        }
+
+        return {
+          body: JSON.stringify([]),
+          headers: {
+            'content-type': 'application/json',
+          },
+        }
+      })
+      const Context = syncedLocalStorageContextFactory<Person>()
+      const { result } = await act(() =>
+        renderHook(() => useContext(Context), {
+          wrapper: ({ children }) => (
+            <Wrapper Context={Context} localStorageKey="people-20" loggedIn>
+              {children}
+            </Wrapper>
+          ),
+        }),
+      )
+
+      await act(() => result.current.saveItem(newPerson))
+      expect(result.current.items).toHaveLength(1)
+      expect('id' in result.current.items[0]).toBe(true)
+    })
+
     it('should allow the removal of items remotely', async () => {
       const localPeople = [
         { id: 1, name: 'Eli Gundry', savedAt: new Date('2023-01-01') },
