@@ -82,7 +82,7 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
       })
 
       if (user?.id) {
-        const resp = await fetch(apiPath, {
+        let resp = await fetch(apiPath, {
           method: 'POST',
           headers: {
             'content-type': 'application/json',
@@ -90,9 +90,27 @@ export function SyncedLocalStorageProvider<T extends Record<string, unknown>>({
           body: JSON.stringify(savedItem),
         })
 
-        if (!resp.ok) {
+        if (!resp.ok && resp.status >= 400) {
           console.warn('could not save item', await resp.text())
           throw new Error('could not save item, will attempt to sync later')
+        }
+
+        // Remix Auth likes to refresh the token with a redirect, which
+        // completely breaks this flow. In the case of a redirect, retry the
+        // request.
+        if (resp.redirected || (resp.status >= 300 && resp.status < 400)) {
+          resp = await fetch(apiPath, {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify(savedItem),
+          })
+
+          if (!resp.ok) {
+            console.warn('could not save item', await resp.text())
+            throw new Error('could not save item, will attempt to sync later')
+          }
         }
 
         const updatedItem = await resp.json()
