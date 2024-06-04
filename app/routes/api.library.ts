@@ -48,7 +48,7 @@ export async function action({ request, context }: ActionArgs) {
     spotifyAlbumID =
       item.url.match(/open.spotify.com\/album\/(.*)$/)?.[1] ?? null
     spotifyArtistID =
-      item.url.match(/open.spotify.com\/artist\/(.*)$/)?.[1] ?? null
+      item.creatorURL?.match(/open.spotify.com\/artist\/(.*)$/)?.[1] ?? null
   }
 
   try {

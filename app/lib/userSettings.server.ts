@@ -52,7 +52,10 @@ type SetParameters<T> = T & {
 
 const set = async ({ request, ...settings }: SetParameters<UserSettings>) => {
   const cookie = await get(request)
-  return cookieFactory.serialize({ ...defaultSettings, ...cookie, ...settings })
+  return cookieFactory.serialize(
+    { ...defaultSettings, ...cookie, ...settings },
+    { maxAge: 60 * 60 * 24 * 365 },
+  )
 }
 
 const setLastPresented = async ({
