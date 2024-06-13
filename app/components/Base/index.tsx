@@ -1,41 +1,63 @@
+import { Slot } from '@radix-ui/react-slot'
 import { LinkProps, Link as RemixLink } from '@remix-run/react'
-import clsx from 'clsx'
+import { type VariantProps, cva } from 'class-variance-authority'
 import React from 'react'
+
+import { cn } from '~/lib/util'
 
 export { default as Layout } from './Layout'
 export { default as EmojiText } from './EmojiText'
 
+const headingVariants = cva('', {
+  variants: {
+    level: {
+      h1: 'text-4xl md:text-5xl',
+      h2: 'text-3xl md:text-4xl',
+      h3: 'text-2xl md:text-3xl',
+      h4: 'text-xl md:text-2xl',
+      h5: 'uppercase font-bold text-xs',
+      h6: 'uppercase text-xs font-bold',
+    },
+    noSpacing: {
+      false: 'my-4',
+    },
+    noStyles: {
+      true: '',
+    },
+  },
+})
+
 export interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
   level: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  asChild?: boolean
   noSpacing?: boolean
   noStyles?: boolean
 }
 
 export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
   (
-    { level, className, noSpacing = false, noStyles = false, ...props },
+    {
+      level,
+      asChild,
+      className,
+      noSpacing = false,
+      noStyles = false,
+      ...props
+    },
     ref,
   ) => {
-    const Component = level as unknown as React.FC<
-      JSX.IntrinsicElements[typeof level]
-    >
+    const Component = asChild ? Slot : level
 
     return (
       <Component
         ref={ref}
-        className={clsx(
-          !noStyles && [
-            {
-              'text-4xl md:text-5xl': level === 'h1',
-              'text-3xl md:text-4xl': level === 'h2',
-              'text-2xl md:text-3xl': level === 'h3',
-              'text-xl md:text-2xl': level === 'h4',
-              'uppercase font-bold text-xs': level === 'h5',
-              'uppercase text-xs font-bold': level === 'h6',
-            },
-            !noSpacing && 'my-4',
-          ],
-          className,
+        className={cn(
+          headingVariants({
+            level: noStyles ? undefined : level,
+            noSpacing,
+            noStyles,
+            className,
+          }),
         )}
         {...props}
       />
@@ -43,66 +65,84 @@ export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
   },
 )
 
-export interface ButtonProps<T = HTMLButtonElement>
-  extends React.HTMLAttributes<T> {
-  color?: 'primary' | 'info' | 'warning' | 'danger' | 'reset'
-  size?: 'lg' | 'md' | 'sm' | 'xs' | null
-  ghost?: boolean
+const buttonVariants = cva('btn', {
+  variants: {
+    color: {
+      primary: 'btn-primary',
+      secondary: 'btn-info',
+      success: 'btn-success',
+      info: 'btn-secondary',
+      warning: 'btn-warning',
+      danger: 'btn-accent',
+      reset: '',
+    },
+    size: {
+      lg: 'btn-lg',
+      md: 'btn-md',
+      sm: 'btn-sm',
+      xs: 'btn-xs',
+    },
+    ghost: {
+      true: 'btn-ghost',
+    },
+    disabled: {
+      true: 'btn-disabled',
+    },
+    loading: {
+      true: 'loading',
+    },
+  },
+  defaultVariants: {
+    color: 'primary',
+    size: 'md',
+  },
+})
+
+export type BaseButtonProps = VariantProps<typeof buttonVariants> & {
+  asChild?: boolean
   disabled?: boolean
-  loading?: boolean
-  type?: 'button' | 'reset' | 'submit'
 }
 
-function buttonStyles<T>({
-  color = 'primary',
-  className,
-  size,
-  ghost,
-  disabled,
-  loading,
-}: ButtonProps<T>) {
-  return clsx(
-    'btn',
-    {
-      'btn-primary': color === 'primary',
-      'btn-secondary': color === 'info',
-      'btn-warning': color === 'warning',
-      'btn-accent': color === 'danger',
-    },
-    {
-      'btn-lg': size === 'lg',
-      'btn-md': size === 'md',
-      'btn-sm': size === 'sm',
-      'btn-xs': size === 'xs',
-    },
-    ghost && 'btn-ghost',
-    disabled && 'btn-disabled',
-    loading && 'loading',
-    className,
-  )
-}
+export type ButtonProps = BaseButtonProps &
+  React.ButtonHTMLAttributes<HTMLButtonElement>
 
-export const Button = React.forwardRef<
-  HTMLButtonElement,
-  ButtonProps<HTMLButtonElement>
->(({ className, color = 'primary', size = 'md', loading, ...props }, ref) => (
-  <button
-    ref={ref}
-    className={buttonStyles({ color, className, size, loading, ...props })}
-    {...props}
-  />
-))
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, color, size, loading, asChild, ...props }, ref) => {
+    const Component = asChild ? Slot : 'button'
+    return (
+      <Component
+        ref={ref}
+        className={cn(
+          buttonVariants({
+            color,
+            className,
+            size,
+            loading,
+            ...props,
+          }),
+        )}
+        {...props}
+      />
+    )
+  },
+)
 
 export const LabelButton = React.forwardRef<
   HTMLLabelElement,
-  ButtonProps<HTMLLabelElement>
->(({ className, color = 'primary', size = 'md', loading, ...props }, ref) => (
-  <label
-    ref={ref}
-    className={buttonStyles({ color, className, size, ...props })}
-    {...props}
-  />
-))
+  React.HTMLAttributes<HTMLLabelElement> & BaseButtonProps
+>(({ className, color, size, loading, ...props }, ref) => {
+  return (
+    <Button
+      asChild
+      color={color}
+      size={size}
+      loading={loading}
+      className={cn(className)}
+    >
+      <label ref={ref} {...props} />
+    </Button>
+  )
+})
 
 export type ButtonLinkProps = (
   | LinkProps
@@ -111,36 +151,69 @@ export type ButtonLinkProps = (
       target?: string
     })
 ) &
-  ButtonProps
+  BaseButtonProps
 
-export const ButtonLink: React.FC<ButtonLinkProps> = ({
+export const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+  ({ className, color, size, loading, ...props }, ref) => {
+    if ('href' in props) {
+      return (
+        <Button
+          asChild
+          color={color}
+          size={size}
+          loading={loading}
+          className={cn(className)}
+        >
+          {/* eslint-disable-next-line jsx-a11y/anchor-has-content */}
+          <a ref={ref} {...props} />
+        </Button>
+      )
+    }
+
+    return (
+      <Button
+        asChild
+        color={color}
+        size={size}
+        loading={loading}
+        className={cn(className)}
+      >
+        <RemixLink ref={ref} {...props} />
+      </Button>
+    )
+  },
+)
+
+const linkVariants = cva('link link-hover', {
+  variants: {
+    color: {
+      true: '',
+    },
+    colorHover: {
+      true: 'hover:text-primary hover:no-underline',
+    },
+  },
+  compoundVariants: [
+    {
+      color: true,
+      colorHover: false,
+      className: 'link-primary',
+    },
+  ],
+  defaultVariants: {
+    color: true,
+    colorHover: false,
+  },
+})
+
+export const Link: React.FC<LinkProps & VariantProps<typeof linkVariants>> = ({
   className,
+  color = true,
+  colorHover = false,
   ...props
-}) => {
-  if ('href' in props) {
-    /* eslint-disable-next-line jsx-a11y/anchor-has-content */
-    return <a className={buttonStyles({ className, ...props })} {...props} />
-  }
-
-  return (
-    <RemixLink className={buttonStyles({ className, ...props })} {...props} />
-  )
-}
-
-export const Link: React.FC<
-  LinkProps & {
-    color?: boolean
-    colorHover?: boolean
-  }
-> = ({ className, color = true, colorHover = false, ...props }) => (
+}) => (
   <RemixLink
-    className={clsx(
-      'link',
-      'link-hover',
-      color && !colorHover && 'link-primary',
-      colorHover && ['hover:text-primary', 'hover:no-underline'],
-      className,
-    )}
+    className={cn(linkVariants({ className, color, colorHover, ...props }))}
     {...props}
   />
 )
@@ -148,29 +221,41 @@ export const Link: React.FC<
 export const ButtonGroup: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className,
   ...props
-}) => <div className={clsx(className, 'button-group')} {...props} />
+}) => <div className={cn(className, 'button-group')} {...props} />
 
-export interface TypographyProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {
-  variant?: 'base' | 'italics' | 'bold' | 'hint'
-}
+const typographyVariants = cva('text-base', {
+  variants: {
+    variant: {
+      base: '',
+      hint: 'italic text-gray-400',
+      italics: 'italic',
+      bold: 'font-bold',
+    },
+  },
+  defaultVariants: {
+    variant: 'base',
+  },
+})
+
+export type TypographyProps = React.HTMLAttributes<HTMLParagraphElement> &
+  VariantProps<typeof typographyVariants> & {
+    asChild?: boolean
+  }
 
 export const Typography = React.forwardRef<
   HTMLParagraphElement,
   TypographyProps
->(({ variant = 'base', className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={clsx(
-      'text-base',
-      variant === 'hint' && ['italic', 'text-gray-400'],
-      variant === 'italics' && 'italic',
-      variant === 'bold' && 'font-bold',
-      className,
-    )}
-    {...props}
-  />
-))
+>(({ variant = 'base', asChild, className, ...props }, ref) => {
+  const Component = asChild ? Slot : 'p'
+
+  return (
+    <Component
+      ref={ref}
+      className={cn(typographyVariants({ variant, className, ...props }))}
+      {...props}
+    />
+  )
+})
 
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   width?: 'full' | 'half'
@@ -183,7 +268,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, width = 'full', ...props }, ref) => (
     <input
       ref={ref}
-      className={clsx(
+      className={cn(
         'input',
         'input-bordered',
         'w-full',
@@ -196,29 +281,30 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ),
 )
 
-export interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  center?: boolean
-}
+const containerVariants = cva('container mx-auto', {
+  variants: {
+    center: {
+      true: 'text-center flex justify-items-center align-items-center flex-col',
+    },
+  },
+})
+
+export type ContainerProps = React.HTMLAttributes<HTMLDivElement> &
+  VariantProps<typeof containerVariants> & {
+    asChild?: boolean
+  }
 
 export const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
-  ({ className, center, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={clsx(
-        'container',
-        'mx-auto',
-        center && [
-          'text-center',
-          'flex',
-          'justify-items-center',
-          'align-items-center',
-          'flex-col',
-        ],
-        className,
-      )}
-      {...props}
-    />
-  ),
+  ({ className, center, asChild, ...props }, ref) => {
+    const Component = asChild ? Slot : 'div'
+    return (
+      <Component
+        ref={ref}
+        className={containerVariants({ center, className, ...props })}
+        {...props}
+      />
+    )
+  },
 )
 
 type AProps = React.HTMLAttributes<HTMLHyperlinkElementUtils> & {
@@ -231,7 +317,7 @@ export const A = React.forwardRef<HTMLAnchorElement, AProps>(
     /* eslint-disable-next-line jsx-a11y/anchor-has-content */
     <a
       ref={ref}
-      className={clsx('link', 'link-hover', 'link-primary', className)}
+      className={cn('link', 'link-hover', 'link-primary', className)}
       {...props}
     />
   ),
@@ -246,7 +332,7 @@ export const Fieldset = React.forwardRef<HTMLFieldSetElement, FieldsetProps>(
   ({ className, flexDirection, ...props }, ref) => (
     <fieldset
       ref={ref}
-      className={clsx(
+      className={cn(
         'my-4',
         'p-2',
         'border-2',
@@ -268,7 +354,7 @@ export const Legend = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <legend
     ref={ref}
-    className={clsx('font-bold', 'mb-2', 'px-2', className)}
+    className={cn('font-bold', 'mb-2', 'px-2', className)}
     {...props}
   />
 ))
@@ -286,9 +372,9 @@ export const Checkbox: React.FC<React.PropsWithChildren<CheckboxProps>> = ({
   ...props
 }) => (
   <div className="form-control">
-    <label className={clsx('label', 'justify-start', 'gap-2')}>
+    <label className={cn('label', 'justify-start', 'gap-2')}>
       <input
-        className={clsx('checkbox', 'checkbox-primary', className)}
+        className={cn('checkbox', 'checkbox-primary', className)}
         type="checkbox"
         name={name}
         {...props}
