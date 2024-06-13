@@ -73,7 +73,7 @@ const AlbumWrapper: React.FC<Props> = ({
                     keyFunction={(genre, i) => `${genre}-${i}`}
                     toFunction={(genre) => `/genre/${genre}`}
                     childFunction={(genre) => genre}
-                    className={clsx('btn-xs')}
+                    className={clsx('!btn-xs')}
                     wrapperClassName={clsx(
                       'stat-actions',
                       'sm:flex-col',
