@@ -1,8 +1,9 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
 import { spotifyStrategy } from '~/lib/auth.server'
+import { getRequestContextValues } from '~/lib/context.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib, { topArtistSearch } from '~/lib/spotify.server'
@@ -15,8 +16,8 @@ import { Layout, Link } from '~/components/Base'
 import type { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import config from '~/config'
 
-export async function loader({ request, context }: LoaderArgs) {
-  const { serverTiming } = context
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { serverTiming } = getRequestContextValues(request, context)
   const params = topArtistSearch.parse(new URL(request.url).searchParams)
 
   await serverTiming.track('spotify.session', () =>

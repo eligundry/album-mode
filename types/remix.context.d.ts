@@ -1,16 +1,8 @@
-import ServerTiming from '@eligundry/server-timing'
+import type { GetLoadContextFunction } from '@netlify/remix-adapter'
 import '@remix-run/server-runtime'
-import type { Logger } from 'winston'
 
-import type { DatabaseClient } from '~/lib/database/index.server'
+type NetlifyContext = Parameters<GetLoadContextFunction>[1]
 
-import type { Env } from '~/env.server'
-
-declare module '@remix-run/server-runtime' {
-  interface AppLoadContext {
-    logger: Logger
-    serverTiming: ServerTiming
-    database: DatabaseClient
-    env: Env
-  }
+declare module '@remix-run/node' {
+  interface AppLoadContext extends NetlifyContext {}
 }

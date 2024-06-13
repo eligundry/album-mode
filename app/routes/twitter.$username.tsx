@@ -1,4 +1,4 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import type {
   Album as FullAlbum,
@@ -6,6 +6,7 @@ import type {
 } from '@spotify/web-api-ts-sdk'
 import clsx from 'clsx'
 
+import { getRequestContextValues } from '~/lib/context.server'
 import { badRequest, serverError } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 
@@ -18,8 +19,11 @@ import Debug from '~/components/Debug'
 import TweetEmbed from '~/components/TweetEmbed'
 import useUTM from '~/hooks/useUTM'
 
-export async function loader({ params, request, context }: LoaderArgs) {
-  const { logger, serverTiming, database } = context
+export async function loader({ params, request, context }: LoaderFunctionArgs) {
+  const { logger, serverTiming, database } = getRequestContextValues(
+    request,
+    context,
+  )
   const username = params.username?.trim()
 
   if (!username) {

@@ -1,6 +1,6 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import pick from 'lodash/pick'
-import { promiseHash } from 'remix-utils'
+import { promiseHash } from 'remix-utils/promise'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 
@@ -10,7 +10,7 @@ const paramsSchema = zfd.formData({
   artistID: z.string(),
 })
 
-export async function loader({ request, context }: LoaderArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   const { artistID } = paramsSchema.parse(new URL(request.url).searchParams)
   const spotify = await spotifyLib.initializeFromRequest(request, context)
   const { artist, relatedArtists } = await promiseHash({

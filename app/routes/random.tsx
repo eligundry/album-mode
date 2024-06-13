@@ -1,12 +1,13 @@
-import { LoaderArgs, redirect } from '@remix-run/node'
+import { LoaderFunctionArgs, redirect } from '@remix-run/node'
 import sample from 'lodash/sample'
 
+import { getRequestContextValues } from '~/lib/context.server'
 import spotifyLib from '~/lib/spotify.server'
 
 const options = ['artist', 'genre', 'publication'] as const
 
-export async function loader({ request, context }: LoaderArgs) {
-  const { database } = context
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { database } = getRequestContextValues(request, context)
   const option = sample<(typeof options)[number]>(options)
 
   switch (option) {

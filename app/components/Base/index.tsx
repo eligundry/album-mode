@@ -262,6 +262,7 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   name?: string
   required?: boolean
   type?: string
+  placeholder?: string
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(

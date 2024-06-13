@@ -37,7 +37,7 @@ const GenreSearchForm: React.FC<Props> = ({ className }) => {
     >
       <FunSelect
         name="genre"
-        defaultOptions
+        placeholder="Select"
         loadOptions={searchGenres}
         className={className}
         onChange={() => setTimeout(() => submit(formRef.current), 5)}

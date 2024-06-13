@@ -1,95 +1,116 @@
-import clsx from 'clsx'
-import type { ControlProps } from 'react-select'
-import AsyncSelect from 'react-select/async'
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+} from '@headlessui/react'
+import { useMountEffect } from '@react-hookz/web'
+import { useCallback, useState } from 'react'
 
-import { useDarkMode } from '~/hooks/useMediaQuery'
-import useTailwindTheme from '~/hooks/useTailwindTheme'
+import { cn } from '~/lib/util'
 
-const FunSelect: React.FC<
-  Omit<React.ComponentProps<typeof AsyncSelect>, 'styles'>
-> = ({ components, ...props }) => {
-  const { theme, pallete } = useTailwindTheme()
-  const isDarkMode = useDarkMode()
-
-  return (
-    <AsyncSelect
-      cacheOptions={false}
-      components={{ Control, ...components }}
-      styles={{
-        input: (styles) => ({
-          ...styles,
-          color: 'inherit',
-          cursor: 'pointer',
-        }),
-        placeholder: (styles) => ({
-          ...styles,
-          color: theme.colors.gray[400],
-        }),
-        valueContainer: (styles) => ({
-          ...styles,
-          paddingLeft: 0,
-          paddingRight: 0,
-        }),
-        singleValue: (styles) => ({
-          ...styles,
-          color: isDarkMode ? theme.colors.white : styles.color,
-        }),
-        menu: (styles) => ({
-          ...styles,
-          backgroundColor: pallete['base-100'],
-        }),
-        option: (styles, options) => {
-          let backgroundColor = theme.colors.white
-          let color = theme.colors.black
-
-          if (isDarkMode) {
-            backgroundColor = pallete['base-100']
-            color = theme.colors.white
-          }
-
-          if (options.isFocused) {
-            backgroundColor = pallete.primary
-            color = 'hsl(var(--pc))'
-          }
-
-          return {
-            ...styles,
-            backgroundColor,
-            borderColor: isDarkMode ? pallete.neutral : styles.borderColor,
-            textTransform: 'capitalize',
-            color,
-            cursor: 'pointer',
-          }
-        },
-      }}
-      {...props}
-    />
-  )
+export interface Option {
+  label?: string
+  labelElement?: React.ReactNode
+  value: string
 }
 
-const Control: React.FC<ControlProps> = (props) => {
-  const { children, className, innerProps, innerRef, isFocused } = props
+interface FunSelectProps {
+  name: string
+  label?: string
+  value?: Option
+  className?: string
+  placeholder?: string
+  loadOptions: (query?: string) => Promise<Option[]>
+  onChange: (value?: Option) => void
+}
+
+const FunSelect: React.FC<FunSelectProps> = ({
+  name,
+  label,
+  value,
+  className,
+  placeholder,
+  loadOptions,
+  onChange,
+}) => {
+  const [options, setOptions] = useState<Option[]>([])
+  const [selectedOption, setSelectedOption] = useState<Option | null>(null)
+
+  useMountEffect(() => {
+    loadOptions().then(setOptions)
+  })
+
+  const handleChange = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
+    (event) => {
+      if (event.target.value === '') {
+        event.preventDefault()
+      }
+
+      loadOptions(event.target.value).then(setOptions)
+    },
+    [loadOptions],
+  )
 
   return (
-    <div
-      ref={innerRef}
-      className={clsx(
-        'input',
-        'input-bordered',
-        'flex',
-        'flex-wrap',
-        'items-center',
-        'border-box',
-        'space-between',
-        'relative',
-        'pr-0',
-        isFocused && 'input-primary',
-        className,
-      )}
-      {...innerProps}
+    <Combobox
+      immediate
+      value={value}
+      onChange={(option) => {
+        onChange(option ?? undefined)
+        setSelectedOption(option)
+      }}
+      as="div"
     >
-      {children}
-    </div>
+      <ComboboxInput
+        name={name}
+        aria-label={label}
+        displayValue={(option: Option) =>
+          option?.label ?? option?.value ?? undefined
+        }
+        value={selectedOption?.value}
+        onChange={handleChange}
+        placeholder={placeholder}
+        autoComplete="off"
+        className={cn(
+          'input',
+          'input-bordered',
+          'flex',
+          'flex-wrap',
+          'items-center',
+          'border-box',
+          'space-between',
+          'relative',
+          'pr-0',
+          'focus:input-primary',
+          'w-full',
+          className,
+        )}
+      />
+      <ComboboxOptions
+        anchor={{
+          to: 'bottom start',
+          gap: 6,
+        }}
+        className={cn(
+          'empty:hidden',
+          'bg-base-100',
+          'rounded',
+          'shadow',
+          'mx-1',
+        )}
+      >
+        {options.map((option) => (
+          <ComboboxOption
+            key={option.value}
+            value={option}
+            className={cn('data-[focus]:bg-primary-focus p-2 cursor-pointer')}
+          >
+            {option.labelElement ?? option.label ?? option.value}
+          </ComboboxOption>
+        ))}
+      </ComboboxOptions>
+    </Combobox>
   )
 }
 

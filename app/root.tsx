@@ -1,27 +1,19 @@
-import { LoaderArgs, V2_MetaFunction, json } from '@remix-run/node'
-import {
-  Links,
-  LiveReload,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-  useLoaderData,
-} from '@remix-run/react'
-import { promiseHash } from 'remix-utils'
+import { LoaderFunctionArgs, MetaFunction, json } from '@remix-run/node'
+import { Outlet, useLoaderData } from '@remix-run/react'
+import { promiseHash } from 'remix-utils/promise'
 
 import { spotifyStrategy } from '~/lib/auth.server'
-import growthbookLib from '~/lib/growthbook.server'
+import { getRequestContextValues } from '~/lib/context.server'
+// import growthbookLib from '~/lib/growthbook.server'
 import userSettings from '~/lib/userSettings.server'
 
-import Tracking from '~/components/Tracking'
+import Document from '~/components/Base/Document'
 import config from '~/config'
 import RootProvider from '~/context/Root'
-import useTailwindTheme from '~/hooks/useTailwindTheme'
 
-import styles from './styles/app.css'
+import styles from './styles/app.css?url'
 
-export const meta: V2_MetaFunction = ({ data, location }) => {
+export const meta: MetaFunction<typeof loader> = ({ data, location }) => {
   const canonicalURL = new URL(
     location.pathname + location.search,
     config.siteURL,
@@ -51,7 +43,7 @@ export const meta: V2_MetaFunction = ({ data, location }) => {
     },
     {
       name: 'version',
-      content: data.ENV.COMMIT_REF,
+      content: data?.ENV.COMMIT_REF,
     },
     {
       name: 'generator',
@@ -80,20 +72,19 @@ export const meta: V2_MetaFunction = ({ data, location }) => {
   ]
 }
 
-export async function loader({
-  request,
-  context: { serverTiming, env },
-}: LoaderArgs) {
-  const { session, settings, gb } = await promiseHash({
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { serverTiming, env } = getRequestContextValues(request, context)
+
+  const { session, settings } = await promiseHash({
     session: serverTiming.track('root.spotify.session', () =>
       spotifyStrategy.getSession(request),
     ),
     settings: serverTiming.track('root.userSettings.get', () =>
       userSettings.get(request),
     ),
-    gb: serverTiming.track('root.growthbook.get', () =>
-      growthbookLib.initializeFromRequest(request),
-    ),
+    // gb: serverTiming.track('root.growthbook.get', () =>
+    //   growthbookLib.initializeFromRequest(request),
+    // ),
   })
 
   return json(
@@ -101,8 +92,10 @@ export async function loader({
       user: session?.user ?? null,
       settings,
       growthbook: {
-        features: gb.getFeatures(),
-        attributes: gb.getAttributes(),
+        // features: gb.getFeatures(),
+        // attributes: gb.getAttributes(),
+        features: {},
+        attributes: {},
       },
       ENV: {
         SPOTIFY_CLIENT_ID: env.SPOTIFY_CLIENT_ID,
@@ -123,35 +116,23 @@ export async function loader({
 function App() {
   // @ts-ignore
   const data = useLoaderData<typeof loader>()
-  const { isDarkMode, pallete } = useTailwindTheme()
 
   return (
-    <html lang="en" data-theme={isDarkMode ? 'dark' : 'light'}>
-      <head>
-        <Meta />
-        <meta name="theme-color" content={pallete['base-100']} />
-        <Links />
-        <Tracking />
-      </head>
-      <body id="album-mode-root">
-        <RootProvider
-          user={data.user}
-          settings={data.settings}
-          // @ts-ignore
-          growthbook={data.growthbook}
-        >
-          <Outlet />
-        </RootProvider>
-        <ScrollRestoration />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
-          }}
-        />
-        <Scripts />
-        <LiveReload />
-      </body>
-    </html>
+    <Document>
+      <RootProvider
+        user={data.user}
+        settings={data.settings}
+        // @ts-ignore
+        growthbook={data.growthbook}
+      >
+        <Outlet />
+      </RootProvider>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+        }}
+      />
+    </Document>
   )
 }
 

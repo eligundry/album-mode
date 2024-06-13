@@ -1,7 +1,8 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 
+import { getRequestContextValues } from '~/lib/context.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { badRequest, forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -16,8 +17,11 @@ import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import config from '~/config'
 import useUTM from '~/hooks/useUTM'
 
-export async function loader({ params, request, context }: LoaderArgs) {
-  const { serverTiming, logger, database } = context
+export async function loader({ params, request, context }: LoaderFunctionArgs) {
+  const { serverTiming, logger, database } = getRequestContextValues(
+    request,
+    context,
+  )
   const headers = new Headers()
   const slug = params.slug?.trim()
   const settings = await userSettings.get(request)

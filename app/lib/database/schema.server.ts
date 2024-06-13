@@ -39,7 +39,7 @@ export const reviewers = sqliteTable(
   }),
 )
 
-export type Reviewer = typeof reviewers._.model.select
+export type Reviewer = typeof reviewers._.inferSelect
 
 export const reviewedItems = sqliteTable(
   'ReviewedItems',
@@ -78,7 +78,7 @@ export const reviewedItems = sqliteTable(
   }),
 )
 
-export type ReviewedItem = typeof reviewedItems._.model.select
+export type ReviewedItem = typeof reviewedItems._.inferSelect
 
 export const spotifyGenres = sqliteTable(
   'SpotifyGenres',
@@ -91,7 +91,7 @@ export const spotifyGenres = sqliteTable(
   }),
 )
 
-export type SpotifyGenre = typeof spotifyGenres._.model.select
+export type SpotifyGenre = typeof spotifyGenres._.inferSelect
 
 export type SavedSearch = {
   type: 'search'
@@ -135,4 +135,4 @@ export const savedItems = sqliteTable(
   }),
 )
 
-export type SavedItem = typeof savedItems._.model.select
+export type SavedItem = typeof savedItems._.inferSelect

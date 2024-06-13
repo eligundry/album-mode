@@ -398,7 +398,7 @@ export const constructRequestDatabase = ({
   authToken,
   logger = false,
 }: ConstructDatabaseOptions) => {
-  const turso = createTursoClient({ url, authToken })
+  const turso = createTursoClient({ url, authToken, fetch: fetch })
   const drizzleLogger =
     typeof logger === 'object' ? new DatabaseLogger(logger) : logger
   const database = tursoDrizzle(turso, { logger: drizzleLogger })

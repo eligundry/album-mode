@@ -1,6 +1,7 @@
-import { ActionArgs } from '@remix-run/node'
+import { ActionFunctionArgs } from '@remix-run/node'
 
 import { spotifyStrategy } from '~/lib/auth.server'
+import { getRequestContextValues } from '~/lib/context.server'
 import {
   badRequest,
   noContent,
@@ -8,8 +9,11 @@ import {
   unauthorized,
 } from '~/lib/responses.server'
 
-export async function action({ request, params, context }: ActionArgs) {
-  const { serverTiming, logger, database } = context
+export async function action({ request, params, context }: ActionFunctionArgs) {
+  const { serverTiming, logger, database } = getRequestContextValues(
+    request,
+    context,
+  )
 
   const session = await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request),

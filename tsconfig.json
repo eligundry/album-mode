@@ -1,25 +1,23 @@
 {
   "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx", "**/*.d.ts"],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ES2019", "ES2022"],
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "types": ["@remix-run/node", "vite/client"],
     "isolatedModules": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
-    "target": "ES2019",
+    "target": "ES2022",
     "strict": true,
     "baseUrl": ".",
-    "paths": {
-      "~/*": ["./app/*"],
-      "spotify-web-api-node": ["./node_modules/spotify-web-api-fetch"],
-      "spotify-web-api-node/src/*": [
-        "./node_modules/spotify-web-api-fetch/src/*"
-      ]
-    },
     "noEmit": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "~/*": ["./app/*"]
+    }
   }
 }

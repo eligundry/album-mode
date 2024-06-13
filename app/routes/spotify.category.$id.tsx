@@ -1,7 +1,8 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { promiseHash } from 'remix-utils'
+import { promiseHash } from 'remix-utils/promise'
 
+import { getRequestContextValues } from '~/lib/context.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import {
   badRequest,
@@ -16,8 +17,8 @@ import Playlist from '~/components/Album/Playlist'
 import { Layout, Link } from '~/components/Base'
 import config from '~/config'
 
-export async function loader({ params, request, context }: LoaderArgs) {
-  const { serverTiming, logger } = context
+export async function loader({ params, request, context }: LoaderFunctionArgs) {
+  const { serverTiming, logger } = getRequestContextValues(request, context)
   const categoryID = params.id?.trim()
 
   if (!categoryID) {

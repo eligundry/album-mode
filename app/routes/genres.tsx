@@ -1,13 +1,16 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
+
+import { getRequestContextValues } from '~/lib/context.server'
 
 import { Container, Heading, Layout } from '~/components/Base'
 import ButtonLinkGroup from '~/components/Base/ButtonLinkGroup'
 import { PageErrorBoundary } from '~/components/ErrorBoundary'
 import GenreSearchForm from '~/components/Forms/GenreSearch'
 
-export async function loader({ context: { database } }: LoaderArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { database } = getRequestContextValues(request, context)
   return json({
     topGenres: await database.getTopGenres(300),
   })

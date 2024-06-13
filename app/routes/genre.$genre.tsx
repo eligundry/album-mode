@@ -1,8 +1,9 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
 import startCase from 'lodash/startCase'
 
+import { getRequestContextValues } from '~/lib/context.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { badRequest, forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -14,8 +15,8 @@ import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 import config from '~/config'
 
-export async function loader({ request, params, context }: LoaderArgs) {
-  const { serverTiming, logger } = context
+export async function loader({ request, params, context }: LoaderFunctionArgs) {
+  const { serverTiming, logger } = getRequestContextValues(request, context)
   const genre = params.genre
 
   if (!genre) {

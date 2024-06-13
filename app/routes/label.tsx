@@ -1,6 +1,7 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
+import { getRequestContextValues } from '~/lib/context.server'
 import { badRequest } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import wikipedia from '~/lib/wikipedia.server'
@@ -9,8 +10,8 @@ import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 
-export async function loader({ request, context }: LoaderArgs) {
-  const { logger } = context
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { logger } = getRequestContextValues(request, context)
   const spotify = await spotifyLib.initializeFromRequest(request, context)
   const url = new URL(request.url)
   const label = url.searchParams.get('label')

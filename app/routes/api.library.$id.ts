@@ -1,6 +1,7 @@
-import { ActionArgs } from '@remix-run/node'
+import { ActionFunctionArgs } from '@remix-run/node'
 
 import { spotifyStrategy } from '~/lib/auth.server'
+import { getRequestContextValues } from '~/lib/context.server'
 import {
   badRequest,
   noContent,
@@ -9,17 +10,21 @@ import {
 } from '~/lib/responses.server'
 
 // Save an item by POSTing it to this endpoint
-export async function action({ request, params, context }: ActionArgs) {
+export async function action({ request, params, context }: ActionFunctionArgs) {
+  const { logger, serverTiming, database } = getRequestContextValues(
+    request,
+    context,
+  )
+
   const id = parseInt(params.id ?? '0')
 
   if (!id) {
     throw badRequest({
       error: 'id must be provided in the url',
-      logger: context.logger,
+      logger,
     })
   }
 
-  const { serverTiming, database } = context
   const session = await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request),
   )
@@ -27,7 +32,7 @@ export async function action({ request, params, context }: ActionArgs) {
   if (!session || !session?.user) {
     throw unauthorized({
       error: 'must be logged into spotify to use this route',
-      logger: context.logger,
+      logger,
     })
   }
 
@@ -41,7 +46,7 @@ export async function action({ request, params, context }: ActionArgs) {
     throw serverError({
       error: 'could not remove item',
       detail: e?.message,
-      logger: context.logger,
+      logger,
     })
   }
 
