@@ -1,5 +1,5 @@
 import { createCookie } from '@remix-run/node'
-import { createTypedCookie } from 'remix-utils'
+import { createTypedCookie } from 'remix-utils/typed-cookie'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 

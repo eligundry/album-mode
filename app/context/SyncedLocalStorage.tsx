@@ -3,8 +3,8 @@ import {
   useLocalStorageValue as useLocalStorage,
   useMountEffect,
 } from '@react-hookz/web'
-import dateCompareDesc from 'date-fns/compareDesc'
-import isDateEqual from 'date-fns/isEqual'
+import { compareDesc as dateCompareDesc } from 'date-fns/compareDesc'
+import { isEqual as isDateEqual } from 'date-fns/isEqual'
 import uniqBy from 'lodash/uniqBy'
 import React, { useCallback, useEffect, useState } from 'react'
 

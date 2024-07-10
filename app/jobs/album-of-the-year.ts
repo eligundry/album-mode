@@ -107,7 +107,7 @@ const seedAlbumOfTheYear = async (options: Options) => {
 }
 
 const main = async () => {
-  const args = await yargs
+  const args = yargs()
     .scriptName('album-of-the-year')
     .usage('$0 --listID <string> --name <string> --slug <string>')
     .option('listID', {
@@ -133,7 +133,7 @@ const main = async () => {
     .demandOption(['listID', 'slug', 'name'])
     .help().argv
 
-  await seedAlbumOfTheYear(args)
+  await seedAlbumOfTheYear(await args)
 }
 
 main()

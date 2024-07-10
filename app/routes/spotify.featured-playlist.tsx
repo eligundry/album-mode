@@ -1,6 +1,7 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 
+import { getRequestContextValues } from '~/lib/context.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 import { forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
@@ -11,8 +12,8 @@ import Playlist from '~/components/Album/Playlist'
 import { Layout } from '~/components/Base'
 import config from '~/config'
 
-export async function loader({ request, context }: LoaderArgs) {
-  const { serverTiming } = context
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { serverTiming } = getRequestContextValues(request, context)
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request, context),
   )

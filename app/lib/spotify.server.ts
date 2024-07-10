@@ -19,9 +19,10 @@ import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 
 import { scopes as spotifyScopes, spotifyStrategy } from '~/lib/auth.server'
+import { getRequestContextValues } from '~/lib/context.server'
+import { blockBots } from '~/lib/responses.server'
+import type { SpotifyArtist, SpotifyUser } from '~/lib/types/spotify'
 import userSettings from '~/lib/userSettings.server'
-
-import type { SpotifyArtist, SpotifyUser } from './types/spotify'
 
 interface SpotifyOptions {
   sdkOptions?: SdkOptions
@@ -681,7 +682,9 @@ const cookieFactory = createCookie('spotify', {
   maxAge: 3600,
 })
 
-const initializeFromRequest = async (req: Request, context: AppLoadContext) => {
+const initializeFromRequest = async (req: Request, ctx: AppLoadContext) => {
+  blockBots(req)
+  const context = getRequestContextValues(req, ctx)
   const session = await spotifyStrategy.getSession(req)
   const settings = await userSettings.get(req)
   const [currentSearchType] = userSettings.getCurrentSearchFromRequest(req)

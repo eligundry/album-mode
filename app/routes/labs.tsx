@@ -1,7 +1,8 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 
+import { getRequestContextValues } from '~/lib/context.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
 
 import { Container, Heading, Layout, Typography } from '~/components/Base'
@@ -21,7 +22,8 @@ export const meta: AppMetaFunction = ({ matches }) =>
     },
   ])
 
-export async function loader({ context: { database } }: LoaderArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { database } = getRequestContextValues(request, context)
   return json({
     twitterUsers: await database.getTwitterUsers(),
   })

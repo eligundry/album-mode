@@ -1,8 +1,10 @@
-import { LoaderArgs, redirect } from '@remix-run/node'
+import { LoaderFunctionArgs, redirect } from '@remix-run/node'
 
+import { getRequestContextValues } from '~/lib/context.server'
 import { badRequest } from '~/lib/responses.server'
 
-export async function loader({ request, context: { logger } }: LoaderArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { logger } = getRequestContextValues(request, context)
   const url = new URL(request.url)
   const genre = url.searchParams.get('genre')
 

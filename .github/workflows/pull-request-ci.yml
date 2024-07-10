@@ -4,29 +4,30 @@ on:
     branches:
       - main
 
-env:
-  NODE_VERSION: 16
-
 jobs:
   ci:
     name: Run
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-      - run: npm ci
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install packages
+        run: |
+          pnpm --version
+          pnpm install
 
       - name: Run linters
         if: always()
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Check types
         if: always()
-        run: npm run typecheck
+        run: pnpm run typecheck
 
       - name: Run tests
         if: always()
-        run: npm test
+        run: pnpm test

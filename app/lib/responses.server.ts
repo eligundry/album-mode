@@ -1,13 +1,6 @@
-import { HeadersFunction, ResponseInit } from '@remix-run/node'
+import { HeadersFunction, json } from '@remix-run/node'
+import { detect } from 'detect-browser'
 import omit from 'lodash/omit'
-import {
-  badRequest as _badRequest,
-  forbidden as _forbidden,
-  notFound as _notFound,
-  serverError as _serverError,
-  unauthorized as _unauthorized,
-  unprocessableEntity as _unprocessableEntity,
-} from 'remix-utils'
 import type { Logger } from 'winston'
 import type { ZodIssue } from 'zod'
 
@@ -25,7 +18,10 @@ export function badRequest({ logger, headers, ...message }: ErrorMessage) {
     ...omit(message, ['error']),
   })
 
-  throw _badRequest(message, { headers })
+  throw json(message, {
+    status: 400,
+    headers,
+  })
 }
 
 export function serverError({ logger, headers, ...message }: ErrorMessage) {
@@ -34,7 +30,10 @@ export function serverError({ logger, headers, ...message }: ErrorMessage) {
     ...omit(message, ['error']),
   })
 
-  throw _serverError(message, { headers })
+  throw json(message, {
+    status: 500,
+    headers,
+  })
 }
 
 export function unauthorized({ logger, headers, ...message }: ErrorMessage) {
@@ -43,7 +42,10 @@ export function unauthorized({ logger, headers, ...message }: ErrorMessage) {
     ...omit(message, ['error']),
   })
 
-  throw _unauthorized(message, { headers })
+  throw json(message, {
+    status: 401,
+    headers,
+  })
 }
 
 export function forbidden({ logger, headers, ...message }: ErrorMessage) {
@@ -52,7 +54,10 @@ export function forbidden({ logger, headers, ...message }: ErrorMessage) {
     ...omit(message, ['error']),
   })
 
-  throw _forbidden(message, { headers })
+  throw json(message, {
+    status: 403,
+    headers,
+  })
 }
 
 export function notFound({ logger, headers, ...message }: ErrorMessage) {
@@ -61,7 +66,10 @@ export function notFound({ logger, headers, ...message }: ErrorMessage) {
     ...omit(message, ['error']),
   })
 
-  throw _notFound(message, { headers })
+  throw json(message, {
+    status: 404,
+    headers,
+  })
 }
 
 export function unprocessableEntity({
@@ -74,7 +82,10 @@ export function unprocessableEntity({
     ...omit(message, ['error']),
   })
 
-  throw _unprocessableEntity(message, { headers })
+  throw json(message, {
+    status: 429,
+    headers,
+  })
 }
 
 export function noContent(responseInit: Pick<ResponseInit, 'headers'> = {}) {
@@ -96,4 +107,22 @@ export const forwardServerTimingHeaders: HeadersFunction = ({
   }
 
   return new Headers()
+}
+
+export function blockBots(request: Request) {
+  const userAgent = request.headers.get('user-agent')
+
+  if (!userAgent) {
+    throw badRequest({
+      error: 'User-Agent header is missing',
+    })
+  }
+
+  const detected = detect(userAgent)
+
+  if (detected && detected.type.startsWith('bot')) {
+    throw forbidden({
+      error: 'Bots are not allowed to access this resource.',
+    })
+  }
 }

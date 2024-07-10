@@ -119,7 +119,7 @@ const getSearchPage = searchLimiter.wrap(
 )
 
 const main = async () => {
-  const args = await yargs
+  const args = await yargs()
     .scriptName('pitchfork-scraper')
     .usage('$0 --slug <slug>')
     .option('slug', {

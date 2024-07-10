@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import React from 'react'
-import { ClientOnly } from 'remix-utils'
+import { ClientOnly } from 'remix-utils/client-only'
 
 import AutoAlert from '~/components/AutoAlert'
 import { DesktopLoader, MobileLoader } from '~/components/Loading'

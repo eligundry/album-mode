@@ -1,10 +1,15 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
-import { badRequest, promiseHash, serverError } from 'remix-utils'
+import { promiseHash } from 'remix-utils/promise'
 
+import { getRequestContextValues } from '~/lib/context.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
-import { forwardServerTimingHeaders } from '~/lib/responses.server'
+import {
+  badRequest,
+  forwardServerTimingHeaders,
+  serverError,
+} from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
 import wikipedia from '~/lib/wikipedia.server'
@@ -14,8 +19,11 @@ import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import { Layout } from '~/components/Base'
 import config from '~/config'
 
-export async function loader({ request, params, context }: LoaderArgs) {
-  const { serverTiming, logger, env } = context
+export async function loader({ request, params, context }: LoaderFunctionArgs) {
+  const { serverTiming, logger, env } = getRequestContextValues(
+    request,
+    context,
+  )
   const artistID = params.artistID
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request, context),
@@ -43,13 +51,11 @@ export async function loader({ request, params, context }: LoaderArgs) {
 
   const wiki = await serverTiming.track('wikipedia', () => {
     if (!album) {
-      throw serverError(
-        {
-          error: 'could not fetch album',
-          logger,
-        },
-        { headers: serverTiming.headers() },
-      )
+      throw serverError({
+        error: 'could not fetch album',
+        logger,
+        headers: serverTiming.headers(),
+      })
     }
 
     return wikipedia.getSummaryForAlbum({

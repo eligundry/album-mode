@@ -1,15 +1,19 @@
-import { ActionArgs, LoaderArgs, json } from '@remix-run/node'
-import { promiseHash } from 'remix-utils'
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from '@remix-run/node'
+import { promiseHash } from 'remix-utils/promise'
 
 import { spotifyStrategy } from '~/lib/auth.server'
+import { getRequestContextValues } from '~/lib/context.server'
 import { badRequest, serverError, unauthorized } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import { LocalLibraryItem } from '~/lib/types/library'
 import userSettings from '~/lib/userSettings.server'
 
 // Save an item by POSTing it to this endpoint
-export async function action({ request, context }: ActionArgs) {
-  const { serverTiming, logger, database } = context
+export async function action({ request, context }: ActionFunctionArgs) {
+  const { serverTiming, logger, database } = getRequestContextValues(
+    request,
+    context,
+  )
   const { session, settings, spotify } = await promiseHash({
     session: serverTiming.track('spotify.session', () =>
       spotifyStrategy.getSession(request),
@@ -102,8 +106,11 @@ export async function action({ request, context }: ActionArgs) {
   })
 }
 
-export async function loader({ request, context }: LoaderArgs) {
-  const { serverTiming, logger, database } = context
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { serverTiming, logger, database } = getRequestContextValues(
+    request,
+    context,
+  )
   const session = await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request),
   )

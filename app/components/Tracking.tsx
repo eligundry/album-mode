@@ -1,4 +1,4 @@
-import { Partytown } from '@builder.io/partytown/react'
+// import { Partytown } from '@builder.io/partytown/react'
 import { useLocation } from '@remix-run/react'
 import React, { useMemo } from 'react'
 
@@ -13,9 +13,7 @@ const Tracking: React.FC = () => {
 
   return (
     <>
-      {!disablePartytown && (
-        <Partytown debug={false} forward={['dataLayer.push']} />
-      )}
+      {/* <Partytown debug={false} forward={['dataLayer.push']} /> */}
       <script
         type={scriptType}
         dangerouslySetInnerHTML={{

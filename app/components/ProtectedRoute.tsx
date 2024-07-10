@@ -1,6 +1,5 @@
-import { unauthorized } from 'remix-utils'
-
 import { spotifyStrategy } from '~/lib/auth.server'
+import { unauthorized } from '~/lib/responses.server'
 
 import { getEnv } from '~/env.server'
 

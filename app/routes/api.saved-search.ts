@@ -1,7 +1,8 @@
-import { ActionArgs, LoaderArgs, json } from '@remix-run/node'
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from '@remix-run/node'
 import { z } from 'zod'
 
 import { spotifyStrategy } from '~/lib/auth.server'
+import { getRequestContextValues } from '~/lib/context.server'
 import { badRequest, serverError, unauthorized } from '~/lib/responses.server'
 
 const schema = z.object({
@@ -9,8 +10,11 @@ const schema = z.object({
   path: z.string(),
 })
 
-export async function action({ request, context }: ActionArgs) {
-  const { serverTiming, logger, database } = context
+export async function action({ request, context }: ActionFunctionArgs) {
+  const { serverTiming, logger, database } = getRequestContextValues(
+    request,
+    context,
+  )
 
   const session = await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request),
@@ -51,8 +55,11 @@ export async function action({ request, context }: ActionArgs) {
   }
 }
 
-export async function loader({ request, context }: LoaderArgs) {
-  const { serverTiming, logger, database } = context
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { serverTiming, logger, database } = getRequestContextValues(
+    request,
+    context,
+  )
 
   const session = await serverTiming.track('spotify.session', () =>
     spotifyStrategy.getSession(request),

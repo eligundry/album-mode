@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import useLoading from '~/hooks/useLoading'
 
@@ -7,7 +7,7 @@ const DesktopLoader: React.FC = () => {
   const { showLoader } = useLoading()
   const [scrolled, setScrolled] = useState(false)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const callback: Parameters<typeof window.addEventListener<'scroll'>>[1] =
       function () {
         setScrolled(this.scrollY > 40)

@@ -10,7 +10,7 @@ export default function useGTM() {
   const sendEvent = useCallback((event: Event) => {
     console.log('useGTM.sendEvent', event)
 
-    if (typeof window === 'undefined') {
+    if (typeof window === 'undefined' || !window.dataLayer) {
       return
     }
 

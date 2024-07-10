@@ -1,6 +1,8 @@
-import { LoaderArgs, json } from '@remix-run/node'
+import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
+
+import { getRequestContextValues } from '~/lib/context.server'
 
 import {
   ButtonLink,
@@ -23,11 +25,11 @@ import useLoading from '~/hooks/useLoading'
 import useSavedSearches from '~/hooks/useSavedSearches'
 import useUser from '~/hooks/useUser'
 
-export async function loader({ context: { database } }: LoaderArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { database } = getRequestContextValues(request, context)
+
   return json(
-    {
-      publications: await database.getPublications(),
-    },
+    { publications: await database.getPublications() },
     {
       headers: {
         'Cache-Control': config.cacheControl.public,
