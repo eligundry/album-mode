@@ -104,7 +104,7 @@ const FunSelect: React.FC<FunSelectProps> = ({
           <ComboboxOption
             key={option.value}
             value={option}
-            className={cn('data-[focus]:bg-primary-focus p-2 cursor-pointer')}
+            className={cn('data-[focus]:bg-primary/50 p-2 cursor-pointer')}
           >
             {option.labelElement ?? option.label ?? option.value}
           </ComboboxOption>
