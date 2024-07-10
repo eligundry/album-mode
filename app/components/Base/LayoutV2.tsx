@@ -4,6 +4,7 @@ import { ClientOnly } from 'remix-utils/client-only'
 import { cn } from '~/lib/util'
 
 import AutoAlert from '~/components/AutoAlert'
+import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
 import { DesktopLoader, MobileLoader } from '~/components/Loading'
 import SearchBreadcrumbs, {
   SearchBreadcrumbsProps,
@@ -67,18 +68,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               <EmojiText emoji="🎉" label="party streamer" noPadding />
             </Link>
           </h1>
-          {headerBreadcrumbs && (
-            <SearchBreadcrumbs
-              className={cn(
-                ['order-3', 'md:order-2'],
-                'flex-1',
-                ['justify-between', 'md:justify-center'],
-                'basis-1/2',
-                '[&>.breadcrumbs]:md:py-0',
-              )}
-              crumbs={headerBreadcrumbs}
-            />
-          )}
           <div
             className={cn(
               'navbar-end',
@@ -91,11 +80,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               'font-bold',
             )}
           >
-            <ButtonLink to="/library" size="sm">
-              <EmojiText emoji="📗" label="green book" className={cn('mt-0.5')}>
-                Library
-              </EmojiText>
-            </ButtonLink>
+            <RelatedArtistSearchForm />
           </div>
         </Container>
       </header>
@@ -104,6 +89,16 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
         aria-live="polite"
         aria-busy={loading}
       >
+        {headerBreadcrumbs && (
+          <SearchBreadcrumbs
+            className={cn(
+              // TODO Figure out how we should display these
+              'hidden',
+              '[&>.breadcrumbs]:md:py-0',
+            )}
+            crumbs={headerBreadcrumbs}
+          />
+        )}
         {children}
       </main>
       {!hideFooter && (
