@@ -11,13 +11,17 @@ const UserProvider: React.FC<
   React.PropsWithChildren<{ user: User | null }>
 > = ({ user, children }) => {
   const sendEvent = useGTM()
+  const [, setIdentified] = React.useState(false)
 
   useEffect(() => {
-    if (user?.id) {
-      sendEvent({
-        user_id: user.id,
-      })
-    }
+    setIdentified((identified) => {
+      if (!identified && user?.id) {
+        sendEvent({ user_id: user.id })
+        return true
+      }
+
+      return false
+    })
   }, [user?.id, sendEvent])
 
   return <UserContext.Provider value={user}>{children}</UserContext.Provider>

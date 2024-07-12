@@ -8,21 +8,16 @@ import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import { Layout } from '~/components/Base'
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
+export async function loader({ params, request, context }: LoaderFunctionArgs) {
   const { logger } = getRequestContextValues(request, context)
-  const spotify = await spotifyLib.initializeFromRequest(request, context)
-  const url = new URL(request.url)
-  const label = url.searchParams.get('label')
+  const label = params.slug
 
   if (!label) {
-    throw badRequest({
-      error: 'label search paramter must be provided to search labels',
-      logger,
-    })
+    throw badRequest({ error: 'slug must be provided in URL', logger })
   }
 
+  const spotify = await spotifyLib.initializeFromRequest(request, context)
   const album = await spotify.getRandomAlbumForLabel(label)
   const wiki = await wikipedia.getSummaryForAlbum({
     album: album.name,
@@ -38,12 +33,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
 export const ErrorBoundary = AlbumErrorBoundary
 
-export default function LabelSearch() {
+export default function LabelBySlug() {
   const data = useLoaderData<typeof loader>()
 
-  return (
-    <Layout hideFooter headerBreadcrumbs={['Labels', data.label]}>
-      <Album album={data.album} wiki={data.wiki} />
-    </Layout>
-  )
+  return <Album album={data.album} wiki={data.wiki} />
 }

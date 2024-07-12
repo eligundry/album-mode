@@ -5,7 +5,6 @@ import React from 'react'
 
 import { cn } from '~/lib/util'
 
-export { default as Layout } from './LayoutV2'
 export { default as EmojiText } from './EmojiText'
 
 const headingVariants = cva('', {
