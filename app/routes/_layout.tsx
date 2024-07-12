@@ -1,3 +1,4 @@
+import { useClickOutside } from '@react-hookz/web'
 import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { Outlet, useLoaderData } from '@remix-run/react'
 import React, { useMemo } from 'react'
@@ -111,6 +112,12 @@ function useNavSections() {
 
 const DesktopHeader: React.FC = () => {
   const navSections = useNavSections()
+  const [dropdownOpen, setDropdownOpen] = React.useState(false)
+  const navRef = React.useRef<HTMLDivElement>(null)
+
+  useClickOutside(navRef, () => setDropdownOpen(false))
+
+  console.log({ dropdownOpen })
 
   return (
     <header
@@ -126,10 +133,17 @@ const DesktopHeader: React.FC = () => {
       <Container
         className={cn('flex', 'flex-wrap', ['pt-0', 'md:pt-2'], 'align-center')}
       >
-        <div className={cn('dropdown dropdown-end absolute w-full')}>
-          <div
-            tabIndex={0}
-            role="button"
+        <div
+          className={cn(
+            'dropdown dropdown-end absolute w-full',
+            dropdownOpen ? 'dropdown-open' : '[&>.dropdown-content]:invisible',
+          )}
+        >
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              setDropdownOpen((prev) => !prev)
+            }}
             className={cn(
               'btn btn-square btn-sm btm-nav-sm btn-ghost mr-2 !p-0',
             )}
@@ -147,9 +161,18 @@ const DesktopHeader: React.FC = () => {
                 d="M4 6h16M4 12h16M4 18h16"
               ></path>
             </svg>
-          </div>
+          </button>
           <nav
-            className={cn('dropdown-content bg-base-100 w-full z-10 pb-2 mt-2')}
+            ref={navRef}
+            className={cn(
+              'dropdown-content bg-base-100 w-full z-10 pb-2 px-2 mt-2',
+              'border-x-2 border-b-2 border-primary border-solid rounded-xl',
+            )}
+            onClick={(e) => {
+              if (e.target instanceof HTMLAnchorElement) {
+                setDropdownOpen(false)
+              }
+            }}
           >
             <HomeSection title="Spotify" subtitle="">
               <ButtonLinkGroupWrapper>
