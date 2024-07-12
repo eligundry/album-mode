@@ -119,26 +119,21 @@ export class Spotify {
   }
 
   getRandomAlbumForArtistByID = async (artistID: string) => {
-    const artistPromise = this.api.artists.get(artistID)
-    let resp = await this.api.artists.albums(artistID, 'album', this.country)
-    let offset = random(0, Math.max(resp.total - 1, 0))
+    const artistPromise = await this.api.artists.get(artistID)
+    let resp = await this.api.artists.albums(
+      artistID,
+      'album',
+      this.country,
+      50,
+    )
 
-    if (offset > resp.items.length - 1) {
-      resp = await this.api.artists.albums(
-        artistID,
-        'album',
-        this.country,
-        1,
-        offset,
-      )
-      offset = 0
+    if (!resp.items.length) {
+      throw new Error('artist has no albums, please retry')
     }
 
-    const album = resp.items[offset]
+    const album = sample(resp.items) ?? resp.items[0]
 
-    if (!album) {
-      throw new Error('could not fetch album from that offset, please retry')
-    } else if (album.id === this.lastPresentedID) {
+    if (album.id === this.lastPresentedID) {
       throw new Error('album is the one we last presented, please retry')
     }
 
@@ -503,10 +498,15 @@ export class Spotify {
     return playlist
   }
 
-  searchArists = async (term: string): Promise<SpotifyArtist[]> => {
+  searchArists = async (
+    term: string,
+    limit?: number,
+  ): Promise<SpotifyArtist[]> => {
     const results = await this.search({
       value: term,
       type: ['artist'],
+      // @ts-ignore
+      limit,
     })
 
     return (
@@ -610,7 +610,7 @@ export class Spotify {
     }
   }
 
-  getUserTopArtists = async (): Promise<SpotifyArtist[]> => {
+  getUserTopArtists = async (limit = 50): Promise<SpotifyArtist[]> => {
     if (!this.api.getAccessToken()) {
       throw new Error('User must be logged in to use this')
     }
@@ -618,7 +618,8 @@ export class Spotify {
     const artists = await this.api.currentUser.topItems(
       'artists',
       undefined,
-      50,
+      // @ts-ignore C'mon the typing on this API is wild
+      limit,
     )
     return artists.items.map((artist) => ({
       name: artist.name,

@@ -1,26 +1,35 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
+import startCase from 'lodash/startCase'
 
 import { getRequestContextValues } from '~/lib/context.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
-import { forwardServerTimingHeaders } from '~/lib/responses.server'
+import { badRequest, forwardServerTimingHeaders } from '~/lib/responses.server'
 import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
 import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import { Layout } from '~/components/Base'
 import config from '~/config'
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  const { serverTiming } = getRequestContextValues(request, context)
+export async function loader({ request, params, context }: LoaderFunctionArgs) {
+  const { serverTiming, logger } = getRequestContextValues(request, context)
+  const genre = params.genre
+
+  if (!genre) {
+    throw badRequest({
+      error: 'genre param must be provided to search via genre',
+      logger,
+    })
+  }
+
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request, context),
   )
   const album = await retry(async (_, attempt) => {
-    const album = await spotify.getRandomNewRelease()
+    const album = await spotify.getRandomAlbumByGenre(genre)
     serverTiming.add({
       label: 'attempts',
       desc: `${attempt} Attempt(s)`,
@@ -38,11 +47,12 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   return json(
     {
       album,
+      genre,
       wiki,
     },
     {
       headers: {
-        'set-cookie': await userSettings.setLastPresented({
+        'Set-Cookie': await userSettings.setLastPresented({
           request,
           lastPresented: album.id,
         }),
@@ -54,21 +64,30 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
 export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
-export const meta: AppMetaFunction<typeof loader> = ({ matches }) =>
-  mergeMeta(matches, [
-    { title: `New Releases | ${config.siteTitle}` },
+export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
+  if (!data) {
+    return []
+  }
+
+  const genre = startCase(data.genre)
+
+  return mergeMeta(matches, [
+    { title: `${genre} | ${config.siteTitle}` },
     {
       name: 'description',
-      content: 'Listen to a random album that just came out!',
+      content: `Discover new music from the ${genre} genre on Spotify!`,
     },
   ])
+}
 
-export default function SpotifyNewReleases() {
+export default function GenreSearch() {
   const data = useLoaderData<typeof loader>()
 
-  return (
-    <Layout hideFooter headerBreadcrumbs={['Spotify', 'New Releases']}>
-      <Album album={data.album} wiki={data.wiki} />
-    </Layout>
-  )
+  const { album, genre } = data
+
+  if (!album?.external_urls?.spotify) {
+    return null
+  }
+
+  return <Album album={album} wiki={data.wiki} />
 }

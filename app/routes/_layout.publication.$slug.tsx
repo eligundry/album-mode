@@ -12,7 +12,7 @@ import wikipedia from '~/lib/wikipedia.server'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import { A, Heading, Layout } from '~/components/Base'
+import { A, Heading } from '~/components/Base'
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import config from '~/config'
 import useUTM from '~/hooks/useUTM'
@@ -212,7 +212,7 @@ export default function PublicationBySlug() {
   }
 
   return (
-    <Layout headerBreadcrumbs={breadcrumbs} hideFooter>
+    <>
       {data.type === 'spotify' && (
         <Album album={data.album} wiki={data.wiki} footer={footer} />
       )}
@@ -229,6 +229,6 @@ export default function PublicationBySlug() {
           footer={footer}
         />
       )}
-    </Layout>
+    </>
   )
 }

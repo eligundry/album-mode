@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+import { cn } from '~/lib/util'
 
 import { Heading, Typography } from '~/components/Base'
 
@@ -15,12 +15,12 @@ const HomeSection: React.FC<React.PropsWithChildren<Props>> = ({
   className,
 }) => {
   return (
-    <section className={clsx(className)}>
-      <Heading level="h3" className={clsx('mb-0')}>
+    <section className={cn(className)}>
+      <Heading level="h3" className={cn('mb-0')}>
         {title}
       </Heading>
       {typeof subtitle === 'string' ? (
-        <Typography variant="hint" className={clsx('mb-2')}>
+        <Typography variant="hint" className={cn('mb-2')}>
           {subtitle}
         </Typography>
       ) : (
