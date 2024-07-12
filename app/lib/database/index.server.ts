@@ -145,13 +145,13 @@ export class DatabaseClient {
       .all()
       .then((genres) => genres.map((genre) => genre.name))
 
-  searchGenres = async (q: string) =>
+  searchGenres = async (q: string, limit?: number) =>
     this.db
       .select({ name: spotifyGenres.name })
       .from(spotifyGenres)
       .where(like(spotifyGenres.name, q + '%'))
       .orderBy(spotifyGenres.id)
-      .limit(100 * q.length)
+      .limit(limit ?? 100 * q.length)
       .all()
       .then((genres) => genres.map((genre) => genre.name))
 

@@ -4,7 +4,7 @@ import { ClientOnly } from 'remix-utils/client-only'
 import { cn } from '~/lib/util'
 
 import AutoAlert from '~/components/AutoAlert'
-import RelatedArtistSearchForm from '~/components/Forms/RelatedArtistSearch'
+import SuperHeaderSearch from '~/components/Forms/SuperHeaderSearch'
 import { DesktopLoader, MobileLoader } from '~/components/Loading'
 import SearchBreadcrumbs, {
   SearchBreadcrumbsProps,
@@ -12,7 +12,7 @@ import SearchBreadcrumbs, {
 import useLoading from '~/hooks/useLoading'
 import { useIsMobile } from '~/hooks/useMediaQuery'
 
-import { A, ButtonLink, Container, EmojiText, Link } from './index'
+import { A, Container, EmojiText, Link } from './index'
 
 interface LayoutProps {
   className?: string
@@ -47,6 +47,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
             'flex-wrap',
             ['pt-0', 'md:pt-2'],
             'align-center',
+            'has-[input:focus]:[&>:not(.super-search)]:hidden',
           )}
         >
           <h1
@@ -68,7 +69,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               <EmojiText emoji="🎉" label="party streamer" noPadding />
             </Link>
           </h1>
-          <div
+          <SuperHeaderSearch
             className={cn(
               'navbar-end',
               'flex',
@@ -78,10 +79,9 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
               'order-2 md:order-3',
               'flex-1',
               'font-bold',
+              'super-search',
             )}
-          >
-            <RelatedArtistSearchForm />
-          </div>
+          />
         </Container>
       </header>
       <main
