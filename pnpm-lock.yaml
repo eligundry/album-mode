@@ -61,9 +61,6 @@ importers:
       clsx:
         specifier: ^2.0.0
         version: 2.1.1
-      compression:
-        specifier: ^1.7.4
-        version: 1.7.4
       daisyui:
         specifier: ^4.12.10
         version: 4.12.10(postcss@8.4.38)
