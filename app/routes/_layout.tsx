@@ -117,8 +117,6 @@ const DesktopHeader: React.FC = () => {
 
   useClickOutside(navRef, () => setDropdownOpen(false))
 
-  console.log({ dropdownOpen })
-
   return (
     <header
       className={cn(
@@ -134,6 +132,7 @@ const DesktopHeader: React.FC = () => {
         className={cn('flex', 'flex-wrap', ['pt-0', 'md:pt-2'], 'align-center')}
       >
         <div
+          ref={navRef}
           className={cn(
             'dropdown dropdown-end absolute w-full',
             dropdownOpen ? 'dropdown-open' : '[&>.dropdown-content]:invisible',
@@ -163,7 +162,6 @@ const DesktopHeader: React.FC = () => {
             </svg>
           </button>
           <nav
-            ref={navRef}
             className={cn(
               'dropdown-content bg-base-100 w-full z-10 pb-2 px-2 mt-2',
               'border-x-2 border-b-2 border-primary border-solid rounded-xl',
