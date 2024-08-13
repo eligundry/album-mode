@@ -76,6 +76,9 @@ importers:
       drizzle-orm:
         specifier: ^0.31.2
         version: 0.31.2(@libsql/client@0.7.0)(@opentelemetry/api@1.8.0)(@types/react@18.3.3)(react@18.3.1)
+      isbot:
+        specifier: ^5.1.14
+        version: 5.1.14
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -8967,10 +8970,10 @@ packages:
         integrity: sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw==,
       }
 
-  isbot@5.1.9:
+  isbot@5.1.14:
     resolution:
       {
-        integrity: sha512-NITFjA2Jpcv1qWCpzqZQoW/66H3xXbF+n4yJIXr/gIn/wgaSKOPXTTczswiKMYx+BVymG9lm30ZGPtFWqAD4hA==,
+        integrity: sha512-4X8KZHyaIqXOqEv1qfZOqshMX3r7Q/VtMEMzuGPZljDMEIGpX7bcGODR9gZztXdcPBEJpNioQXXBJun+xi2G5g==,
       }
     engines: { node: '>=18' }
 
@@ -9436,7 +9439,6 @@ packages:
       {
         integrity: sha512-Aj5cQ5uk/6fHdmeW0TiXK42FqUlwx7ytmMLPSaUQPin5HKKKuUPD62MAbN4OEweGBBI7q1BekoEN4gPUEL6MZA==,
       }
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   light-my-request@5.13.0:
@@ -16057,7 +16059,7 @@ snapshots:
     dependencies:
       '@netlify/functions': 2.7.0(@opentelemetry/api@1.8.0)
       '@remix-run/node': 2.9.2(typescript@5.4.5)
-      isbot: 5.1.9
+      isbot: 5.1.14
     optionalDependencies:
       vite: 5.3.0(@types/node@20.14.2)
     transitivePeerDependencies:
@@ -20613,7 +20615,7 @@ snapshots:
 
   isarray@2.0.5: {}
 
-  isbot@5.1.9: {}
+  isbot@5.1.14: {}
 
   iserror@0.0.2: {}
 

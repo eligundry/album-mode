@@ -1,5 +1,5 @@
 import { HeadersFunction, json } from '@remix-run/node'
-import { detect } from 'detect-browser'
+import { isbot } from 'isbot'
 import omit from 'lodash/omit'
 import type { Logger } from 'winston'
 import type { ZodIssue } from 'zod'
@@ -118,9 +118,7 @@ export function blockBots(request: Request) {
     })
   }
 
-  const detected = detect(userAgent)
-
-  if (detected && detected.type.startsWith('bot')) {
+  if (isbot(userAgent)) {
     throw forbidden({
       error: 'Bots are not allowed to access this resource.',
     })

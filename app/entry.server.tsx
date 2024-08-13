@@ -6,7 +6,7 @@
 import type { AppLoadContext, EntryContext } from '@remix-run/node'
 import { createReadableStreamFromReadable } from '@remix-run/node'
 import { RemixServer } from '@remix-run/react'
-import { detect } from 'detect-browser'
+import { isbot } from 'isbot'
 import { PassThrough } from 'node:stream'
 import { renderToPipeableStream } from 'react-dom/server'
 
@@ -19,11 +19,7 @@ export default function handleRequest(
   remixContext: EntryContext,
   _loadContext: AppLoadContext,
 ) {
-  const isbot =
-    detect(request.headers.get('user-agent') ?? '')?.type?.startsWith('bot') ??
-    false
-
-  return isbot
+  return isbot(request.headers.get('user-agent'))
     ? handleBotRequest(
         request,
         responseStatusCode,
