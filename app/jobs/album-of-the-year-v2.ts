@@ -14,7 +14,7 @@ interface IScrapeReviewsGallery {
 }
 
 // Use to scrape pages like https://www.albumoftheyear.org/publication/1-pitchfork/reviews/
-export async function scrapeReviewsGallery({
+async function scrapeReviewsGallery({
   slug,
   onShouldContinue,
   onWrite,
@@ -84,5 +84,85 @@ export async function scrapeReviewsGallery({
   }
 }
 
-const api = { scrapeReviewsGallery }
+// https://www.albumoftheyear.org/list/1107-pitchforks-50-best-albums-of-2018/
+async function scrapeList({
+  slug,
+  onShouldContinue,
+  onWrite,
+}: IScrapeReviewsGallery) {
+  const browser = await chromium.launch()
+
+  try {
+    for (let pageNum = 1, shouldContinue = true; shouldContinue; pageNum++) {
+      const context = await browser.newContext({
+        userAgent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
+      })
+      const page = await context.newPage()
+      const url = new URL(
+        `https://www.albumoftheyear.org/list/${slug}/${pageNum}`,
+      )
+
+      console.log(`fetching ${url}`)
+      const response = await page.goto(url.toString(), {
+        timeout: 60 * 1000,
+        waitUntil: 'domcontentloaded',
+      })
+
+      if (!response) {
+        console.warn('no response')
+        shouldContinue = false
+        continue
+      }
+
+      if (response.status() !== 200) {
+        console.error(`could not fetch ${url}`, await page.innerHTML('body'))
+        shouldContinue = false
+        continue
+      }
+
+      // we were redirected, bail
+      if (response.url() !== url.toString()) {
+        shouldContinue = false
+        continue
+      }
+
+      const albumBlocks = await page.locator('.albumListRow').all()
+
+      for (const block of albumBlocks) {
+        const artistAlbum = await block
+          .locator('.albumListTitle a')
+          .textContent()
+
+        if (!artistAlbum) {
+          console.warn('no artistAlbum', block)
+          continue
+        }
+
+        const [artist, album] = artistAlbum.split(' - ')
+        const url = await block
+          .locator('.albumListBlurbLink a')
+          .getAttribute('href')
+
+        if (album && artist && url) {
+          const item = { album, artist, url }
+          shouldContinue = await onShouldContinue(item)
+          if (shouldContinue) {
+            await onWrite(item)
+          } else {
+            shouldContinue = false
+            break
+          }
+        }
+      }
+
+      await page.close()
+      await context.close()
+    }
+  } finally {
+    await browser.close()
+  }
+}
+
+const api = { scrapeReviewsGallery, scrapeList }
 export default api
