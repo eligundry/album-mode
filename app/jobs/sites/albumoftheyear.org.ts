@@ -29,7 +29,7 @@ async function scrapeReviewsGallery({ slug, onWrite }: IScrapeReviewsGallery) {
       })
       const page = await context.newPage()
       const url = new URL(
-        `https://www.albumoftheyear.org/publication/${slug}/reviews/${pageNum}?sort=added`,
+        `https://www.albumoftheyear.org/publication/${slug}/reviews/${pageNum > 1 ? pageNum + '/' : ''}?sort=added`,
       )
 
       logger.info('fetching albumoftheyear.org page', { url, pageNum })

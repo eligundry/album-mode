@@ -20,11 +20,16 @@ export const albumCsvSchema = z.object({
     .optional()
     .default(true)
     .transform((v) => (v === true ? 1 : 0)),
-  score: z.number().optional(),
+  score: z.number().min(0).max(100).optional(),
   metadata: z
     .object({
       blurb: z.string().optional(),
-      spotify: z.object({}),
+      spotify: z
+        .object({
+          itemType: z.enum(['album', 'track', 'playlist']),
+          itemID: z.coerce.string(),
+        })
+        .optional(),
       bandcamp: z
         .object({
           url: z.string().url(),
@@ -32,5 +37,7 @@ export const albumCsvSchema = z.object({
         })
         .optional(),
     })
+    .optional()
+    .default({})
     .transform((v) => JSON.stringify(v)),
 })
