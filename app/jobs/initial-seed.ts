@@ -4,6 +4,7 @@ import '~/env.server'
 
 import albumOfTheYear from './sites/albumoftheyear.org'
 import bandcampDaily from './sites/bandcamp-daily'
+import christgau from './sites/robert-christgau'
 import { albumCsvSchema } from './types'
 
 const stream = csv.format({ headers: false })
@@ -66,7 +67,33 @@ await bandcampDaily.scrape({
       },
     })
 
-    stream.write(item)
+    stream.write(serialziedItem)
+    return true
+  },
+})
+
+await christgau.scrapePazzAndJop({
+  onWrite: async (item) => {
+    const serialziedItem = albumCsvSchema.parse({
+      reviewer: 'robert-christgau',
+      reviewURL: item.url,
+      name: item.album,
+      creator: item.artist,
+    })
+    stream.write(serialziedItem)
+    return true
+  },
+})
+
+await christgau.scrapePazzAndJopDeansLists({
+  onWrite: async (item) => {
+    const serialziedItem = albumCsvSchema.parse({
+      reviewer: 'robert-christgau',
+      reviewURL: item.url,
+      name: item.album,
+      creator: item.artist,
+    })
+    stream.write(serialziedItem)
     return true
   },
 })
