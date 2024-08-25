@@ -21,7 +21,7 @@ export const envSchema = z.object({
   SEED_SCRIPT: z.coerce.boolean().default(false),
   SPOTIFY_CLIENT_ID: z.string(),
   SPOTIFY_CLIENT_SECRET: z.string(),
-  TURSO_DATABASE_URL: z.string().url().startsWith('libsql://'),
+  TURSO_DATABASE_URL: z.string().url(),
   TURSO_DATABASE_AUTH_TOKEN: z.string(),
 })
 

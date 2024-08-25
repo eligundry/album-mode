@@ -2,7 +2,7 @@ import { chromium } from 'playwright'
 
 import { constructLogger } from '~/lib/logging.server'
 
-import { IScraperArgs } from './types'
+import { IScraperArgs } from '../types'
 
 interface AlbumOfTheYearItem {
   album: string
@@ -29,7 +29,7 @@ async function scrapeReviewsGallery({ slug, onWrite }: IScrapeReviewsGallery) {
       })
       const page = await context.newPage()
       const url = new URL(
-        `https://www.albumoftheyear.org/publication/${slug}/reviews/${pageNum}`,
+        `https://www.albumoftheyear.org/publication/${slug}/reviews/${pageNum}?sort=added`,
       )
 
       logger.info('fetching albumoftheyear.org page', { url, pageNum })
