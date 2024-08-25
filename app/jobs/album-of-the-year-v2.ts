@@ -1,5 +1,9 @@
 import { chromium } from 'playwright'
 
+import { constructLogger } from '~/lib/logging.server'
+
+import { IScraperArgs } from './types'
+
 interface AlbumOfTheYearItem {
   album: string
   artist: string
@@ -7,18 +11,14 @@ interface AlbumOfTheYearItem {
   url: string
 }
 
-interface IScrapeReviewsGallery {
+interface IScrapeReviewsGallery extends IScraperArgs<AlbumOfTheYearItem> {
   slug: string
-  onShouldContinue: (item: AlbumOfTheYearItem) => Promise<boolean>
-  onWrite: (item: AlbumOfTheYearItem) => Promise<void>
 }
 
+const logger = constructLogger()
+
 // Use to scrape pages like https://www.albumoftheyear.org/publication/1-pitchfork/reviews/
-async function scrapeReviewsGallery({
-  slug,
-  onShouldContinue,
-  onWrite,
-}: IScrapeReviewsGallery) {
+async function scrapeReviewsGallery({ slug, onWrite }: IScrapeReviewsGallery) {
   const browser = await chromium.launch()
 
   try {
@@ -32,20 +32,24 @@ async function scrapeReviewsGallery({
         `https://www.albumoftheyear.org/publication/${slug}/reviews/${pageNum}`,
       )
 
-      console.log(`fetching ${url}`)
+      logger.info('fetching albumoftheyear.org page', { url, pageNum })
       const response = await page.goto(url.toString(), {
         timeout: 60 * 1000,
         waitUntil: 'domcontentloaded',
       })
 
       if (!response) {
-        console.warn('no response')
+        logger.warn('no response, terminating fetching loop', { url, pageNum })
         shouldContinue = false
         continue
       }
 
       if (response.status() !== 200) {
-        console.error(`could not fetch ${url}`, await page.innerHTML('body'))
+        logger.error('could not fetch, terminating fetching loop', {
+          url,
+          pageNum,
+          pageHtml: await page.innerHTML('body'),
+        })
         shouldContinue = false
         continue
       }
@@ -57,6 +61,7 @@ async function scrapeReviewsGallery({
       }
 
       const albumBlocks = await page.locator('.albumBlock').all()
+      logger.info('attempting to write albums', { count: albumBlocks.length })
 
       for (const block of albumBlocks) {
         const artist = await block.locator('.artistTitle').textContent()
@@ -66,11 +71,14 @@ async function scrapeReviewsGallery({
 
         if (album && artist && url) {
           const item = { album, artist, score: Number(score), url }
-          shouldContinue = await onShouldContinue(item)
-          if (shouldContinue) {
-            await onWrite(item)
-          } else {
-            shouldContinue = false
+          shouldContinue = await onWrite(item)
+
+          if (!shouldContinue) {
+            logger.info('exiting fetching loop, onWrite returned false', {
+              item,
+              url,
+              pageNum,
+            })
             break
           }
         }
@@ -85,11 +93,7 @@ async function scrapeReviewsGallery({
 }
 
 // https://www.albumoftheyear.org/list/1107-pitchforks-50-best-albums-of-2018/
-async function scrapeList({
-  slug,
-  onShouldContinue,
-  onWrite,
-}: IScrapeReviewsGallery) {
+async function scrapeList({ slug, onWrite }: IScrapeReviewsGallery) {
   const browser = await chromium.launch()
 
   try {
@@ -103,20 +107,24 @@ async function scrapeList({
         `https://www.albumoftheyear.org/list/${slug}/${pageNum}`,
       )
 
-      console.log(`fetching ${url}`)
+      logger.info('fetching albumoftheyear.org page', { url, pageNum })
       const response = await page.goto(url.toString(), {
         timeout: 60 * 1000,
         waitUntil: 'domcontentloaded',
       })
 
       if (!response) {
-        console.warn('no response')
+        logger.warn('no response, terminating fetching loop', { url, pageNum })
         shouldContinue = false
         continue
       }
 
       if (response.status() !== 200) {
-        console.error(`could not fetch ${url}`, await page.innerHTML('body'))
+        logger.error('could not fetch, terminating fetching loop', {
+          url,
+          pageNum,
+          pageHtml: await page.innerHTML('body'),
+        })
         shouldContinue = false
         continue
       }
@@ -128,6 +136,7 @@ async function scrapeList({
       }
 
       const albumBlocks = await page.locator('.albumListRow').all()
+      logger.info('attempting to write albums', { count: albumBlocks.length })
 
       for (const block of albumBlocks) {
         const artistAlbum = await block
@@ -135,7 +144,7 @@ async function scrapeList({
           .textContent()
 
         if (!artistAlbum) {
-          console.warn('no artistAlbum', block)
+          logger.warn('no artistAlbum', { block })
           continue
         }
 
@@ -146,11 +155,14 @@ async function scrapeList({
 
         if (album && artist && url) {
           const item = { album, artist, url }
-          shouldContinue = await onShouldContinue(item)
-          if (shouldContinue) {
-            await onWrite(item)
-          } else {
-            shouldContinue = false
+          shouldContinue = await onWrite(item)
+
+          if (!shouldContinue) {
+            logger.info('exiting fetching loop, onWrite returned false', {
+              item,
+              url,
+              pageNum,
+            })
             break
           }
         }
