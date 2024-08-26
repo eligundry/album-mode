@@ -11,6 +11,7 @@ export interface IScraperArgs<T> {
 
 export const albumCsvSchema = z.object({
   reviewer: z.string(),
+  list: z.string().optional().nullable().default(null),
   reviewURL: z.string().url(),
   name: z.string(),
   creator: z.string(),
@@ -20,7 +21,7 @@ export const albumCsvSchema = z.object({
     .optional()
     .default(true)
     .transform((v) => (v === true ? 1 : 0)),
-  score: z.number().min(0).max(100).optional(),
+  score: z.number().min(0).max(100).optional().nullable().default(null),
   metadata: z
     .object({
       blurb: z.string().optional(),
@@ -33,7 +34,7 @@ export const albumCsvSchema = z.object({
       bandcamp: z
         .object({
           url: z.string().url(),
-          albumID: z.string(),
+          albumID: z.coerce.string(),
         })
         .optional(),
     })

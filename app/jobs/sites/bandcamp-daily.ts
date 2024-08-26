@@ -40,7 +40,7 @@ const scrape = async ({ onWrite }: IScrapeBandcampDaily) => {
         url: url.toString(),
         pageNumber,
       })
-      const response = await page.goto(bandcampDailyURL.toString())
+      const response = await page.goto(url.toString())
 
       if (!response || !response.ok) {
         logger.warn('no response, terminating fetching loop', {
@@ -103,6 +103,7 @@ const scrape = async ({ onWrite }: IScrapeBandcampDaily) => {
           break
         }
       }
+      await page.close()
     }
   } finally {
     await browser.close()
