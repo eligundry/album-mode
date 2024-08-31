@@ -1,6 +1,7 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import retry from 'async-retry'
+import { zfd } from 'zod-form-data'
 
 import { getRequestContextValues } from '~/lib/context.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
@@ -16,6 +17,18 @@ import { A, Heading, Layout } from '~/components/Base'
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import config from '~/config'
 import useUTM from '~/hooks/useUTM'
+
+const queryParamsSchema = zfd.formData({
+  min_score: zfd
+    .numeric()
+    .transform((v) => (v < 50 ? v * 10 : v))
+    .optional(),
+  max_score: zfd
+    .numeric()
+    .transform((v) => (v < 50 ? v * 10 : v))
+    .optional(),
+  list: zfd.text().optional(),
+})
 
 export async function loader({ params, request, context }: LoaderFunctionArgs) {
   const { serverTiming, logger, database } = getRequestContextValues(
@@ -33,6 +46,20 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
   if (!slug) {
     throw badRequest({ error: 'slug must be provided in the URL', logger })
   }
+
+  const queryParamsParse = queryParamsSchema.safeParse(
+    new URL(request.url).searchParams,
+  )
+
+  if (!queryParamsParse.success) {
+    throw badRequest({
+      error: 'invalid query parameters',
+      logger,
+      issues: queryParamsParse.error.issues,
+    })
+  }
+  console.log(queryParamsParse.data)
+
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request, context),
   )
@@ -41,6 +68,9 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     const review = await serverTiming.track(`db`, () =>
       database.getRandomReviewedItem({
         reviewerSlug: slug,
+        list: queryParamsParse.data.list,
+        minScore: queryParamsParse.data.min_score,
+        maxScore: queryParamsParse.data.max_score,
         exceptID: lastPresented,
       }),
     )
@@ -119,7 +149,7 @@ export default function PublicationBySlug() {
   if ('review' in data && data.review.reviewURL.startsWith('http')) {
     const url = createExternalURL(data.review.reviewURL)
 
-    if (data.slug.includes('p4k')) {
+    if (data.slug === 'pitchfork') {
       footer = (
         <Heading level="h5" noSpacing className="my-2">
           Read the{' '}
@@ -190,6 +220,15 @@ export default function PublicationBySlug() {
           Read the{' '}
           <A href={url.toString()} target="_blank">
             Bandcamp Daily review
+          </A>
+        </Heading>
+      )
+    } else if (data.review.reviewURL.startsWith('http')) {
+      footer = (
+        <Heading level="h5" noSpacing className="my-2">
+          Read the{' '}
+          <A href={url.toString()} target="_blank">
+            {data.review.publicationName} review
           </A>
         </Heading>
       )

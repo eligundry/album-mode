@@ -3,9 +3,11 @@ import {
   Logger as DrizzleLogger,
   and,
   eq,
+  gte,
   isNull,
   like,
   lt,
+  lte,
   ne,
   sql,
 } from 'drizzle-orm'
@@ -59,9 +61,15 @@ export class DatabaseClient {
 
   getRandomReviewedItem = async ({
     reviewerSlug,
+    list,
+    minScore,
+    maxScore,
     exceptID = 0,
   }: {
     reviewerSlug: string
+    list?: string
+    minScore?: number
+    maxScore?: number
     exceptID?: number | string
   }) => {
     const itemID = await this.db
@@ -77,6 +85,9 @@ export class DatabaseClient {
       .where(
         and(
           eq(reviewedItems.resolvable, 1),
+          list ? eq(reviewedItems.list, list) : undefined,
+          minScore ? gte(reviewedItems.score, minScore) : undefined,
+          maxScore ? lte(reviewedItems.score, maxScore) : undefined,
           exceptID ? ne(reviewedItems.id, Number(exceptID)) : undefined,
         ),
       )
@@ -99,6 +110,7 @@ export class DatabaseClient {
         publicationName: reviewers.name,
         publicationSlug: reviewers.slug,
         publicationMetadata: reviewers.metadata,
+        publicationScore: reviewedItems.score,
       })
       .from(reviewedItems)
       .innerJoin(reviewers, eq(reviewers.id, reviewedItems.reviewerID))
