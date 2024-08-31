@@ -11,3 +11,4 @@ public/robots.txt
 migrations/*
 data.db
 .gitignore
+*.sh

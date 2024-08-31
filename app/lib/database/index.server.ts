@@ -397,6 +397,24 @@ export class DatabaseClient {
         ),
       )
       .run()
+
+  reviewedItemIsAlreadySaved = async (params: {
+    reviewerSlug: string
+    itemURL: string
+  }) => {
+    return !!(await this.db
+      .select({ id: reviewedItems.id })
+      .from(reviewedItems)
+      .innerJoin(
+        reviewers,
+        and(
+          eq(reviewers.id, reviewedItems.reviewerID),
+          eq(reviewers.slug, params.reviewerSlug),
+        ),
+      )
+      .where(like(reviewedItems.reviewURL, params.itemURL + '%'))
+      .get())
+  }
 }
 
 interface ConstructDatabaseOptions {
