@@ -8,6 +8,7 @@ import '~/env.server'
 
 import albumOfTheYear from './sites/albumoftheyear.org'
 import bandcampDaily from './sites/bandcamp-daily'
+import residentAdvisor from './sites/resident-advisor'
 import { albumCsvSchema } from './types'
 
 const localDB = constructConsoleDatabase({ local: true })
@@ -98,9 +99,10 @@ await bandcampDaily.scrape({
   onWrite: async (item) => {
     const serialziedItem = albumCsvSchema.parse({
       reviewer: 'bandcamp-daily',
-      reviewURL: item.url,
+      reviewURL: item.bandcampDailyURL,
       name: item.title,
       creator: item.artist,
+      service: 'bandcamp',
       metadata: {
         bandcamp: {
           url: item.raw.url,
@@ -117,6 +119,44 @@ await bandcampDaily.scrape({
     if (!alreadySaved) {
       const dbItem = {
         reviewerID: bandcampDailyPublication.id,
+        reviewURL: serialziedItem.reviewURL,
+        list: serialziedItem.list,
+        name: serialziedItem.name,
+        creator: serialziedItem.creator,
+        service: serialziedItem.service,
+        score: serialziedItem.score,
+        metadata: JSON.parse(serialziedItem.metadata),
+      }
+      localDB.model.insertReviewedItem(dbItem)
+      remoteDB.model.insertReviewedItem(dbItem)
+      stream.write(serialziedItem)
+    }
+
+    return !alreadySaved
+  },
+})
+
+const residentAdvisorPublication =
+  await localDB.model.getPublication('resident-advisor')
+
+await residentAdvisor.scrape({
+  onWrite: async (item) => {
+    const serialziedItem = albumCsvSchema.parse({
+      reviewer: 'resident-advisor',
+      reviewURL: item.url,
+      name: item.title,
+      creator: item.artist,
+      list: item.raRecommends ? 'RA Recommends' : null,
+    })
+
+    const alreadySaved = await localDB.model.reviewedItemIsAlreadySaved({
+      reviewerSlug: 'bandcamp-daily',
+      itemURL: item.url,
+    })
+
+    if (!alreadySaved) {
+      const dbItem = {
+        reviewerID: residentAdvisorPublication.id,
         reviewURL: serialziedItem.reviewURL,
         list: serialziedItem.list,
         name: serialziedItem.name,

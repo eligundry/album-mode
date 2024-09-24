@@ -64,6 +64,7 @@ export const reviewedItems = sqliteTable(
       bandcamp?: {
         url: string
         albumID: string
+        imageURL: string
       }
       twitter?: {
         id: string

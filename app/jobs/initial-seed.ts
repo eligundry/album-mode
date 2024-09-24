@@ -62,13 +62,14 @@ await bandcampDaily.scrape({
   onWrite: async (item) => {
     const serialziedItem = albumCsvSchema.parse({
       reviewer: 'bandcamp-daily',
-      reviewURL: item.url,
+      reviewURL: item.bandcampDailyURL,
       name: item.title,
       creator: item.artist,
       metadata: {
         bandcamp: {
           url: item.raw.url,
           albumID: item.raw.id,
+          imageURL: item.imageUrl,
         },
       },
     })

@@ -34,5 +34,5 @@ export const webAppEnvSchema = envSchema.extend({
   GROWTHBOOK_API_HOST: z.string().url().default('https://cdn.growthbook.io'),
   GROWTHBOOK_CLIENT_KEY: z.string(),
   OG_API_URL: z.string().url(),
-  LOCAL_DATABASE_URL: z.never().optional(),
+  LOCAL_DATABASE_URL: z.never().optional().catch(undefined),
 })

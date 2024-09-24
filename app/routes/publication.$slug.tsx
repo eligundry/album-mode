@@ -261,7 +261,7 @@ export default function PublicationBySlug() {
             album: data.review.album,
             albumID: data.review.reviewMetadata.bandcamp.albumID,
             artist: data.review.artist,
-            imageURL: data.review.reviewMetadata.imageURL ?? null,
+            imageURL: data.review.reviewMetadata.bandcamp.imageURL ?? null,
             url: data.review.reviewMetadata.bandcamp.url,
           }}
           wiki={data.wiki}

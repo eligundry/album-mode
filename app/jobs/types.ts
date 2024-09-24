@@ -35,6 +35,7 @@ export const albumCsvSchema = z.object({
         .object({
           url: z.string().url(),
           albumID: z.coerce.string(),
+          imageURL: z.string().url(),
         })
         .optional(),
     })
