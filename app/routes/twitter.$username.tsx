@@ -123,7 +123,7 @@ export default function AlbumFromTwitter() {
           album: data.tweet.album,
           albumID: data.tweet.reviewMetadata.bandcamp.albumID,
           artist: data.tweet.artist,
-          imageURL: data.tweet.reviewMetadata.imageURL ?? null,
+          imageURL: data.tweet.reviewMetadata.bandcamp.imageURL ?? null,
           url: data.tweet.reviewMetadata.bandcamp.url,
         }}
         footer={tweet}
