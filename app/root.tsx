@@ -4,7 +4,7 @@ import { promiseHash } from 'remix-utils/promise'
 
 import { spotifyStrategy } from '~/lib/auth.server'
 import { getRequestContextValues } from '~/lib/context.server'
-import growthbookLib from '~/lib/growthbook.server'
+// import growthbookLib from '~/lib/growthbook.server'
 import userSettings from '~/lib/userSettings.server'
 
 import Document from '~/components/Base/Document'
@@ -75,16 +75,16 @@ export const meta: MetaFunction<typeof loader> = ({ data, location }) => {
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const { serverTiming, env } = getRequestContextValues(request, context)
 
-  const { session, settings, gb } = await promiseHash({
+  const { session, settings } = await promiseHash({
     session: serverTiming.track('root.spotify.session', () =>
       spotifyStrategy.getSession(request),
     ),
     settings: serverTiming.track('root.userSettings.get', () =>
       userSettings.get(request),
     ),
-    gb: serverTiming.track('root.growthbook.get', () =>
-      growthbookLib.initializeFromRequest(request),
-    ),
+    // gb: serverTiming.track('root.growthbook.get', () =>
+    //   growthbookLib.initializeFromRequest(request),
+    // ),
   })
 
   return json(
@@ -92,8 +92,10 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       user: session?.user ?? null,
       settings,
       growthbook: {
-        features: gb.getFeatures(),
-        attributes: gb.getAttributes(),
+        // features: gb.getFeatures(),
+        // attributes: gb.getAttributes(),
+        features: {},
+        attributes: {},
       },
       ENV: {
         SPOTIFY_CLIENT_ID: env.SPOTIFY_CLIENT_ID,
