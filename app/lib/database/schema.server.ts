@@ -46,16 +46,16 @@ export const reviewedItems = sqliteTable(
   {
     ...recordKeeping,
     reviewerID: integer('reviewerID').notNull(),
+    list: text('list'),
     reviewURL: text('reviewURL').notNull(),
     name: text('name').notNull(),
     creator: text('creator').notNull(),
     service: text('service', { enum: ['spotify', 'bandcamp'] })
       .notNull()
       .default('spotify'),
+    score: integer('score', { mode: 'number' }),
     resolvable: integer('resolvable').notNull().$type<0 | 1>().default(1),
     metadata: blob('metadata', { mode: 'json' }).$type<{
-      reviewUnresolvable?: boolean
-      imageURL?: string | null
       blurb?: string
       spotify?: {
         itemType: 'album' | 'track' | 'playlist'
@@ -64,6 +64,7 @@ export const reviewedItems = sqliteTable(
       bandcamp?: {
         url: string
         albumID: string
+        imageURL: string
       }
       twitter?: {
         id: string
@@ -71,10 +72,9 @@ export const reviewedItems = sqliteTable(
     }>(),
   },
   (review) => ({
-    uniqueReviewURL: uniqueIndex('uq_AlbumsReviewedByPublicationReviewURL').on(
-      review.reviewerID,
-      review.reviewURL,
-    ),
+    uniqueReviewURL: uniqueIndex(
+      'uq_AlbumsReviewedByPublicationReviewURLAndList',
+    ).on(review.reviewerID, review.list, review.reviewURL),
   }),
 )
 

@@ -1,7 +1,7 @@
 {
-  "version": "5",
+  "version": "6",
   "dialect": "sqlite",
-  "id": "c00611c5-e1af-4339-88a4-29981071c8bb",
+  "id": "3905a55f-9dc8-48f0-8d72-2baf0611104a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "ReviewedItems": {
@@ -20,7 +20,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "(cast(strftime('%s', 'now') as int))"
         },
         "updatedAt": {
           "name": "updatedAt",
@@ -28,7 +28,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "(cast(strftime('%s', 'now') as int))"
         },
         "reviewerID": {
           "name": "reviewerID",
@@ -37,30 +37,48 @@
           "notNull": true,
           "autoincrement": false
         },
+        "list": {
+          "name": "list",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "reviewURL": {
           "name": "reviewURL",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "creator": {
           "name": "creator",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "service": {
           "name": "service",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "('spotify')"
+          "autoincrement": false,
+          "default": "'spotify'"
+        },
+        "score": {
+          "name": "score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "resolvable": {
           "name": "resolvable",
@@ -74,21 +92,24 @@
           "name": "metadata",
           "type": "blob",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
-        "uq_AlbumsReviewedByPublicationReviewURL": {
-          "name": "uq_AlbumsReviewedByPublicationReviewURL",
+        "uq_AlbumsReviewedByPublicationReviewURLAndList": {
+          "name": "uq_AlbumsReviewedByPublicationReviewURLAndList",
           "columns": [
             "reviewerID",
+            "list",
             "reviewURL"
           ],
           "isUnique": true
         }
       },
       "foreignKeys": {},
-      "compositePrimaryKeys": {}
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
     "Reviewers": {
       "name": "Reviewers",
@@ -106,7 +127,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "(cast(strftime('%s', 'now') as int))"
         },
         "updatedAt": {
           "name": "updatedAt",
@@ -114,32 +135,36 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "(cast(strftime('%s', 'now') as int))"
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "slug": {
           "name": "slug",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "service": {
           "name": "service",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "default": "('publication')"
+          "autoincrement": false,
+          "default": "'publication'"
         },
         "metadata": {
           "name": "metadata",
           "type": "blob",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -152,7 +177,86 @@
         }
       },
       "foreignKeys": {},
-      "compositePrimaryKeys": {}
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "SavedItems": {
+      "name": "SavedItems",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(cast(strftime('%s', 'now') as int))"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(cast(strftime('%s', 'now') as int))"
+        },
+        "deletedAt": {
+          "name": "deletedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "user": {
+          "name": "user",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "identifier": {
+          "name": "identifier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "blob",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "uq_SavedItemsIdentifier": {
+          "name": "uq_SavedItemsIdentifier",
+          "columns": [
+            "user",
+            "identifier",
+            "type",
+            "deletedAt"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
     "SpotifyGenres": {
       "name": "SpotifyGenres",
@@ -170,7 +274,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "(cast(strftime('%s', 'now') as int))"
         },
         "updatedAt": {
           "name": "updatedAt",
@@ -178,13 +282,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "(cast(strftime('%s', 'now') as int))"
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -197,7 +302,8 @@
         }
       },
       "foreignKeys": {},
-      "compositePrimaryKeys": {}
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     }
   },
   "enums": {},
@@ -205,5 +311,8 @@
     "schemas": {},
     "tables": {},
     "columns": {}
+  },
+  "internal": {
+    "indexes": {}
   }
 }

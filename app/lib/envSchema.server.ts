@@ -21,8 +21,9 @@ export const envSchema = z.object({
   SEED_SCRIPT: z.coerce.boolean().default(false),
   SPOTIFY_CLIENT_ID: z.string(),
   SPOTIFY_CLIENT_SECRET: z.string(),
-  TURSO_DATABASE_URL: z.string().url().startsWith('libsql://'),
+  TURSO_DATABASE_URL: z.string().url(),
   TURSO_DATABASE_AUTH_TOKEN: z.string(),
+  LOCAL_DATABASE_URL: z.string().url(),
 })
 
 export const webAppEnvSchema = envSchema.extend({
@@ -33,4 +34,5 @@ export const webAppEnvSchema = envSchema.extend({
   GROWTHBOOK_API_HOST: z.string().url().default('https://cdn.growthbook.io'),
   GROWTHBOOK_CLIENT_KEY: z.string(),
   OG_API_URL: z.string().url(),
+  LOCAL_DATABASE_URL: z.never().optional().catch(undefined),
 })

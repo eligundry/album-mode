@@ -3,9 +3,11 @@ import {
   Logger as DrizzleLogger,
   and,
   eq,
+  gte,
   isNull,
   like,
   lt,
+  lte,
   ne,
   sql,
 } from 'drizzle-orm'
@@ -59,9 +61,15 @@ export class DatabaseClient {
 
   getRandomReviewedItem = async ({
     reviewerSlug,
+    list,
+    minScore,
+    maxScore,
     exceptID = 0,
   }: {
     reviewerSlug: string
+    list?: string
+    minScore?: number
+    maxScore?: number
     exceptID?: number | string
   }) => {
     const itemID = await this.db
@@ -77,6 +85,9 @@ export class DatabaseClient {
       .where(
         and(
           eq(reviewedItems.resolvable, 1),
+          list ? eq(reviewedItems.list, list) : undefined,
+          minScore ? gte(reviewedItems.score, minScore) : undefined,
+          maxScore ? lte(reviewedItems.score, maxScore) : undefined,
           exceptID ? ne(reviewedItems.id, Number(exceptID)) : undefined,
         ),
       )
@@ -99,6 +110,7 @@ export class DatabaseClient {
         publicationName: reviewers.name,
         publicationSlug: reviewers.slug,
         publicationMetadata: reviewers.metadata,
+        publicationScore: reviewedItems.score,
       })
       .from(reviewedItems)
       .innerJoin(reviewers, eq(reviewers.id, reviewedItems.reviewerID))
@@ -248,14 +260,18 @@ export class DatabaseClient {
     reviewURL: string
     name: string
     creator: string
+    list?: string | null
+    score?: number | null
     metadata?: ReviewedItem['metadata']
     service?: 'spotify' | 'bandcamp'
   }) => {
     const values = {
       reviewerID: data.reviewerID,
       reviewURL: data.reviewURL,
+      list: data.list,
       name: data.name,
       creator: data.creator,
+      score: data.score,
       service: data.service ?? 'spotify',
     }
 
@@ -385,6 +401,24 @@ export class DatabaseClient {
         ),
       )
       .run()
+
+  reviewedItemIsAlreadySaved = async (params: {
+    reviewerSlug: string
+    itemURL: string
+  }) => {
+    return !!(await this.db
+      .select({ id: reviewedItems.id })
+      .from(reviewedItems)
+      .innerJoin(
+        reviewers,
+        and(
+          eq(reviewers.id, reviewedItems.reviewerID),
+          eq(reviewers.slug, params.reviewerSlug),
+        ),
+      )
+      .where(like(reviewedItems.reviewURL, params.itemURL + '%'))
+      .get())
+  }
 }
 
 interface ConstructDatabaseOptions {
@@ -409,10 +443,10 @@ export const constructRequestDatabase = ({
   }
 }
 
-export const constructConsoleDatabase = () => {
-  const env = getEnv()
+export const constructConsoleDatabase = (params?: { local?: boolean }) => {
+  const env = getEnv(params?.local)
   const turso = createTursoClient({
-    url: env.TURSO_DATABASE_URL,
+    url: env.LOCAL_DATABASE_URL ?? env.TURSO_DATABASE_URL,
     authToken: env.TURSO_DATABASE_AUTH_TOKEN,
   })
   const database = tursoDrizzle(turso)

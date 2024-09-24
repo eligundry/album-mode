@@ -1,20 +1,13 @@
 {
-  "version": "5",
+  "version": "7",
   "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1684291590904,
-      "tag": "0000_rainy_logan",
+      "version": "6",
+      "when": 1724708943644,
+      "tag": "0000_early_nocturne",
       "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1685494363201,
-      "tag": "0001_same_the_call",
-      "breakpoints": false
     }
   ]
 }
