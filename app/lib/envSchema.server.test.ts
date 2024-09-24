@@ -24,6 +24,7 @@ const baseEnv = {
   SPOTIFY_CLIENT_SECRET: 'yyy',
   TURSO_DATABASE_URL: 'libsql://database.turso.io',
   TURSO_DATABASE_AUTH_TOKEN: 'xxx',
+  LOCAL_DATABASE_URL: 'file:.data/local.db',
 }
 
 describe('envSchema', () => {
