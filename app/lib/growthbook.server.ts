@@ -1,7 +1,12 @@
-import { GrowthBook, setPolyfills } from '@growthbook/growthbook'
 import { detect } from 'detect-browser'
+import { isbot } from 'isbot'
+import { createRequire } from 'module'
 
 import { spotifyStrategy } from '~/lib/auth.server'
+
+// https://github.com/growthbook/growthbook/issues/2237
+const require = createRequire(import.meta.url)
+const { GrowthBook, setPolyfills } = require('@growthbook/growthbook')
 
 let _cache: Record<string, any> = {}
 
@@ -61,15 +66,19 @@ const initializeFromRequest = async (req: Request) => {
 
   // This is gross and not how you should detect browsers BUT if you want
   // somewhat accurate assignments on first paint, this is the way.
-  const browser = detect(req.headers.get('user-agent') ?? '')
+  const userAgent = req.headers.get('user-agent')
+  const browser = userAgent ? detect(userAgent) : null
+  const bot = userAgent ? isbot(userAgent) : true
 
   if (browser) {
     attributes = {
       ...attributes,
       browser: browser.name,
-      bot: browser.type.startsWith('bot'),
+      bot,
       mobile: browser.os === 'iOS' || browser.os === 'Android OS',
     }
+  } else {
+    attributes = { ...attributes, bot }
   }
 
   // Get the first language from the accept-language header

@@ -107,6 +107,7 @@ await bandcampDaily.scrape({
         bandcamp: {
           url: item.raw.url,
           albumID: item.raw.id,
+          imageURL: item.imageUrl,
         },
       },
     })
