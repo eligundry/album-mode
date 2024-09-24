@@ -83,7 +83,7 @@ for (const [reviewer, { minScore, aotySlug }] of Object.entries(
           metadata: JSON.parse(serialziedItem.metadata),
         }
         localDB.model.insertReviewedItem(dbItem)
-        // remoteDB.model.insertReviewedItem(dbItem)
+        remoteDB.model.insertReviewedItem(dbItem)
         stream.write(serialziedItem)
       }
 
