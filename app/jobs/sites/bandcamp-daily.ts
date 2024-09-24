@@ -28,7 +28,7 @@ const scrape = async ({ onWrite }: IScrapeBandcampDaily) => {
     const context = await browser.newContext()
 
     for (
-      let pageNumber = 39, shouldContinue = true;
+      let pageNumber = 1, shouldContinue = true;
       shouldContinue;
       pageNumber++
     ) {

@@ -83,7 +83,7 @@ for (const [reviewer, { minScore, aotySlug }] of Object.entries(
           metadata: JSON.parse(serialziedItem.metadata),
         }
         localDB.model.insertReviewedItem(dbItem)
-        remoteDB.model.insertReviewedItem(dbItem)
+        // remoteDB.model.insertReviewedItem(dbItem)
         stream.write(serialziedItem)
       }
 
@@ -114,7 +114,7 @@ await bandcampDaily.scrape({
 
     const alreadySaved = await localDB.model.reviewedItemIsAlreadySaved({
       reviewerSlug: 'bandcamp-daily',
-      itemURL: item.url,
+      itemURL: item.bandcampDailyURL,
     })
 
     if (!alreadySaved) {
@@ -151,7 +151,7 @@ await residentAdvisor.scrape({
     })
 
     const alreadySaved = await localDB.model.reviewedItemIsAlreadySaved({
-      reviewerSlug: 'bandcamp-daily',
+      reviewerSlug: 'resident-advisor',
       itemURL: item.url,
     })
 

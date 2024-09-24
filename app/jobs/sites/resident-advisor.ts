@@ -22,14 +22,17 @@ const scrape = async ({ onWrite }: IScraperArgs<ResidentAdvisorItem>) => {
 
   try {
     const page = await context.newPage()
-    await page.goto('https://ra.co/reviews/albums')
+    let pageNum = 1
+    const url = new URL('https://ra.co/reviews/albums')
+    url.searchParams.set('page', pageNum.toString())
+    await page.goto(url.toString())
     let shouldContinue = true
 
     // Get all albums listed
     while (shouldContinue) {
       const elms = await page.locator('[data-testid=monthly-list] > [pb]').all()
 
-      for (const elm of elms) {
+      for (const elm of elms.slice(-20)) {
         try {
           const artistAlbum = await elm.locator('h3').textContent()
 
@@ -55,8 +58,14 @@ const scrape = async ({ onWrite }: IScraperArgs<ResidentAdvisorItem>) => {
         }
       }
 
+      if (!shouldContinue) {
+        break
+      }
+
       await page.getByText('Load More').click()
-      await page.waitForNavigation()
+      url.searchParams.set('page', (++pageNum).toString())
+      await page.waitForURL(url.toString())
+      await page.waitForTimeout(3000)
       logger.info('navigating to next page', { url: page.url() })
     }
   } finally {
