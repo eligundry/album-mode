@@ -1,5 +1,4 @@
 import csv from '@fast-csv/format'
-import subProcess from 'child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -11,7 +10,8 @@ import albumOfTheYear from './sites/albumoftheyear.org'
 import bandcampDaily from './sites/bandcamp-daily'
 import { albumCsvSchema } from './types'
 
-const { model } = constructConsoleDatabase()
+const localDB = constructConsoleDatabase({ local: true })
+const remoteDB = constructConsoleDatabase({ local: false })
 const filename = path.join('.data', 'daily', `${new Date().toISOString()}.csv`)
 const fileStream = fs.createWriteStream(filename, { encoding: 'utf8' })
 const stream = csv.format({ headers: true })
@@ -47,6 +47,8 @@ const albumOfTheYearsToGrab = {
 for (const [reviewer, { minScore, aotySlug }] of Object.entries(
   albumOfTheYearsToGrab,
 )) {
+  const publication = await localDB.model.getPublication(reviewer)
+
   await albumOfTheYear.scrapeReviewsGallery({
     slug: aotySlug,
     onWrite: async (item) => {
@@ -63,12 +65,24 @@ for (const [reviewer, { minScore, aotySlug }] of Object.entries(
         score: item.score,
       })
 
-      const alreadySaved = await model.reviewedItemIsAlreadySaved({
+      const alreadySaved = await localDB.model.reviewedItemIsAlreadySaved({
         reviewerSlug: reviewer,
         itemURL: item.url,
       })
 
       if (!alreadySaved) {
+        const dbItem = {
+          reviewerID: publication.id,
+          reviewURL: serialziedItem.reviewURL,
+          list: serialziedItem.list,
+          name: serialziedItem.name,
+          creator: serialziedItem.creator,
+          service: serialziedItem.service,
+          score: serialziedItem.score,
+          metadata: JSON.parse(serialziedItem.metadata),
+        }
+        localDB.model.insertReviewedItem(dbItem)
+        remoteDB.model.insertReviewedItem(dbItem)
         stream.write(serialziedItem)
       }
 
@@ -76,6 +90,9 @@ for (const [reviewer, { minScore, aotySlug }] of Object.entries(
     },
   })
 }
+
+const bandcampDailyPublication =
+  await localDB.model.getPublication('bandcamp-daily')
 
 await bandcampDaily.scrape({
   onWrite: async (item) => {
@@ -92,12 +109,24 @@ await bandcampDaily.scrape({
       },
     })
 
-    const alreadySaved = await model.reviewedItemIsAlreadySaved({
+    const alreadySaved = await localDB.model.reviewedItemIsAlreadySaved({
       reviewerSlug: 'bandcamp-daily',
       itemURL: item.url,
     })
 
     if (!alreadySaved) {
+      const dbItem = {
+        reviewerID: bandcampDailyPublication.id,
+        reviewURL: serialziedItem.reviewURL,
+        list: serialziedItem.list,
+        name: serialziedItem.name,
+        creator: serialziedItem.creator,
+        service: serialziedItem.service,
+        score: serialziedItem.score,
+        metadata: JSON.parse(serialziedItem.metadata),
+      }
+      localDB.model.insertReviewedItem(dbItem)
+      remoteDB.model.insertReviewedItem(dbItem)
       stream.write(serialziedItem)
     }
 
@@ -106,19 +135,3 @@ await bandcampDaily.scrape({
 })
 
 stream.end()
-
-await new Promise((resolve, reject) => {
-  subProcess.exec(
-    `bash ./scripts/load-daily-update.sh "${filename}"`,
-    (err, stdout, stderr) => {
-      if (err) {
-        console.error(err)
-        return reject(err)
-      }
-
-      console.log(stdout.toString())
-      if (stderr) console.error(stderr.toString())
-      resolve(stdout.toString())
-    },
-  )
-})
