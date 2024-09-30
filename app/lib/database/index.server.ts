@@ -125,6 +125,61 @@ export class DatabaseClient {
     return reviewedItem
   }
 
+  getRandomHighQualityRecommendation = async ({
+    exceptID = 0,
+  }: {
+    exceptID?: number | string
+  }) => {
+    const itemID = await this.db
+      .select({ id: reviewedItems.id })
+      .from(reviewedItems)
+      .innerJoin(
+        reviewers,
+        and(
+          eq(reviewers.id, reviewedItems.reviewerID),
+          eq(reviewers.service, 'publication'),
+        ),
+      )
+      .where(
+        and(
+          eq(reviewedItems.resolvable, 1),
+          exceptID ? ne(reviewedItems.id, Number(exceptID)) : undefined,
+        ),
+      )
+      .orderBy(sql`RANDOM()`)
+      .limit(1)
+      .get()
+
+    if (!itemID) {
+      throw new Error('could not query reviewedItems by random')
+    }
+
+    const reviewedItem = await this.db
+      .select({
+        id: reviewedItems.id,
+        album: reviewedItems.name,
+        artist: reviewedItems.creator,
+        service: reviewedItems.service,
+        reviewURL: reviewedItems.reviewURL,
+        reviewMetadata: reviewedItems.metadata,
+        publicationName: reviewers.name,
+        publicationSlug: reviewers.slug,
+        publicationMetadata: reviewers.metadata,
+        publicationScore: reviewedItems.score,
+      })
+      .from(reviewedItems)
+      .innerJoin(reviewers, eq(reviewers.id, reviewedItems.reviewerID))
+      .where(eq(reviewedItems.id, itemID.id))
+      .limit(1)
+      .get()
+
+    if (!reviewedItem) {
+      throw new Error(`could not query reviewedItems for ID ${itemID}`)
+    }
+
+    return reviewedItem
+  }
+
   getPublications = async () =>
     this.db
       .select({

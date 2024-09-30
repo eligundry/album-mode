@@ -58,7 +58,6 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
       issues: queryParamsParse.error.issues,
     })
   }
-  console.log(queryParamsParse.data)
 
   const spotify = await serverTiming.track('spotify.init', () =>
     spotifyLib.initializeFromRequest(request, context),
