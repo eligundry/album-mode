@@ -114,8 +114,19 @@ const DesktopHeader: React.FC = () => {
   const navSections = useNavSections()
   const [dropdownOpen, setDropdownOpen] = React.useState(false)
   const navRef = React.useRef<HTMLDivElement>(null)
+  const hamburgerRef = React.useRef<HTMLButtonElement>(null)
 
-  useClickOutside(navRef, () => setDropdownOpen(false))
+  useClickOutside(navRef, (evt) => {
+    if (
+      evt.target === hamburgerRef.current ||
+      // @ts-ignore
+      (evt.target && hamburgerRef.current?.contains(evt.target))
+    ) {
+      return
+    }
+
+    setDropdownOpen(false)
+  })
 
   return (
     <header
@@ -128,14 +139,13 @@ const DesktopHeader: React.FC = () => {
       )}
     >
       <DesktopLoader />
-      <Container
-        className={cn('flex', 'flex-wrap', ['pt-0', 'md:pt-2'], 'align-center')}
-      >
-        <div
-          ref={navRef}
+      <Container className={cn('w-full flex flex-col')}>
+        <Container
           className={cn(
-            'dropdown dropdown-end absolute w-full',
-            dropdownOpen ? 'dropdown-open' : '[&>.dropdown-content]:invisible',
+            'flex',
+            'flex-wrap',
+            ['pt-0', 'md:pt-2'],
+            'align-center',
           )}
         >
           <button
@@ -146,6 +156,7 @@ const DesktopHeader: React.FC = () => {
             className={cn(
               'btn btn-square btn-sm btm-nav-sm btn-ghost mr-2 !p-0',
             )}
+            ref={hamburgerRef}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -161,6 +172,47 @@ const DesktopHeader: React.FC = () => {
               ></path>
             </svg>
           </button>
+          <h1
+            className={cn(
+              'text-xl',
+              'font-bold',
+              'whitespace-nowrap',
+              'order-1',
+              'mr-auto',
+              'z-20',
+            )}
+          >
+            <Link
+              to="/"
+              colorHover
+              className={cn('hover:text-primary', 'hover:no-underline')}
+            >
+              <EmojiText emoji="💿" label="compact disk" />
+              Album Mode.party{' '}
+              <EmojiText emoji="🎉" label="party streamer" noPadding />
+            </Link>
+          </h1>
+          <SuperHeaderSearch
+            className={cn(
+              'navbar-end',
+              'flex',
+              'justify-items-end',
+              'align-center',
+              'align-middle',
+              'order-2 md:order-3',
+              'flex-1',
+              'font-bold',
+              'super-search',
+            )}
+          />
+        </Container>
+        <div
+          ref={navRef}
+          className={cn(
+            'dropdown dropdown-end relative w-full',
+            dropdownOpen ? 'dropdown-open' : '[&>.dropdown-content]:invisible',
+          )}
+        >
           <nav
             className={cn(
               'dropdown-content bg-base-100 w-full z-10 pb-2 px-2 mt-2',
@@ -235,40 +287,6 @@ const DesktopHeader: React.FC = () => {
             </footer>
           </nav>
         </div>
-        <h1
-          className={cn(
-            'text-xl',
-            'font-bold',
-            'whitespace-nowrap',
-            'order-1',
-            'ml-12',
-            'mr-auto',
-            'z-20',
-          )}
-        >
-          <Link
-            to="/"
-            colorHover
-            className={cn('hover:text-primary', 'hover:no-underline')}
-          >
-            <EmojiText emoji="💿" label="compact disk" />
-            Album Mode.party{' '}
-            <EmojiText emoji="🎉" label="party streamer" noPadding />
-          </Link>
-        </h1>
-        <SuperHeaderSearch
-          className={cn(
-            'navbar-end',
-            'flex',
-            'justify-items-end',
-            'align-center',
-            'align-middle',
-            'order-2 md:order-3',
-            'flex-1',
-            'font-bold',
-            'super-search',
-          )}
-        />
       </Container>
     </header>
   )

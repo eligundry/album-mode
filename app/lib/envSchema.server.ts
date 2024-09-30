@@ -26,13 +26,21 @@ export const envSchema = z.object({
   LOCAL_DATABASE_URL: z.string().url(),
 })
 
-export const webAppEnvSchema = envSchema.extend({
-  AUTH_SECRETS: z.preprocess(
-    (val) => (typeof val === 'string' && val ? JSON.parse(val) : null),
-    z.array(z.string().min(2)),
-  ),
-  GROWTHBOOK_API_HOST: z.string().url().default('https://cdn.growthbook.io'),
-  GROWTHBOOK_CLIENT_KEY: z.string(),
-  OG_API_URL: z.string().url(),
-  LOCAL_DATABASE_URL: z.never().optional().catch(undefined),
-})
+export const webAppEnvSchema = envSchema
+  .extend({
+    AUTH_SECRETS: z.preprocess(
+      (val) => (typeof val === 'string' && val ? JSON.parse(val) : null),
+      z.array(z.string().min(2)),
+    ),
+    GROWTHBOOK_API_HOST: z.string().url().default('https://cdn.growthbook.io'),
+    GROWTHBOOK_CLIENT_KEY: z.string(),
+    OG_API_URL: z.string().url(),
+    LOCAL_DATABASE_URL: z.string().url().optional().catch(undefined),
+  })
+  .transform((val) => {
+    if (val.NODE_ENV !== 'production' && val.LOCAL_DATABASE_URL) {
+      val.TURSO_DATABASE_URL = val.LOCAL_DATABASE_URL
+    }
+
+    return val
+  })
