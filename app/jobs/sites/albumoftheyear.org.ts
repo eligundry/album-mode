@@ -16,12 +16,14 @@ interface AlbumOfTheYearItem {
 interface IScrapeReviewsGallery extends IScraperArgs<AlbumOfTheYearItem> {
   slug: string
   startPage?: number
+  sort?: 'added' | 'release-date'
 }
 
 // Use to scrape pages like https://www.albumoftheyear.org/publication/1-pitchfork/reviews/
 async function scrapeReviewsGallery({
   slug,
   startPage = 1,
+  sort = 'release-date',
   onWrite,
 }: IScrapeReviewsGallery) {
   const browser = await chromium.launch()
@@ -39,8 +41,12 @@ async function scrapeReviewsGallery({
       })
       const page = await context.newPage()
       const url = new URL(
-        `https://www.albumoftheyear.org/publication/${slug}/reviews/${pageNum > 1 ? pageNum + '/' : ''}?sort=added`,
+        `https://www.albumoftheyear.org/publication/${slug}/reviews/${pageNum > 1 ? pageNum + '/' : ''}`,
       )
+
+      if (sort === 'added') {
+        url.searchParams.set('sort', 'added')
+      }
 
       logger.info('fetching albumoftheyear.org page', { url, pageNum })
       const response = await page.goto(url.toString(), {
