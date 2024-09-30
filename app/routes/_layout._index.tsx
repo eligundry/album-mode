@@ -7,9 +7,13 @@ import spotifyLib from '~/lib/spotify.server'
 import userSettings from '~/lib/userSettings.server'
 import wikipedia from '~/lib/wikipedia.server'
 
-import { Container } from '~/components/Base'
+import Album from '~/components/Album'
+import BandcampAlbum from '~/components/Album/Bandcamp'
+import ReviewLink from '~/components/Album/ReviewLink'
+import { A, Container, Heading } from '~/components/Base'
 import { PageErrorBoundary } from '~/components/ErrorBoundary'
 import config from '~/config'
+import useUTM from '~/hooks/useUTM'
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const { serverTiming, logger, database } = getRequestContextValues(
@@ -42,7 +46,13 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         }),
       )
 
-      return { review, album: null, wiki, type: 'bandcamp' as const }
+      return {
+        review,
+        album: null,
+        wiki,
+        type: 'bandcamp' as const,
+        slug: review.publicationSlug,
+      }
     }
 
     const album = await spotify.getAlbum(review.album, review.artist)
@@ -58,7 +68,13 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       }),
     )
 
-    return { album, review, wiki, type: 'spotify' as const }
+    return {
+      album,
+      review,
+      wiki,
+      type: 'spotify' as const,
+      slug: review.publicationSlug,
+    }
   }, config.asyncRetryConfig)
 
   headers.set(
@@ -79,8 +95,41 @@ export default function Index() {
   const data = useLoaderData<typeof loader>()
 
   return (
-    <Container>
-      <h1>TBD</h1>
-    </Container>
+    <>
+      {data.type === 'spotify' && (
+        <Album
+          album={data.album}
+          wiki={data.wiki}
+          footer={
+            <ReviewLink
+              publicationSlug={data.review.publicationSlug}
+              publicationName={data.review.publicationName}
+              reviewURL={data.review.reviewURL}
+              className="my-2"
+            />
+          }
+        />
+      )}
+      {data.type === 'bandcamp' && data.review.reviewMetadata?.bandcamp && (
+        <BandcampAlbum
+          album={{
+            album: data.review.album,
+            albumID: data.review.reviewMetadata.bandcamp.albumID,
+            artist: data.review.artist,
+            imageURL: data.review.reviewMetadata.bandcamp.imageURL ?? null,
+            url: data.review.reviewMetadata.bandcamp.url,
+          }}
+          wiki={data.wiki}
+          footer={
+            <ReviewLink
+              publicationSlug={data.review.publicationSlug}
+              publicationName={data.review.publicationName}
+              reviewURL={data.review.reviewURL}
+              className="my-2"
+            />
+          }
+        />
+      )}
+    </>
   )
 }

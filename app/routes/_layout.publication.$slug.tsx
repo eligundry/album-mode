@@ -13,6 +13,7 @@ import wikipedia from '~/lib/wikipedia.server'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
+import ReviewLink from '~/components/Album/ReviewLink'
 import { A, Heading } from '~/components/Base'
 import { SearchBreadcrumbsProps } from '~/components/SearchBreadcrumbs'
 import config from '~/config'
@@ -142,97 +143,7 @@ export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
 export default function PublicationBySlug() {
   const data = useLoaderData<typeof loader>()
   const { createExternalURL } = useUTM()
-  let footer = null
   let breadcrumbs: SearchBreadcrumbsProps['crumbs'] = ['Publication']
-
-  if ('review' in data && data.review.reviewURL.startsWith('http')) {
-    const url = createExternalURL(data.review.reviewURL)
-
-    if (data.slug === 'pitchfork') {
-      footer = (
-        <Heading level="h5" noSpacing className="my-2">
-          Read the{' '}
-          <A href={url.toString()} target="_blank">
-            Pitchfork Review
-          </A>
-        </Heading>
-      )
-    } else if (data.slug === 'needle-drop') {
-      footer = (
-        <Heading level="h5" noSpacing className="my-2">
-          Watch the{' '}
-          <A href={url.toString()} target="_blank">
-            Needle Drop review on YouTube
-          </A>
-        </Heading>
-      )
-    } else if (data.slug === '33-13-sound') {
-      footer = (
-        <Heading level="h5" noSpacing className="my-2">
-          Buy the{' '}
-          <A href={url.toString()} target="_blank">
-            {data.review.publicationName} book
-          </A>{' '}
-          about this album
-        </Heading>
-      )
-    } else if (data.slug === 'robert-christgau') {
-      footer = (
-        <Heading level="h5" noSpacing className="my-2">
-          {url.pathname.includes('get_album.php') ? (
-            <>
-              Read{' '}
-              <A href={url.toString()} target="_blank">
-                {data.review.publicationName}'s Consumer Guide™️{' '}
-              </A>{' '}
-              for this album
-            </>
-          ) : (
-            <>
-              Read{' '}
-              <A href={url.toString()} target="_blank">
-                {data.review.publicationName}'s musings
-              </A>{' '}
-              about this artist
-            </>
-          )}
-        </Heading>
-      )
-    } else if (
-      data.slug === 'resident-advisor' &&
-      data.review.reviewURL.startsWith('https://')
-    ) {
-      footer = (
-        <Heading level="h5" noSpacing className="my-2">
-          Read the{' '}
-          <A href={url.toString()} target="_blank">
-            Resident Advisor Review
-          </A>
-        </Heading>
-      )
-    } else if (
-      data.slug === 'bandcamp-daily' &&
-      data.review.reviewURL.startsWith('https://')
-    ) {
-      footer = (
-        <Heading level="h5" noSpacing className="my-2">
-          Read the{' '}
-          <A href={url.toString()} target="_blank">
-            Bandcamp Daily review
-          </A>
-        </Heading>
-      )
-    } else if (data.review.reviewURL.startsWith('http')) {
-      footer = (
-        <Heading level="h5" noSpacing className="my-2">
-          Read the{' '}
-          <A href={url.toString()} target="_blank">
-            {data.review.publicationName} review
-          </A>
-        </Heading>
-      )
-    }
-  }
 
   if (data.review.publicationMetadata?.url) {
     const publicationURL = createExternalURL(
@@ -252,7 +163,18 @@ export default function PublicationBySlug() {
   return (
     <>
       {data.type === 'spotify' && (
-        <Album album={data.album} wiki={data.wiki} footer={footer} />
+        <Album
+          album={data.album}
+          wiki={data.wiki}
+          footer={
+            <ReviewLink
+              publicationSlug={data.review.publicationSlug}
+              publicationName={data.review.publicationName}
+              reviewURL={data.review.reviewURL}
+              className="my-2"
+            />
+          }
+        />
       )}
       {data.type === 'bandcamp' && data.review.reviewMetadata?.bandcamp && (
         <BandcampAlbum
@@ -264,7 +186,14 @@ export default function PublicationBySlug() {
             url: data.review.reviewMetadata.bandcamp.url,
           }}
           wiki={data.wiki}
-          footer={footer}
+          footer={
+            <ReviewLink
+              publicationSlug={data.review.publicationSlug}
+              publicationName={data.review.publicationName}
+              reviewURL={data.review.reviewURL}
+              className="my-2"
+            />
+          }
         />
       )}
     </>
