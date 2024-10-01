@@ -5,7 +5,17 @@ const defaultValue = {
   params: new URLSearchParams({
     utm_source: 'album-mode.party',
   }),
-  createExternalURL: (rawURL: string) => new URL(rawURL),
+  createExternalURL: (rawURL: string, extraParams?: Record<string, string>) => {
+    const url = new URL(rawURL)
+
+    if (extraParams) {
+      Object.entries(extraParams).forEach(([key, value]) =>
+        url.searchParams.set(key, value),
+      )
+    }
+
+    return url
+  },
 }
 
 export const UTMParametersContext = React.createContext(defaultValue)
@@ -47,9 +57,15 @@ const UTMParametersProvider: React.FC<React.PropsWithChildren<{}>> = ({
   }, [pathname, search])
 
   const createExternalURL = useCallback(
-    (rawURL: string) => {
+    (rawURL: string, extraParams?: Record<string, string>) => {
       const url = new URL(rawURL)
       params.forEach((value, key) => url.searchParams.set(key, value))
+
+      if (extraParams) {
+        Object.entries(extraParams).forEach(([key, value]) =>
+          url.searchParams.set(key, value),
+        )
+      }
 
       if (url.hostname === 'open.spotify.com') {
         url.searchParams.set('go', '1')

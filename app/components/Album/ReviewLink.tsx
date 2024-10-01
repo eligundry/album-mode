@@ -20,7 +20,10 @@ const ReviewLink: React.FC<Props> = ({
     return null
   }
 
-  const url = createExternalURL(reviewURL)
+  const url = createExternalURL(reviewURL, {
+    utm_campaign: 'publication',
+    utm_term: publicationSlug,
+  })
 
   if (publicationSlug === 'pitchfork') {
     return (
