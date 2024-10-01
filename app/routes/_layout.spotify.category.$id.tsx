@@ -14,7 +14,6 @@ import userSettings from '~/lib/userSettings.server'
 
 import PlaylistErrorBoundary from '~/components/Album/ErrorBoundary'
 import Playlist from '~/components/Album/Playlist'
-import { Layout, Link } from '~/components/Base'
 import config from '~/config'
 
 export async function loader({ params, request, context }: LoaderFunctionArgs) {
@@ -71,23 +70,7 @@ export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
 }
 
 export default function RandomSpotifyCategoryPlaylist() {
-  const { playlist, category } = useLoaderData<typeof loader>()
+  const { playlist } = useLoaderData<typeof loader>()
 
-  return (
-    <Layout
-      hideFooter
-      headerBreadcrumbs={[
-        'Spotify',
-        [
-          'Playlist Category',
-          <Link to="/spotify/categories" key="link">
-            Playlist Category
-          </Link>,
-        ],
-        category.name,
-      ]}
-    >
-      <Playlist playlist={playlist} />
-    </Layout>
-  )
+  return <Playlist playlist={playlist} />
 }

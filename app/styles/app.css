@@ -8,6 +8,10 @@ a,
   cursor: pointer;
 }
 
+.btn {
+  text-transform: uppercase;
+}
+
 details > summary {
   cursor: pointer;
 }
