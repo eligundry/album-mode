@@ -1,7 +1,11 @@
+import typography from '@tailwindcss/typography'
+import daisyui from 'daisyui'
+import type { Config } from 'tailwindcss'
+
 /**
  * @type {import('tailwindcss').Config}
  */
-module.exports = {
+export default {
   content: ['./app/**/*.{js,ts,jsx,tsx}'],
   theme: {
     container: {
@@ -16,7 +20,7 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@tailwindcss/typography'), require('daisyui')],
+  plugins: [typography, daisyui],
   important: '#album-mode-root',
   daisyui: {
     logs: false,
