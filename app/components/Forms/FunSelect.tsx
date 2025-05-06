@@ -9,20 +9,24 @@ import { useCallback, useState } from 'react'
 
 import { cn } from '~/lib/util'
 
-export interface Option {
+export type Option<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> = T & {
   label?: string
   labelElement?: React.ReactNode
   value: string
 }
 
-interface FunSelectProps {
+interface FunSelectProps<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> {
   name: string
   label?: string
-  value?: Option
+  value?: Option<T>
   className?: string
   placeholder?: string
-  loadOptions: (query?: string) => Promise<Option[]>
-  onChange: (value?: Option) => void
+  loadOptions: (query?: string) => Promise<Option<T>[]>
+  onChange: (value?: Option<T>) => void
 }
 
 const FunSelect: React.FC<FunSelectProps> = ({
@@ -34,6 +38,7 @@ const FunSelect: React.FC<FunSelectProps> = ({
   loadOptions,
   onChange,
 }) => {
+  const [input, setInput] = useState('')
   const [options, setOptions] = useState<Option[]>([])
   const [selectedOption, setSelectedOption] = useState<Option | null>(null)
 
@@ -47,6 +52,7 @@ const FunSelect: React.FC<FunSelectProps> = ({
         event.preventDefault()
       }
 
+      setInput(event.target.value)
       loadOptions(event.target.value).then(setOptions)
     },
     [loadOptions],
@@ -57,18 +63,20 @@ const FunSelect: React.FC<FunSelectProps> = ({
       immediate
       value={value}
       onChange={(option) => {
+        console.log({ option })
         onChange(option ?? undefined)
         setSelectedOption(option)
+        setInput(option?.label ?? option?.value ?? '')
       }}
       as="div"
     >
+      <input type="hidden" name={name} value={selectedOption?.value} />
       <ComboboxInput
-        name={name}
         aria-label={label}
         displayValue={(option: Option) =>
           option?.label ?? option?.value ?? undefined
         }
-        value={selectedOption?.value}
+        value={input}
         onChange={handleChange}
         placeholder={placeholder}
         autoComplete="off"
@@ -104,7 +112,7 @@ const FunSelect: React.FC<FunSelectProps> = ({
           <ComboboxOption
             key={option.value}
             value={option}
-            className={cn('data-[focus]:bg-primary-focus p-2 cursor-pointer')}
+            className={cn('data-[focus]:bg-primary/50 p-2 cursor-pointer')}
           >
             {option.labelElement ?? option.label ?? option.value}
           </ComboboxOption>

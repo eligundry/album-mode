@@ -4,7 +4,6 @@ import type {
   Album as FullAlbum,
   Playlist as FullPlaylist,
 } from '@spotify/web-api-ts-sdk'
-import clsx from 'clsx'
 
 import { getRequestContextValues } from '~/lib/context.server'
 import { badRequest, serverError } from '~/lib/responses.server'
@@ -14,7 +13,6 @@ import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
 import Playlist from '~/components/Album/Playlist'
-import { A, Layout } from '~/components/Base'
 import Debug from '~/components/Debug'
 import TweetEmbed from '~/components/TweetEmbed'
 import useUTM from '~/hooks/useUTM'
@@ -158,26 +156,5 @@ export default function AlbumFromTwitter() {
     }
   }
 
-  return (
-    <Layout
-      headerBreadcrumbs={[
-        'Twitter',
-        [
-          `@${data.tweet.publicationName}`,
-          <A
-            href={createExternalURL(
-              `https://twitter.com/${data.tweet.publicationName}`,
-            ).toString()}
-            target="_blank"
-            className={clsx('normal-case')}
-            key="twitter-link"
-          >
-            @{data.tweet.publicationName}
-          </A>,
-        ],
-      ]}
-    >
-      {album ? album : <Debug data={data} />}
-    </Layout>
-  )
+  return album ? album : <Debug data={data} />
 }

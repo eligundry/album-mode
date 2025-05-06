@@ -28,7 +28,9 @@ export const getRequestContextValues = (
     logger: requestLogger,
   })
 
-  requestLogger.info(undefined)
+  if (env.NODE_ENV === 'production') {
+    requestLogger.info(undefined)
+  }
 
   return {
     ...context,

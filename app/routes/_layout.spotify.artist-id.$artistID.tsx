@@ -1,5 +1,7 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import retry from 'async-retry'
+import { promiseHash } from 'remix-utils/promise'
 
 import { getRequestContextValues } from '~/lib/context.server'
 import { AppMetaFunction, mergeMeta } from '~/lib/remix'
@@ -14,7 +16,6 @@ import wikipedia from '~/lib/wikipedia.server'
 
 import Album from '~/components/Album'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import { Layout } from '~/components/Base'
 import config from '~/config'
 
 export async function loader({ request, params, context }: LoaderFunctionArgs) {
@@ -22,25 +23,30 @@ export async function loader({ request, params, context }: LoaderFunctionArgs) {
     request,
     context,
   )
-  const spotify = await spotifyLib.initializeFromRequest(request, context)
-  let artistParam = params.artist
+  const artistID = params.artistID
+  const spotify = await serverTiming.track('spotify.init', () =>
+    spotifyLib.initializeFromRequest(request, context),
+  )
 
-  if (!artistParam) {
+  if (!artistID) {
     throw badRequest({
-      error: 'artist name must be provided as a route param',
+      error: 'artistID must be provided as route param',
       logger,
     })
   }
 
-  let searchMethod = spotify.getRandomAlbumForRelatedArtist
+  const { album, artist } = await retry(async (_, attempt) => {
+    const resp = await promiseHash({
+      album: spotify.getRandomAlbumForRelatedArtistByID(artistID),
+      artist: spotify.getArtistByID(artistID),
+    })
+    serverTiming.add({
+      label: 'attempts',
+      desc: `${attempt} Attempt(s)`,
+    })
 
-  // If the search term is quoted, get random album for just that artist
-  if (artistParam.startsWith('"') && artistParam.endsWith('"')) {
-    searchMethod = spotify.getRandomAlbumForArtist
-  }
-
-  const album = await searchMethod(artistParam as string)
-  const artist = album.artists[0]
+    return resp
+  }, config.asyncRetryConfig)
 
   const wiki = await serverTiming.track('wikipedia', () => {
     if (!album) {
@@ -80,7 +86,7 @@ export const ErrorBoundary = AlbumErrorBoundary
 export const headers = forwardServerTimingHeaders
 export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
   if (!data) {
-    return mergeMeta(matches, [])
+    return []
   }
 
   const title = `Discover music similar to ${data.artist.name}`
@@ -89,7 +95,7 @@ export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
 
   return mergeMeta(matches, [
     { title: `${title} | ${config.siteTitle}` },
-    { name: 'description', description },
+    { name: description },
     { property: 'og:title', content: title },
     { property: 'og:description', content: description },
     { property: 'og:image', content: ogImage },
@@ -103,9 +109,5 @@ export const meta: AppMetaFunction<typeof loader> = ({ data, matches }) => {
 export default function RelatedArtistSearch() {
   const data = useLoaderData<typeof loader>()
 
-  return (
-    <Layout headerBreadcrumbs={['Artist', data.artist.name ?? '']} hideFooter>
-      <Album album={data.album} wiki={data.wiki} />
-    </Layout>
-  )
+  return <Album album={data.album} wiki={data.wiki} />
 }

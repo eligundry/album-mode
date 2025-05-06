@@ -6,7 +6,6 @@ import {
   Container,
   EmojiText,
   Heading,
-  Layout,
   Typography,
 } from '~/components/Base'
 import Document from '~/components/Base/Document'
@@ -33,26 +32,23 @@ export const PageErrorBoundary: React.FC = () => {
 
   return (
     <Document>
-      <Layout>
-        <Container>
-          <div className={clsx('prose')}>
-            <Heading level="h2">⛔️ Whoops!</Heading>
-            <Typography>
-              We seem to have run into an error. We are working on fixing it
-              now.
-            </Typography>
-            <details className={clsx('mb-6')}>
-              <summary>Detailed error message</summary>
-              <pre className={clsx('whitespace-pre-line')}>{body}</pre>
-            </details>
-            <ButtonLink to="/">
-              <EmojiText emoji="🏚" label="broken home">
-                Head Home
-              </EmojiText>
-            </ButtonLink>
-          </div>
-        </Container>
-      </Layout>
+      <Container>
+        <div className={clsx('prose')}>
+          <Heading level="h2">⛔️ Whoops!</Heading>
+          <Typography>
+            We seem to have run into an error. We are working on fixing it now.
+          </Typography>
+          <details className={clsx('mb-6')}>
+            <summary>Detailed error message</summary>
+            <pre className={clsx('whitespace-pre-line')}>{body}</pre>
+          </details>
+          <ButtonLink to="/">
+            <EmojiText emoji="🏚" label="broken home">
+              Head Home
+            </EmojiText>
+          </ButtonLink>
+        </div>
+      </Container>
     </Document>
   )
 }
