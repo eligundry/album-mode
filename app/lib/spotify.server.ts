@@ -238,20 +238,36 @@ export class Spotify {
   }
 
   getRandomAlbumForRelatedArtistByID = async (artistID: string) => {
-    // Next, we need to fetch the related artists
-    const relatedArtists = await this.api.artists.relatedArtists(artistID)
+    // Get the artist details to search for similar artists
+    const artist = await this.api.artists.get(artistID)
 
-    if (!relatedArtists.artists.length) {
-      throw new Error('could not fetch related artists')
+    // Search for artists using the artist name - this often returns similar artists
+    const searchResults = await this.search({
+      value: artist.name,
+      type: ['artist'],
+      limit: 50,
+    })
+
+    // Filter out the original artist and get potential related artists
+    let relatedArtists =
+      searchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+
+    // If no results from name search, try searching by genre
+    if (!relatedArtists.length && artist.genres.length > 0) {
+      const genreSearchResults = await this.search({
+        value: `genre:"${artist.genres[0]}"`,
+        type: ['artist'],
+        limit: 50,
+      })
+      relatedArtists =
+        genreSearchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
     }
 
-    // Find a random related artist (or the artist that was provided in the
-    // original search term)
-    const targetArtistID = sample([
-      artistID,
-      ...relatedArtists.artists.map((a) => a.id),
-      artistID,
-    ])
+    // Find a random related artist (or fall back to the original artist)
+    const targetArtistID =
+      relatedArtists.length > 0
+        ? sample([artistID, ...relatedArtists.map((a) => a.id), artistID])
+        : artistID
 
     if (!targetArtistID) {
       throw new Error('could not sample to find target artist')
@@ -581,8 +597,32 @@ export class Spotify {
   }
 
   getRelatedArtists = async (artistID: string) => {
-    const resp = await this.api.artists.relatedArtists(artistID)
-    return resp.artists
+    // Get the artist details to search for similar artists
+    const artist = await this.api.artists.get(artistID)
+
+    // Search for artists using the artist name - this often returns similar artists
+    const searchResults = await this.search({
+      value: artist.name,
+      type: ['artist'],
+      limit: 50,
+    })
+
+    // Filter out the original artist and get potential related artists
+    let relatedArtists =
+      searchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+
+    // If no results from name search, try searching by genre
+    if (!relatedArtists.length && artist.genres.length > 0) {
+      const genreSearchResults = await this.search({
+        value: `genre:"${artist.genres[0]}"`,
+        type: ['artist'],
+        limit: 50,
+      })
+      relatedArtists =
+        genreSearchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+    }
+
+    return relatedArtists
   }
 
   getRandomForYouPlaylist = async () => {
