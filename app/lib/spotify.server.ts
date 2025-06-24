@@ -240,6 +240,14 @@ export class Spotify {
     // Get the artist details to search for similar artists
     const artist = await this.api.artists.get(artistID)
 
+    // If artist popularity is less than 40, use genre search instead
+    if (artist.popularity < 40 && artist.genres.length > 0) {
+      const randomGenre = sample(artist.genres)
+      if (randomGenre) {
+        return this.getRandomAlbumByGenre(randomGenre)
+      }
+    }
+
     let relatedArtists: any[] = []
 
     // Strategy 1: Search by genre first (primary approach)
