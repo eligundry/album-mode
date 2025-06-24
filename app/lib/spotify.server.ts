@@ -241,26 +241,52 @@ export class Spotify {
     // Get the artist details to search for similar artists
     const artist = await this.api.artists.get(artistID)
 
-    // Search for artists using the artist name - this often returns similar artists
-    const searchResults = await this.search({
-      value: artist.name,
-      type: ['artist'],
-      limit: 50,
-    })
+    let relatedArtists: any[] = []
 
-    // Filter out the original artist and get potential related artists
-    let relatedArtists =
-      searchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
-
-    // If no results from name search, try searching by genre
-    if (!relatedArtists.length && artist.genres.length > 0) {
+    // Strategy 1: Search by genre first (primary approach)
+    if (artist.genres.length > 0) {
+      const randomGenre = sample(artist.genres)
       const genreSearchResults = await this.search({
-        value: `genre:"${artist.genres[0]}"`,
+        value: `genre:"${randomGenre}"`,
         type: ['artist'],
         limit: 50,
       })
       relatedArtists =
         genreSearchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+    }
+
+    // Strategy 2: If no genre results, try multiple genres
+    if (!relatedArtists.length && artist.genres.length > 1) {
+      const shuffledGenres = sampleSize(
+        artist.genres,
+        Math.min(3, artist.genres.length),
+      )
+      const multiGenreQuery = shuffledGenres
+        .map((g: string) => `genre:"${g}"`)
+        .join(' OR ')
+      const multiGenreResults = await this.search({
+        value: multiGenreQuery,
+        type: ['artist'],
+        limit: 50,
+      })
+      relatedArtists =
+        multiGenreResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+    }
+
+    // Strategy 3: Name-based search as last resort, with intersection filtering
+    if (!relatedArtists.length) {
+      const searchResults = await this.search({
+        value: artist.name,
+        type: ['artist'],
+        limit: 50,
+      })
+
+      const nameSearchResults =
+        searchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+      relatedArtists = this.filterNameIntersections(
+        artist.name,
+        nameSearchResults,
+      )
     }
 
     // Find a random related artist (or fall back to the original artist)
@@ -275,6 +301,62 @@ export class Spotify {
 
     // Finally, return a random album from the targetArtist
     return this.getRandomAlbumForArtistByID(targetArtistID)
+  }
+
+  // Helper method to filter out artists with simple name intersections
+  private filterNameIntersections = (
+    originalName: string,
+    artists: any[],
+  ): any[] => {
+    const originalWords = originalName.toLowerCase().split(/\s+/)
+
+    return artists.filter((artist) => {
+      const artistWords = artist.name.toLowerCase().split(/\s+/)
+
+      // Count meaningful word intersections (ignore common words)
+      const commonWords = new Set([
+        'the',
+        'and',
+        'or',
+        'of',
+        'in',
+        'at',
+        'to',
+        'a',
+        'an',
+      ])
+      const meaningfulOriginalWords = originalWords.filter(
+        (word: string) => !commonWords.has(word) && word.length > 2,
+      )
+      const meaningfulArtistWords = artistWords.filter(
+        (word: string) => !commonWords.has(word) && word.length > 2,
+      )
+
+      // Check for substring matches that might indicate name padding (like "MC", "DJ", etc.)
+      const hasSubstringMatch = meaningfulOriginalWords.some((origWord) =>
+        meaningfulArtistWords.some(
+          (artistWord: string) =>
+            origWord.includes(artistWord) || artistWord.includes(origWord),
+        ),
+      )
+
+      // Filter out if there's too much overlap or obvious name padding
+      const overlapRatio =
+        meaningfulOriginalWords.length > 0
+          ? meaningfulOriginalWords.filter((word) =>
+              meaningfulArtistWords.some(
+                (artistWord: string) =>
+                  artistWord.includes(word) || word.includes(artistWord),
+              ),
+            ).length / meaningfulOriginalWords.length
+          : 0
+
+      // Keep artists with low overlap or no obvious substring matches
+      return (
+        overlapRatio < 0.5 &&
+        (!hasSubstringMatch || meaningfulOriginalWords.length === 0)
+      )
+    })
   }
 
   async getRandomAlbumForLabel(label: string) {
@@ -600,26 +682,52 @@ export class Spotify {
     // Get the artist details to search for similar artists
     const artist = await this.api.artists.get(artistID)
 
-    // Search for artists using the artist name - this often returns similar artists
-    const searchResults = await this.search({
-      value: artist.name,
-      type: ['artist'],
-      limit: 50,
-    })
+    let relatedArtists: any[] = []
 
-    // Filter out the original artist and get potential related artists
-    let relatedArtists =
-      searchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
-
-    // If no results from name search, try searching by genre
-    if (!relatedArtists.length && artist.genres.length > 0) {
+    // Strategy 1: Search by genre first (primary approach)
+    if (artist.genres.length > 0) {
+      const randomGenre = sample(artist.genres)
       const genreSearchResults = await this.search({
-        value: `genre:"${artist.genres[0]}"`,
+        value: `genre:"${randomGenre}"`,
         type: ['artist'],
         limit: 50,
       })
       relatedArtists =
         genreSearchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+    }
+
+    // Strategy 2: If no genre results, try multiple genres
+    if (!relatedArtists.length && artist.genres.length > 1) {
+      const shuffledGenres = sampleSize(
+        artist.genres,
+        Math.min(3, artist.genres.length),
+      )
+      const multiGenreQuery = shuffledGenres
+        .map((g: string) => `genre:"${g}"`)
+        .join(' OR ')
+      const multiGenreResults = await this.search({
+        value: multiGenreQuery,
+        type: ['artist'],
+        limit: 50,
+      })
+      relatedArtists =
+        multiGenreResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+    }
+
+    // Strategy 3: Name-based search as last resort, with intersection filtering
+    if (!relatedArtists.length) {
+      const searchResults = await this.search({
+        value: artist.name,
+        type: ['artist'],
+        limit: 50,
+      })
+
+      const nameSearchResults =
+        searchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+      relatedArtists = this.filterNameIntersections(
+        artist.name,
+        nameSearchResults,
+      )
     }
 
     return relatedArtists
