@@ -70,6 +70,7 @@ export class Spotify {
       value: searchTerm,
       type: ['album'],
     })
+    console.log('firstPage', firstPage)
 
     if (!firstPage.albums?.total) {
       throw new Error('could not fetch first page of albums search term')
@@ -77,7 +78,8 @@ export class Spotify {
 
     const albumOffsetToFetch = random(
       0,
-      Math.min(firstPage.albums.total - 1, poolLimit),
+      // Math.min(firstPage.albums.total - 1, poolLimit),
+      Math.min(firstPage.albums.total - 1, 5),
     )
 
     if (albumOffsetToFetch < firstPage.albums.items.length - 1) {
@@ -90,6 +92,7 @@ export class Spotify {
       limit: 1,
       offset: albumOffsetToFetch,
     })
+    console.log('resp', resp)
 
     if (!resp.albums?.items?.[0]) {
       throw new Error(`could not fetch album for search term from offset`)
@@ -727,6 +730,7 @@ const initializeFromRequest = async (req: Request, ctx: AppLoadContext) => {
                 : undefined,
               request: {
                 url,
+                headers: options.headers,
                 ...omit(options, ['headers']),
               },
               response: pick(response, ['status']),

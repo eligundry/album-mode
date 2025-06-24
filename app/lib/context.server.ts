@@ -28,7 +28,9 @@ export const getRequestContextValues = (
     logger: requestLogger,
   })
 
-  requestLogger.info(undefined)
+  if (!env.DISABLE_REQUEST_LOGGING) {
+    requestLogger.info(undefined)
+  }
 
   return {
     ...context,

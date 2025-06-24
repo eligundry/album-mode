@@ -24,6 +24,8 @@ export const envSchema = z.object({
   TURSO_DATABASE_URL: z.string().url(),
   TURSO_DATABASE_AUTH_TOKEN: z.string(),
   LOCAL_DATABASE_URL: z.string().url(),
+  LOG: z.coerce.boolean().default(false),
+  DISABLE_REQUEST_LOGGING: z.coerce.boolean().default(false),
 })
 
 export const webAppEnvSchema = envSchema.extend({
