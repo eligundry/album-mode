@@ -129,17 +129,6 @@ export default function Index() {
                   Spotify Library
                 </ButtonLink>
                 <ButtonLink
-                  to="/spotify/currently-playing"
-                  disabled={loading}
-                  className={clsx(
-                    'breadcrumbs',
-                    ['btn-xs', 'py-0'],
-                    ['sm:btn-sm'],
-                  )}
-                >
-                  Currently Playing
-                </ButtonLink>
-                <ButtonLink
                   to="/spotify/top-artists"
                   disabled={loading}
                   className={clsx(
@@ -161,17 +150,6 @@ export default function Index() {
                 >
                   Top Artists Relations
                 </ButtonLink>
-                <ButtonLink
-                  to="/spotify/for-you"
-                  disabled={loading}
-                  className={clsx(
-                    'breadcrumbs',
-                    ['btn-xs', 'py-0'],
-                    ['sm:btn-sm'],
-                  )}
-                >
-                  For You
-                </ButtonLink>
               </>
             )}
             <ButtonLink
@@ -180,20 +158,6 @@ export default function Index() {
               className={clsx('breadcrumbs', ['btn-xs', 'py-0'], ['sm:btn-sm'])}
             >
               New Release
-            </ButtonLink>
-            <ButtonLink
-              to="/spotify/featured-playlist"
-              disabled={loading}
-              className={clsx('breadcrumbs', ['btn-xs', 'py-0'], ['sm:btn-sm'])}
-            >
-              Featured Playlist
-            </ButtonLink>
-            <ButtonLink
-              to="/spotify/categories"
-              disabled={loading}
-              className={clsx('breadcrumbs', ['btn-xs', 'py-0'], ['sm:btn-sm'])}
-            >
-              Playlist Categories
             </ButtonLink>
           </ButtonLinkGroupWrapper>
         </HomeSection>

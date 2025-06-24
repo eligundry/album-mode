@@ -6,7 +6,6 @@ import {
   MaxInt,
   SdkOptions,
   SimplifiedAlbum,
-  SimplifiedPlaylist,
   SpotifyApi,
 } from '@spotify/web-api-ts-sdk'
 import crypto from 'crypto'
@@ -77,7 +76,8 @@ export class Spotify {
 
     const albumOffsetToFetch = random(
       0,
-      Math.min(firstPage.albums.total - 1, poolLimit),
+      // Math.min(firstPage.albums.total - 1, poolLimit),
+      Math.min(firstPage.albums.total - 1, 5),
     )
 
     if (albumOffsetToFetch < firstPage.albums.items.length - 1) {
@@ -235,20 +235,70 @@ export class Spotify {
   }
 
   getRandomAlbumForRelatedArtistByID = async (artistID: string) => {
-    // Next, we need to fetch the related artists
-    const relatedArtists = await this.api.artists.relatedArtists(artistID)
+    // Get the artist details to search for similar artists
+    const artist = await this.api.artists.get(artistID)
 
-    if (!relatedArtists.artists.length) {
-      throw new Error('could not fetch related artists')
+    // If artist popularity is less than 40, use genre search instead
+    if (artist.popularity < 40 && artist.genres.length > 0) {
+      const randomGenre = sample(artist.genres)
+      if (randomGenre) {
+        return this.getRandomAlbumByGenre(randomGenre)
+      }
     }
 
-    // Find a random related artist (or the artist that was provided in the
-    // original search term)
-    const targetArtistID = sample([
-      artistID,
-      ...relatedArtists.artists.map((a) => a.id),
-      artistID,
-    ])
+    let relatedArtists: any[] = []
+
+    // Strategy 1: Search by genre first (primary approach)
+    if (artist.genres.length > 0) {
+      const randomGenre = sample(artist.genres)
+      const genreSearchResults = await this.search({
+        value: `genre:"${randomGenre}"`,
+        type: ['artist'],
+        limit: 50,
+      })
+      relatedArtists =
+        genreSearchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+    }
+
+    // Strategy 2: If no genre results, try multiple genres
+    if (!relatedArtists.length && artist.genres.length > 1) {
+      const shuffledGenres = sampleSize(
+        artist.genres,
+        Math.min(3, artist.genres.length),
+      )
+      const multiGenreQuery = shuffledGenres
+        .map((g: string) => `genre:"${g}"`)
+        .join(' OR ')
+      const multiGenreResults = await this.search({
+        value: multiGenreQuery,
+        type: ['artist'],
+        limit: 50,
+      })
+      relatedArtists =
+        multiGenreResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+    }
+
+    // Strategy 3: Name-based search as last resort, with intersection filtering
+    if (!relatedArtists.length) {
+      const searchResults = await this.search({
+        value: artist.name,
+        type: ['artist'],
+        limit: 50,
+      })
+
+      const nameSearchResults =
+        searchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+      relatedArtists = this.filterNameIntersections(
+        artist.name,
+        nameSearchResults,
+      )
+    }
+
+    // Find a random related artist (or fall back to the original artist)
+    const targetArtistID =
+      relatedArtists.length > 0
+        ? sample([artistID, ...relatedArtists.map((a) => a.id), artistID])
+        : artistID
 
     if (!targetArtistID) {
       throw new Error('could not sample to find target artist')
@@ -256,6 +306,62 @@ export class Spotify {
 
     // Finally, return a random album from the targetArtist
     return this.getRandomAlbumForArtistByID(targetArtistID)
+  }
+
+  // Helper method to filter out artists with simple name intersections
+  private filterNameIntersections = (
+    originalName: string,
+    artists: any[],
+  ): any[] => {
+    const originalWords = originalName.toLowerCase().split(/\s+/)
+
+    return artists.filter((artist) => {
+      const artistWords = artist.name.toLowerCase().split(/\s+/)
+
+      // Count meaningful word intersections (ignore common words)
+      const commonWords = new Set([
+        'the',
+        'and',
+        'or',
+        'of',
+        'in',
+        'at',
+        'to',
+        'a',
+        'an',
+      ])
+      const meaningfulOriginalWords = originalWords.filter(
+        (word: string) => !commonWords.has(word) && word.length > 2,
+      )
+      const meaningfulArtistWords = artistWords.filter(
+        (word: string) => !commonWords.has(word) && word.length > 2,
+      )
+
+      // Check for substring matches that might indicate name padding (like "MC", "DJ", etc.)
+      const hasSubstringMatch = meaningfulOriginalWords.some((origWord) =>
+        meaningfulArtistWords.some(
+          (artistWord: string) =>
+            origWord.includes(artistWord) || artistWord.includes(origWord),
+        ),
+      )
+
+      // Filter out if there's too much overlap or obvious name padding
+      const overlapRatio =
+        meaningfulOriginalWords.length > 0
+          ? meaningfulOriginalWords.filter((word) =>
+              meaningfulArtistWords.some(
+                (artistWord: string) =>
+                  artistWord.includes(word) || word.includes(artistWord),
+              ),
+            ).length / meaningfulOriginalWords.length
+          : 0
+
+      // Keep artists with low overlap or no obvious substring matches
+      return (
+        overlapRatio < 0.5 &&
+        (!hasSubstringMatch || meaningfulOriginalWords.length === 0)
+      )
+    })
   }
 
   async getRandomAlbumForLabel(label: string) {
@@ -431,78 +537,6 @@ export class Spotify {
     }
   }
 
-  getRandomFeaturedPlaylist = async (): Promise<SimplifiedPlaylist> => {
-    // @ts-ignore
-    let resp = await this.api.browse.getFeaturedPlaylists(this.country)
-    let offset = random(0, resp.playlists.total - 1)
-
-    if (offset > resp.playlists.items.length - 1) {
-      resp = await this.api.browse.getFeaturedPlaylists(
-        // @ts-ignore
-        this.country,
-        undefined,
-        undefined,
-        1,
-        offset,
-      )
-      offset = 0
-    }
-
-    const playlist = resp.playlists.items[offset]
-
-    if (playlist.id === this.lastPresentedID) {
-      return this.getRandomFeaturedPlaylist()
-    }
-
-    return playlist
-  }
-
-  getCategories = async () => {
-    const resp = await this.api.browse.getCategories(
-      // @ts-ignore
-      this.country,
-      undefined,
-      50,
-    )
-
-    return resp.categories.items
-  }
-
-  getCategory = async (categoryID: string) => {
-    const categories = await this.getCategories()
-    return categories.find((category) => category.id === categoryID)
-  }
-
-  getRandomPlaylistForCategory = async (
-    categoryID: string,
-  ): Promise<SimplifiedPlaylist> => {
-    let resp = await this.api.browse.getPlaylistsForCategory(
-      categoryID,
-      // @ts-ignore
-      this.country,
-    )
-    let offset = random(0, resp.playlists.total - 1)
-
-    if (offset > resp.playlists.items.length - 1) {
-      resp = await this.api.browse.getPlaylistsForCategory(
-        categoryID,
-        // @ts-ignore
-        this.country,
-        1,
-        offset,
-      )
-      offset = 0
-    }
-
-    const playlist = resp.playlists.items[offset]
-
-    if (!playlist || playlist.id === this.lastPresentedID) {
-      return this.getRandomPlaylistForCategory(categoryID)
-    }
-
-    return playlist
-  }
-
   searchArists = async (term: string): Promise<SpotifyArtist[]> => {
     const results = await this.search({
       value: term,
@@ -516,40 +550,6 @@ export class Spotify {
         image: artist.images.at(-1),
       })) ?? []
     )
-  }
-
-  getTopArtists = async (): Promise<SpotifyArtist[]> => {
-    // https://open.spotify.com/playlist/37i9dQZEVXbLp5XoPON0wI?si=ec81b7dcedf843a4
-    const topSongsPlaylist = await this.api.playlists.getPlaylist(
-      '37i9dQZEVXbLp5XoPON0wI',
-      this.country,
-    )
-    const topArtistIDs = topSongsPlaylist.tracks.items.reduce((acc, track) => {
-      if ('show' in track.track) {
-        return acc
-      }
-
-      const artistID = track.track?.artists[0].id
-
-      if (artistID) {
-        acc.add(artistID)
-      }
-
-      return acc
-    }, new Set<string>())
-    const artistsResp = await this.api.artists.get([...topArtistIDs])
-    const artists = artistsResp.map((artist) => ({
-      name: artist.name,
-      id: artist.id,
-      image: artist.images.at(-1),
-    }))
-
-    return artists
-  }
-
-  getRandomTopArtist = async () => {
-    const artists = await this.getTopArtists()
-    return sample(artists) ?? artists[0]
   }
 
   getUser = async (): Promise<SpotifyUser | null> => {
@@ -578,36 +578,58 @@ export class Spotify {
   }
 
   getRelatedArtists = async (artistID: string) => {
-    const resp = await this.api.artists.relatedArtists(artistID)
-    return resp.artists
-  }
+    // Get the artist details to search for similar artists
+    const artist = await this.api.artists.get(artistID)
 
-  getRandomForYouPlaylist = async () => {
-    if (!this.api.getAccessToken()) {
-      throw new Error('User must be logged in to use this')
+    let relatedArtists: any[] = []
+
+    // Strategy 1: Search by genre first (primary approach)
+    if (artist.genres.length > 0) {
+      const randomGenre = sample(artist.genres)
+      const genreSearchResults = await this.search({
+        value: `genre:"${randomGenre}"`,
+        type: ['artist'],
+        limit: 50,
+      })
+      relatedArtists =
+        genreSearchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
     }
 
-    const resp = await this.search({
-      value: 'for you',
-      type: ['playlist'],
-      limit: 50,
-    })
-
-    if (!resp.playlists || !resp.playlists.total) {
-      throw new Error('Could not find any playlists')
+    // Strategy 2: If no genre results, try multiple genres
+    if (!relatedArtists.length && artist.genres.length > 1) {
+      const shuffledGenres = sampleSize(
+        artist.genres,
+        Math.min(3, artist.genres.length),
+      )
+      const multiGenreQuery = shuffledGenres
+        .map((g: string) => `genre:"${g}"`)
+        .join(' OR ')
+      const multiGenreResults = await this.search({
+        value: multiGenreQuery,
+        type: ['artist'],
+        limit: 50,
+      })
+      relatedArtists =
+        multiGenreResults.artists?.items.filter((a) => a.id !== artistID) ?? []
     }
 
-    const playlistsBySpotify = resp.playlists.items.filter(
-      (p) => p.owner.uri === 'spotify:user:spotify',
-    )
+    // Strategy 3: Name-based search as last resort, with intersection filtering
+    if (!relatedArtists.length) {
+      const searchResults = await this.search({
+        value: artist.name,
+        type: ['artist'],
+        limit: 50,
+      })
 
-    while (true) {
-      const playlist = sample(playlistsBySpotify)
-
-      if (playlist && playlist.id !== this.lastPresentedID) {
-        return playlist
-      }
+      const nameSearchResults =
+        searchResults.artists?.items.filter((a) => a.id !== artistID) ?? []
+      relatedArtists = this.filterNameIntersections(
+        artist.name,
+        nameSearchResults,
+      )
     }
+
+    return relatedArtists
   }
 
   getUserTopArtists = async (): Promise<SpotifyArtist[]> => {
@@ -727,6 +749,7 @@ const initializeFromRequest = async (req: Request, ctx: AppLoadContext) => {
                 : undefined,
               request: {
                 url,
+                headers: options.headers,
                 ...omit(options, ['headers']),
               },
               response: pick(response, ['status']),

@@ -1,9 +1,6 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import type {
-  Album as FullAlbum,
-  Playlist as FullPlaylist,
-} from '@spotify/web-api-ts-sdk'
+import type { Album as FullAlbum } from '@spotify/web-api-ts-sdk'
 import clsx from 'clsx'
 
 import { getRequestContextValues } from '~/lib/context.server'
@@ -13,7 +10,6 @@ import spotifyLib from '~/lib/spotify.server'
 import Album from '~/components/Album'
 import BandcampAlbum from '~/components/Album/Bandcamp'
 import AlbumErrorBoundary from '~/components/Album/ErrorBoundary'
-import Playlist from '~/components/Album/Playlist'
 import { A, Layout } from '~/components/Base'
 import Debug from '~/components/Debug'
 import TweetEmbed from '~/components/TweetEmbed'
@@ -62,18 +58,19 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
 
       const { itemID, itemType } = tweet.reviewMetadata.spotify
 
-      let embed: FullPlaylist | FullAlbum | undefined
+      let embed: FullAlbum | undefined
 
       switch (itemType) {
-        case 'playlist':
-          embed = await spotify.playlists.getPlaylist(itemID)
-          break
-
         case 'album':
         case 'track': {
           embed = await spotify.albums.get(itemID)
           break
         }
+        case 'playlist':
+          throw serverError({
+            error: `playlist support has been removed`,
+            logger,
+          })
         default:
           throw serverError({
             error: `unsupported spotify embed type ${itemType}`,
@@ -136,12 +133,7 @@ export default function AlbumFromTwitter() {
   ) {
     switch (data.embed.type) {
       case 'album':
-        // @ts-expect-error
         album = <Album album={data.embed} footer={tweet} />
-        break
-      case 'playlist':
-        // @ts-expect-error
-        album = <Playlist playlist={data.embed} footer={tweet} />
         break
     }
   }
