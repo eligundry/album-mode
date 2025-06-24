@@ -69,7 +69,6 @@ export class Spotify {
       value: searchTerm,
       type: ['album'],
     })
-    console.log('firstPage', firstPage)
 
     if (!firstPage.albums?.total) {
       throw new Error('could not fetch first page of albums search term')
@@ -91,7 +90,6 @@ export class Spotify {
       limit: 1,
       offset: albumOffsetToFetch,
     })
-    console.log('resp', resp)
 
     if (!resp.albums?.items?.[0]) {
       throw new Error(`could not fetch album for search term from offset`)
