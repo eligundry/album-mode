@@ -10,7 +10,7 @@ export const loader: LoaderFunction = async ({ request, context }) => {
   const spotify = await spotifyLib.initializeFromRequest(request, context)
   const artists = await (artist
     ? spotify.searchArists(artist)
-    : spotify.getTopArtists())
+    : spotify.getUserTopArtists())
 
   return json(artists, {
     headers: {

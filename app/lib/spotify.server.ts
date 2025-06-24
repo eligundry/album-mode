@@ -6,7 +6,6 @@ import {
   MaxInt,
   SdkOptions,
   SimplifiedAlbum,
-  SimplifiedPlaylist,
   SpotifyApi,
 } from '@spotify/web-api-ts-sdk'
 import crypto from 'crypto'
@@ -532,78 +531,6 @@ export class Spotify {
     }
   }
 
-  getRandomFeaturedPlaylist = async (): Promise<SimplifiedPlaylist> => {
-    // @ts-ignore
-    let resp = await this.api.browse.getFeaturedPlaylists(this.country)
-    let offset = random(0, resp.playlists.total - 1)
-
-    if (offset > resp.playlists.items.length - 1) {
-      resp = await this.api.browse.getFeaturedPlaylists(
-        // @ts-ignore
-        this.country,
-        undefined,
-        undefined,
-        1,
-        offset,
-      )
-      offset = 0
-    }
-
-    const playlist = resp.playlists.items[offset]
-
-    if (playlist.id === this.lastPresentedID) {
-      return this.getRandomFeaturedPlaylist()
-    }
-
-    return playlist
-  }
-
-  getCategories = async () => {
-    const resp = await this.api.browse.getCategories(
-      // @ts-ignore
-      this.country,
-      undefined,
-      50,
-    )
-
-    return resp.categories.items
-  }
-
-  getCategory = async (categoryID: string) => {
-    const categories = await this.getCategories()
-    return categories.find((category) => category.id === categoryID)
-  }
-
-  getRandomPlaylistForCategory = async (
-    categoryID: string,
-  ): Promise<SimplifiedPlaylist> => {
-    let resp = await this.api.browse.getPlaylistsForCategory(
-      categoryID,
-      // @ts-ignore
-      this.country,
-    )
-    let offset = random(0, resp.playlists.total - 1)
-
-    if (offset > resp.playlists.items.length - 1) {
-      resp = await this.api.browse.getPlaylistsForCategory(
-        categoryID,
-        // @ts-ignore
-        this.country,
-        1,
-        offset,
-      )
-      offset = 0
-    }
-
-    const playlist = resp.playlists.items[offset]
-
-    if (!playlist || playlist.id === this.lastPresentedID) {
-      return this.getRandomPlaylistForCategory(categoryID)
-    }
-
-    return playlist
-  }
-
   searchArists = async (term: string): Promise<SpotifyArtist[]> => {
     const results = await this.search({
       value: term,
@@ -617,40 +544,6 @@ export class Spotify {
         image: artist.images.at(-1),
       })) ?? []
     )
-  }
-
-  getTopArtists = async (): Promise<SpotifyArtist[]> => {
-    // https://open.spotify.com/playlist/37i9dQZEVXbLp5XoPON0wI?si=ec81b7dcedf843a4
-    const topSongsPlaylist = await this.api.playlists.getPlaylist(
-      '37i9dQZEVXbLp5XoPON0wI',
-      this.country,
-    )
-    const topArtistIDs = topSongsPlaylist.tracks.items.reduce((acc, track) => {
-      if ('show' in track.track) {
-        return acc
-      }
-
-      const artistID = track.track?.artists[0].id
-
-      if (artistID) {
-        acc.add(artistID)
-      }
-
-      return acc
-    }, new Set<string>())
-    const artistsResp = await this.api.artists.get([...topArtistIDs])
-    const artists = artistsResp.map((artist) => ({
-      name: artist.name,
-      id: artist.id,
-      image: artist.images.at(-1),
-    }))
-
-    return artists
-  }
-
-  getRandomTopArtist = async () => {
-    const artists = await this.getTopArtists()
-    return sample(artists) ?? artists[0]
   }
 
   getUser = async (): Promise<SpotifyUser | null> => {
@@ -731,34 +624,6 @@ export class Spotify {
     }
 
     return relatedArtists
-  }
-
-  getRandomForYouPlaylist = async () => {
-    if (!this.api.getAccessToken()) {
-      throw new Error('User must be logged in to use this')
-    }
-
-    const resp = await this.search({
-      value: 'for you',
-      type: ['playlist'],
-      limit: 50,
-    })
-
-    if (!resp.playlists || !resp.playlists.total) {
-      throw new Error('Could not find any playlists')
-    }
-
-    const playlistsBySpotify = resp.playlists.items.filter(
-      (p) => p.owner.uri === 'spotify:user:spotify',
-    )
-
-    while (true) {
-      const playlist = sample(playlistsBySpotify)
-
-      if (playlist && playlist.id !== this.lastPresentedID) {
-        return playlist
-      }
-    }
   }
 
   getUserTopArtists = async (): Promise<SpotifyArtist[]> => {

@@ -23,7 +23,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
     case 'artist':
       const spotify = await spotifyLib.initializeFromRequest(request, context)
-      const artist = await spotify.getRandomTopArtist()
+      const artists = await spotify.getUserTopArtists()
+      const artist = sample(artists) ?? artists[0]
+      if (!artist) {
+        return redirect(`/genre/random?from=play-me-something`)
+      }
       return redirect(`/spotify/artist-id/${artist.id}?from=play-me-something`)
 
     default:
