@@ -9,6 +9,9 @@ fi
 
 cd "$CLAUDE_PROJECT_DIR"
 
+# Netlify site ID for album-mode.party
+ALBUM_MODE_SITE_ID=5bc14dab-b8e9-463a-8e8a-839e1b8735fe
+
 # Use the pnpm version pinned in package.json
 corepack enable >/dev/null 2>&1 || true
 
@@ -17,9 +20,24 @@ pnpm install
 # Static assets that the build normally generates (gitignored)
 pnpm run partytown
 
-# Create a .env for local development if one doesn't exist. Values already set
-# in the environment (e.g. secrets configured on the cloud environment) win,
-# otherwise placeholders are used so the env schema validates and the app boots.
+# Expose local binaries (netlify, vitest, eslint, ...) on PATH and point the
+# Netlify CLI at the album-mode site for the rest of the session
+if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
+  {
+    echo "export PATH=\"$CLAUDE_PROJECT_DIR/node_modules/.bin:\$PATH\""
+    echo 'export NETLIFY_TELEMETRY_DISABLED=1'
+    echo "export NETLIFY_SITE_ID=$ALBUM_MODE_SITE_ID"
+  } >> "$CLAUDE_ENV_FILE"
+fi
+
+# With a Netlify token, `netlify dev` injects the site's env vars (Turso,
+# Spotify, etc). A .env would take precedence over them, so don't write one.
+if [ -n "${NETLIFY_AUTH_TOKEN:-}" ]; then
+  exit 0
+fi
+
+# Without Netlify access, create a .env with placeholders so the env schema
+# validates and the app boots against a local SQLite database.
 if [ ! -f .env ]; then
   write_env() {
     local key="$1" default="$2"
@@ -51,9 +69,3 @@ if (url.startsWith('file:')) {
   console.log('Migrated local database at ' + url)
 }
 "
-
-# Expose local binaries (netlify, vitest, eslint, ...) on PATH for the session
-if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-  echo "export PATH=\"$CLAUDE_PROJECT_DIR/node_modules/.bin:\$PATH\"" >> "$CLAUDE_ENV_FILE"
-  echo 'export NETLIFY_TELEMETRY_DISABLED=1' >> "$CLAUDE_ENV_FILE"
-fi
