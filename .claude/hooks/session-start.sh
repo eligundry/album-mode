@@ -7,18 +7,13 @@ if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
   exit 0
 fi
 
+# Run in the background so the session starts while dependencies install
+echo '{"async": true, "asyncTimeout": 300000}'
+
 cd "$CLAUDE_PROJECT_DIR"
 
 # Netlify site ID for album-mode.party
 ALBUM_MODE_SITE_ID=5bc14dab-b8e9-463a-8e8a-839e1b8735fe
-
-# Use the pnpm version pinned in package.json
-corepack enable >/dev/null 2>&1 || true
-
-pnpm install
-
-# Static assets that the build normally generates (gitignored)
-pnpm run partytown
 
 # Expose local binaries (netlify, vitest, eslint, ...) on PATH and point the
 # Netlify CLI at the album-mode site for the rest of the session
@@ -29,6 +24,14 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
     echo "export NETLIFY_SITE_ID=$ALBUM_MODE_SITE_ID"
   } >> "$CLAUDE_ENV_FILE"
 fi
+
+# Use the pnpm version pinned in package.json
+corepack enable >/dev/null 2>&1 || true
+
+pnpm install
+
+# Static assets that the build normally generates (gitignored)
+pnpm run partytown
 
 # With a Netlify token, `netlify dev` injects the site's env vars (Turso,
 # Spotify, etc). A .env would take precedence over them, so don't write one.
