@@ -1,0 +1,59 @@
+#!/bin/bash
+# SessionStart hook for Claude Code cloud sessions: installs dependencies and
+# prepares the app so it can be launched with `netlify dev`.
+set -euo pipefail
+
+if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
+  exit 0
+fi
+
+cd "$CLAUDE_PROJECT_DIR"
+
+# Use the pnpm version pinned in package.json
+corepack enable >/dev/null 2>&1 || true
+
+pnpm install
+
+# Static assets that the build normally generates (gitignored)
+pnpm run partytown
+
+# Create a .env for local development if one doesn't exist. Values already set
+# in the environment (e.g. secrets configured on the cloud environment) win,
+# otherwise placeholders are used so the env schema validates and the app boots.
+if [ ! -f .env ]; then
+  write_env() {
+    local key="$1" default="$2"
+    printf "%s='%s'\n" "$key" "${!key:-$default}" >> .env
+  }
+  : > .env
+  write_env NODE_ENV development
+  write_env AUTH_SECRETS '["local-dev-secret"]'
+  write_env SPOTIFY_CLIENT_ID placeholder
+  write_env SPOTIFY_CLIENT_SECRET placeholder
+  write_env TURSO_DATABASE_URL "file:data.db"
+  write_env TURSO_DATABASE_AUTH_TOKEN placeholder
+  write_env GROWTHBOOK_CLIENT_KEY ''
+  write_env OG_API_URL http://localhost:3001
+fi
+
+# When pointed at a local SQLite file, make sure its schema is migrated
+node --input-type=module -e "
+import 'dotenv/config'
+import { createClient } from '@libsql/client'
+import { drizzle } from 'drizzle-orm/libsql'
+import { migrate } from 'drizzle-orm/libsql/migrator'
+
+const url = process.env.TURSO_DATABASE_URL ?? ''
+if (url.startsWith('file:')) {
+  const client = createClient({ url })
+  await migrate(drizzle(client), { migrationsFolder: './migrations' })
+  client.close()
+  console.log('Migrated local database at ' + url)
+}
+"
+
+# Expose local binaries (netlify, vitest, eslint, ...) on PATH for the session
+if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
+  echo "export PATH=\"$CLAUDE_PROJECT_DIR/node_modules/.bin:\$PATH\"" >> "$CLAUDE_ENV_FILE"
+  echo 'export NETLIFY_TELEMETRY_DISABLED=1' >> "$CLAUDE_ENV_FILE"
+fi
